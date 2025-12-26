@@ -8,10 +8,13 @@ An Ionic Angular mobile application for rural tourism in Sabah. This project sup
 # 1. Install dependencies
 npm install --legacy-peer-deps
 
-# 2. Start the development server
+# 2. Start the development server (Ionic - port 8100)
+npx ionic serve
+
+# Or use Angular CLI (port 4200)
 npx ng serve --open
 
-# The app will open at http://localhost:4200
+# The app will open at http://localhost:8100 (Ionic) or http://localhost:4200 (Angular)
 ```
 
 > ⚠️ **Note**: Make sure your backend API is running at `http://localhost:3000/api` before starting the application.
@@ -99,7 +102,15 @@ Make sure your **backend API server is running** on port 3000:
 
 ### Development Server
 
-**Recommended Method** (using Angular CLI directly):
+**Method 1: Ionic CLI** (Recommended for Ionic features - port 8100):
+
+```bash
+npx ionic serve
+```
+
+The application will be available at: **http://localhost:8100**
+
+**Method 2: Angular CLI** (For standard Angular development - port 4200):
 
 ```bash
 npx ng serve --open
@@ -107,21 +118,19 @@ npx ng serve --open
 
 The application will be available at: **http://localhost:4200**
 
-**Alternative Methods**:
+**Method 3: Ionic Lab** (Shows iOS and Android preview side by side):
 
 ```bash
-# Using Ionic CLI (if globally installed)
-ionic serve
-
-# Using npm scripts with Ionic Lab
 npm start
 ```
 
-Alternative ports:
+The application will be available at: **http://localhost:8200**
 
-- **Angular CLI**: `http://localhost:4200`
-- **Ionic serve**: `http://localhost:8100`
-- **Ionic Lab**: `http://localhost:8200` (when using `npm start`)
+### Available Ports
+
+- **Ionic serve**: `http://localhost:8100` - Full Ionic features
+- **Angular CLI**: `http://localhost:4200` - Standard Angular dev server
+- **Ionic Lab**: `http://localhost:8200` - Multi-platform preview
 
 ### Production Build
 
