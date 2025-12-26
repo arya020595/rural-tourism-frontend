@@ -93,6 +93,7 @@ npm install -g @angular/cli
 ### Prerequisites Before Running
 
 Make sure your **backend API server is running** on port 3000:
+
 - API Endpoint: `http://localhost:3000/api`
 - Test endpoint: `http://localhost:3000/api/test`
 
@@ -117,6 +118,7 @@ npm start
 ```
 
 Alternative ports:
+
 - **Angular CLI**: `http://localhost:4200`
 - **Ionic serve**: `http://localhost:8100`
 - **Ionic Lab**: `http://localhost:8200` (when using `npm start`)
