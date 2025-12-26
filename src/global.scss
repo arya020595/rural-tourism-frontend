@@ -25,9 +25,6 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-// @import 'swiper/swiper-bundle.min.css';
-
-
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
@@ -39,22 +36,103 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 // @import "@ionic/angular/css/palettes/dark.system.css"
 
-.error-toast{
-    --background: red;
-    color: white;
+/* ============================================
+   TOAST STYLES
+   ============================================ */
+
+.error-toast {
+  --background: #f44336;
+  --color: white;
+  --button-color: white;
 }
 
-.success-toast{
-    --background: green;
-    color: white;
+.success-toast {
+  --background: #4caf50;
+  --color: white;
+  --button-color: white;
 }
+
+.warning-toast {
+  --background: #ff9800;
+  --color: white;
+  --button-color: white;
+}
+
+.info-toast {
+  --background: #2196f3;
+  --color: white;
+  --button-color: white;
+}
+
+/* ============================================
+   LOADING STYLES
+   ============================================ */
+
+.custom-loading {
+  --background: rgba(255, 255, 255, 0.95);
+  --spinner-color: var(--ion-color-primary);
+
+  .loading-wrapper {
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* ============================================
+   FORM VALIDATION STYLES
+   ============================================ */
+
+ion-input.ion-invalid.ion-touched,
+ion-select.ion-invalid.ion-touched,
+ion-textarea.ion-invalid.ion-touched {
+  --border-color: var(--ion-color-danger);
+
+  &::part(native) {
+    border-color: var(--ion-color-danger);
+  }
+}
+
+.validation-error {
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 16px;
+}
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+
+ion-button {
+  --border-radius: 8px;
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+
+ion-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 12px;
+}
+
+/* ============================================
+   STANDALONE MODE (PWA)
+   ============================================ */
 
 /* Apply full-screen styles globally */
-html, body, ion-app, ion-router-outlet {
+html,
+body,
+ion-app,
+ion-router-outlet {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden;
 }
 
 .standalone-app {
@@ -64,14 +142,67 @@ html, body, ion-app, ion-router-outlet {
   overflow: hidden;
 }
 
-.standalone-app .tabs, 
+.standalone-app .tabs,
 .standalone-app .navigation {
-  display: none !important; /* Hide tabs if necessary */
+  display: none !important;
 }
-
 
 .standalone-app .login.page,
 .standalone-app .home.page {
   display: block;
   height: 100%;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.mt-1 {
+  margin-top: 8px;
+}
+
+.mt-2 {
+  margin-top: 16px;
+}
+
+.mb-1 {
+  margin-bottom: 8px;
+}
+
+.mb-2 {
+  margin-bottom: 16px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+/* ============================================
+   RESPONSIVE IMAGES
+   ============================================ */
+
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.img-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
