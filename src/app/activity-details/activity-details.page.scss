@@ -1,0 +1,26 @@
+.red-separator {
+  border-top: 2px solid red;
+  margin: 16px 0;
+}
+
+.royal-btn {
+  --background: royalblue;
+  --background-activated: #add8e6; /* light blue when pressed */
+  --border-radius: 8px;
+  font-weight: bold;
+}
+
+ion-item {
+  --highlight-color-focused: royalblue;
+  margin-bottom: 12px;
+}
+
+ion-card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+ion-button[fill="outline"] {
+  --border-color: royalblue;
+  color: royalblue;
+}

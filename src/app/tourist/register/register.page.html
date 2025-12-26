@@ -1,0 +1,175 @@
+<ion-content class="background" [fullscreen]="true">
+  <ion-card class="register-form">
+
+    <!-- Cancel Button -->
+    <ion-button id="cancel" fill="clear" mode="ios">
+      <ion-icon slot="start" name="chevron-back"></ion-icon>
+      <span>Cancel</span>
+    </ion-button>
+
+    <ion-card-header>
+      <ion-img class="logo" src="../../assets/icon/Feel-Sabah-North-Borneo.png"></ion-img>
+    </ion-card-header>
+
+    <!-- Cancel Alert -->
+    <ion-alert
+      trigger="cancel"
+      header="Adakah anda pasti ingin membatalkan?"
+      subHeader="Are you sure you want to cancel?"
+      [buttons]="cancelButton">
+    </ion-alert>
+
+    <h1>Registration Form</h1>
+    <p>To register, fill in all of the fields provided:</p>
+
+    <!-- Wrap all inputs inside a form -->
+    <form (ngSubmit)="registerUser()">
+      <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Full Name</ion-label>
+        <ion-input
+          [(ngModel)]="full_name"
+          name="full_name"
+          placeholder="Enter your Full Name"
+          class="form-input"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Email Address</ion-label>
+        <ion-input
+          [(ngModel)]="email_address"
+          name="email_address"
+          placeholder="Enter your Email Address"
+          class="form-input"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <!-- Contact Number (inline layout) -->
+       <ion-item class="no-border" style="margin-top: -10px;">
+  <ion-label mode="ios" position="stacked" class="question-label-grey">Contact No.</ion-label>
+  
+  <div style="display: flex; align-items: center; width: 100%;">
+    <!-- Country Code Select -->
+    <ion-select
+      [(ngModel)]="phonePrefix"
+      name="phonePrefix"
+      interface="popover"
+      class="form-input"
+      style="width: 30%; margin-right: 8px;"
+      placeholder="+Code"
+      (ionChange)="onCountryCodeChange($event)">
+      <ion-select-option *ngFor="let country of countries" [value]="country.dial_code">
+        {{ country.name }} ({{ country.dial_code }})
+      </ion-select-option>
+    </ion-select>
+
+    <!-- Contact Number Input -->
+    <ion-input
+      [(ngModel)]="contact_no"
+      name="contact_no"
+      placeholder="Enter number"
+      class="form-input"
+      inputmode="numeric"
+      style="width: 50%;"
+      required
+    ></ion-input>
+  </div>
+</ion-item>
+
+
+
+
+
+      <!-- <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Contact No.</ion-label>
+        <ion-input
+          [(ngModel)]="contact_no"
+          name="contact_no"
+          [placeholder]="'e.g. ' + phoneExample"
+          class="form-input"
+          required
+          inputmode="numeric"
+        >
+          <ion-label slot="start" style="margin-right: 8px;">{{ phonePrefix }}</ion-label>
+        </ion-input>
+      </ion-item> -->
+
+
+      <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Username</ion-label>
+        <ion-input
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Enter your Username"
+          class="form-input"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Password</ion-label>
+        <ion-input
+          [(ngModel)]="password"
+          name="password"
+          type="password"
+          placeholder="Enter your Password"
+          class="form-input"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Confirm Password</ion-label>
+        <ion-input
+          [(ngModel)]="confirm_password"
+          name="confirm_password"
+          type="password"
+          placeholder="Confirm your Password"
+          class="form-input"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <!--Nationality-->
+      <ion-item class="no-border" style="margin-top: -10px;">
+      <ion-label mode="ios" position="stacked" class="question-label-grey">Nationality</ion-label>
+      <ion-select
+        [(ngModel)]="nationality"
+        name="nationality"
+        placeholder="Select your nationality"
+        (ionChange)="onNationalityChange()"
+        class="form-input"
+        required>
+        <ion-select-option *ngFor="let nation of nationalities" [value]="nation">
+          {{ nation }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+      <!-- <ion-item class="no-border" style="margin-top: -10px;">
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Nationality</ion-label>
+        <ion-select
+          [(ngModel)]="nationality"
+          name="nationality"
+          placeholder="Select your nationality"
+          class="form-input"
+          required>
+          <ion-select-option *ngFor="let nation of nationalities" [value]="nation">
+            {{ nation }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item> -->
+
+
+      <!-- Submit Button -->
+      <ion-col>
+        <ion-button mode="ios" expand="block" type="submit">
+          Daftar / Register
+        </ion-button>
+      </ion-col>
+    </form>
+
+  </ion-card>
+</ion-content>

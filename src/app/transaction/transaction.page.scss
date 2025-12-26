@@ -1,0 +1,67 @@
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.details {
+    font-size: 18px;
+
+    // font-size: 25px;
+    font-family: 'Roboto';
+    font-weight: bold;
+    text-transform: uppercase;
+    color: black;
+
+}
+
+.logo{
+    height: 100px;
+}
+
+.title{
+    font-size: 16px;
+    font-weight: bold;
+    color: #024E25;
+    text-align: center;
+}
+
+.voided-receipt {
+    // background-color: #ffe6e6; /* Light red background */
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.voided {
+    // opacity: 0.6;  // Slightly faded appearance for voided transactions
+    // background-color: #f8d7da;  // Light red background for voided
+    color: grey
+  }
+
+// ion-item.voided {
+//     // background-color: #f8d7da; /* Example: red background for voided */
+//     // color: #721c24; /* Example: dark red text */
+//   }
+
+.date-filter {
+  margin-bottom: 10px;
+
+  .date-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    ion-button:first-child {
+      flex: 1;
+    }
+
+    ion-button:last-child {
+      margin-left: 10px;
+    }
+  }
+
+  ion-label {
+    font-weight: bold;
+    color: #2e7d32; // dark green tone
+  }
+}

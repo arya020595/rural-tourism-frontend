@@ -1,0 +1,7 @@
+{
+  "name": "Rural Tourism Sabah",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

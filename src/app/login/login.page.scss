@@ -1,0 +1,145 @@
+ion-content.background{
+    --background: url(../../assets/login.jpg) 0 0/100% 100% ;
+}
+
+.input-login{
+  --border-width: 2px; 
+  --border-radius: 10px; 
+  font-size: 16px;
+}
+.input-login[fill='outline']:focus-within {
+  --border-color: #024E25;  /* Change the border color when focused */
+  
+}
+
+.borneo {
+  display: block;
+  text-align: center;
+  align-items: center;
+  height: auto;
+  width: 800px;
+  margin-top: 20%;
+  padding: 20px;
+}
+
+.ruraltext {
+  margin-right: 40px; 
+}
+
+.loginbutton {
+  margin-top: 15px;
+}
+
+// .registerbutton {
+//   --border
+// }
+
+.forgot-password-text {
+  display: inline-block;
+  // text-align: right;  /* Aligns the link to the left */
+  margin-bottom: 10px; /* Adds some space below the link */
+  
+}
+
+.errorMsg{
+  display: inline-block;
+  text-align: left;  
+  margin-top: 2%;
+  padding-left: 2%;
+  left: 0;
+  color: red;
+}
+
+.subtitle{
+  font-size: 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight:lighter;
+  margin-top: 2%;
+  display: block;
+  text-align: center;
+}
+
+.title {
+  // margin-left: 100px; 
+  display: block;
+  text-align: center;
+  font-family: 'Inter', sans-serif; /* Font family for the label */
+  font-size: 30px; /* Font size for the label */
+  font-weight: bold;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  color: black;
+}
+
+.title2 {
+  margin-left: 87px; 
+  font-family: 'Inter', sans-serif; /* Font family for the label */
+  font-size: 15px; /* Font size for the label */
+  margin-bottom: -25px;
+}
+
+.inputArea{
+   border: solid 1px rgb(215, 215, 215);
+   border-radius: 10px;
+   overflow:hidden;
+}
+
+.no-border {
+  --border-width: 0;
+  --border-style: none;
+}
+
+.card-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    
+   
+
+    ion-card {
+      margin-left: 5%;
+      margin-right: 5%;
+      border-radius: 30px;
+      min-height: 50vh; /* Allow cards to shrink for smaller screens */
+      .ion-blue-bkg {
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+      
+      }
+
+     
+      .logo{
+        height: 100%;
+      }
+      .welcome {
+        #trigger-icon {
+          float: right;
+          margin-bottom: 16px;
+          margin-left: 1%;
+        }
+      }
+    }
+  }
+
+
+  @media screen and (max-width: 576px) {
+    .card-container {
+      ion-card {
+       
+        .ion-blue-bkg {
+          max-height: 100px;
+        }
+        .welcome {
+          min-height: 200px;
+        }
+      }
+    }
+  }
+
+
+

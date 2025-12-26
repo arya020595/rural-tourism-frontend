@@ -1,0 +1,190 @@
+body {
+    background: black
+  }
+  
+  ion-content {
+    --background: none;
+  }
+
+  .details{
+    margin-bottom: 10%;
+    font-size: 12px;
+
+        p{
+            font-size: 25px;
+            font-family: 'Roboto';
+            font-weight: bold;
+            text-transform: uppercase;
+            color: black;
+        }
+  }
+  
+  // .custom-header{
+  //   height: 8vh; box-shadow: none; 
+  //   // background-color: transparent;
+  //   border-radius: 30px;
+  //   border-color: white;
+  // }
+
+  .card-header{
+    border-bottom: 2px solid #161616;
+    margin-bottom: 10%;
+  }
+
+  .date-container {
+    position: absolute;
+    bottom: 10%;
+    right: 0;
+    font-size: 18px;
+    color: #555;
+    font-weight: bold;
+    padding-right: 10px;
+    padding-top: 10px;
+    font-family: monospace;
+  }
+
+  .text-container {
+    position: absolute;
+    bottom: 10%;
+    left: 0;
+    font-size: 18px;
+    color: #555;
+    font-weight: bold;
+    padding-right: 10px;
+    padding-top: 10px;
+    font-family: monospace;
+  }
+
+  .right-content {
+    text-align: center; /* Center the content inside the right container */
+    margin-top: -10%;
+  }
+  
+  .logo{
+      height: 70px;
+      width: 100px;
+      align-items: baseline;
+    }
+  
+    /* home.page.scss */
+  
+  ion-content {
+    background-color: rgb(48, 48, 48);
+    background-size: cover; /* Cover the entire background */
+    background-repeat: no-repeat; /* Prevent tiling */
+    background-position: center; /* Center the image */
+    height: 100vh; /* Ensure it covers the full height */
+    color: white; /* Optional: text color for visibility */
+  }
+  
+  
+    #form ion-item{
+      margin-bottom: 15%;
+    }
+  
+    #form ion-list{
+      padding-right: 5%;
+    }
+  
+    .main-Container{
+      margin-top: 5%;
+      border-radius: 30px;
+      padding:5%;
+      
+    }
+  
+    #container {
+      // text-align: center;
+      // overflow: auto;
+      position: relative;
+      left: 0;
+      right: 0;
+      // top: 0%;
+      // transform: translateY(-50%);
+    }
+
+    .totalRM{
+        border-top: 2px solid #666666;
+        border-bottom: 2px solid #666666;
+    }
+
+    .price-container {
+        // position: absolute;
+        bottom: 10%;
+        right: 0;
+        font-size: 18px;
+        color: #555;
+        font-weight: bold;
+        padding-right: 10px;
+        padding-top: 10px;
+        font-family: monospace;
+      }
+    
+
+      .total{
+        font-size: 12px;
+        
+
+            p{
+                position: relative;
+                top: -10;
+                font-size: 30px;
+                
+            }
+      }
+
+ /* Receipt Footer Styling (Total section) */
+.receipt-footer {
+    padding: 10px 20px;
+    border-top: 2px solid #666666; /* Top border */
+    border-bottom: 2px solid #666666; /* Bottom border */
+    display: flex;
+    flex-direction: column;  /* Stack items vertically */
+      /* Center the content */
+  }
+  
+  /* Styling for Total text and amount */
+  .receipt-total {
+    display: flex;
+    flex-direction: column;  /* Stack Total and Amount vertically */
+    align-items:flex-end;  /* Center the text */
+    width: 100%;  /* Take up full width */
+  }
+  
+  .totalAmt {
+    font-family: 'Roboto';
+    font-size: 16px;
+    color: #555;
+    font-weight: lighter;
+
+  }
+  
+  .amount {
+    font-size: 30px;
+    font-family: 'Roboto';
+    font-weight: bold;
+    color: #0a0e14; /* Amount color */
+    text-transform: uppercase;
+  }
+
+  .qr-section{
+    margin-top: 5%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .btn-home{
+    --background: #024E25;
+    // background-color: #3880ff;
+    height: 50px;
+    margin-top: 5%; 
+    margin-left: 10px; 
+    margin-right: 10px;
+    margin-bottom: 10%;
+  }
+
+  .qr-btn{
+    margin-top: 5%;
+    align-items: center;
+    text-align: center;
+  }

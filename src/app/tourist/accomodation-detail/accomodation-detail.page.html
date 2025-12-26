@@ -1,0 +1,68 @@
+<ion-content [fullscreen]="true">
+
+  <!-- Loading Spinner -->
+  <ion-spinner *ngIf="loading" name="crescent" style="display:block; margin: 20px auto;"></ion-spinner>
+
+  <!-- Error Message -->
+  <div *ngIf="!loading && errorMessage" class="error-message" style="text-align:center; margin:20px; color:red;">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Accommodation Details -->
+  <div *ngIf="!loading && accommodation">
+    
+    <!-- Hero Image -->
+    <div class="image-container">
+      <img [src]="getAccommodationImage(accommodation.image)" alt="{{ accommodation.name }}" />
+    </div>
+
+    <!-- Main Content -->
+    <div class="accomodation-content">
+      <ion-icon name="home"></ion-icon>
+      <h2>{{ accommodation.name }}</h2>
+
+      <ion-icon name="location"></ion-icon>
+      <h3>{{ accommodation.address }}</h3>
+
+      <hr/>
+
+      <h4>About This Location</h4>
+      <p>{{ accommodation.description }}</p>
+
+      <hr/>
+
+      <h4>Provided Amenities</h4>
+      <div *ngIf="accommodation.amenities.length > 0; else noAmenities">
+        <ul class="amenities-list">
+          <li *ngFor="let amenity of (showAllAmenities ? accommodation.amenities : accommodation.amenities.slice(0,5))">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            {{ amenity }}
+          </li>
+        </ul>
+
+        <ion-button class="show-amenities"
+          *ngIf="accommodation.amenities.length > 5"
+          (click)="toggleAmenities()">
+          {{ showAllAmenities ? 'Show less' : 'Show all ' + accommodation.amenities.length + ' amenities' }}
+        </ion-button>
+      </div>
+
+      <ng-template #noAmenities>
+        <p>No amenities listed.</p>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Fixed Footer -->
+  <div class="booking-footer" *ngIf="!loading && accommodation">
+    <div class="price">
+      RM {{ accommodation?.price }} <br/>
+      <small>per night</small>
+    </div>
+
+    <ion-button expand="block" (click)="bookNow()" class="book-now-btn">
+      Book Now
+    </ion-button>
+  </div>
+
+</ion-content>

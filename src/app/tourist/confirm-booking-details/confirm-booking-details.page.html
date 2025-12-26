@@ -1,0 +1,160 @@
+<!-- <ion-content [fullscreen]="true"> -->
+
+  <!-- Close button above logo -->
+  <!-- <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
+    <ion-icon slot="icon-only" name="close"></ion-icon>
+  </ion-button> -->
+
+  <!-- Logo -->
+  <!-- <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img> -->
+
+  <!-- Review Container -->
+  <!-- <div class="review-container">
+    <h1>Review & Continue</h1> -->
+
+    <!-- Booking Card -->
+    <!-- <div class="booking-card"> -->
+
+      <!-- Activity Info Row -->
+      <!-- <div class="activity-header">
+        <ion-img class="activity-preview" src="../../assets/accom.jpg"></ion-img>
+
+        <div class="activity-info">
+          <h2 class="activity-title">Kiulu Water Rafting</h2>
+          <p class="activity-subtitle">
+          <ion-icon name="business-outline"></ion-icon>
+            Seamaui Borneo
+          </p>
+          <p class="activity-location">
+            <ion-icon name="location-outline"></ion-icon>
+            Kiulu, Kota Kinabalu
+          </p>
+        </div>
+      </div>
+
+      <hr /> -->
+
+      <!-- Date Row -->
+      <!-- <div class="review-row">
+        <div>
+          <h2>Date</h2>
+          <p>Saturday - Oct 10, 2025</p>
+        </div>
+        <ion-button class="mini-btn" fill="solid">Change</ion-button>
+      </div>
+      <hr /> -->
+
+      <!-- Pax Row -->
+      <!-- <div class="review-row">
+        <div>
+          <h2>No. of Pax</h2>
+          <p>2 Pax</p>
+        </div>
+        <ion-button class="mini-btn" fill="solid">Change</ion-button>
+      </div>
+      <hr /> -->
+
+      <!-- Price Row -->
+      <!-- <div class="review-row">
+        <div>
+          <h2>Total Price (RM)</h2>
+          <p>RM 30.00</p>
+        </div>
+      </div>
+      <hr />
+
+      <h3>This booking is non - refundable</h3>
+    </div>
+  </div> -->
+
+  <!-- Confirm Button -->
+  <!-- <ion-button class="confirm-booking-btn" expand="block">
+    Confirm Booking
+  </ion-button>
+
+</ion-content> -->
+
+
+<ion-content [fullscreen]="true">
+
+  <!-- Close Button -->
+  <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
+    <ion-icon slot="icon-only" name="close"></ion-icon>
+  </ion-button>
+
+  <!-- Logo -->
+  <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+
+  <!-- Review Container -->
+  <div class="review-container">
+    <h1>Review & Continue</h1>
+
+    <!-- Booking Card -->
+    <div class="booking-card">
+
+      <!-- Activity & Operator Info -->
+      <div class="activity-header">
+        <!-- Operator Image -->
+        <ion-img
+          class="activity-preview"
+          [src]="bookingData.operator_image || 'assets/images/default-operator.jpg'">
+        </ion-img>
+
+        <div class="activity-info">
+          <h2 class="activity-title">{{ bookingData.activity_name || 'Activity Name' }}</h2>
+          <p class="activity-subtitle">
+            <ion-icon name="business-outline"></ion-icon>
+            {{ bookingData.operator_name || 'Operator Name' }}
+          </p>
+          <p class="activity-location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ bookingData.location || 'Location' }}
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Date Row -->
+      <div class="review-row">
+        <div>
+          <h2>Date</h2>
+          <p>{{ bookingData.date | date:'fullDate' }}</p>
+        </div>
+        <ion-button class="mini-btn" fill="solid" (click)="changeDate()">Change</ion-button>
+      </div>
+      <hr />
+
+      <!-- Pax Row -->
+      <div class="review-row">
+        <div>
+          <h2>No. of Pax</h2>
+          <p>{{ bookingData.no_of_pax }} Pax</p>
+        </div>
+        <ion-button class="mini-btn" fill="solid" (click)="changePax()">Change</ion-button>
+      </div>
+      <hr />
+
+      <!-- Price Row -->
+      <div class="review-row">
+        <div>
+          <h2>Total Price (RM)</h2>
+          <p>RM {{ bookingData.total_price | number:'1.2-2' }}</p>
+        </div>
+      </div>
+      <hr />
+
+      <h3>This booking is non-refundable</h3>
+    </div>
+  </div>
+
+  <!-- Confirm Button -->
+  <ion-button
+    class="confirm-booking-btn"
+    expand="block"
+    [disabled]="isSubmitting"
+    (click)="confirmBooking()">
+    Confirm Booking
+  </ion-button>
+
+</ion-content>

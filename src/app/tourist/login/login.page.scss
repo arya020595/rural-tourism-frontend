@@ -1,0 +1,62 @@
+ion-content.background{
+    --background: url(../../../assets/login.jpg) 0 0/100% 100% ;
+}
+
+.input-login{
+  --border-width: 2px; 
+  --border-radius: 10px; 
+  font-size: 16px;
+}
+
+ion-item{
+    width: 85%;
+    margin-left: auto;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-right: auto;
+}
+
+.success-toast {
+  --background: #4caf50; /* Green background */
+  --color: #fff; /* White text */
+  --border-radius: 10px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+}
+
+
+    ion-card {
+      margin-left: 5%;
+      margin-right: 5%;
+      border-radius: 30px;
+      min-height: 50vh; /* Allow cards to shrink for smaller screens */
+
+      .ion-blue-bkg {
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 60%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      h1, p{
+        text-align: center;
+      }
+
+      h1{
+        font-weight: bold;
+        color: #000000;
+      }
+
+      .custom-label{
+        font-weight: bold;
+        margin-left: 30px;
+        color: #000000;
+      }
+  }

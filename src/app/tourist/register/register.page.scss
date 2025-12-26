@@ -1,0 +1,31 @@
+ion-content.background{
+    --background: url(../../../assets/login.jpg) 0 0/100% 100% ;
+}
+
+.logo{
+    height: 70px;
+}
+
+ion-label{
+    margin-top: 20px;
+}
+  
+.register-form{
+    padding: 20px;
+    color: #000000;
+}
+
+.register-form h1{
+    text-align: center;
+}
+
+.register-form p{
+    text-align: center;
+}
+
+.form-input{
+    --background: #f0f0f0;
+    --padding-start: 10px; 
+    --padding-end: 20px;
+}
+  

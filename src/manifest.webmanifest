@@ -1,0 +1,32 @@
+{
+  "name": "Rural Tourism",
+  "short_name": "Rural Tourism",
+  "id": "/",
+  "theme_color": "#1976d2",
+  "background_color": "#fafafa",
+  "orientation": "potrait-primary",
+  "display": "standalone",
+  "description": "Connecting Rural Tourism In Sabah!",
+  "scope": "/",
+  "start_url": "/login",
+  "icons": [
+    {
+      "src": "assets/icon/Rural_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icon/Rural_144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icon/Rural_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

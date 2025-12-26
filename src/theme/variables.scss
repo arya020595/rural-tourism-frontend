@@ -1,0 +1,19 @@
+// For information on how to create your own theme, please see:
+// http://ionicframework.com/docs/theming/
+
+/* Primary color (default is blue) */
+:root {
+    --ion-color-primary: #024E25; /* Change to green */
+    --ion-color-primary-rgb: 76, 175, 80;
+    --ion-color-primary-contrast: #ffffff; /* White text for contrast */
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #024E25;
+    --ion-color-primary-tint: #66bb6a;
+  
+    /* You can change other default colors as well */
+    --ion-color-secondary: #FF5722; /* Example of changing the secondary color */
+    --ion-color-tertiary: #9C27B0;  /* Example of changing the tertiary color */
+    --ion-color-success: #4CAF50;   /* Example of success color */
+    --ion-color-warning: #FF9800;   /* Example of warning color */
+    --ion-color-danger: #F44336;    /* Example of danger color */
+  }

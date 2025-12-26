@@ -1,0 +1,59 @@
+.red-separator {
+  border-top: 2px solid red;
+  margin: 16px 0;
+}
+
+.royal-btn {
+  --background: royalblue;
+  --background-activated: #add8e6; /* light blue when pressed */
+  --border-radius: 8px;
+  font-weight: bold;
+}
+
+ion-item {
+  --highlight-color-focused: royalblue;
+  margin-bottom: 4px;
+}
+
+.aktiviti-list ion-item {
+  padding-left: 30px;
+  background: #f8f9ff;
+  --background: #f8f9ff;
+}
+
+.destination-card {
+  margin: 12px 0;
+  cursor: pointer;
+
+.card-background {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+
+.overlay {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+
+h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 4px 0 0;
+        font-size: 14px;
+      }
+    }
+  }
+
+&.active .card-background {
+    border: 2px solid var(--ion-color-primary);
+  }
+}

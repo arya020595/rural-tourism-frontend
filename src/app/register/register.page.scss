@@ -1,0 +1,144 @@
+body {
+    background: url(/src/assets/firstpg.jpg) no-repeat center/cover fixed;
+    overflow-y: scroll; 
+  }
+  
+  ion-content {
+    --background: none;
+  }
+  
+  ion-header{
+    --background: #024E25 !important; 
+  }
+  .transparent-header {
+    --background: transparent !important;  /* Set the background of the header to transparent */
+    --box-shadow: none !important;         /* Remove any default box shadow */
+    --color: transparent !important;       /* Ensure text and icon colors are set */
+  }
+  
+  ion-toolbar {
+    --background: transparent !important;  /* Make the toolbar background transparent */
+  }
+  
+  ion-back-button {
+    --color: white;             /* Change the color of the back button if needed */
+  }
+  
+  ion-title {
+    color: white;               /* Adjust title color for visibility */
+  }
+  
+  .custom-header{
+    // height: 8vh; box-shadow: none; 
+    background-color: transparent !important;
+    --background: transparent !important;
+    // border-radius: 30px;
+    // border-color: white;
+  }
+  
+  .logo{
+      height: 70px;
+    }
+  
+    /* home.page.scss */
+  
+  ion-content {
+    background-image: url(../../assets/firstpg.jpg);
+    background-size: cover; /* Cover the entire background */
+    background-repeat: no-repeat; /* Prevent tiling */
+    background-position: center; /* Center the image */
+    height: 100vh; /* Ensure it covers the full height */
+    color: white; /* Optional: text color for visibility */
+  }
+  
+  .question-label{
+    font-size: 18px;
+    font-weight: bold;
+    color: #024E25;
+    margin-bottom: 0px;
+  }
+
+  .question-label-grey{
+    font-size: 14px;
+    font-weight: lighter;
+    color: #202020;
+    // margin-bottom: 1%;
+  }
+  
+  .no-border {
+    --border-width: 0;
+    --border-style: none;
+  }
+  
+  .form-input{
+    --background: #f0f0f0;
+    --padding: 20px;
+  }
+  
+    #form ion-item{
+      margin-bottom: 12%;
+    }
+  
+    .highlighted {
+      --background: #024e254e !important;
+      // background-color: #7adbe8;  /* Light blue background */
+      color: #024E25;  /* Text color */
+      border: 2px solid #024E25 !important;
+      font-weight: bold;
+    }
+    .form-container{
+      padding-right: 5%;
+      margin-left: 3%;
+    }
+  
+    .main-Container{
+      margin-top: 5%;
+      border-radius: 30px;
+      height: 100% !important;
+      // overflow: hidden;
+      // overflow-y: auto;
+    }
+  
+    #container {
+      // text-align: center;
+      // overflow: auto;
+      position: relative;
+      left: 0;
+      right: 0;
+      // top: 0%;
+      // transform: translateY(-50%);
+    }
+
+    /* Step indicator styling */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .step-indicator span {
+    padding: 5px 10px;
+    color: #888;
+  }
+  
+  .step-indicator span.active {
+    color: #3880ff; /* Active step color */
+  }
+  
+  .step-indicator span + span {
+    margin-left: 10px;
+  }
+  
+  /* Add some padding and spacing for the swiper container */
+  swiper-container {
+    margin-top: 20px;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 12px;
+  }
+    

@@ -1,0 +1,198 @@
+<ion-content [fullscreen]="true">
+  <!-- Image and Back Button -->
+  <div class="image-container">
+    <img [src]="activityData?.image || '/assets/placeholder.jpg'" alt="Activity Image" />
+
+    <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Activity Content -->
+  <div class="activity-content">
+    <!-- Activity Name -->
+    <ion-icon name="bicycle"></ion-icon>
+    <h2>{{ activityData?.activity_name }}</h2>
+
+    <!-- Location -->
+    <ion-icon name="location"></ion-icon>
+    <h3>{{ activityData?.address }}</h3>
+
+    <hr />
+
+    <!-- About Section -->
+    <h4>About This Activity</h4>
+    <p>{{ activityData?.description }}</p>
+
+    <hr />
+
+    <!-- Things to Know -->
+    <h4>Things to Know</h4>
+
+    <ng-container *ngIf="activityData?.things_to_know?.length; else noInfo">
+      <div *ngFor="let item of activityData.things_to_know">
+        <h5>{{ item.title }}</h5>
+        <p>{{ item.description }}</p>
+      </div>
+    </ng-container>
+
+    <ng-template #noInfo>
+      <p>No additional information provided.</p>
+    </ng-template>
+
+    <hr />
+
+<ion-button
+  expand="block"
+  color="primary"
+  shape="round"
+  (click)="goToOperatorList()">
+  View Operators
+</ion-button>
+
+
+
+  </div>
+</ion-content>
+
+<!-- <ion-content [fullscreen]="true"> -->
+  <!-- Image and Back Button -->
+  <!-- <div class="image-container">
+    <img [src]="activityData?.image || '/assets/placeholder.jpg'" alt="Activity Image" />
+
+    <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+  </div> -->
+
+  <!-- Overlapping Content -->
+  <!-- <div class="activity-content"> -->
+    <!-- Activity Name -->
+    <!-- <ion-icon name="bicycle"></ion-icon>
+    <h2>{{ activityData?.activity_name }}</h2> -->
+
+    <!-- Location -->
+    <!-- <ion-icon name="location"></ion-icon>
+    <h3>{{ activityData?.address }}, {{ activityData?.district }}</h3>
+
+    <hr/> -->
+
+    <!-- About Section -->
+    <!-- <h4>About This Activity</h4>
+    <p>{{ activityData?.description }}</p>
+
+    <hr/> -->
+
+    <!-- Things to Know -->
+    <!-- <h4>Things to Know</h4>
+
+    <ng-container *ngIf="activityData?.things_to_know?.length">
+      <div *ngFor="let item of activityData.things_to_know">
+        <h5>{{ item.title }}</h5>
+        <p>{{ item.description }}</p>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!activityData?.things_to_know?.length">
+      <p>No additional information provided.</p>
+    </ng-container>
+
+    <hr/>
+  </div>
+</ion-content> -->
+
+<!-- <ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <div class="image-container">
+         Display Image 
+        <img [src]="activityData?.image || '/assets/placeholder.jpg'" alt="Activity Image" />
+
+        Back Button Positioned on Top
+        <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+          <ion-icon slot="start" name="arrow-back-outline"/>
+        </ion-button>
+      </div>
+       Display Image
+      <img [src]="activityData?.image || '/assets/placeholder.jpg'" alt="Activity Image" />
+
+      <div class="activity-content">
+
+        <ion-icon name="bicycle"></ion-icon>
+        <h2>{{ activityData?.activity_name }}</h2>
+
+     
+        <ion-icon name="location"></ion-icon>
+        <h3>{{ activityData?.address }}, {{ activityData?.district }}</h3>
+
+        <hr/>
+
+        
+        <h4>About This Activity</h4>
+        <p>{{ activityData?.description }}</p>
+
+        <hr/>
+
+      
+        <h4>Things to Know</h4>
+
+        <ng-container *ngIf="activityData?.things_to_know?.length">
+          <div *ngFor="let item of activityData.things_to_know">
+            <h5>{{ item.title }}</h5>
+            <p>{{ item.description }}</p>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!activityData?.things_to_know?.length">
+          <p>No additional information provided.</p>
+        </ng-container>
+
+        <hr/>
+
+      </div>
+    </ion-toolbar>
+  </ion-header>
+</ion-content> -->
+
+
+
+
+<!-- <ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>activity-detail</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<!-- <ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <img src="/assets/pantai_indah.jpg" alt="Test Activity">
+      <div class="activity-content">
+        <ion-icon name="bicycle"/>
+        <h2>Kiulu Water Boat</h2>
+        <ion-icon name="location"/>
+        <h3>Kiulu, Kota Kinabalu (KK)</h3>
+        <hr/>
+        <h4>About This Activity</h4>
+        
+        <p>Prepare yourseld for an adrenaline - pumping rafting session
+          as we explore the Grade I - II Kiulu River. Feel the rush of 
+          the flowing water as you paddle through the rapids and navigate
+          the winding river.
+        </p>
+        <hr/>
+        <h4>Things to Know</h4>
+        <h5>Guest Requirements</h5>
+        <p>Guest should be 16 years and above, up to 20 - 30 pax per total.</p>
+        <h5>Activity Level</h5>
+        <p>Guest should be 16 years and above, up to 20 - 30 pax per total.</p>
+        <h5>Cancel Policy</h5>
+        <p>Guest should be 16 years and above, up to 20 - 30 pax per total.</p>
+        <hr/>
+
+      </div>
+    </ion-toolbar>
+  </ion-header>
+</ion-content> -->
+
+

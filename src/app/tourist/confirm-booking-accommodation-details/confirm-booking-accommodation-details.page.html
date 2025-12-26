@@ -1,0 +1,86 @@
+<ion-content [fullscreen]="true">
+
+  <!-- Close Button -->
+  <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
+    <ion-icon slot="icon-only" name="close"></ion-icon>
+  </ion-button>
+
+  <!-- Logo -->
+  <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+
+  <!-- Review Container -->
+  <div class="review-container" *ngIf="bookingData">
+    <h1>Review & Continue</h1>
+
+    <!-- Booking Card -->
+    <div class="booking-card">
+
+      <!-- Accommodation & Operator Info -->
+      <div class="activity-header">
+        <ion-img
+          class="activity-preview"
+          [src]="bookingData.accommodation_image || 'assets/images/default-accommodation.jpg'">
+        </ion-img>
+
+        <div class="activity-info">
+          <h2 class="activity-title">{{ bookingData.accommodation_name || 'Accommodation Name' }}</h2>
+          <p class="activity-location">
+            <ion-icon name="location-outline"></ion-icon>
+            {{ bookingData.location || 'Location not available' }}
+          </p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Dates Row -->
+      <div class="review-row">
+        <div>
+          <h2>Dates</h2>
+          <p>
+            {{ bookingData.start_date | date:'mediumDate' }} -
+            {{ bookingData.end_date | date:'mediumDate' }}
+          </p>
+          <p>{{ bookingData.number_of_nights || 1 }} Night(s)</p>
+        </div>
+        <ion-button class="mini-btn" fill="solid" (click)="changeDates()">Change</ion-button>
+      </div>
+
+      <hr />
+
+      <!-- Pax Row -->
+      <div class="review-row">
+        <div>
+          <h2>Number of Pax</h2>
+          <p>{{ bookingData.no_of_pax || 1 }} Pax</p>
+        </div>
+        <ion-button class="mini-btn" fill="solid" (click)="changeRooms()">Change</ion-button>
+      </div>
+
+
+      <hr />
+
+      <!-- Total Price Row -->
+      <div class="review-row">
+        <div>
+          <h2>Total Price (RM)</h2>
+          <p>RM {{ bookingData.total_price | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <h3>This booking is non-refundable</h3>
+    </div>
+  </div>
+
+  <!-- Confirm Button -->
+  <ion-button
+    class="confirm-booking-btn"
+    expand="block"
+    [disabled]="isSubmitting"
+    (click)="confirmBooking()">
+    Confirm Booking
+  </ion-button>
+
+</ion-content>

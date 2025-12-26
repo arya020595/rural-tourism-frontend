@@ -1,0 +1,40 @@
+<ion-content id="main-content" [fullscreen]="true" color="dark">
+  <div class="page-padding">
+
+    <!-- Back Button -->
+    <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon> Back to Home Page
+    </ion-button>
+
+    <!-- Logo -->
+    <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+
+    <!-- List of Operators Section -->
+<div class="section">
+  <ion-text class="section-title">
+    <h2>List of Operators <ion-icon name="chevron-forward-outline"></ion-icon></h2>
+  </ion-text>
+
+  <!-- If there are operators -->
+<!-- If there are operators -->
+<div class="vertical-scroll" *ngIf="operators && operators.length > 0">
+  <ion-card 
+    class="option-card" 
+    *ngFor="let operator of operators"
+    [routerLink]="['/activity-operator-detail', operator.id]">
+    <img [src]="operator.image || 'assets/default-operator.jpg'" />
+    <div class="card-title-overlay">
+      {{ operator.business_name }}
+    </div>
+  </ion-card>
+</div>
+
+
+  <!-- If no operators -->
+  <div class="no-operators-message" *ngIf="!operators || operators.length === 0">
+    <p>No operators are handling this activity at the moment.</p>
+  </div>
+</div>
+
+  </div> <!-- end page-padding -->
+</ion-content>

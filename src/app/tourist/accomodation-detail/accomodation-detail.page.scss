@@ -1,0 +1,205 @@
+/* Image Container */
+.image-container {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Content scrollable above footer */
+.accomodation-content {
+  background: #ffffff;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 20px 16px 200px 16px; /* extra bottom padding for footer */
+  margin-top: -30px; /* pull over image */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  z-index: 5;
+}
+
+/* Headings & icons */
+ion-icon {
+  font-size: 40px;
+  margin-top: 10px;
+  color: #025930;
+}
+
+.accomodation-content h2,
+.accomodation-content h3,
+.accomodation-content h4 {
+  color: #025930;
+  font-size: 18px;
+}
+
+.accomodation-content h2,
+.accomodation-content h3 {
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.accomodation-content h4 {
+  text-align: left;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.accomodation-content h5 {
+  text-align: left;
+  font-weight: bold;
+  margin-top: 15px;
+  color: #bababa;
+}
+
+/* Paragraphs */
+.accomodation-content p {
+  text-align: justify;
+  line-height: 1.5;
+  color: #333;
+  font-size: 16px;
+}
+
+/* Divider Line */
+.accomodation-content hr {
+  border: none;
+  border-top: 1px solid #bababa;
+  margin: 25px 0;
+}
+
+/* Fixed Footer */
+.booking-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  padding: 10px 16px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Price styling */
+.price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #025930;
+}
+
+.price small {
+  display: block;
+  font-weight: normal;
+  color: #777;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Book Now button */
+.book-now-btn {
+  border-radius: 10px;
+  min-width: 120px;
+}
+
+
+/* Hero Image Container */
+.hero-image-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.hero-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(0,0,0,0.4);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn ion-icon {
+  color: #fff;
+  font-size: 22px;
+}
+
+/* Favorite Button (optional) */
+.favorite-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  background: rgba(0,0,0,0.4);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favorite-btn ion-icon {
+  color: #fff;
+  font-size: 22px;
+}
+
+
+.amenities-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    margin-top: 10px;
+    display: flex;            /* make icon and text flex items */
+    align-items: center;      /* vertically center the icon with text */
+    gap: 10px;                /* space between icon and text */
+    margin-bottom: 8px;       /* spacing between items */
+    font-size: 16px;          /* adjust text size if needed */
+  }
+
+  ion-icon {
+    font-size: 20px;          /* adjust icon size */
+    color: green;             /* optional: change color */
+  }
+
+
+
+}
+
+.show-amenities {
+  --background: #025930;  
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: -50px;
+  --color: #ffffff;      
+  --padding-start: 16px;  
+  --padding-end: 16px;     
+  --border-radius: 8px;   
+  --box-shadow: none;   
+}
+
+

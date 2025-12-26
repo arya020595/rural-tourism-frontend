@@ -1,0 +1,39 @@
+ion-content.background{
+    --background: url(../../assets/login.jpg) 0 0/100% 100% ;
+}
+
+    ion-card {
+      margin-left: 5%;
+      margin-right: 5%;
+      border-radius: 30px;
+      min-height: 50vh; /* Allow cards to shrink for smaller screens */
+
+    .ion-blue-bkg {
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      h1{
+        color: #000000;
+        font-weight: 900;
+        text-align: center;
+        font-size: 18px;
+      }
+
+      p{
+        font-size: 16px;
+        text-align: center;
+      }
+    }
+
+    ion-button{
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }

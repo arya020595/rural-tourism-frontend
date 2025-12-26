@@ -1,0 +1,94 @@
+<ion-content class="ion-padding booking-content" fullscreen>
+
+  <!-- Back / Close Button -->
+  <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
+    <ion-icon slot="icon-only" name="close"></ion-icon>
+  </ion-button>
+
+  <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+
+  <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+
+    <!-- Number of Pax -->
+    <ion-item>
+      <ion-label position="stacked">Number of Pax</ion-label>
+      <ion-input 
+        type="number" 
+        formControlName="no_of_pax" 
+        placeholder="Enter number of pax">
+      </ion-input>
+    </ion-item>
+
+    <!-- Start Date -->
+    <ion-item>
+      <ion-label position="stacked">Start Date</ion-label>
+      <ion-datetime-button datetime="startDate"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime
+            id="startDate"
+            formControlName="start_date"
+            presentation="date"
+            display-format="DD/MM/YYYY"
+            picker-format="DD/MM/YYYY"
+            (ionChange)="onStartDateSelected($event)">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </ion-item>
+
+    <!-- End Date -->
+    <ion-item>
+      <ion-label position="stacked">End Date</ion-label>
+      <ion-datetime-button datetime="endDate"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime
+            id="endDate"
+            formControlName="end_date"
+            [min]="bookingForm.get('start_date')?.value"
+            presentation="date"
+            display-format="DD/MM/YYYY"
+            picker-format="DD/MM/YYYY"
+            (ionChange)="onEndDateSelected($event)">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </ion-item>
+
+    <!-- Number of Nights -->
+    <ion-item lines="none">
+      <ion-label>Number of Nights: {{ numberOfNights }}</ion-label>
+    </ion-item>
+
+    <!-- Contact Info -->
+    <ion-item>
+      <ion-label position="stacked">Contact Name</ion-label>
+      <ion-input type="text" formControlName="contact_name" placeholder="Enter your name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Contact Phone</ion-label>
+      <ion-input type="tel" formControlName="contact_phone" placeholder="Enter phone number"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Nationality</ion-label>
+      <ion-input type="text" formControlName="nationality" placeholder="Enter nationality"></ion-input>
+    </ion-item>
+
+  </form>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="bottom-bar">
+      <div class="total-price">
+        <span> RM {{ totalPrice | number:'1.2-2' }} </span>
+        <small>for {{ numberOfNights }} night(s)</small>
+      </div>
+      <ion-button expand="block" (click)="submitBooking()">Book Now</ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

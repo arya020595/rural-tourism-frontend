@@ -1,0 +1,186 @@
+body {
+    // background: url(/src/assets/firstpg.jpg) no-repeat center/cover fixed;
+    overflow-y: scroll; 
+  }
+  
+  ion-content {
+    --background:#282c28;
+  }
+  
+  ion-header{
+    --background: #024E25 !important; 
+  }
+  .transparent-header {
+    --background: transparent !important;  /* Set the background of the header to transparent */
+    --box-shadow: none !important;         /* Remove any default box shadow */
+    --color: transparent !important;       /* Ensure text and icon colors are set */
+  }
+  
+  ion-toolbar {
+    --background: transparent !important;  /* Make the toolbar background transparent */
+  }
+  
+  ion-back-button {
+    --color: white;             /* Change the color of the back button if needed */
+  }
+  
+  ion-title {
+    color: white;               /* Adjust title color for visibility */
+  }
+
+  
+  .custom-header{
+    // height: 8vh; box-shadow: none; 
+    background-color: transparent !important;
+    --background: transparent !important;
+    // border-radius: 30px;
+    // border-color: white;
+  }
+
+  .logo{
+      height: 100px;
+    }
+  
+    /* home.page.scss */
+  
+  ion-content {
+    background-image: url(../../assets/firstpg.jpg);
+    background-size: cover; /* Cover the entire background */
+    background-repeat: no-repeat; /* Prevent tiling */
+    background-position: center; /* Center the image */
+    height: 100vh; /* Ensure it covers the full height */
+    color: white; /* Optional: text color for visibility */
+  }
+  
+  .question-label{
+    font-size: 18px;
+    font-weight: bold;
+    color: #024E25;
+    margin-bottom: 0px;
+    margin-top: 14px;
+  }
+
+
+
+  .question-label-grey{
+    font-size: 14px;
+    font-weight: bold;
+    color: #024E25;
+    // margin-bottom: 1%;
+  }
+  
+  .no-border {
+    --border-width: 0;
+    --border-style: none;
+  }
+  
+  .form-input{
+    --background: #f0f0f0;
+    --padding-start: 10px; 
+    --padding-end: 10px;
+  }
+  
+    #form ion-item{
+      margin-bottom: 12%;
+    }
+  
+    .highlighted {
+      --background: #024e254e !important;
+      // background-color: #7adbe8;  /* Light blue background */
+      color: #024E25;  /* Text color */
+      border: 2px solid #024E25 !important;
+      font-weight: bold;
+    }
+    .form-container{
+      padding-right: 5%;
+      margin-left: 3%;
+    }
+  
+    .main-Container{
+      margin-top: 5%;
+      border-radius: 30px;
+      height: 80% !important;
+      
+    }
+    
+
+    #container {
+      // text-align: center;
+      // overflow: auto;
+      position: relative;
+      left: 0;
+      right: 0;
+      // top: 0%;
+      // transform: translateY(-50%);
+    }
+
+    /* Step indicator styling */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .step-indicator span {
+    padding: 5px 10px;
+    color: #888;
+  }
+  
+  .step-indicator span.active {
+    color: #3880ff; /* Active step color */
+  }
+  
+  .step-indicator span + span {
+    margin-left: 10px;
+  }
+  
+  /* Add some padding and spacing for the swiper container */
+  swiper-container {
+    margin-top: 20px;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 12px;
+  }
+
+.add-services-btn {
+  --background: #024E25;
+  --background-activated: #036b34;
+  --color: white;
+  --border-radius: 10px;
+  width: 30%;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: none;
+  margin-top: 10px;
+  margin-left: auto;
+  display: block; 
+
+  /* ✅ Proper Ionic padding props */
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+hr {
+  border: none;  
+  width: 90%;            /* Remove default border */
+  height: 1px;               /* Thickness of the line */
+  background-color: #024E25; /* Line color */
+  margin-top: 30px;            /* Space above and below */
+}
+
+.table-services{
+  width: 100%;
+}
+
+
+
+
+  
+    

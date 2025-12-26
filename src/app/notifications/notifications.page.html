@@ -1,0 +1,42 @@
+<ion-content>
+
+  <!-- Header / Logo Section -->
+  <div class="header-container">
+    <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+
+    <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+    <h2 class="page-title">Notifications</h2>
+    <div class="divider"></div>
+  </div>
+
+  <!-- Notifications List -->
+  <ion-list *ngIf="notifications.length > 0" class="notification-list">
+    <ion-item 
+      *ngFor="let notification of notifications" 
+      (click)="markAsRead(notification)" 
+      [color]="notification.read ? '' : 'light'">
+
+      <!-- Bell icon with dynamic color -->
+      <ion-icon 
+        slot="start" 
+        [name]="notification.read ? 'notifications-outline' : 'notifications'" 
+        [style.color]="notification.read ? '#808080' : '#FFC107'">
+      </ion-icon>
+
+      <ion-label>
+        <h3 class="notif-title">Booking Update</h3>
+        <p class="notif-message">{{ notification.message }}</p>
+        <small *ngIf="!notification.read" class="unread-tag">Unread</small>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <!-- Empty State -->
+  <div class="no-notifications" *ngIf="notifications.length === 0">
+    <ion-img class="no-notification-img" src="../../assets/icon/no-notifications-icon.png"></ion-img>
+    <p class="no-text">No new notifications yet...</p>
+  </div>
+
+</ion-content>

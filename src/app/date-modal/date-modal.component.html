@@ -1,0 +1,9 @@
+<ion-content class="ion-padding">
+  <ion-datetime
+    presentation="date"
+    [(ngModel)]="selectedDate"
+  ></ion-datetime>
+
+  <ion-button expand="block" (click)="confirm()">Select</ion-button>
+  <ion-button expand="block" fill="clear" color="medium" (click)="close()">Cancel</ion-button>
+</ion-content>

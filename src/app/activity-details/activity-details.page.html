@@ -1,0 +1,133 @@
+<form #activityForm="ngForm" (ngSubmit)="hantar()" novalidate>
+
+  <ion-header [translucent]="true">
+    <ion-toolbar>
+      <ion-title>Maklumat Aktiviti</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content [fullscreen]="true" class="ion-padding">
+
+    <ion-header collapse="condense">
+      <ion-toolbar>
+        <ion-title size="large">Maklumat Aktiviti</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Borang Maklumat Tempahan</ion-card-title>
+        <ion-card-subtitle>Isi maklumat di bawah</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <div class="red-separator"></div>
+
+    <!-- Maklumat Operator Pelancongan -->
+    <ion-item>
+      <ion-label position="stacked">Nama Operator Pelancongan</ion-label>
+      <ion-input [(ngModel)]="form.operator" name="operator" required #operator="ngModel"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="operator.invalid && operator.touched">
+      Nama operator diperlukan.
+    </ion-text>
+
+    <ion-item>
+      <ion-label position="stacked">No Telefon Operator</ion-label>
+      <ion-input [(ngModel)]="form.phone" name="phone" required pattern="^[0-9]{9,12}$" #phone="ngModel"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="phone.invalid && phone.touched">
+      No telefon diperlukan (9-12 digit).
+    </ion-text>
+
+    <div class="red-separator"></div>
+
+    <!-- Destinasi & Aktiviti (auto-filled & read-only) -->
+    <ion-item>
+      <ion-label position="stacked">Destinasi</ion-label>
+      <ion-input [readonly]="true" [(ngModel)]="form.destinasi" name="destinasi"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Aktiviti</ion-label>
+      <ion-input [readonly]="true" [(ngModel)]="form.aktiviti" name="aktiviti"></ion-input>
+    </ion-item>
+
+    <div class="red-separator"></div>
+
+    <!-- Maklumat Pelancong -->
+    <ion-item>
+      <ion-label position="stacked">Jumlah Pelancong</ion-label>
+      <ion-input type="number" [(ngModel)]="form.jumlahPelancong" name="jumlahPelancong" required min="1" #jumlahPelancong="ngModel"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="jumlahPelancong.invalid && jumlahPelancong.touched">
+      Jumlah pelancong diperlukan (sekurang-kurangnya 1).
+    </ion-text>
+
+    <ion-item>
+      <ion-label position="stacked">Warganegara</ion-label>
+      <ion-input [(ngModel)]="form.nationality" name="nationality" required #nationality="ngModel"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="nationality.invalid && nationality.touched">
+      Sila masukkan warganegara.
+    </ion-text>
+
+    <!-- Table-like section for each tourist -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Butiran Pelancong</ion-card-title>
+        <ion-card-subtitle>Nama, No IC/Passport, No Telefon</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <div *ngFor="let p of pelancong; let i = index">
+            <ion-item>
+              <ion-label position="stacked">Nama Pelancong {{ i+1 }}</ion-label>
+              <ion-input [(ngModel)]="p.nama" name="nama{{i}}" required #nama="ngModel"></ion-input>
+            </ion-item>
+            <ion-text color="danger" *ngIf="nama.invalid && nama.touched">
+              Nama diperlukan.
+            </ion-text>
+
+            <ion-item>
+              <ion-label position="stacked">No IC / Passport</ion-label>
+              <ion-input [(ngModel)]="p.ic" name="ic{{i}}" required #ic="ngModel"></ion-input>
+            </ion-item>
+            <ion-text color="danger" *ngIf="ic.invalid && ic.touched">
+              No IC / Passport diperlukan.
+            </ion-text>
+
+            <ion-item>
+              <ion-label position="stacked">No Telefon</ion-label>
+              <ion-input [(ngModel)]="p.phone" name="phone{{i}}" required #pelPhone="ngModel"></ion-input>
+            </ion-item>
+            <ion-text color="danger" *ngIf="pelPhone.invalid && pelPhone.touched">
+              No telefon diperlukan.
+            </ion-text>
+
+            <div class="red-separator"></div>
+          </div>
+        </ion-list>
+
+        <ion-button expand="block" fill="outline" (click)="addPelancong()">
+          + Tambah Pelancong
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="red-separator"></div>
+
+    <!-- Catatan Tambahan -->
+    <ion-item>
+      <ion-label position="stacked">Catatan Tambahan</ion-label>
+      <ion-textarea [(ngModel)]="form.catatan" name="catatan"></ion-textarea>
+    </ion-item>
+
+    <div class="red-separator"></div>
+
+    <ion-button expand="block" class="royal-btn" type="submit" [disabled]="activityForm.invalid">
+      Hantar Tempahan
+    </ion-button>
+
+  </ion-content>
+</form>

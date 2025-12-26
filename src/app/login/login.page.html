@@ -1,0 +1,101 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<ion-content [fullscreen]="true" class="background">
+  <ion-header collapse="condense">
+  </ion-header>
+
+  <div class="card-container">
+    <ion-card>
+    <ion-button fill="clear" (click)="backRole()" mode="ios">
+      <ion-icon slot="start" name="chevron-back"></ion-icon>
+      <span>Back</span>
+    </ion-button>
+
+      <ion-row>
+        <ion-col class="ion-blue-bkg">
+          <img
+            src="../../assets/icon/rt logo.png"
+            class ="borneo"
+          />
+        </ion-col>
+        <!-- <ion-col size-md="3" size="6" class="ion-padding ion-blue-bkg">
+          <img
+            src="../../assets/icon/ruraltourism.jpg"
+            class ="ruraltext"
+          />
+        </ion-col> -->
+
+        <ion-col style="margin-top: 10%;" size="12" >
+        <p class="title">Log Masuk</p>
+        <p class="subtitle">Kedalam Akaun Anda</p>
+        </ion-col>
+
+          
+        
+        <ion-col size-md="9" size="12" class="welcome">
+          <form class="no-border" #form="ngForm" (ngSubmit)="login(form)">
+          <ion-card-header >
+            <!-- <ion-list class="no-border"> -->
+
+
+              
+              <ion-text class="forgot-password-text" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                <ion-text class="errorMsg" *ngIf="submitted && passwordInput.invalid">
+                  Password is required.
+                </ion-text>
+              
+                <a style="text-decoration: none; margin-left: auto;" (click)="forgotPassword()">Lupa Kata Laluan?</a>
+              </ion-text>
+
+                  <ion-input required class="input-login" mode="md" [(ngModel)]="password" 
+                  name="password" label="Kata Laluan/Password" 
+                  label-placement="floating"  fill="outline" 
+                  placeholder="Enter text"  
+                  type="password"
+                  [clearInput]="true"
+                  #passwordInput="ngModel"></ion-input>
+
+                  
+
+                  <br>
+                  <!-- username -->
+                   <!-- error msg -->
+                   <ion-text class="errorMsg" *ngIf="submitted && usernameInput.invalid">
+                    Username is required.
+                   </ion-text>
+
+                  <ion-input required class="input-login" mode="md" 
+                  [(ngModel)]="username" name="username" 
+                  label="Nama Pengguna/Username" label-placement="floating" 
+                  fill="outline" 
+                  placeholder="Enter text"
+                  [clearInput]="true"
+                  #usernameInput="ngModel"></ion-input>
+                  
+                  
+                  <!-- <ion-button shape="round" color="primary" type="submit"> Log In</ion-button> -->
+              
+              
+                
+            <!-- </ion-list> -->
+            
+          </ion-card-header>
+
+          <ion-card-content>
+            <!-- <ion-col size-md="3" size="6" class="ion-blue-bkg"> -->
+            <ion-button mode="ios" type="submit" color="primary" class="input-button" expand="block">Log Masuk</ion-button>
+            
+            <ion-button fill="clear" mode="ios" (click)="register()" color="primary" class="input-button" expand="block">Daftar / Register </ion-button>
+            
+            <!-- </ion-col> -->
+          </ion-card-content>
+        </form>
+          <!-- <ion-card-content> -->
+            <!-- <ion-col size-md="3" size="6" class="ion-blue-bkg"> -->
+            
+          <!-- </ion-col> -->
+          <!-- </ion-card-content> -->
+        </ion-col>
+      </ion-row>
+    </ion-card>
+  </div>
+</ion-content>

@@ -1,0 +1,70 @@
+<ion-content class="ion-padding booking-content" fullscreen>
+
+  <!-- Close button above logo -->
+  <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
+    <ion-icon slot="icon-only" name="close"></ion-icon>
+  </ion-button>
+
+  <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+
+  <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+
+    <ion-item>
+      <ion-label position="stacked">Number of Pax</ion-label>
+      <ion-input type="number" formControlName="no_of_pax" placeholder="Enter number of pax"></ion-input>
+    </ion-item>
+
+<ion-item>
+  <ion-label position="stacked">Booking Date</ion-label>
+
+  <!-- Datetime Button that opens the modal -->
+  <ion-datetime-button datetime="bookingDate"></ion-datetime-button>
+
+    <!-- Datetime Modal -->
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime
+          id="bookingDate"
+          formControlName="date"
+          presentation="date"
+          display-format="DD/MM/YYYY"
+          picker-format="DD/MM/YYYY"
+          placeholder="Select a date"
+          (ionChange)="onDateSelected($event)">
+        </ion-datetime>
+      </ng-template>
+    </ion-modal>
+  </ion-item>
+
+
+    <ion-item>
+      <ion-label position="stacked">Contact Name</ion-label>
+      <ion-input type="text" formControlName="contact_name" placeholder="Enter your name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Contact Phone</ion-label>
+      <ion-input type="tel" formControlName="contact_phone" placeholder="Enter phone number"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Nationality</ion-label>
+      <ion-input type="text" formControlName="nationality" placeholder="Enter nationality"></ion-input>
+    </ion-item>
+
+  </form>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="bottom-bar">
+      <div class="total-price">
+        <span> RM {{ totalPrice | number:'1.2-2' }} </span> 
+        <small>per pax</small>
+      </div>
+    
+      <ion-button expand="block" (click)="submitBooking()">Book Now</ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

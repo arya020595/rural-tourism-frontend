@@ -1,0 +1,132 @@
+.logo {
+  width: 250px;
+  display: block;
+  margin: 35px auto 0;
+  padding: 5%;
+  text-align: center;
+}
+
+h1, h2{
+   color:  #024e25;
+   font-weight: 900;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  font-size: 24px;
+}
+
+.review-container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.review-container h1 {
+  font-weight: 900;
+  margin-bottom: 20px;
+}
+
+.booking-card {
+  background-color: #ffffff;
+  padding: 15px;
+  box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
+  border: 0.5px solid #888888;
+  border-radius: 10px;
+}
+
+.activity-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.activity-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-info p{
+    color: #024e25;
+    font-weight: 900;
+}
+
+.activity-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.activity-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.activity-location {
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.review-row h2 {
+  font-size: 16px;
+  color: #024e25;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+.review-row p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.booking-card hr {
+  border: none;
+  border-top: 1px solid #bababa;
+  margin: 10px 0;
+}
+
+.mini-btn {
+  --background: #024e25;
+  --color: #fff;
+  --border-radius: 30px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  font-size: 14px;
+  height: 28px;
+}
+
+.booking-card h3 {
+  font-size: 15px;
+  color: #b2b2b2;
+  text-align: center;
+  font-weight: 900;
+}
+
+.confirm-booking-btn {
+  width: 90%;
+  margin: 20px auto 80px;
+  display: block;
+  font-weight: bold;
+  --background: #024e25;
+  --border-radius: 8px;
+}

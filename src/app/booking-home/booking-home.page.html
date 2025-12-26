@@ -1,0 +1,67 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Pilih Destinasi & Aktiviti</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Pilih Destinasi & Aktiviti</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Senarai Destinasi</ion-card-title>
+      <ion-card-subtitle>Klik destinasi untuk lihat aktivitinya</ion-card-subtitle>
+    </ion-card-header>
+  </ion-card>
+
+  <div class="red-separator"></div>
+
+  <!-- Loop through destinations -->
+  <ion-list>
+    <ng-container *ngFor="let destinasi of destinasiList">
+      
+      <!-- Destination Card -->
+      <ion-card 
+        (click)="toggleAktiviti(destinasi)" 
+        class="destination-card" 
+        [ngClass]="{ 'active': selectedDestinasi === destinasi }">
+        
+        <div class="card-background" [ngStyle]="{'background-image': 'url(' + destinasi.gambar + ')'}">
+          <div class="overlay">
+            <h2>{{ destinasi.nama }}</h2>
+            <p *ngIf="selectedDestinasi !== destinasi">Klik untuk lihat aktiviti</p>
+            <p *ngIf="selectedDestinasi === destinasi">Sembunyikan aktiviti</p>
+          </div>
+        </div>
+      </ion-card>
+
+      <!-- Activities with checkboxes -->
+      <ion-list *ngIf="selectedDestinasi === destinasi" class="aktiviti-list">
+        <ion-item *ngFor="let a of destinasi.aktiviti">
+          <ion-checkbox
+            slot="start"
+            [(ngModel)]="selectedAktivitiMap[destinasi.nama][a]"
+            (ionChange)="onCheckboxChange()">
+          </ion-checkbox>
+          <ion-label>{{ a }}</ion-label>
+        </ion-item>
+      </ion-list>
+
+    </ng-container>
+  </ion-list>
+
+  <div class="red-separator" *ngIf="hasSelectedAktiviti"></div>
+
+  <ion-button expand="block"
+              class="royal-btn"
+              [disabled]="!hasSelectedAktiviti"
+              (click)="seterusnya()">
+    Seterusnya
+  </ion-button>
+
+</ion-content>

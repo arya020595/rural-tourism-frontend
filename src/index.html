@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8"/>
+  <title>Sabah Rural Tourism</title>
+
+  <base href="/">
+
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="format-detection" content="telephone=no"/>
+  <meta name="msapplication-tap-highlight" content="no"/>
+
+  <link rel="icon" type="image/png" href="assets/icon/Rural logo.png"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+  <!-- General meta tags for mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <!-- iOS specific meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"> <!-- Fullscreen mode for iOS -->
+  <meta name="apple-mobile-web-app-title" content="Rural Tourism">
+  <link rel="apple-touch-icon" href="assets/icon/Rural_logo.png"> <!-- Adjust the path to your icon -->
+
+  <!-- Android specific meta tags -->
+  <meta name="mobile-web-app-capable" content="yes"> <!-- Allows Android to display the app as a standalone app -->
+  <meta name="theme-color" content="#000000"> <!-- Change this to match your app's theme color -->
+  <meta name="mobile-web-app-status-bar-style" content="black"> <!-- Fullscreen mode for Android -->
+  <meta name="mobile-web-app-title" content="Rural Tourism">
+  <link rel="mobile-touch-icon" href="assets/icon/Rural_logo.png"> <!-- Adjust the path to your icon -->
+
+  <!-- <meta name="apple-mobile-web-app-capable" content="yes" /> -->
+  <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black" /> -->
+  
+  <!-- PWA settings -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1976d2">
+
+</head>
+
+<body>
+  <app-root></app-root>
+  <noscript>Please enable JavaScript to continue using this application.</noscript>
+  
+  
+  <!-- Script for PWA -->
+   <script>
+    function isInStandaloneMode() {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches || 
+        window.navigator.standalone === true // for iOS Safari
+      );
+    }
+
+    if (isInStandaloneMode()) {
+      document.body.classList.add('standalone-app');
+    } else {
+      document.body.classList.remove('standalone-app');
+    }
+  </script>
+  
+</body>
+
+</html>

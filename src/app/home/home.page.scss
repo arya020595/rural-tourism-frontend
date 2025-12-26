@@ -1,0 +1,218 @@
+
+ion-content{
+  --ion-background-color:#282c28;
+}
+
+ion-toolbar {
+  --background: #282c28; /* Make background transparent */
+  --box-shadow: none !important; /* Remove box shadow */
+  --border-width: 0px !important; /* Remove border if it's present */
+  color: inherit;  /* Use the same color as the content */
+  padding: 0;               /* Optional: Remove any default padding if you want complete control */
+}
+
+ion-menu.side-menu {
+  --background: #f0f0f0;  /* Set a background color for the side menu */
+}
+
+.item-nav{
+  --padding-start: 0;
+  --border-width: 0;
+  --border-style: none !important;
+  margin-left: 5%;
+}
+
+
+.side-menu{
+  --ion-background-color: white !important;
+  // background-color: white !important;
+}
+
+#container {
+  // text-align: center;
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.notification-button {
+  position: relative; 
+}
+
+.notification-bell {
+  font-size: 24px; 
+  color: #FFC107; 
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  z-index: 10;
+  transform: translate(25%, -25%); /* Move badge slightly up and right */
+}
+
+.main-Container{
+  --ion-background-color:tranparent;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+  margin-top: 5vh;
+  border-radius: 30px;
+  height: 125vh;
+  background-color: white;
+}
+
+#container img{
+  height: 60px;
+}
+
+.tree{
+  width: 70px; /* Adjust the size of the icon */
+  // bottom: 10%;
+  height: auto; 
+}
+
+.house{
+  width: 70px; /* Adjust the size of the icon */
+  height: auto; 
+}
+
+.text1{
+
+  bottom: -60%;
+}
+
+
+.center{
+  display: flex;               
+  justify-content: center;     
+  align-items: center;         
+}
+
+.logo{
+  width: 300px;
+  display: flex;               /* Enable flexbox */
+  justify-content: center;
+  text-align: center;
+  padding: 5%;
+}
+
+// .logo1{
+//   width: 125px;
+//   height: auto;
+//   margin-left: 150px;
+// }
+
+
+
+.custom-card {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: space-between; /* Space between header and content */
+  height: 30vh; /* Set a specific height for the card */
+  border-radius: 30px;
+  position: relative;
+  //background image
+  background-image: url(../../assets/mountain.jpg);
+  background-size: 50vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center -60px;
+  margin-top: -100px;
+}
+
+.custom-card2 {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: space-between; /* Space between header and content */
+  height: 30vh; /* Set a specific height for the card */
+  border-radius: 30px;
+  position: relative;
+  //background image
+  background-image: url(../../assets/accom.jpg);
+  background-size: 50vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-top: -100px;
+}
+
+.custom-card3 {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: space-between; /* Space between header and content */
+  height: 30vh; /* Set a specific height for the card */
+  border-radius: 30px;
+  position: relative;
+  //background image
+  background-image: url(../../assets/package.jpg);
+  background-size: 50vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-top: -100px;
+}
+
+.card-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures content sticks to bottom */
+  width: 100%; /* Make the button full width */
+  height: 100%; /* Make the button full height */
+  background: transparent; /* Remove button background */
+  border: none; /* Remove button border */
+  padding: 0; /* Remove padding */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+
+.card-content {
+  margin-top: auto;
+  height: 100%;
+}
+
+.card-texts{
+  color: white;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+
+.cards{
+  color: white;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: absolute;
+  // top: 20px;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+  bottom: 10px; /* Adjust this value to position the title closer or further from the bottom */
+  left: 5%; /* Adjust the horizontal position as needed */
+  // font-size: 18px;
+}
+
+
+
+.text-title{
+  color: white;
+}
+
+
+// #container strong {
+//   font-size: 20px;
+//   line-height: 26px;
+// }
+
+// #container p {
+//   font-size: 16px;
+//   line-height: 22px;
+
+//   color: #8c8c8c;
+
+//   margin: 0;
+// }
+
+// #container a {
+//   text-decoration: none;
+// }
