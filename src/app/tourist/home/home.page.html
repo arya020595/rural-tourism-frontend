@@ -104,7 +104,62 @@
       class="searchbar"
       search-icon="search"
       placeholder="Start Your Search"
+      [(ngModel)]="searchQuery"
+      (ionChange)="onSearchChange($event)"
+      debounce="300"
     ></ion-searchbar>
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+      <ion-button
+        fill="outline"
+        size="small"
+        (click)="toggleDateFilter()"
+        [color]="showDateFilter ? 'primary' : 'medium'"
+      >
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        Date Filter
+      </ion-button>
+
+      <ion-button
+        fill="clear"
+        size="small"
+        (click)="clearFilters()"
+        *ngIf="searchQuery || startDate || endDate"
+        color="danger"
+      >
+        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+        Clear
+      </ion-button>
+    </div>
+
+    <!-- Date Range Display -->
+    <div class="date-filter" *ngIf="showDateFilter && startDate && endDate">
+      <ion-chip color="primary">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <ion-label
+          >{{ startDate | date:'dd/MM/yyyy' }} - {{ endDate | date:'dd/MM/yyyy'
+          }}</ion-label
+        >
+        <ion-icon name="close-circle" (click)="clearFilters()"></ion-icon>
+      </ion-chip>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary" *ngIf="searchQuery || startDate || endDate">
+      <ion-text color="medium">
+        <p>
+          <ng-container *ngIf="selectedSegment === 'activity'">
+            Showing {{ filteredActivities.length }} of {{ activities.length }}
+            activities
+          </ng-container>
+          <ng-container *ngIf="selectedSegment === 'accommodation'">
+            Showing {{ filteredAccommodations.length }} of {{
+            accommodations.length }} accommodations
+          </ng-container>
+        </p>
+      </ion-text>
+    </div>
 
     <!-- Segment Buttons -->
     <ion-segment [(ngModel)]="selectedSegment" scrollable>
@@ -141,10 +196,10 @@
       </ion-text>
 
       <!-- All Activities -->
-      <div class="horizontal-scroll">
+      <div class="horizontal-scroll" *ngIf="filteredActivities.length > 0">
         <ion-card
           class="option-card"
-          *ngFor="let activity of activities"
+          *ngFor="let activity of filteredActivities"
           (click)="goToOperatorList(activity.id)"
         >
           <img
@@ -153,6 +208,14 @@
           />
           <div class="card-title-overlay">{{ activity.activity_name }}</div>
         </ion-card>
+      </div>
+
+      <!-- No Results Message -->
+      <div class="no-results" *ngIf="filteredActivities.length === 0">
+        <ion-icon name="search-outline" color="medium"></ion-icon>
+        <ion-text color="medium">
+          <p>No activities found matching your criteria</p>
+        </ion-text>
       </div>
 
       <!-- Suggested Activities -->
@@ -187,10 +250,10 @@
       </ion-text>
 
       <!-- Scrollable Accommodations List -->
-      <div class="horizontal-scroll">
+      <div class="horizontal-scroll" *ngIf="filteredAccommodations.length > 0">
         <ion-card
           class="option-card"
-          *ngFor="let accom of accommodations"
+          *ngFor="let accom of filteredAccommodations"
           (click)="goToAccommodationDetails(accom.id)"
         >
           <div class="card-image-wrapper">
@@ -202,6 +265,14 @@
           </div>
           <div class="card-title-overlay">{{ accom.name }}</div>
         </ion-card>
+      </div>
+
+      <!-- No Results Message -->
+      <div class="no-results" *ngIf="filteredAccommodations.length === 0">
+        <ion-icon name="search-outline" color="medium"></ion-icon>
+        <ion-text color="medium">
+          <p>No accommodations found matching your criteria</p>
+        </ion-text>
       </div>
 
       <!-- If no accommodations -->

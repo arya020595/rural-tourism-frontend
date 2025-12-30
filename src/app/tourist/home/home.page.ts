@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController, ToastController } from '@ionic/angular';
+import {
+  MenuController,
+  ModalController,
+  ToastController,
+} from '@ionic/angular';
+import { CalendarModal, CalendarModalOptions } from 'ion7-calendar';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -14,11 +19,20 @@ export class HomePage implements OnInit {
   accommodations: any[] = [];
   user: any = null;
 
+  // Search and filter
+  searchQuery: string = '';
+  filteredActivities: any[] = [];
+  filteredAccommodations: any[] = [];
+  startDate: string = '';
+  endDate: string = '';
+  showDateFilter: boolean = false;
+
   constructor(
     private apiService: ApiService,
     private menu: MenuController,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private modalCtrl: ModalController
   ) {}
 
   ngOnInit() {
@@ -79,17 +93,163 @@ export class HomePage implements OnInit {
   }
 
   get suggestedActivities() {
-    return this.activities.filter(
+    return this.filteredActivities.filter(
       (activity) =>
         [true, 1, '1'].includes(activity.show_in_suggestions) ||
         [true, 1, '1'].includes(activity.showInSuggestions)
     );
   }
 
+  onSearchChange(event: any) {
+    const query = event.detail.value?.toLowerCase() || '';
+    this.searchQuery = query;
+    this.applyFilters();
+  }
+
+  async toggleDateFilter() {
+    const options: CalendarModalOptions = {
+      pickMode: 'range',
+      title: 'Select Date Range',
+      color: 'primary',
+      defaultScrollTo: new Date(),
+      from: new Date(2020, 0, 1),
+      to: new Date(2030, 11, 31),
+      closeLabel: 'Cancel',
+      doneLabel: 'Done',
+    };
+
+    const modal = await this.modalCtrl.create({
+      component: CalendarModal,
+      componentProps: { options },
+    });
+
+    await modal.present();
+
+    const result = await modal.onDidDismiss();
+    if (result.data) {
+      const dateRange: any = result.data;
+      if (dateRange.from && dateRange.to) {
+        this.startDate = new Date(dateRange.from.time).toISOString();
+        this.endDate = new Date(dateRange.to.time).toISOString();
+        this.showDateFilter = true;
+        this.applyFilters();
+      }
+    }
+  }
+
+  clearFilters() {
+    this.searchQuery = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.showDateFilter = false;
+    this.applyFilters();
+  }
+
+  private applyFilters() {
+    // Filter activities
+    this.filteredActivities = this.activities.filter((activity) => {
+      const matchesSearch =
+        !this.searchQuery ||
+        activity.activity_name?.toLowerCase().includes(this.searchQuery);
+
+      const matchesDate =
+        (!this.startDate && !this.endDate) ||
+        this.isActivityAvailableInRange(activity, this.startDate, this.endDate);
+
+      return matchesSearch && matchesDate;
+    });
+
+    // Filter accommodations
+    this.filteredAccommodations = this.accommodations.filter((accom) => {
+      const matchesSearch =
+        !this.searchQuery ||
+        accom.name?.toLowerCase().includes(this.searchQuery);
+
+      const matchesDate =
+        (!this.startDate && !this.endDate) ||
+        this.isAccommodationAvailableInRange(
+          accom,
+          this.startDate,
+          this.endDate
+        );
+
+      return matchesSearch && matchesDate;
+    });
+  }
+
+  private isActivityAvailableInRange(
+    activity: any,
+    startDate: string,
+    endDate: string
+  ): boolean {
+    // If no dates provided, show all
+    if (!startDate && !endDate) return true;
+
+    // Filter based on created_at
+    if (activity.created_at) {
+      const createdDate = new Date(activity.created_at);
+      createdDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+      if (startDate && endDate) {
+        const filterStart = new Date(startDate);
+        const filterEnd = new Date(endDate);
+        filterStart.setHours(0, 0, 0, 0);
+        filterEnd.setHours(23, 59, 59, 999);
+        // Check if created_at is within the date range
+        return createdDate >= filterStart && createdDate <= filterEnd;
+      } else if (startDate) {
+        const filterStart = new Date(startDate);
+        filterStart.setHours(0, 0, 0, 0);
+        return createdDate >= filterStart;
+      } else if (endDate) {
+        const filterEnd = new Date(endDate);
+        filterEnd.setHours(23, 59, 59, 999);
+        return createdDate <= filterEnd;
+      }
+    }
+
+    return true;
+  }
+
+  private isAccommodationAvailableInRange(
+    accom: any,
+    startDate: string,
+    endDate: string
+  ): boolean {
+    // If no dates provided, show all
+    if (!startDate && !endDate) return true;
+
+    // Filter based on created_at
+    if (accom.created_at) {
+      const createdDate = new Date(accom.created_at);
+      createdDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
+      if (startDate && endDate) {
+        const filterStart = new Date(startDate);
+        const filterEnd = new Date(endDate);
+        filterStart.setHours(0, 0, 0, 0);
+        filterEnd.setHours(23, 59, 59, 999);
+        // Check if created_at is within the date range
+        return createdDate >= filterStart && createdDate <= filterEnd;
+      } else if (startDate) {
+        const filterStart = new Date(startDate);
+        filterStart.setHours(0, 0, 0, 0);
+        return createdDate >= filterStart;
+      } else if (endDate) {
+        const filterEnd = new Date(endDate);
+        filterEnd.setHours(23, 59, 59, 999);
+        return createdDate <= filterEnd;
+      }
+    }
+
+    return true;
+  }
+
   private loadActivities() {
     this.apiService.getAllActivityMasterData().subscribe({
       next: (response: any) => {
         this.activities = response.data || response;
+        this.filteredActivities = [...this.activities];
       },
       error: (err) => {
         console.error('Failed to load activities:', err);
@@ -101,6 +261,7 @@ export class HomePage implements OnInit {
     this.apiService.getAllAccommodations().subscribe({
       next: (response: any) => {
         this.accommodations = response.data || response;
+        this.filteredAccommodations = [...this.accommodations];
       },
       error: (err) => {
         console.error('Failed to load accommodations:', err);

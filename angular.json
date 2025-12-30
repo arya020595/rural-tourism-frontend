@@ -40,7 +40,6 @@
                 "output": ".",
                 "glob": "sw.js"
               }
-
             ],
             "styles": ["src/global.scss", "src/theme/variables.scss"],
             "scripts": [],
@@ -86,9 +85,7 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "host": "0.0.0.0",
-            "allowedHosts": [
-              ".ngrok-free.app"
-            ],
+            "allowedHosts": [".ngrok-free.app"],
             "disableHostCheck": true
           },
           "configurations": {
@@ -98,9 +95,6 @@
             "development": {
               "buildTarget": "app:build:development",
               "proxyConfig": "proxy.conf.json"
-            },
-            "ci": {
-              "progress": false
             }
           },
           "defaultConfiguration": "development"
@@ -137,7 +131,6 @@
           },
           "configurations": {
             "ci": {
-              "progress": false,
               "watch": false
             }
           }
@@ -145,19 +138,14 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@ionic/angular-toolkit"
-    ],
+    "schematicCollections": ["@ionic/angular-toolkit"],
     "analytics": false
   },
   "schematics": {
