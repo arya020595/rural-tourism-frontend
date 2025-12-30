@@ -1,8 +1,16 @@
 <!-- Side Menu -->
-<ion-menu menuId="mainMenu" side="start" contentId="main-content" type="overlay">
+<ion-menu
+  menuId="mainMenu"
+  side="start"
+  contentId="main-content"
+  type="overlay"
+>
   <ion-content class="side-menu ion-padding">
     <!-- Logo -->
-    <ion-img class="logo-side-panel" src="../../assets/icon/rt logo.png"></ion-img>
+    <ion-img
+      class="logo-side-panel"
+      src="../../assets/icon/rt logo.png"
+    ></ion-img>
 
     <!-- Show if NOT logged in -->
     <div *ngIf="!user; else loggedInTemplate" class="guest-details">
@@ -10,38 +18,68 @@
       <p>Want to make a booking for your next trip?</p>
       <p>You need to log in or register your account first</p>
       <hr />
-      <ion-button expand="block" style="border-radius: 10px;" [routerLink]="['/role']">
+      <ion-button
+        expand="block"
+        style="border-radius: 10px"
+        [routerLink]="['/role']"
+      >
         Log In Account
       </ion-button>
       <br /><br /><br />
-      <p>Don't have an account? <a [routerLink]="['/tourist/register']">Register Here</a></p>
+      <p>
+        Don't have an account?
+        <a [routerLink]="['/tourist/register']">Register Here</a>
+      </p>
     </div>
 
     <!-- Logged-in Template -->
     <ng-template #loggedInTemplate>
-      <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b; padding-bottom: 10px;">
+      <div
+        style="
+          margin-left: 5%;
+          border-bottom: 2px solid #6b6b6b;
+          padding-bottom: 10px;
+        "
+      >
         <ion-avatar>
-          <img alt="User Avatar" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+          <img
+            alt="User Avatar"
+            src="https://ionicframework.com/docs/img/demos/avatar.svg"
+          />
         </ion-avatar>
         <h3>{{ user?.name || user?.username || 'No name' }}</h3>
-        <p style="margin-top: 2%;">{{ user?.email || user?.user_email || 'No email' }}</p>
+        <p style="margin-top: 2%">
+          {{ user?.email || user?.user_email || 'No email' }}
+        </p>
       </div>
 
-      <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin: 10px 0;"
-        (click)="closeMenu()" [routerLink]="['/booking-home']">
+      <ion-item
+        mode="ios"
+        class="item-nav"
+        detail="false"
+        style="--background: white; margin: 10px 0"
+        (click)="closeMenu()"
+        [routerLink]="['/booking-home']"
+      >
         <ion-icon name="clipboard" slot="start"></ion-icon>
         Booking/Transaction History
       </ion-item>
 
-      <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin: 10px 0;"
-        (click)="closeMenu()" [routerLink]="['/messages']">
+      <ion-item
+        mode="ios"
+        class="item-nav"
+        detail="false"
+        style="--background: white; margin: 10px 0"
+        (click)="closeMenu()"
+        [routerLink]="['/messages']"
+      >
         <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
         Messages
       </ion-item>
 
       <ion-item (click)="logOut()" class="item-nav" detail="false" lines="none">
-        <ion-icon style="color:red" name="log-out" slot="start"></ion-icon>
-        <ion-text style="color:red">Log-Out</ion-text>
+        <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
+        <ion-text style="color: red">Log-Out</ion-text>
       </ion-item>
     </ng-template>
   </ion-content>
@@ -62,20 +100,33 @@
     <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
 
     <!-- Searchbar -->
-    <ion-searchbar class="searchbar" search-icon="search" placeholder="Start Your Search"></ion-searchbar>
+    <ion-searchbar
+      class="searchbar"
+      search-icon="search"
+      placeholder="Start Your Search"
+    ></ion-searchbar>
 
     <!-- Segment Buttons -->
     <ion-segment [(ngModel)]="selectedSegment" scrollable>
       <ion-segment-button value="activity">
-        <img src="assets/icon/activity_mountain_icon.png" class="segment-icon" />
+        <img
+          src="assets/icon/activity_mountain_icon.png"
+          class="segment-icon"
+        />
         <ion-label>Activity</ion-label>
       </ion-segment-button>
       <ion-segment-button value="accommodation">
-        <img src="assets/icon/accommodation_hotel_icon.png" class="segment-icon" />
+        <img
+          src="assets/icon/accommodation_hotel_icon.png"
+          class="segment-icon"
+        />
         <ion-label>Accommodation</ion-label>
       </ion-segment-button>
       <ion-segment-button value="package">
-        <img src="assets/icon/fullpackage_package_icon.png" class="segment-icon" />
+        <img
+          src="assets/icon/fullpackage_package_icon.png"
+          class="segment-icon"
+        />
         <ion-label>Package</ion-label>
       </ion-segment-button>
     </ion-segment>
@@ -83,17 +134,26 @@
     <!-- Activity Section -->
     <div class="section" *ngIf="selectedSegment === 'activity'">
       <ion-text class="section-title">
-        <h2>What's happening in Kiulu <ion-icon name="chevron-forward-outline"></ion-icon></h2>
+        <h2>
+          What's happening in Kiulu
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </h2>
       </ion-text>
 
       <!-- All Activities -->
       <div class="horizontal-scroll">
-        <ion-card class="option-card" *ngFor="let activity of activities" (click)="goToOperatorList(activity.id)">
-          <img [src]="activity.image || '/assets/placeholder.jpg'" alt="{{ activity.activity_name }}" />
+        <ion-card
+          class="option-card"
+          *ngFor="let activity of activities"
+          (click)="goToOperatorList(activity.id)"
+        >
+          <img
+            [src]="activity.image || '/assets/placeholder.jpg'"
+            alt="{{ activity.activity_name }}"
+          />
           <div class="card-title-overlay">{{ activity.activity_name }}</div>
         </ion-card>
       </div>
-
 
       <!-- Suggested Activities -->
       <div class="section" *ngIf="suggestedActivities.length > 0">
@@ -101,91 +161,67 @@
           <h2>Suggestions <ion-icon name="star-outline"></ion-icon></h2>
         </ion-text>
         <div class="horizontal-scroll">
-          <ion-card class="option-card" *ngFor="let suggestion of suggestedActivities" (click)="goToOperatorList(suggestion.activity_id)">
-            <img [src]="suggestion.image || '/assets/placeholder.jpg'" alt="{{ suggestion.activity_name }}" />
+          <ion-card
+            class="option-card"
+            *ngFor="let suggestion of suggestedActivities"
+            (click)="goToOperatorList(suggestion.activity_id)"
+          >
+            <img
+              [src]="suggestion.image || '/assets/placeholder.jpg'"
+              alt="{{ suggestion.activity_name }}"
+            />
             <div class="card-title-overlay">{{ suggestion.activity_name }}</div>
           </ion-card>
         </div>
-
       </div>
     </div>
 
     <!-- Accommodation Section -->
 
-<div class="section" *ngIf="selectedSegment === 'accommodation'">
-  <ion-text class="section-title">
-    <h2>
-      Popular Accommodations in Kiulu
-      <ion-icon name="chevron-forward-outline"></ion-icon>
-    </h2>
-  </ion-text>
-
-  <!-- Scrollable Accommodations List -->
-  <div class="horizontal-scroll">
-    <ion-card
-      class="option-card"
-      *ngFor="let accom of accommodations"
-      (click)="goToAccommodationDetails(accom.id)"
-    >
-      <div class="card-image-wrapper">
-        <img
-          [src]="getAccommodationImage(accom.image)"
-          alt="{{ accom.name }}"
-          class="accom-image"
-        />
-      </div>
-      <div class="card-title-overlay">
-        {{ accom.name }}
-      </div>
-    </ion-card>
-  </div>
-
-  <!-- If no accommodations -->
-  <div *ngIf="accommodations.length === 0" style="text-align:center; margin-top: 20px;">
-    <ion-text color="medium">
-      <p>No accommodations available at the moment.</p>
-    </ion-text>
-  </div>
-</div>
-
-    <!-- <div class="section" *ngIf="selectedSegment === 'accommodation'"> -->
-      <!-- <ion-text class="section-title">
-        <h2>Popular Accommodations in Kiulu <ion-icon name="chevron-forward-outline"></ion-icon></h2>
+    <div class="section" *ngIf="selectedSegment === 'accommodation'">
+      <ion-text class="section-title">
+        <h2>
+          Popular Accommodations in Kiulu
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </h2>
       </ion-text>
-      <div class="horizontal-scroll">
-        <ion-card class="option-card">
-          <img src="assets/kiulu-riverside-chalet.jpg" />
-          <div class="card-title-overlay">Kiulu Riverside Chalet</div>
-        </ion-card>
-        <ion-card class="option-card">
-          <img src="assets/kiulu-hotel-o-disan-baang.jpg" />
-          <div class="card-title-overlay">Hotel O Disan Baang Kiulu</div>
-        </ion-card>
-        <ion-card class="option-card">
-          <img src="assets/kiulu-farmstay.jpg" />
-          <div class="card-title-overlay">Kiulu Farmstay</div>
-        </ion-card>
-      </div> -->
 
-      <!-- <ion-text class="section-title">
-        <h2>Available in Kiulu <ion-icon name="chevron-forward-outline"></ion-icon></h2>
-      </ion-text>
+      <!-- Scrollable Accommodations List -->
       <div class="horizontal-scroll">
-        <ion-card class="option-card">
-          <img src="assets/kiulu-farmstay.jpg" />
-          <div class="card-title-overlay">Kiulu Farmstay</div>
-        </ion-card>
-        <ion-card class="option-card">
-          <img src="assets/kiulu-riverside-chalet.jpg" />
-          <div class="card-title-overlay">Kiulu Riverside Chalet</div>
+        <ion-card
+          class="option-card"
+          *ngFor="let accom of accommodations"
+          (click)="goToAccommodationDetails(accom.id)"
+        >
+          <div class="card-image-wrapper">
+            <img
+              [src]="getAccommodationImage(accom.image)"
+              alt="{{ accom.name }}"
+              class="accom-image"
+            />
+          </div>
+          <div class="card-title-overlay">{{ accom.name }}</div>
         </ion-card>
       </div>
-    </div> -->
+
+      <!-- If no accommodations -->
+      <div
+        *ngIf="accommodations.length === 0"
+        style="text-align: center; margin-top: 20px"
+      >
+        <ion-text color="medium">
+          <p>No accommodations available at the moment.</p>
+        </ion-text>
+      </div>
+    </div>
 
     <!-- Package Section -->
     <div class="section-coming-soon" *ngIf="selectedSegment === 'package'">
-      <ion-text class="section-title" style="text-align:center;">
-        <img class="service-unavailable-icon" src="assets/icon/service_unavailable.png" />
+      <ion-text class="section-title" style="text-align: center">
+        <img
+          class="service-unavailable-icon"
+          src="assets/icon/service_unavailable.png"
+        />
         <h2>Sorry, this selection is not available yet!</h2>
       </ion-text>
     </div>
