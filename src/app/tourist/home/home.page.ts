@@ -185,9 +185,10 @@ export class HomePage implements OnInit {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
 
-    // Filter based on created_at
-    if (activity.created_at) {
-      const createdDate = new Date(activity.created_at);
+    // Filter based on createdAt or created_at (support both formats)
+    const createdAtValue = activity.createdAt || activity.created_at;
+    if (createdAtValue) {
+      const createdDate = new Date(createdAtValue);
       createdDate.setHours(0, 0, 0, 0); // Reset time to start of day
 
       if (startDate && endDate) {
@@ -195,7 +196,7 @@ export class HomePage implements OnInit {
         const filterEnd = new Date(endDate);
         filterStart.setHours(0, 0, 0, 0);
         filterEnd.setHours(23, 59, 59, 999);
-        // Check if created_at is within the date range
+        // Check if createdAt is within the date range
         return createdDate >= filterStart && createdDate <= filterEnd;
       } else if (startDate) {
         const filterStart = new Date(startDate);
@@ -219,9 +220,10 @@ export class HomePage implements OnInit {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
 
-    // Filter based on created_at
-    if (accom.created_at) {
-      const createdDate = new Date(accom.created_at);
+    // Filter based on createdAt or created_at (support both formats)
+    const createdAtValue = accom.createdAt || accom.created_at;
+    if (createdAtValue) {
+      const createdDate = new Date(createdAtValue);
       createdDate.setHours(0, 0, 0, 0); // Reset time to start of day
 
       if (startDate && endDate) {
@@ -229,7 +231,7 @@ export class HomePage implements OnInit {
         const filterEnd = new Date(endDate);
         filterStart.setHours(0, 0, 0, 0);
         filterEnd.setHours(23, 59, 59, 999);
-        // Check if created_at is within the date range
+        // Check if createdAt is within the date range
         return createdDate >= filterStart && createdDate <= filterEnd;
       } else if (startDate) {
         const filterStart = new Date(startDate);
