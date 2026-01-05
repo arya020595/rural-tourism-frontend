@@ -26,18 +26,17 @@
         <h3>{{ user?.name || user?.username || 'No name' }}</h3>
         <p style="margin-top: 2%;">{{ user?.email || user?.user_email || 'No email' }}</p>
       </div>
-
-      <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin: 10px 0;"
-        (click)="closeMenu()" [routerLink]="['/booking-home']">
+      
+      <ion-item (click)="featureNotAvailable()" class="item-nav" detail="false" lines="none">
         <ion-icon name="clipboard" slot="start"></ion-icon>
-        Booking/Transaction History
+        <ion-text>Booking/Transaction History</ion-text>
       </ion-item>
-
-      <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin: 10px 0;"
-        (click)="closeMenu()" [routerLink]="['/messages']">
-        <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
-        Messages
+      
+      <ion-item (click)="featureNotAvailable()" class="item-nav" detail="false" lines="none">
+        <ion-icon name="chatbubbles" slot="start"></ion-icon>
+        <ion-text>Messages</ion-text>
       </ion-item>
+      
 
       <ion-item (click)="logOut()" class="item-nav" detail="false" lines="none">
         <ion-icon style="color:red" name="log-out" slot="start"></ion-icon>

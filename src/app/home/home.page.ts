@@ -99,6 +99,19 @@ export class HomePage implements OnInit {
     });
   }
 
+  //Toast Message for Feature Not Available
+  async featureNotAvailable(): Promise<void>{
+    const toast = await this.toastController.create({
+      message: 'This option feature is not available yet.', 
+      duration: 2000, 
+      position: 'bottom',
+      color: 'medium',
+      icon: 'information-circle'
+    });
+    
+    await toast.present();
+  }
+
   /** Navigate to notifications and mark all as read */
   goToNotifications(): void {
     if (!this.uid) return;

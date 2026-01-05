@@ -46,6 +46,22 @@
         </ion-input>
       </ion-item>
 
+      <!--Nationality-->
+      <ion-item class="no-border" style="margin-top: -10px;">
+      <ion-label mode="ios" position="stacked" class="question-label-grey">Nationality</ion-label>
+      <ion-select
+        [(ngModel)]="nationality"
+        name="nationality"
+        placeholder="Select your nationality"
+        (ionChange)="onNationalityChange()"
+        class="form-input"
+        required>
+        <ion-select-option *ngFor="let nation of nationalities" [value]="nation">
+          {{ nation }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
       <!-- Contact Number (inline layout) -->
        <ion-item class="no-border" style="margin-top: -10px;">
   <ion-label mode="ios" position="stacked" class="question-label-grey">Contact No.</ion-label>
@@ -65,6 +81,8 @@
       </ion-select-option>
     </ion-select>
 
+ 
+
     <!-- Contact Number Input -->
     <ion-input
       [(ngModel)]="contact_no"
@@ -77,10 +95,6 @@
     ></ion-input>
   </div>
 </ion-item>
-
-
-
-
 
       <!-- <ion-item class="no-border" style="margin-top: -10px;">
         <ion-label mode="ios" position="stacked" class="question-label-grey">Contact No.</ion-label>
@@ -132,21 +146,7 @@
         </ion-input>
       </ion-item>
 
-      <!--Nationality-->
-      <ion-item class="no-border" style="margin-top: -10px;">
-      <ion-label mode="ios" position="stacked" class="question-label-grey">Nationality</ion-label>
-      <ion-select
-        [(ngModel)]="nationality"
-        name="nationality"
-        placeholder="Select your nationality"
-        (ionChange)="onNationalityChange()"
-        class="form-input"
-        required>
-        <ion-select-option *ngFor="let nation of nationalities" [value]="nation">
-          {{ nation }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+
 
       <!-- <ion-item class="no-border" style="margin-top: -10px;">
         <ion-label mode="ios" position="stacked" class="question-label-grey">Nationality</ion-label>

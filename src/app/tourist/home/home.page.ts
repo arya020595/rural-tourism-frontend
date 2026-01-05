@@ -26,6 +26,20 @@ export class HomePage implements OnInit {
   ) {}
 
 
+  //Toast Message for Feature Not Available
+  async featureNotAvailable(): Promise<void>{
+    const toast = await this.toastController.create({
+      message: 'This option feature is not available yet.', 
+      duration: 2000, 
+      position: 'bottom',
+      color: 'medium',
+      icon: 'information-circle'
+    });
+    
+    await toast.present();
+  }
+
+
   async logoutToast() {
     const toast = await this.toastController.create({
       message: "User Logged Out",

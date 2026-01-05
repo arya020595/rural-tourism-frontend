@@ -56,7 +56,7 @@
                 </ion-text>
               </ion-item>
 
-              <ion-item class="no-border">
+              <!-- <ion-item class="no-border">
                 <ion-label mode="ios" position="stacked" class="question-label-grey">Logo Syarikat / Company Logo</ion-label>
                 <input 
                   type="file" 
@@ -64,7 +64,7 @@
                   (change)="onLogoSelected($event)" 
                   class="form-input"
                 />
-              </ion-item>
+              </ion-item> -->
 
               <ion-item class="no-border">
                 <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label>
@@ -256,7 +256,7 @@
               </ion-row> -->
 
               <ion-alert [isOpen]="isAlertOpen" header="Akaun Berjaya Didaftarkan!"
-                subHeader="Account Created Successfully!" [buttons]="alertButtons" (didDismiss)="setOpen(false)"
+                subHeader="You have successfully registered! Proceed clicking 'OK' to log in to your registered account." [buttons]="alertButtons" (didDismiss)="setOpen(false)"
                 backdropDismiss="false"></ion-alert>
 
               <ion-row style="margin-top: 5vh;">
@@ -407,12 +407,6 @@
 
               </ion-item> -->
 
-
-
-
-              <ion-alert [isOpen]="isAlertOpen" header="Akaun Berjaya Didaftarkan!"
-                subHeader="Account Created Successfully!" [buttons]="alertButtons" (didDismiss)="setOpen(false)"
-                backdropDismiss="false"></ion-alert>
 
               <ion-row style="margin-top: 5vh;">
                 <ion-col>

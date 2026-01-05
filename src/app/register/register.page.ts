@@ -112,8 +112,8 @@ export class RegisterPage implements OnInit {
     {
       text: 'OK',
       handler: () => {
-        // Navigate to the /home route when the button is pressed
-        this.router.navigate(['/home']);
+        // Navigate to the /login route when the button is pressed for operators
+        this.router.navigate(['/login']);
       },
     },
   ];

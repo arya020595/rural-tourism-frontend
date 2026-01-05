@@ -22,7 +22,8 @@
     class="option-card" 
     *ngFor="let operator of operators"
     [routerLink]="['/activity-operator-detail', operator.id]">
-    <img [src]="operator.image || 'assets/default-operator.jpg'" />
+    <!-- <img [src]="operator.image || 'assets/default-operator.jpg'" /> -->
+     <img [src]="getOperatorImage(operator.image)" />
     <div class="card-title-overlay">
       {{ operator.business_name }}
     </div>

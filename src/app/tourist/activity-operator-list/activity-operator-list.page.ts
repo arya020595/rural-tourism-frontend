@@ -39,6 +39,21 @@ ngOnInit() {
     });
   }
 
+getOperatorImage(image: string | null | undefined): string {
+  if (!image) {
+    return 'assets/default-operator.jpg';
+  }
+
+  // Already full URL or base64
+  if (image.startsWith('http') || image.startsWith('data:image')) {
+    return image;
+  }
+
+  // Assume filename from backend
+  return `http://localhost:3000/uploads/operators/${image}`;
+}
+
+
 loadOperators(activityId: string) {
   this.api.getOperatorsByActivityId(activityId).subscribe(
     (res: any[]) => {

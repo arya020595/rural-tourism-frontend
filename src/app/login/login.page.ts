@@ -45,36 +45,72 @@ async successToast(msg: string) {
 
     submitted = false;
 
-    login(form: NgForm){
-      this.submitted = true;
+    // login(form: NgForm){
+    //   this.submitted = true;
 
-      if(form.valid){
+    //   if(form.valid){
 
-        // console.log(this.password)
-      const credentials = { username: this.username, password: this.password };
+    //     // console.log(this.password)
+    //   const credentials = { username: this.username, password: this.password };
+    //   this.successToast('Login successful!');
+
+    //   this.apiService.login(credentials).subscribe(
+    //     response => {
+    //       console.log('Login successful:', response);
+    //       localStorage.setItem('token', response.token);
+    //       localStorage.setItem('uid', response.id);
+    //       //localStorage.setItem('user', JSON.stringify(response));
+
+    //       this.navCtrl.navigateRoot('/home');
+    //     },
+    //     error => {
+    //       console.error('Login failed:', error);
+    //       this.errorToast(error.status)
+    //       // alert('Invalid username or password');
+    //       // console.log(error);
+    //     }
+    //   );
+
+    //   }
+      
+      
+    // }
+
+    login(form: NgForm) {
+  this.submitted = true;
+
+  if (!form.valid) {
+    return;
+  }
+
+  const credentials = {
+    username: this.username,
+    password: this.password
+  };
+
+  this.apiService.login(credentials).subscribe(
+    (response) => {
+      console.log('Login successful:', response);
+
+      // Save auth data
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('uid', response.id);
+
+      // Show success toast ONLY here
       this.successToast('Login successful!');
 
-      this.apiService.login(credentials).subscribe(
-        response => {
-          console.log('Login successful:', response);
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('uid', response.id);
-          //localStorage.setItem('user', JSON.stringify(response));
+      // Navigate after success
+      this.navCtrl.navigateRoot('/home');
+    },
+    (error) => {
+      console.error('Login failed:', error);
 
-          this.navCtrl.navigateRoot('/home');
-        },
-        error => {
-          console.error('Login failed:', error);
-          this.errorToast(error.status)
-          // alert('Invalid username or password');
-          // console.log(error);
-        }
-      );
-
-      }
-      
-      
+      // Only show error toast here
+      this.errorToast(error.status);
     }
+  );
+}
+
 
   ngOnInit() {
     this.checkStandaloneMode();

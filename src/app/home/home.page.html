@@ -7,6 +7,9 @@
   </ion-header>
   <ion-content style="--background:white" class="ion-padding">
 
+    <!-- Logo -->
+    <ion-img class="logo-side-panel" src="../../assets/icon/rt logo.png"></ion-img>
+
     <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b;">
       <ion-avatar>
         <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
@@ -24,11 +27,18 @@
       Tambah Aktiviti/Tempat Penginapan
     </ion-item>
 
+    
     <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 10%;"
+      (click)="featureNotAvailable()">
+      <ion-icon name="chatbubbles" slot="start"></ion-icon>
+      Mesej/Messages
+    </ion-item>
+
+    <!-- <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 10%;"
       (click)="closeMenu()" [routerLink]="['/booking-home']">
       <ion-icon name="calendar-outline" slot="start"></ion-icon>
       Booking Destinasi & Aktiviti
-    </ion-item>
+    </ion-item> -->
 
     <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 5%;"
       (click)="closeMenu()" [routerLink]="['/transaction']">
