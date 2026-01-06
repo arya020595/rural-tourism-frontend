@@ -1,13 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { register } from 'swiper/element/bundle';
-import { trigger, transition, animate, style } from '@angular/animations';
-import { Router } from '@angular/router';
-import Swiper from 'swiper';
-import { ApiService } from '../services/api.service';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { forkJoin, mergeMap } from 'rxjs';
-import { catchError, of } from 'rxjs';
+import { Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
+import { catchError, forkJoin, mergeMap, of } from 'rxjs';
+import Swiper from 'swiper';
+import { register } from 'swiper/element/bundle';
+import { ApiService } from '../services/api.service';
 
 register();
 
@@ -19,21 +18,16 @@ register();
     trigger('fadeInOut', [
       transition(':enter', [
         style({ opacity: 0 }),
-        animate('300ms 100ms', style({ opacity: 1 }))
+        animate('300ms 100ms', style({ opacity: 1 })),
       ]),
-      transition(':leave', [
-        animate('300ms', style({ opacity: 0 }))
-      ])
-    ])
-  ]
-
+      transition(':leave', [animate('300ms', style({ opacity: 0 }))]),
+    ]),
+  ],
 })
-export class RegisterPage implements OnInit {
-
-
+export class RegisterPage implements AfterViewInit {
   @ViewChild('swiper')
   swiperRef: ElementRef | undefined;
-  swiper?: Swiper
+  swiper?: Swiper;
 
   currentStep = 1; // Track the current step (1 = Step 1, 2 = Step 2, 3 = Step 3)
   selectedOption: string = '';
@@ -42,8 +36,8 @@ export class RegisterPage implements OnInit {
   @ViewChild('form') form: any;
 
   confirmPass = {
-    confPass: ''
-  }
+    confPass: '',
+  };
 
   formData = {
     user_id: '',
@@ -58,17 +52,16 @@ export class RegisterPage implements OnInit {
     company_logo: null,
   };
 
- activityData = {
-  activity_id: '',
-  activity_name: '',
-  description: '',
-  price: '',
-  image: '',        // Can be a filename or base64 path
-  district: '',
-  things_to_know: '',
-  user_id: localStorage.getItem('uid'),
-};
-
+  activityData = {
+    activity_id: '',
+    activity_name: '',
+    description: '',
+    price: '',
+    image: '', // Can be a filename or base64 path
+    district: '',
+    things_to_know: '',
+    user_id: localStorage.getItem('uid'),
+  };
 
   accomData = {
     homest_id: '',
@@ -77,13 +70,12 @@ export class RegisterPage implements OnInit {
     user_id: '',
   };
 
-
   constructor(
     private router: Router,
     private apiService: ApiService,
     private navCtrl: NavController,
     private toastController: ToastController
-  ) { }
+  ) {}
 
   //cancel button
   cancelButton = [
@@ -99,8 +91,8 @@ export class RegisterPage implements OnInit {
       role: 'confirm',
       handler: () => {
         this.navCtrl.navigateForward('/login', {
-          animated: true,        // Enable animation
-          animationDirection: 'back'  // Can be 'forward' or 'back' for custom direction
+          animated: true, // Enable animation
+          animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
         });
       },
     },
@@ -122,11 +114,6 @@ export class RegisterPage implements OnInit {
     this.swiperReady();
   }
 
-  ngOnInit() {
-  }
-
-
-  
   onLogoSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
@@ -139,9 +126,9 @@ export class RegisterPage implements OnInit {
     const toast = await this.toastController.create({
       message: msg,
       duration: 1500,
-      position: "middle",
+      position: 'middle',
       cssClass: 'error-toast',
-       icon: 'alert-circle'
+      icon: 'alert-circle',
     });
 
     await toast.present();
@@ -172,7 +159,6 @@ export class RegisterPage implements OnInit {
     return `act_${formattedRandomPart}`; // Concatenate 'RE' with the 7-digit random number
   }
 
-
   //initialize swiper
   swiperReady() {
     // Ensure swiperRef is initialized, and access the swiper instance
@@ -186,11 +172,10 @@ export class RegisterPage implements OnInit {
     }
   }
 
-
   renderPg: boolean = false;
   // swiper navigation
   goNext() {
-    this.swiper?.slideNext()
+    this.swiper?.slideNext();
     this.checkFormValidity();
     this.renderPg = true;
   }
@@ -210,7 +195,6 @@ export class RegisterPage implements OnInit {
     // console.log(event)
   }
 
-
   // Go to the next step
   goToStep(step: number) {
     this.currentStep = step;
@@ -227,7 +211,11 @@ export class RegisterPage implements OnInit {
   passwordMatchValidator(form: NgForm) {
     const password = form.controls['password'];
     const confirmPassword = form.controls['confPass'];
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
+    if (
+      password &&
+      confirmPassword &&
+      password.value !== confirmPassword.value
+    ) {
       confirmPassword.setErrors({ passwordMismatch: true });
     } else {
       confirmPassword.setErrors(null);
@@ -237,7 +225,6 @@ export class RegisterPage implements OnInit {
   // Register the form data and log it
   // submitForm(form: NgForm) {
 
-
   //   if (form.valid) {
 
   //     const user_id = this.generateUserId()
@@ -245,7 +232,6 @@ export class RegisterPage implements OnInit {
   //     this.formData.user_id = user_id
 
   //     console.log(this.confirmPass.confPass);
-
 
   //     //create new user
   //     this.apiService.createUser(this.formData).subscribe(
@@ -295,100 +281,100 @@ export class RegisterPage implements OnInit {
   //       )
   //     }
 
-
-
-
   //     console.log('Form Data:', this.formData);
   //     console.log('Accomm Data:', this.accomData);
   //     console.log('activity Data:', this.activityData);
   //     this.setOpen(true);
 
-
   //   } else {
   //     alert("Ada Salah")
   //   }
 
-
-
   // }
 
   //registration form step by step check
-submitForm(form: NgForm) {
-  if (form.valid) {
-    const user_id = this.generateUserId();
-    this.formData.user_id = user_id;
+  submitForm(form: NgForm) {
+    if (form.valid) {
+      const user_id = this.generateUserId();
+      this.formData.user_id = user_id;
 
-    // Prepare FormData for user creation
-    const payload = new FormData();
-    payload.append('user_id', this.formData.user_id);
-    payload.append('business_name', this.formData.business_name);
-    payload.append('district', this.formData.district);
-    payload.append('full_name', this.formData.full_name);
-    payload.append('username', this.formData.username);
-    payload.append('user_email', this.formData.user_email);
-    payload.append('password', this.formData.password);
-    payload.append('securityQ1', this.formData.securityQ1);
-    payload.append('securityQ2', this.formData.securityQ2);
+      // Prepare FormData for user creation
+      const payload = new FormData();
+      payload.append('user_id', this.formData.user_id);
+      payload.append('business_name', this.formData.business_name);
+      payload.append('district', this.formData.district);
+      payload.append('full_name', this.formData.full_name);
+      payload.append('username', this.formData.username);
+      payload.append('user_email', this.formData.user_email);
+      payload.append('password', this.formData.password);
+      payload.append('securityQ1', this.formData.securityQ1);
+      payload.append('securityQ2', this.formData.securityQ2);
 
-    // Append logo if it exists
-    if (this.formData.company_logo) {
-      payload.append('company_logo', this.formData.company_logo);
-    }
-
-    // Step 1: Create the user first
-    this.apiService.createUser(payload).pipe(
-      mergeMap((userResponse) => {
-        console.log('User created successfully:', userResponse);
-
-        let createActivity$ = of(null);
-        let createAccommodation$ = of(null);
-
-        if (this.selectedOption === "activity") {
-          console.log("activity");
-          this.activityData.activity_id = this.generateActId();
-          this.activityData.user_id = user_id;
-          createActivity$ = this.apiService.createActivity(this.activityData).pipe(
-            catchError(error => {
-              console.log('Failed to create activity:', error);
-              return of(null);
-            })
-          );
-        }
-
-        if (this.selectedOption === "accommodation") {
-          console.log("accommodation");
-          this.accomData.homest_id = this.generateAccommId();
-          this.accomData.user_id = user_id;
-          createAccommodation$ = this.apiService.createAccom(this.accomData).pipe(
-            catchError(error => {
-              console.log('Failed to create accommodation:', error);
-              return of(null);
-            })
-          );
-        }
-
-        return forkJoin([createActivity$, createAccommodation$]);
-      })
-    ).subscribe(
-      (responses) => {
-        const [activityResponse, accommodationResponse] = responses;
-        if (activityResponse || accommodationResponse) {
-          console.log('Activity or Accommodation created successfully');
-        }
-
-        this.setOpen(true);
-        localStorage.setItem('uid', user_id);
-      },
-      (error) => {
-        console.log('Registration failed:', error.error?.error || error);
-        this.errorToast(error.error?.error || 'Registration failed');
+      // Append logo if it exists
+      if (this.formData.company_logo) {
+        payload.append('company_logo', this.formData.company_logo);
       }
-    );
-  } else {
-    alert("Error: Registration failed");
-  }
-}
 
+      // Step 1: Create the user first
+      this.apiService
+        .createUser(payload)
+        .pipe(
+          mergeMap((userResponse) => {
+            console.log('User created successfully:', userResponse);
+
+            let createActivity$ = of(null);
+            let createAccommodation$ = of(null);
+
+            if (this.selectedOption === 'activity') {
+              console.log('activity');
+              this.activityData.activity_id = this.generateActId();
+              this.activityData.user_id = user_id;
+              createActivity$ = this.apiService
+                .createActivity(this.activityData)
+                .pipe(
+                  catchError((error) => {
+                    console.log('Failed to create activity:', error);
+                    return of(null);
+                  })
+                );
+            }
+
+            if (this.selectedOption === 'accommodation') {
+              console.log('accommodation');
+              this.accomData.homest_id = this.generateAccommId();
+              this.accomData.user_id = user_id;
+              createAccommodation$ = this.apiService
+                .createAccom(this.accomData)
+                .pipe(
+                  catchError((error) => {
+                    console.log('Failed to create accommodation:', error);
+                    return of(null);
+                  })
+                );
+            }
+
+            return forkJoin([createActivity$, createAccommodation$]);
+          })
+        )
+        .subscribe(
+          (responses) => {
+            const [activityResponse, accommodationResponse] = responses;
+            if (activityResponse || accommodationResponse) {
+              console.log('Activity or Accommodation created successfully');
+            }
+
+            this.setOpen(true);
+            localStorage.setItem('uid', user_id);
+          },
+          (error) => {
+            console.log('Registration failed:', error.error?.error || error);
+            this.errorToast(error.error?.error || 'Registration failed');
+          }
+        );
+    } else {
+      alert('Error: Registration failed');
+    }
+  }
 
   // Add a method to check if the form is complete
   isFormComplete() {
@@ -400,7 +386,6 @@ submitForm(form: NgForm) {
     }
     return false;
   }
-
 
   setOpen(isOpen: boolean) {
     this.isAlertOpen = isOpen;
