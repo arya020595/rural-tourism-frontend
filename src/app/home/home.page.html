@@ -1,44 +1,68 @@
 <!-- side menu -->
 <ion-menu class="side-menu" menuId="menu" contentId="main-content">
   <ion-header>
-    <ion-toolbar style="--background:white">
+    <ion-toolbar style="--background: white">
       <!-- <ion-title>First Menu</ion-title> -->
     </ion-toolbar>
   </ion-header>
-  <ion-content style="--background:white" class="ion-padding">
-
-    <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b;">
+  <ion-content style="--background: white" class="ion-padding">
+    <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b">
       <ion-avatar>
-        <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+        <img
+          alt="Silhouette of a person's head"
+          src="https://ionicframework.com/docs/img/demos/avatar.svg"
+        />
       </ion-avatar>
       <h3>{{ user?.username }}</h3>
-      <p style="margin-top: 2%;">{{ user?.user_email}} </p>
+      <p style="margin-top: 2%">{{ user?.user_email}}</p>
     </div>
-    
 
     <!-- <ion-list class="item-nav" style="--background:white; margin-top: 10%;"> -->
 
-    <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 10%;"
-      (click)="closeMenu()" [routerLink]="['/add-item']">
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 10%"
+      (click)="closeMenu()"
+      [routerLink]="['/add-item']"
+    >
       <ion-icon name="add-circle" slot="start"></ion-icon>
       Tambah Aktiviti/Tempat Penginapan
     </ion-item>
 
-    <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 10%;"
-      (click)="closeMenu()" [routerLink]="['/booking-home']">
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 10%"
+      (click)="closeMenu()"
+      [routerLink]="['/booking-home']"
+    >
       <ion-icon name="calendar-outline" slot="start"></ion-icon>
       Booking Destinasi & Aktiviti
     </ion-item>
 
-    <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 5%;"
-      (click)="closeMenu()" [routerLink]="['/transaction']">
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/transaction']"
+    >
       <ion-icon name="clipboard" slot="start"></ion-icon>
       Transaksi/Transaction History
-
     </ion-item>
 
-    <ion-item mode="ios" class="item-nav" detail="false" style="--background:white; margin-top: 5%;"
-      (click)="closeMenu()" [routerLink]="['/faq']">
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/faq']"
+    >
       <ion-icon name="help-outline" slot="start"></ion-icon>
       Soalan Lazim/Frequently Asked Questions (FAQ)
     </ion-item>
@@ -48,43 +72,49 @@
       <ion-text></ion-text>
     </ion-item> -->
 
-
-    <ion-item (click)="logOut()" class="item-nav" detail="false" style="--background:white;">
-      <ion-icon style="color:red" name="log-out" slot="start"></ion-icon>
-      <ion-text style="color:red">Log Keluar/Log-Out</ion-text>
+    <ion-item
+      (click)="logOut()"
+      class="item-nav"
+      detail="false"
+      style="--background: white"
+    >
+      <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
+      <ion-text style="color: red">Log Keluar/Log-Out</ion-text>
     </ion-item>
 
     <!-- </ion-list> -->
-
-
   </ion-content>
 </ion-menu>
 
 <!-- main content -->
 
-<ion-header style="height: 5vh; box-shadow: none;">
+<ion-header style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="menu" style="color: white;"></ion-menu-button>
+      <ion-menu-button menu="menu" style="color: white"></ion-menu-button>
     </ion-buttons>
 
-<ion-buttons slot="end">
-  <ion-button (click)="goToNotifications()" class="notification-button">
-    <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
-    <ion-badge *ngIf="unreadCount > 0" color="danger" class="notification-badge">
-      {{ unreadCount }}
-    </ion-badge>
-  </ion-button>
-</ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToNotifications()" class="notification-button">
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+        <ion-badge
+          *ngIf="unreadCount > 0"
+          color="danger"
+          class="notification-badge"
+        >
+          {{ unreadCount }}
+        </ion-badge>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-
-
-<ion-content [fullscreen]="true"  id="main-content">
-
+<ion-content [fullscreen]="true" id="main-content">
   <ion-card class="main-Container ion-no-margin">
-
     <!-- <ion-button expand="block" (click)="openFirstMenu()">Open First Menu</ion-button> -->
 
     <!-- <ion-card-header style="position: relative; right: 0; left: 0;"> -->
@@ -100,59 +130,55 @@
 
     <!-- </ion-card-header> -->
 
-
     <!-- <h2>{{ user.username }}</h2> -->
-    <ion-card-content style="margin-top: 15%; padding-left: 0%; padding-right: 0%;">
-
-
+    <ion-card-content
+      style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
+    >
       <!-- Activities Card -->
 
-      <ion-card class="custom-card" [routerLink]="['/activity-form']"> 
+      <ion-card class="custom-card" [routerLink]="['/activity-form']">
         <ion-row class="cards">
-            <div style="display: flex; flex-direction: row;">
-              <ion-card-title class="card-texts">Aktiviti<br>Tarikan</ion-card-title>
-              <img  src="../../assets/icon/tree.png" class="tree" />   
-            </div>
-        </ion-row>      
-        
-        
-              
-                  
+          <div style="display: flex; flex-direction: row">
+            <ion-card-title class="card-texts"
+              >Aktiviti<br />Tarikan</ion-card-title
+            >
+            <img src="../../assets/icon/tree.png" class="tree" />
+          </div>
+        </ion-row>
       </ion-card>
 
-      <ion-card class="custom-card2" style="margin-top: 5%;" [routerLink]="['/acco-form']">
+      <ion-card
+        class="custom-card2"
+        style="margin-top: 5%"
+        [routerLink]="['/acco-form']"
+      >
         <ion-row class="cards">
-          <div style="display: flex; flex-direction: row;">
-            <ion-card-title class="card-texts">Tempat <br>Penginapan</ion-card-title>
+          <div style="display: flex; flex-direction: row">
+            <ion-card-title class="card-texts"
+              >Tempat <br />Penginapan</ion-card-title
+            >
             <img src="../../assets/icon/house.png" class="house" />
           </div>
-
         </ion-row>
-       
-            
-            
-         
       </ion-card>
 
-      <ion-card class="custom-card3" style="margin-top: 5%;" [routerLink]="['/package-form']">
+      <ion-card
+        class="custom-card3"
+        style="margin-top: 5%"
+        [routerLink]="['/package-form']"
+      >
         <ion-row class="cards">
-          <div style="display: flex; flex-direction: row;">
-            <ion-card-title class="card-texts">Pakej <br>Pelancongan</ion-card-title>
-            <img src="../../assets/icon/pakej-removebg-preview.png" class="house" />
+          <div style="display: flex; flex-direction: row">
+            <ion-card-title class="card-texts"
+              >Pakej <br />Pelancongan</ion-card-title
+            >
+            <img
+              src="../../assets/icon/pakej-removebg-preview.png"
+              class="house"
+            />
           </div>
-
         </ion-row>
-       
-            
-            
-         
       </ion-card>
-
-
     </ion-card-content>
-
-
   </ion-card>
-
-
 </ion-content>

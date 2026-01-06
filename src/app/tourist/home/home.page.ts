@@ -185,31 +185,55 @@ export class HomePage implements OnInit {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
 
-    // Filter based on createdAt or created_at (support both formats)
-    const createdAtValue = activity.createdAt || activity.created_at;
-    if (createdAtValue) {
-      const createdDate = new Date(createdAtValue);
-      createdDate.setHours(0, 0, 0, 0); // Reset time to start of day
+    console.log(
+      'Checking activity:',
+      activity.activity_name,
+      'available_dates:',
+      activity.available_dates
+    );
 
-      if (startDate && endDate) {
-        const filterStart = new Date(startDate);
-        const filterEnd = new Date(endDate);
-        filterStart.setHours(0, 0, 0, 0);
-        filterEnd.setHours(23, 59, 59, 999);
-        // Check if createdAt is within the date range
-        return createdDate >= filterStart && createdDate <= filterEnd;
-      } else if (startDate) {
-        const filterStart = new Date(startDate);
-        filterStart.setHours(0, 0, 0, 0);
-        return createdDate >= filterStart;
-      } else if (endDate) {
-        const filterEnd = new Date(endDate);
-        filterEnd.setHours(23, 59, 59, 999);
-        return createdDate <= filterEnd;
-      }
+    // Check if activity has available_dates from operator_activities
+    if (
+      activity.available_dates &&
+      Array.isArray(activity.available_dates) &&
+      activity.available_dates.length > 0
+    ) {
+      const filterStart = new Date(startDate);
+      const filterEnd = new Date(endDate);
+      filterStart.setHours(0, 0, 0, 0);
+      filterEnd.setHours(23, 59, 59, 999);
+
+      console.log('Filter range:', filterStart, 'to', filterEnd);
+
+      // Check if any of the available dates fall within the selected range
+      const result = activity.available_dates.some((dateStr: string) => {
+        try {
+          const availableDate = new Date(dateStr);
+          availableDate.setHours(0, 0, 0, 0);
+          const isInRange =
+            availableDate >= filterStart && availableDate <= filterEnd;
+          console.log(
+            '  Date:',
+            dateStr,
+            '→',
+            availableDate,
+            'inRange:',
+            isInRange
+          );
+          return isInRange;
+        } catch (error) {
+          console.error('Error parsing available date:', dateStr, error);
+          return false;
+        }
+      });
+
+      console.log('Activity', activity.activity_name, 'matches:', result);
+      return result;
     }
 
-    return true;
+    // Fallback: if no available_dates, don't show in filtered results
+    console.log('Activity', activity.activity_name, 'has no available_dates');
+    return false;
   }
 
   private isAccommodationAvailableInRange(
@@ -251,6 +275,7 @@ export class HomePage implements OnInit {
     this.apiService.getAllActivityMasterData().subscribe({
       next: (response: any) => {
         this.activities = response.data || response;
+        console.log('Loaded activities with available_dates:', this.activities);
         this.filteredActivities = [...this.activities];
       },
       error: (err) => {

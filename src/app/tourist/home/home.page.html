@@ -203,7 +203,7 @@
           (click)="goToOperatorList(activity.id)"
         >
           <img
-            [src]="activity.image || '/assets/placeholder.jpg'"
+            [src]="getImageSource(activity.image)"
             alt="{{ activity.activity_name }}"
           />
           <div class="card-title-overlay">{{ activity.activity_name }}</div>
@@ -230,7 +230,7 @@
             (click)="goToOperatorList(suggestion.activity_id)"
           >
             <img
-              [src]="suggestion.image || '/assets/placeholder.jpg'"
+              [src]="getImageSource(suggestion.image)"
               alt="{{ suggestion.activity_name }}"
             />
             <div class="card-title-overlay">{{ suggestion.activity_name }}</div>
