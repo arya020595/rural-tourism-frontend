@@ -236,7 +236,11 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/notifications/operator/${operatorId}`);
   }
 
-  // Fetch operator info for accommodation (uses /api/users endpoint)
+  /**
+   * Fetch operator info for accommodation bookings.
+   * Operators are stored in rt_users table, so we use the /api/users endpoint.
+   * @param operatorId - The user_id of the operator (same as rt_user_id)
+   */
   getAccommodationOperatorById(operatorId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${operatorId}`);
   }
