@@ -53,12 +53,28 @@ export class LoginPage implements OnInit {
       this.apiService.login(credentials).subscribe(
         (response) => {
           console.log('Login successful:', response);
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('uid', response.id);
-          // Store user data in localStorage for fallback
-          if (response.user) {
-            localStorage.setItem('user', JSON.stringify(response.user));
+
+          // Get user_id from response - try multiple possible field names
+          const userId =
+            response.user_id ||
+            response.id ||
+            response.user?.user_id ||
+            response.user?.id;
+          console.log('User ID from response:', userId);
+
+          if (!userId) {
+            console.error('No user_id found in response:', response);
+            this.errorToast('Login failed: Invalid response from server');
+            return;
           }
+
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('uid', userId);
+
+          // Store user data in localStorage for fallback
+          const userData = response.user || response;
+          localStorage.setItem('user', JSON.stringify(userData));
+
           this.successToast('Login successful!');
           this.navCtrl.navigateRoot('/home');
         },

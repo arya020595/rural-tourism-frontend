@@ -92,6 +92,13 @@ export class AddItemPage implements OnInit {
   }
 
   ngOnInit() {
+    // Refresh user_id from localStorage to ensure we have the current user
+    const currentUserId = localStorage.getItem('uid');
+    this.activityData.user_id = currentUserId;
+    this.accomData.user_id = currentUserId;
+
+    console.log('Current user_id from localStorage:', currentUserId);
+
     this.loadActivityTypes();
   }
 
@@ -361,6 +368,13 @@ export class AddItemPage implements OnInit {
     // }
 
     if (this.selectedOption === 'accommodation') {
+      // Validate user exists
+      if (!this.accomData.user_id) {
+        alert('Error: User not logged in. Please login again.');
+        this.router.navigate(['/login']);
+        return;
+      }
+
       // Generate accommodation ID
       this.accomData.accommodation_id = this.generateAccommId();
 
@@ -382,6 +396,11 @@ export class AddItemPage implements OnInit {
         activity_id: this.accomData.activity_id,
       };
 
+      console.log(
+        'Submitting accommodation with user_id:',
+        this.accomData.user_id
+      );
+
       this.apiService.createAccom(dataToSend).subscribe(
         (res) => {
           console.log('Accommodation created:', res);
@@ -389,7 +408,13 @@ export class AddItemPage implements OnInit {
         },
         (err) => {
           console.error('Error creating accommodation:', err);
-          alert('Error: ' + JSON.stringify(err));
+          if (err.error?.message?.includes('foreign key constraint')) {
+            alert(
+              'Error: Your user account was not properly created. Please register again or contact support.'
+            );
+          } else {
+            alert('Error: ' + (err.error?.message || JSON.stringify(err)));
+          }
         }
       );
     }

@@ -316,11 +316,26 @@ export class RegisterPage implements AfterViewInit {
       }
 
       // Step 1: Create the user first
+      console.log('Registering user with ID:', user_id);
+      console.log('Payload fields:', {
+        user_id: this.formData.user_id,
+        username: this.formData.username,
+        user_email: this.formData.user_email,
+        business_name: this.formData.business_name,
+      });
+
       this.apiService
         .createUser(payload)
         .pipe(
           mergeMap((userResponse) => {
-            console.log('User created successfully:', userResponse);
+            console.log('User creation API response:', userResponse);
+
+            // Check if user was actually created
+            if (!userResponse || userResponse.error) {
+              throw new Error(
+                'User creation failed: ' + JSON.stringify(userResponse)
+              );
+            }
 
             let createActivity$ = of(null);
             let createAccommodation$ = of(null);
