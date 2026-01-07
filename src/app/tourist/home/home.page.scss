@@ -1,8 +1,8 @@
-*{
-  font-family: 'Roboto';
+* {
+  font-family: "Roboto";
 }
 
-ion-header{
+ion-header {
   background: #000;
 }
 
@@ -15,60 +15,105 @@ ion-toolbar {
 }
 
 ion-content {
-  --background: #000; /* light gray background for contrast */
+  --background: #000;
 }
 
-.item-nav{
+.item-nav {
   --padding-start: 0;
   --border-width: 0;
   --border-style: none !important;
   margin-left: 5%;
 }
 
+// Filter Controls
+.filter-controls {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  align-items: center;
 
-//Side Panel Menu
+  ion-button {
+    margin: 0;
+  }
+}
+
+.date-filter {
+  padding: 8px 16px;
+
+  ion-chip {
+    margin: 0;
+  }
+}
+
+.results-summary {
+  padding: 8px 16px;
+
+  p {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  text-align: center;
+
+  ion-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+// Side Panel Menu
 
 .side-menu {
   --background: #fff;
   padding: 50px;
   overflow: hidden;
+
+  h2 {
+    font-weight: bolder;
+  }
 }
 
-.side-menu h2{
-  font-weight: bolder;
-}
-
-.guest-details{
+.guest-details {
   margin-top: 10px;
   padding: 10px;
   margin-left: auto;
   margin-right: auto;
   display: block;
-}
 
-.guest-details hr {
-  border: none;
-  border-top: 1px solid #dddddd;
-  margin: 16px 0;
-}
+  hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 16px 0;
+  }
 
-.guest-details a {
-font-weight: bold;
---color: #025930;
+  a {
+    font-weight: bold;
+    --color: #025930;
+  }
 }
-
 
 .page-padding {
-  background-color: white; /* visible container */
+  background-color: white;
   height: auto;
   padding: 10px;
   border-top-left-radius: 40px;
   border-top-right-radius: 40px;
   box-sizing: border-box;
-  margin-top: 10px; /* add some space from the top of ion-content */
-  overflow: hidden; /* prevent overflow outside rounded corners */
+  margin-top: 10px;
+  overflow: hidden;
 }
-
 
 .logo {
   width: 250px;
@@ -103,7 +148,6 @@ ion-searchbar.searchbar {
   font-size: 14px;
 }
 
-
 // Ion Segment Styling (Options: Activity, Accommodation, Package)
 ion-segment {
   background-color: transparent;
@@ -135,10 +179,10 @@ ion-segment-button {
 
   &.segment-button-checked {
     ion-label {
-      color: #025930; 
+      color: #025930;
 
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 0;
         left: 0;
@@ -152,49 +196,58 @@ ion-segment-button {
   }
 }
 
+.section {
+  padding: 10px;
+  margin-top: 10px;
 
-.section{
- padding: 10px;
- margin-top: 10px;
-}
-.section h2{  
-  font-size: 16px;
-  color: #025930;
-  font-weight: bolder;
-  
+  h2 {
+    font-size: 16px;
+    color: #025930;
+    font-weight: bolder;
+  }
 }
 
 .horizontal-scroll {
   display: flex;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
-  padding: 20px; /* add horizontal padding */
-  gap: 1px; /* no gap to allow overlap */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
+  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+  gap: 1px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .option-card {
   width: 200px;
   height: 180px;
+  min-width: 200px;
+  min-height: 180px;
   margin-top: -10px;
-  margin-bottom: 0px;
-  min-width: 200px;  /* fixed width to make scrolling easier */
-  min-height: 180px; /* fixed height to make scrolling easier */
-  margin-right: 0; 
+  margin-bottom: 0;
+  margin-right: 0;
   transition: transform 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   position: relative;
   z-index: 0;
   border-radius: 8px;
-}
 
-.option-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:first-child {
+    margin-left: -20px;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    margin-right: 10px;
+    z-index: 10;
+  }
 }
 
 .card-title-overlay {
@@ -203,7 +256,6 @@ ion-segment-button {
   left: 0;
   right: 0;
   padding: 10px;
-  // background: rgba(0, 0, 0, 0.5); /* semi-transparent black */
   color: #fff;
   font-weight: 600;
   font-size: 16px;
@@ -211,50 +263,38 @@ ion-segment-button {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
   z-index: 1;
 }
-/* cancels container's left padding */
-.option-card:first-child {
-  margin-left: -20px; 
+
+.section-coming-soon {
+  background-color: #f5f5f5;
+  padding: 60px;
+  margin-top: 10px;
+  margin-bottom: 300px;
+  border-radius: 10px;
+  text-align: center;
+
+  h2 {
+    font-size: 14px;
+    color: #a5a5a5;
+    font-weight: lighter;
+  }
 }
 
-.option-card:hover {
-  transform: scale(1.05);
-  margin-right: 10px; /* expand on hover, remove overlap */
-  z-index: 10; 
-}
-
-/* Services unavailable section */
-.section-coming-soon{
- background-color: #f5f5f5;
- padding: 60px;
- margin-top: 10px;
- margin-bottom: 300px;
- border-radius: 10px;
- text-align: center;
-}
-
-.section-coming-soon h2{
-font-size: 14px;
-color: #a5a5a5;
-font-weight: lighter;
-}
-
-.service-unavailable-icon{
+.service-unavailable-icon {
   width: 40px;
   height: 40px;
   opacity: 0.5;
 }
 
-.option-card .card-image-wrapper {
+.card-image-wrapper {
   width: 100%;
   height: 100%;
   position: relative;
   overflow: hidden;
 }
 
-.option-card .accom-image {
+.accom-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* makes the image cover the card fully */
+  object-fit: cover;
   display: block;
 }
-

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../services/api.service'; 
-import { NavController } from '@ionic/angular';
-import { ToastController } from '@ionic/angular';
 import { NgForm } from '@angular/forms';
+import { NavController, ToastController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-login',
@@ -14,96 +13,106 @@ export class LoginPage implements OnInit {
   password: string = '';
 
   constructor(
-    private apiService: ApiService, 
+    private apiService: ApiService,
     private navCtrl: NavController,
-    private toastController: ToastController) {}
+    private toastController: ToastController
+  ) {}
 
+  async successToast(msg: string) {
+    const toast = await this.toastController.create({
+      message: msg || 'Login successful!',
+      duration: 2000,
+      position: 'bottom',
+      cssClass: 'success-toast',
+      icon: 'checkmark-circle',
+    });
+    await toast.present();
+  }
 
-async successToast(msg: string) {
-  const toast = await this.toastController.create({
-    message: msg || 'Login successful!',
-    duration: 2000,
-    position: 'bottom', 
-    cssClass: 'success-toast',
-    icon: 'checkmark-circle'
-  });
-  await toast.present();
-}
+  async errorToast(msg: string) {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 1500,
+      position: 'bottom',
+      cssClass: 'error-toast',
+      icon: 'alert-circle',
+    });
 
+    await toast.present();
+  }
 
-    async errorToast(msg: any) {
-      const toast = await this.toastController.create({
-        message: "Invalid Username or Password  ",
-        duration: 1500,
-        position: "bottom",
-        cssClass: 'error-toast',
-        icon: 'alert-circle'
-      });
-  
-      await toast.present();
-    }
+  submitted = false;
 
-    submitted = false;
+  login(form: NgForm) {
+    this.submitted = true;
 
-    login(form: NgForm){
-      this.submitted = true;
-
-      if(form.valid){
-
-        // console.log(this.password)
+    if (form.valid) {
+      // console.log(this.password)
       const credentials = { username: this.username, password: this.password };
-      this.successToast('Login successful!');
 
       this.apiService.login(credentials).subscribe(
-        response => {
+        (response) => {
           console.log('Login successful:', response);
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('uid', response.id);
-          //localStorage.setItem('user', JSON.stringify(response));
 
+          // Get user_id from response - try multiple possible field names
+          const userId =
+            response.user_id ||
+            response.id ||
+            response.user?.user_id ||
+            response.user?.id;
+          console.log('User ID from response:', userId);
+
+          if (!userId) {
+            console.error('No user_id found in response:', response);
+            this.errorToast('Login failed: Invalid response from server');
+            return;
+          }
+
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('uid', userId);
+
+          // Store user data in localStorage for fallback
+          const userData = response.user || response;
+          localStorage.setItem('user', JSON.stringify(userData));
+
+          this.successToast('Login successful!');
           this.navCtrl.navigateRoot('/home');
         },
-        error => {
+        (error) => {
           console.error('Login failed:', error);
-          this.errorToast(error.status)
-          // alert('Invalid username or password');
-          // console.log(error);
+          this.errorToast(
+            error.error?.message || 'Invalid Username or Password'
+          );
         }
       );
-
-      }
-      
-      
     }
+  }
 
   ngOnInit() {
     this.checkStandaloneMode();
   }
 
-checkStandaloneMode() {
-  if (window.matchMedia('(display-mode: standalone)').matches) {
-    // Add 'standalone-app' class to body for full-screen behavior
-    document.body.classList.add('standalone-app');
-  } else {
-    document.body.classList.remove('standalone-app');
-  }
-}
-
-  forgotPassword(){
-    this.navCtrl.navigateForward(['/reset-passs'])
+  checkStandaloneMode() {
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      // Add 'standalone-app' class to body for full-screen behavior
+      document.body.classList.add('standalone-app');
+    } else {
+      document.body.classList.remove('standalone-app');
+    }
   }
 
-  register(){
+  forgotPassword() {
+    this.navCtrl.navigateForward(['/reset-passs']);
+  }
+
+  register() {
     this.navCtrl.navigateForward(['/register']);
   }
 
-    backRole(){
+  backRole() {
     this.navCtrl.navigateForward('/role', {
-      animated: true,        // Enable animation
-      animationDirection: 'back'  // Can be 'forward' or 'back' for custom direction
+      animated: true, // Enable animation
+      animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
     });
   }
-
-
-
 }

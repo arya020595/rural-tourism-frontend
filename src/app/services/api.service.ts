@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -10,22 +10,18 @@ export interface PdfResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
-
 export class ApiService {
   // private apiUrl = 'http://localhost:3000/api'; // local testing
   // private apiUrl = 'http://192.168.100.75:3000/api'; // dont use
   private apiUrl = environment.apiUrl; // for server production
-  constructor(
-    private http: HttpClient,
-
-
-  ) {}
+  constructor(private http: HttpClient) {}
   // Call to void the receipt
   voidReceipt(receiptID: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/receipts/void-receipt`, { receiptID });
+    return this.http.post(`${this.apiUrl}/receipts/void-receipt`, {
+      receiptID,
+    });
   }
 
   testBackend(): Observable<any> {
@@ -35,7 +31,7 @@ export class ApiService {
   //USER API
 
   //login
-  login(credentials: {username: string; password: string }): Observable<any> {
+  login(credentials: { username: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/login`, credentials);
   }
 
@@ -44,14 +40,13 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/${user_id}`);
   }
 
-  getAllUser(): Observable<any>{
-    return this.http.get(`${this.apiUrl}/users`); 
+  getAllUser(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users`);
   }
 
-//   getActivityById(id: string) {
-//   return this.http.get<any>(`${this.apiUrl}/activity/${id}`);
-// }
-
+  //   getActivityById(id: string) {
+  //   return this.http.get<any>(`${this.apiUrl}/activity/${id}`);
+  // }
 
   //create user (register)
   createUser(form: any): Observable<any> {
@@ -59,11 +54,15 @@ export class ApiService {
   }
 
   //reset password
-  resetPassword(username: string, question: string, securityAnswer: string, newPassword: string): Observable<any> {
-    const payload = { username, question, securityAnswer ,newPassword };
+  resetPassword(
+    username: string,
+    question: string,
+    securityAnswer: string,
+    newPassword: string
+  ): Observable<any> {
+    const payload = { username, question, securityAnswer, newPassword };
     return this.http.post(`${this.apiUrl}/users/reset-pass`, payload);
   }
-
 
   //FORM API
 
@@ -77,17 +76,20 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/form/${form_id}`);
   }
 
-   // Modify the function to accept FormData
-   generatePdfFromImage(formData: FormData): Observable<any> {
+  // Modify the function to accept FormData
+  generatePdfFromImage(formData: FormData): Observable<any> {
     const url = `${this.apiUrl}/receipts/generate-pdf-from-image`;
-    
+
     // Make a POST request to send the FormData (which contains the file)
     return this.http.post<any>(url, formData);
   }
 
   // Upload the image as FormData
   uploadPdf(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/receipts/generate-pdf-from-image`, formData);
+    return this.http.post(
+      `${this.apiUrl}/receipts/generate-pdf-from-image`,
+      formData
+    );
   }
 
   // load transaction history
@@ -108,7 +110,7 @@ export class ApiService {
 
   // get all accomodations
   getAllAccommodations(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/accom`); 
+    return this.http.get(`${this.apiUrl}/accom`);
   }
 
   // get all accommodations by User
@@ -116,17 +118,16 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/accom/user/${user_id}`);
   }
 
-
   //ACTIVITY API
 
   //add new activity
   createActivity(form: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/activity`, form);
   }
-  
+
   // get all activity
   getAllActivity(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/activity`); 
+    return this.http.get(`${this.apiUrl}/activity`);
   }
 
   getAllActByUser(user_id: string): Observable<any> {
@@ -134,110 +135,115 @@ export class ApiService {
   }
 
   // In ApiService
-  loginTourist(credentials: { username: string; password: string }): Observable<any> {
+  loginTourist(credentials: {
+    username: string;
+    password: string;
+  }): Observable<any> {
     return this.http.post(`${this.apiUrl}/tourists/login`, credentials);
   }
 
-getAllActivityMasterData(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/activity-master-data`);
-}
+  getAllActivityMasterData(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/activity-master-data`);
+  }
 
-getActivityById(id: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/activity-master-data/${id}`);
-}
+  getActivityById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/activity-master-data/${id}`);
+  }
 
-// OPERATOR ACTIVITY API
-createOperatorActivity(form: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/operator-activities`, form);
-}
+  // OPERATOR ACTIVITY API
+  createOperatorActivity(form: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/operator-activities`, form);
+  }
 
-// Optional: get all operator activities by user
-getOperatorActivitiesByUser(user_id: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/operator-activities/user/${user_id}`);
-}
+  // Optional: get all operator activities by user
+  getOperatorActivitiesByUser(user_id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/operator-activities/user/${user_id}`);
+  }
 
+  getOperatorsByActivityId(activityId: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/operator-activities/activity/${activityId}`
+    );
+  }
 
-getOperatorsByActivityId(activityId: string): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/operator-activities/activity/${activityId}`);
-}
+  getOperatorsByUser(rt_user_id: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/operator-activities/user/${rt_user_id}`
+    );
+  }
 
-getOperatorsByUser(rt_user_id: string): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/operator-activities/user/${rt_user_id}`);
-}
+  // In ApiService
+  // getOperatorById(operatorId: string) {
+  //   return this.http.get(`${this.apiUrl}/operator-activities/${operatorId}`);
+  // }
 
-// In ApiService
-// getOperatorById(operatorId: string) {
-//   return this.http.get(`${this.apiUrl}/operator-activities/${operatorId}`);
-// }
+  getOperatorById(operatorId: string): Observable<any> {
+    return this.http.get(
+      `${this.apiUrl}/operator-activities/${operatorId}?includeUser=true`
+    );
+  }
 
-getOperatorById(operatorId: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/operator-activities/${operatorId}?includeUser=true`);
-}
+  // Create a new activity booking
+  createBooking(bookingData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/activity-booking`, bookingData);
+  }
 
+  createTransaction(transactionData: any): Observable<any> {
+    return this.createForm(transactionData);
+  }
 
+  getTransactionById(transactionId: string): Observable<any> {
+    return this.getFormByID(transactionId);
+  }
 
-// Create a new activity booking
-createBooking(bookingData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/activity-booking`, bookingData);
-}
+  getTouristBookings(touristId: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/activity-booking/user/${touristId}`
+    );
+  }
 
-createTransaction(transactionData: any): Observable<any> {
-  return this.createForm(transactionData);
-}
+  getAccommodationById(accommodationId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/accom/${accommodationId}`);
+  }
 
+  // Create a new accommodation booking
+  createAccommodationBooking(bookingData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/accommodation-booking`, bookingData);
+  }
 
-getTransactionById(transactionId: string): Observable<any> {
-  return this.getFormByID(transactionId);
-}
+  // Get bookings for a tourist user
+  getTouristAccommodationBookings(touristId: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/accommodation-booking/user/${touristId}`
+    );
+  }
 
-getTouristBookings(touristId: string): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/activity-booking/user/${touristId}`);
-}
+  // Get a booking by ID
+  getAccommodationBookingById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/accommodation-booking/${id}`);
+  }
 
+  createOperatorNotification(notificationData: any) {
+    return this.http.post(
+      `${environment.apiUrl}/notifications`,
+      notificationData
+    );
+  }
 
-getAccommodationById(accommodationId: string): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/accom/${accommodationId}`);
-}
+  // src/app/services/api.service.ts
 
-// Create a new accommodation booking
-createAccommodationBooking(bookingData: any): Observable<any> {
-  return this.http.post(`${this.apiUrl}/accommodation-booking`, bookingData);
-}
+  getNotificationsByOperator(operatorId: string) {
+    return this.http.get(`${this.apiUrl}/notifications/operator/${operatorId}`);
+  }
 
-// Get bookings for a tourist user
-getTouristAccommodationBookings(touristId: string): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/accommodation-booking/user/${touristId}`);
-}
-
-// Get a booking by ID
-getAccommodationBookingById(id: string): Observable<any> {
-  return this.http.get<any>(`${this.apiUrl}/accommodation-booking/${id}`);
-}
-
-
-createOperatorNotification(notificationData: any) {
-  return this.http.post(`${environment.apiUrl}/notifications`, notificationData);
-}
-
-// src/app/services/api.service.ts
-
-getNotificationsByOperator(operatorId: string) {
-  return this.http.get(`${this.apiUrl}/notifications/operator/${operatorId}`);
-}
-
-
-// Fetch operator info for accommodation
-getAccommodationOperatorById(operatorId: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/operators/${operatorId}`);
-}
-
-
-
-
-
-
-
+  /**
+   * Fetch operator info for accommodation bookings.
+   * Operators are stored in rt_users table, so we use the /api/users endpoint.
+   * @param operatorId - The user_id of the operator (same as rt_user_id)
+   */
+  getAccommodationOperatorById(operatorId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/${operatorId}`);
+  }
 
   // Other methods...
 }
-
