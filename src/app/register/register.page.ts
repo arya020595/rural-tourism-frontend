@@ -396,7 +396,7 @@ export class RegisterPage implements AfterViewInit {
           }
         );
     } else {
-      alert('Error: Registration failed');
+      this.errorToast('Error: Registration failed');
     }
   }
 
