@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { ApiService } from 'src/app/services/api.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-activity-operator-list',
@@ -21,7 +22,6 @@ export class ActivityOperatorListPage implements OnInit {
 
   ngOnInit() {
     this.activityId = this.route.snapshot.paramMap.get('activityId') || '';
-    console.log('Activity ID:', this.activityId);
     if (this.activityId) {
       this.loadOperators(this.activityId);
     }
@@ -37,8 +37,6 @@ export class ActivityOperatorListPage implements OnInit {
   loadOperators(activityId: string) {
     this.api.getOperatorsByActivityId(activityId).subscribe(
       (res: any[]) => {
-        console.log('Operators from API:', res);
-
         this.operators = res.map((op) => ({
           ...op,
           // Use operator.business_name first, fallback to rt_user.business_name
@@ -46,7 +44,11 @@ export class ActivityOperatorListPage implements OnInit {
             op.business_name || op.rt_user?.business_name || 'No Business Name',
         }));
       },
-      (err) => console.error('Error fetching operators:', err)
+      (err) => {
+        if (!environment.production) {
+          console.error('Error fetching operators:', err);
+        }
+      }
     );
   }
 
@@ -63,7 +65,7 @@ export class ActivityOperatorListPage implements OnInit {
       return imagePath;
     }
 
-    return `http://localhost:3000/uploads/operator-activities/${imagePath}`;
+    return `${environment.API}/uploads/operator-activities/${imagePath}`;
   }
 
   goToOperatorDetail(operatorId: string) {

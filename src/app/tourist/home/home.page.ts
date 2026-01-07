@@ -6,6 +6,7 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { CalendarModal, CalendarModalOptions } from 'ion7-calendar';
+import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -84,12 +85,13 @@ export class HomePage implements OnInit {
     this.router.navigate(['/tourist/accommodation-detail', accomId]);
   }
 
-  getImageSource(imagePath: string): string {
-    return this.buildImageUrl(imagePath, 'activities');
-  }
-
-  getAccommodationImage(imagePath: string): string {
-    return this.buildImageUrl(imagePath, 'accommodations');
+  /**
+   * Get image URL for any resource type
+   * @param imagePath - The image path or filename
+   * @param folder - The folder name (activities, accommodations, operator-activities)
+   */
+  getImageUrl(imagePath: string, folder: string = 'activities'): string {
+    return this.buildImageUrl(imagePath, folder);
   }
 
   get suggestedActivities() {
@@ -107,13 +109,14 @@ export class HomePage implements OnInit {
   }
 
   async toggleDateFilter() {
+    const currentYear = new Date().getFullYear();
     const options: CalendarModalOptions = {
       pickMode: 'range',
       title: 'Select Date Range',
       color: 'primary',
       defaultScrollTo: new Date(),
-      from: new Date(2020, 0, 1),
-      to: new Date(2030, 11, 31),
+      from: new Date(currentYear - 1, 0, 1), // 1 year ago
+      to: new Date(currentYear + 5, 11, 31), // 5 years ahead
       closeLabel: 'Cancel',
       doneLabel: 'Done',
     };
@@ -185,13 +188,6 @@ export class HomePage implements OnInit {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
 
-    console.log(
-      'Checking activity:',
-      activity.activity_name,
-      'available_dates:',
-      activity.available_dates
-    );
-
     // Check if activity has available_dates from operator_activities
     if (
       activity.available_dates &&
@@ -203,36 +199,19 @@ export class HomePage implements OnInit {
       filterStart.setHours(0, 0, 0, 0);
       filterEnd.setHours(23, 59, 59, 999);
 
-      console.log('Filter range:', filterStart, 'to', filterEnd);
-
       // Check if any of the available dates fall within the selected range
-      const result = activity.available_dates.some((dateStr: string) => {
+      return activity.available_dates.some((dateStr: string) => {
         try {
           const availableDate = new Date(dateStr);
           availableDate.setHours(0, 0, 0, 0);
-          const isInRange =
-            availableDate >= filterStart && availableDate <= filterEnd;
-          console.log(
-            '  Date:',
-            dateStr,
-            '→',
-            availableDate,
-            'inRange:',
-            isInRange
-          );
-          return isInRange;
-        } catch (error) {
-          console.error('Error parsing available date:', dateStr, error);
+          return availableDate >= filterStart && availableDate <= filterEnd;
+        } catch {
           return false;
         }
       });
-
-      console.log('Activity', activity.activity_name, 'matches:', result);
-      return result;
     }
 
     // Fallback: if no available_dates, don't show in filtered results
-    console.log('Activity', activity.activity_name, 'has no available_dates');
     return false;
   }
 
@@ -244,30 +223,35 @@ export class HomePage implements OnInit {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
 
-    // Filter based on createdAt or created_at (support both formats)
-    const createdAtValue = accom.createdAt || accom.created_at;
-    if (createdAtValue) {
-      const createdDate = new Date(createdAtValue);
-      createdDate.setHours(0, 0, 0, 0); // Reset time to start of day
+    // Check if accommodation has available_dates for proper availability filtering
+    if (
+      accom.available_dates &&
+      Array.isArray(accom.available_dates) &&
+      accom.available_dates.length > 0
+    ) {
+      const filterStart = new Date(startDate);
+      const filterEnd = new Date(endDate);
+      filterStart.setHours(0, 0, 0, 0);
+      filterEnd.setHours(23, 59, 59, 999);
 
-      if (startDate && endDate) {
-        const filterStart = new Date(startDate);
-        const filterEnd = new Date(endDate);
-        filterStart.setHours(0, 0, 0, 0);
-        filterEnd.setHours(23, 59, 59, 999);
-        // Check if createdAt is within the date range
-        return createdDate >= filterStart && createdDate <= filterEnd;
-      } else if (startDate) {
-        const filterStart = new Date(startDate);
-        filterStart.setHours(0, 0, 0, 0);
-        return createdDate >= filterStart;
-      } else if (endDate) {
-        const filterEnd = new Date(endDate);
-        filterEnd.setHours(23, 59, 59, 999);
-        return createdDate <= filterEnd;
-      }
+      return accom.available_dates.some((dateStr: string) => {
+        try {
+          const availableDate = new Date(dateStr);
+          availableDate.setHours(0, 0, 0, 0);
+          return availableDate >= filterStart && availableDate <= filterEnd;
+        } catch {
+          return false;
+        }
+      });
     }
 
+    // Fallback: if show_availability is enabled, show in results
+    // Otherwise, show all accommodations when no availability dates are set
+    if (accom.show_availability || accom.showAvailability) {
+      return true;
+    }
+
+    // Default: show accommodation if no availability data is configured
     return true;
   }
 
@@ -275,11 +259,12 @@ export class HomePage implements OnInit {
     this.apiService.getAllActivityMasterData().subscribe({
       next: (response: any) => {
         this.activities = response.data || response;
-        console.log('Loaded activities with available_dates:', this.activities);
         this.filteredActivities = [...this.activities];
       },
       error: (err) => {
-        console.error('Failed to load activities:', err);
+        if (!environment.production) {
+          console.error('Failed to load activities:', err);
+        }
       },
     });
   }
@@ -291,7 +276,9 @@ export class HomePage implements OnInit {
         this.filteredAccommodations = [...this.accommodations];
       },
       error: (err) => {
-        console.error('Failed to load accommodations:', err);
+        if (!environment.production) {
+          console.error('Failed to load accommodations:', err);
+        }
       },
     });
   }
@@ -309,7 +296,7 @@ export class HomePage implements OnInit {
       return imagePath;
     }
 
-    return `http://localhost:3000/uploads/${folder}/${imagePath}`;
+    return `${environment.API}/uploads/${folder}/${imagePath}`;
   }
 
   private async showLogoutToast() {
