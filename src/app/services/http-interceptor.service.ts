@@ -46,7 +46,14 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        this.handleError(error);
+        // Skip showing toast for user fetch 404 errors (handled by fallback in home page)
+        const isUserFetch404 =
+          error.status === 404 &&
+          request.url.includes('/api/users/') &&
+          request.method === 'GET';
+        if (!isUserFetch404) {
+          this.handleError(error);
+        }
         return throwError(() => error);
       }),
       finalize(() => {
