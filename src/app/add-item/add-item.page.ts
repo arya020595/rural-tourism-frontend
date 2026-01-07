@@ -269,7 +269,6 @@ export class AddItemPage implements OnInit {
   goNext() {
     // this.swiper?.slideNext()
     this.swiper?.slideNext();
-    console.log('here');
   }
 
   goPrev() {
