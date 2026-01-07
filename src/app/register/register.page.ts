@@ -104,8 +104,8 @@ export class RegisterPage implements AfterViewInit {
     {
       text: 'OK',
       handler: () => {
-        // Navigate to the /home route when the button is pressed
-        this.router.navigate(['/home']);
+        // Navigate to the /login route when the button is pressed
+        this.router.navigate(['/login']);
       },
     },
   ];
@@ -365,6 +365,15 @@ export class RegisterPage implements AfterViewInit {
 
             this.setOpen(true);
             localStorage.setItem('uid', user_id);
+            // Store user data in localStorage to avoid 404 on home page load
+            const userData = {
+              user_id: user_id,
+              username: this.formData.username,
+              user_email: this.formData.user_email,
+              full_name: this.formData.full_name,
+              business_name: this.formData.business_name,
+            };
+            localStorage.setItem('user', JSON.stringify(userData));
           },
           (error) => {
             console.log('Registration failed:', error.error?.error || error);
