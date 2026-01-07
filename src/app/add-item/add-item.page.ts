@@ -1,11 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { register } from 'swiper/element/bundle';
 import { Router } from '@angular/router';
-import Swiper from 'swiper';
-import { ApiService } from '../services/api.service';
-import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
-import { Title } from '@angular/platform-browser';
+import Swiper from 'swiper';
+import { register } from 'swiper/element/bundle';
+import { ApiService } from '../services/api.service';
 
 register();
 
@@ -15,63 +13,58 @@ register();
   styleUrls: ['./add-item.page.scss'],
 })
 export class AddItemPage implements OnInit {
-
   @ViewChild('swiper')
   swiperRef: ElementRef | undefined;
-  swiper?: Swiper
+  swiper?: Swiper;
 
   currentStep = 1; // Track the current step (1 = Step 1, 2 = Step 2, 3 = Step 3)
   selectedOption: string = '';
 
+  activityTypes: any[] = []; // To hold activity master data
 
-activityTypes: any[] = []; // To hold activity master data
+  districtList: string[] = [
+    'Kiulu',
+    'Kota Belud',
+    'Kundasang',
+    'Ranau',
+    'Sandakan',
+    'Tawau',
+    'Kota Kinabalu',
+    // add more districts here
+  ];
 
-districtList: string[] = [
-  'Kiulu',
-  'Kota Belud',
-  'Kundasang',
-  'Ranau',
-  'Sandakan',
-  'Tawau',
-  'Kota Kinabalu'
-  // add more districts here
-];
+  activityData = {
+    activity_id: '',
+    activity_type_id: '',
+    activity_name: '',
+    location: '',
+    description: '',
+    price: '',
+    image: '',
+    district: '',
+    operator_logo: '' as string | ArrayBuffer | null,
+    things_to_know: [] as { title: string; description: string }[],
+    user_id: localStorage.getItem('uid'),
+    address: '',
+    showInSuggestions: false,
+    services_provided_list: [] as { title: string; description: string }[],
+  };
 
-  
-activityData = {
-  activity_id: '',
-  activity_type_id: '',
-  activity_name: '',
-  location: '',
-  description: '',
-  price: '',
-  image: '',        
-  district: '',
-   operator_logo: '' as string | ArrayBuffer | null,
-  things_to_know: [] as { title: string; description: string }[],
-  user_id: localStorage.getItem('uid'),
-  address: '',
-  showInSuggestions: false, 
-  services_provided_list: [] as { title: string; description: string }[],
-};
+  imagePreview: string | null = null;
 
-imagePreview: string | null = null;
+  newService = {
+    title: '',
+    description: '',
+  };
 
-newService = {
-  title: '',
-  description: ''
-};
+  newThingToKnow = {
+    title: '',
+    description: '',
+  };
 
-
-newThingToKnow = {
-  title: '',
-  description: ''
-};
-
-newProvidedAccomodation = {
-  title: ''
-}
-
+  newProvidedAccomodation = {
+    title: '',
+  };
 
   accomData = {
     accommodation_id: '',
@@ -82,52 +75,51 @@ newProvidedAccomodation = {
     image: '',
     address: '',
     district: '',
-    provided_accomodation: [] as { title: string;}[],
+    provided_accomodation: [] as { title: string }[],
     user_id: localStorage.getItem('uid'),
-    showAvailability : false,
-    activity_id: ''
+    showAvailability: false,
+    activity_id: '',
   };
 
   constructor(
     private router: Router,
     private apiService: ApiService,
     private navController: NavController
-  ) { }
+  ) {}
 
   ngAfterViewInit() {
     this.swiperReady();
   }
 
   ngOnInit() {
-  this.loadActivityTypes();
-}
-
-selectActivity(activityId: string) {
-  this.activityData.activity_id = activityId; // now it's set
-  const selected = this.activityTypes.find(a => a.id === activityId);
-  if (selected) {
-    this.activityData.activity_name = selected.activity_name;
-    this.activityData.district = selected.district || '';
+    this.loadActivityTypes();
   }
-}
 
+  selectActivity(activityId: string) {
+    this.activityData.activity_id = activityId; // now it's set
+    const selected = this.activityTypes.find((a) => a.id === activityId);
+    if (selected) {
+      this.activityData.activity_name = selected.activity_name;
+      this.activityData.district = selected.district || '';
+    }
+  }
 
-
-
-
-loadActivityTypes() {
-  this.apiService.getAllActivityMasterData().subscribe((res: any) => {
-    this.activityTypes = res;
-    console.log('Activity types:', this.activityTypes);
-  }, err => {
-    console.error('Error fetching activity master data', err);
-  });
-}
-
-
+  loadActivityTypes() {
+    this.apiService.getAllActivityMasterData().subscribe(
+      (res: any) => {
+        // Handle both array response and object with data property
+        this.activityTypes = Array.isArray(res) ? res : res.data || [];
+        console.log('Activity types:', this.activityTypes);
+      },
+      (err) => {
+        console.error('Error fetching activity master data', err);
+        this.activityTypes = []; // Ensure it's always an array
+      }
+    );
+  }
 
   // ngOnInit() {
-    
+
   // }
 
   //dialog box
@@ -138,8 +130,8 @@ loadActivityTypes() {
       handler: () => {
         // Navigate to the /home route when the button is pressed
         this.navController.navigateForward('/home', {
-          animated: true,        // Enable animation
-          animationDirection: 'back'  // Can be 'forward' or 'back' for custom direction
+          animated: true, // Enable animation
+          animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
         });
       },
     },
@@ -158,8 +150,8 @@ loadActivityTypes() {
       role: 'confirm',
       handler: () => {
         this.navController.navigateForward('/home', {
-          animated: true,        // Enable animation
-          animationDirection: 'back'  // Can be 'forward' or 'back' for custom direction
+          animated: true, // Enable animation
+          animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
         });
       },
     },
@@ -169,80 +161,77 @@ loadActivityTypes() {
     this.isAlertOpen = isOpen;
   }
 
-
-addProvided() {
-  const { title } = this.newProvidedAccomodation;
-  if (title.trim()) {
-    this.accomData.provided_accomodation.push({ title });
-    this.newProvidedAccomodation = { title: ''}; // reset form
+  addProvided() {
+    const { title } = this.newProvidedAccomodation;
+    if (title.trim()) {
+      this.accomData.provided_accomodation.push({ title });
+      this.newProvidedAccomodation = { title: '' }; // reset form
+    }
   }
-}
 
-removeProvided(index: number) {
-  this.accomData.provided_accomodation.splice(index, 1);
-}
-
-addServiceProvided() {
-  if(this.newService.title && this.newService.description) {
-    this.activityData.services_provided_list.push({ 
-      title: this.newService.title, 
-      description: this.newService.description 
-    });
-    // Reset input fields after adding
-    this.newService.title = '';
-    this.newService.description = '';
+  removeProvided(index: number) {
+    this.accomData.provided_accomodation.splice(index, 1);
   }
-}
 
-removeServiceProvided(index: number) {
-  this.activityData.services_provided_list.splice(index, 1);
-}
-
-operatorLogoPreview: string | ArrayBuffer | null = null;
-
-onOperatorLogoSelected(event: any) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.activityData.operator_logo = reader.result; // Type now matches
-      this.operatorLogoPreview = reader.result;       // for preview
-    };
-    reader.readAsDataURL(file);
+  addServiceProvided() {
+    if (this.newService.title && this.newService.description) {
+      this.activityData.services_provided_list.push({
+        title: this.newService.title,
+        description: this.newService.description,
+      });
+      // Reset input fields after adding
+      this.newService.title = '';
+      this.newService.description = '';
+    }
   }
-}
 
-addThingToKnow() {
-  const { title, description } = this.newThingToKnow;
-  if (title.trim() && description.trim()) {
-    this.activityData.things_to_know.push({ title, description });
-    this.newThingToKnow = { title: '', description: '' }; // reset form
+  removeServiceProvided(index: number) {
+    this.activityData.services_provided_list.splice(index, 1);
   }
-}
 
-removeThingToKnow(index: number) {
-  this.activityData.things_to_know.splice(index, 1);
-}
+  operatorLogoPreview: string | ArrayBuffer | null = null;
 
-
-onImageSelected(event: any) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagePreview = reader.result as string;
-
-      // Assign image to the correct data object
-      if (this.selectedOption === 'activity') {
-        this.activityData.image = this.imagePreview;
-      } else if (this.selectedOption === 'accommodation') {
-        this.accomData.image = this.imagePreview;
-      }
-    };
-    reader.readAsDataURL(file);
+  onOperatorLogoSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.activityData.operator_logo = reader.result; // Type now matches
+        this.operatorLogoPreview = reader.result; // for preview
+      };
+      reader.readAsDataURL(file);
+    }
   }
-}
 
+  addThingToKnow() {
+    const { title, description } = this.newThingToKnow;
+    if (title.trim() && description.trim()) {
+      this.activityData.things_to_know.push({ title, description });
+      this.newThingToKnow = { title: '', description: '' }; // reset form
+    }
+  }
+
+  removeThingToKnow(index: number) {
+    this.activityData.things_to_know.splice(index, 1);
+  }
+
+  onImageSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+
+        // Assign image to the correct data object
+        if (this.selectedOption === 'activity') {
+          this.activityData.image = this.imagePreview;
+        } else if (this.selectedOption === 'accommodation') {
+          this.accomData.image = this.imagePreview;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
   generateAccommId(): string {
     const randomPart = Math.floor(Math.random() * 10000000); // Random number between 0 and 9999999 (7 digits)
@@ -256,19 +245,17 @@ onImageSelected(event: any) {
     return `act_${formattedRandomPart}`; // Concatenate 'RE' with the 7-digit random number
   }
 
-
-   //initialize swiper
-   swiperReady() {
-
+  //initialize swiper
+  swiperReady() {
     // Ensure swiperRef is initialized, and access the swiper instance
-  if (this.swiperRef?.nativeElement) {
-    this.swiper = this.swiperRef.nativeElement.swiper;
+    if (this.swiperRef?.nativeElement) {
+      this.swiper = this.swiperRef.nativeElement.swiper;
 
-    // Check if swiper is initialized before modifying it
-    if (this.swiper) {
-      this.swiper.allowTouchMove = false; // Disable swiping
+      // Check if swiper is initialized before modifying it
+      if (this.swiper) {
+        this.swiper.allowTouchMove = false; // Disable swiping
+      }
     }
-  }
   }
 
   // swiper navigation
@@ -276,15 +263,14 @@ onImageSelected(event: any) {
     // this.swiper?.slideNext()
     this.swiper?.slideNext();
     console.log('here');
-    
   }
 
   goPrev() {
     this.swiper?.slidePrev();
   }
 
-   // Go to the next step
-   goToStep(step: number) {
+  // Go to the next step
+  goToStep(step: number) {
     this.currentStep = step;
   }
 
@@ -294,61 +280,58 @@ onImageSelected(event: any) {
     this.goNext();
   }
 
-
-onShowInAvailability() {
-  console.log('Show Availability changed:', this.accomData.showAvailability);
-}
-
+  onShowInAvailability() {
+    console.log('Show Availability changed:', this.accomData.showAvailability);
+  }
 
   onShowInSuggestionsChange() {
-  console.log('Show in Suggestions changed:', this.activityData.showInSuggestions);
-}
-
-  submitForm(){
-
-  if (this.selectedOption === 'activity') {
-    const dataToSend = {
-      id: this.generateActId(),
-      activity_id: parseInt(this.activityData.activity_id), // ensure integer
-      rt_user_id: this.activityData.user_id,
-      description: this.activityData.description || '',
-      address: this.activityData.address || '',
-      district: this.activityData.district, // must not be empty
-      image: this.activityData.image || null,
-      operator_logo: this.operatorLogoPreview || null,
-      services_provided: JSON.stringify(this.activityData.services_provided_list),
-      price_per_pax: this.activityData.price || null
-    };
-
-    this.apiService.createOperatorActivity(dataToSend).subscribe(
-      (res) => {
-        console.log('Activity created:', res);
-        this.setOpen(true);
-      },
-      (err) => {
-        console.error('Error creating activity:', err);
-        alert('Error: ' + err);
-      }
+    console.log(
+      'Show in Suggestions changed:',
+      this.activityData.showInSuggestions
     );
   }
 
+  submitForm() {
+    if (this.selectedOption === 'activity') {
+      const dataToSend = {
+        id: this.generateActId(),
+        activity_id: parseInt(this.activityData.activity_id), // ensure integer
+        rt_user_id: this.activityData.user_id,
+        description: this.activityData.description || '',
+        address: this.activityData.address || '',
+        district: this.activityData.district, // must not be empty
+        image: this.activityData.image || null,
+        operator_logo: this.operatorLogoPreview || null,
+        services_provided: JSON.stringify(
+          this.activityData.services_provided_list
+        ),
+        price_per_pax: this.activityData.price || null,
+      };
 
-    
+      this.apiService.createOperatorActivity(dataToSend).subscribe(
+        (res) => {
+          console.log('Activity created:', res);
+          this.setOpen(true);
+        },
+        (err) => {
+          console.error('Error creating activity:', err);
+          alert('Error: ' + err);
+        }
+      );
+    }
 
     // if (this.selectedOption === "activity") {
     //   this.activityData.activity_id = this.generateActId();
 
-        // Convert array to JSON string if needed by backend
-        // const dataToSend = {
-        //   ...this.activityData,
-        //   showInSuggestions: this.activityData.showInSuggestions ? 1 : 0,
-        //   rt_user_id: this.activityData.user_id,  // current operator
-        //   things_to_know: JSON.stringify(this.activityData.things_to_know),
-        //   services_provided: JSON.stringify(this.activityData.services_provided_list)
+    // Convert array to JSON string if needed by backend
+    // const dataToSend = {
+    //   ...this.activityData,
+    //   showInSuggestions: this.activityData.showInSuggestions ? 1 : 0,
+    //   rt_user_id: this.activityData.user_id,  // current operator
+    //   things_to_know: JSON.stringify(this.activityData.things_to_know),
+    //   services_provided: JSON.stringify(this.activityData.services_provided_list)
 
-        // };
-
-        
+    // };
 
     //       const dataToSend = {
     //         id: this.generateActId(), // Use `id` instead of activity_id
@@ -363,7 +346,6 @@ onShowInAvailability() {
     //         services_provided: JSON.stringify(this.activityData.services_provided_list)
     //       };
 
-
     //   this.apiService.createOperatorActivity(dataToSend).subscribe(
     //     (Response)=>{
     //       console.log(Response);
@@ -375,47 +357,46 @@ onShowInAvailability() {
     //       alert("Error: " +error)
     //     }
     //   )
-      
+
     // }
 
+    if (this.selectedOption === 'accommodation') {
+      // Generate accommodation ID
+      this.accomData.accommodation_id = this.generateAccommId();
 
-if (this.selectedOption === "accommodation") {
-  // Generate accommodation ID
-  this.accomData.accommodation_id = this.generateAccommId();
+      // Ensure required fields are included
+      const dataToSend = {
+        accommodation_id: this.accomData.accommodation_id,
+        name: this.accomData.name || this.accomData.address, // fallback if name is empty
+        location: this.accomData.location || this.accomData.address, // map address to location
+        address: this.accomData.address,
+        description: this.accomData.description,
+        price: this.accomData.price,
+        image: this.accomData.image,
+        district: this.accomData.district,
+        user_id: this.accomData.user_id, // required
+        showAvailability: this.accomData.showAvailability ? 1 : 0,
+        provided_accomodation: JSON.stringify(
+          this.accomData.provided_accomodation
+        ),
+        activity_id: this.accomData.activity_id,
+      };
 
-  // Ensure required fields are included
-  const dataToSend = {
-    accommodation_id: this.accomData.accommodation_id,
-    name: this.accomData.name || this.accomData.address, // fallback if name is empty
-    location: this.accomData.location || this.accomData.address, // map address to location
-    address: this.accomData.address,
-    description: this.accomData.description,
-    price: this.accomData.price,
-    image: this.accomData.image,
-    district: this.accomData.district,
-    user_id: this.accomData.user_id, // required
-    showAvailability: this.accomData.showAvailability ? 1 : 0,
-    provided_accomodation: JSON.stringify(this.accomData.provided_accomodation),
-    activity_id: this.accomData.activity_id
-  };
-
-  this.apiService.createAccom(dataToSend).subscribe(
-    res => {
-      console.log('Accommodation created:', res);
-      this.setOpen(true);
-    },
-    err => {
-      console.error('Error creating accommodation:', err);
-      alert('Error: ' + JSON.stringify(err));
+      this.apiService.createAccom(dataToSend).subscribe(
+        (res) => {
+          console.log('Accommodation created:', res);
+          this.setOpen(true);
+        },
+        (err) => {
+          console.error('Error creating accommodation:', err);
+          alert('Error: ' + JSON.stringify(err));
+        }
+      );
     }
-  );
-}
-
-   
   }
 
-   // checking
-   onSlideChange(event: any) {
+  // checking
+  onSlideChange(event: any) {
     // console.log(event)
   }
 
@@ -429,6 +410,4 @@ if (this.selectedOption === "accommodation") {
     }
     return false;
   }
-
-
 }
