@@ -100,49 +100,44 @@
     <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
 
     <!-- Searchbar -->
-    <ion-searchbar
-      class="searchbar"
-      search-icon="search"
-      placeholder="Start Your Search"
-      [(ngModel)]="searchQuery"
-      (ionChange)="onSearchChange($event)"
-      debounce="300"
-    ></ion-searchbar>
-
-    <!-- Filter Controls -->
-    <div class="filter-controls">
-      <ion-button
-        fill="outline"
-        size="small"
-        (click)="toggleDateFilter()"
-        [color]="showDateFilter ? 'primary' : 'medium'"
-      >
-        <ion-icon name="calendar-outline" slot="start"></ion-icon>
-        Date Filter
-      </ion-button>
-
-      <ion-button
-        fill="clear"
-        size="small"
-        (click)="clearFilters()"
-        *ngIf="searchQuery || startDate || endDate"
-        color="danger"
-      >
-        <ion-icon name="close-circle-outline" slot="start"></ion-icon>
-        Clear
-      </ion-button>
+    <div class="search-container">
+      <ion-icon name="search" class="search-icon"></ion-icon>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Start Your Search"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInputChange($event)"
+      />
+      <ion-icon
+        name="close"
+        class="clear-icon"
+        *ngIf="searchQuery"
+        (click)="clearSearch()"
+      ></ion-icon>
     </div>
 
-    <!-- Date Range Display -->
-    <div class="date-filter" *ngIf="showDateFilter && startDate && endDate">
-      <ion-chip color="primary">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <ion-label
-          >{{ startDate | date:'dd/MM/yyyy' }} - {{ endDate | date:'dd/MM/yyyy'
-          }}</ion-label
-        >
-        <ion-icon name="close-circle" (click)="clearFilters()"></ion-icon>
-      </ion-chip>
+    <!-- Date Range Chip -->
+    <div class="date-chip-container" (click)="toggleDateFilter()">
+      <div class="date-chip">
+        <div class="calendar-icon-wrapper">
+          <ion-icon name="calendar-outline" class="calendar-icon"></ion-icon>
+          <span class="calendar-day">31</span>
+        </div>
+        <span class="date-text" *ngIf="startDate && endDate">
+          {{ startDate | date:'dd-MM-yyyy' }} - {{ endDate | date:'dd-MM-yyyy'
+          }}
+        </span>
+        <span class="date-text" *ngIf="!startDate || !endDate">
+          Select Date Range
+        </span>
+        <ion-icon
+          name="close"
+          class="clear-date-icon"
+          *ngIf="startDate && endDate"
+          (click)="clearDateFilter($event)"
+        ></ion-icon>
+      </div>
     </div>
 
     <!-- Results Summary -->
