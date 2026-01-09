@@ -158,10 +158,6 @@ ion-content {
   padding: 8px 16px;
   cursor: pointer;
   flex: 1;
-
-  &::placeholder {
-    color: #999;
-  }
 }
 
 .date-chip {
