@@ -108,6 +108,25 @@ export class HomePage implements OnInit {
     this.applyFilters();
   }
 
+  onSearchInputChange(event: any) {
+    const query = event.target.value?.toLowerCase() || '';
+    this.searchQuery = query;
+    this.applyFilters();
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.applyFilters();
+  }
+
+  clearDateFilter(event: Event) {
+    event.stopPropagation();
+    this.startDate = '';
+    this.endDate = '';
+    this.showDateFilter = false;
+    this.applyFilters();
+  }
+
   async toggleDateFilter() {
     const currentYear = new Date().getFullYear();
     const options: CalendarModalOptions = {
