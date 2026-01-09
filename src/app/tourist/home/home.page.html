@@ -122,7 +122,9 @@
       <div class="date-chip">
         <div class="calendar-icon-wrapper">
           <ion-icon name="calendar-outline" class="calendar-icon"></ion-icon>
-          <span class="calendar-day">31</span>
+          <span class="calendar-day">
+            {{ startDate ? (startDate | date:'dd') : (endDate ? (endDate | date:'dd') : '') }}
+          </span>
         </div>
         <span class="date-text" *ngIf="startDate && endDate">
           {{ startDate | date:'dd-MM-yyyy' }} - {{ endDate | date:'dd-MM-yyyy'
