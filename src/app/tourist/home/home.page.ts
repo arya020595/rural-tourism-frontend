@@ -151,6 +151,25 @@ loadUser() {
     this.applyFilters();
   }
 
+  onSearchInputChange(event: any) {
+    const query = event.target.value?.toLowerCase() || '';
+    this.searchQuery = query;
+    this.applyFilters();
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.applyFilters();
+  }
+
+  clearDateFilter(event: Event) {
+    event.stopPropagation();
+    this.startDate = '';
+    this.endDate = '';
+    this.showDateFilter = false;
+    this.applyFilters();
+  }
+
   async toggleDateFilter() {
     const currentYear = new Date().getFullYear();
     const options: CalendarModalOptions = {
@@ -288,14 +307,9 @@ loadUser() {
       });
     }
 
-    // Fallback: if show_availability is enabled, show in results
-    // Otherwise, show all accommodations when no availability dates are set
-    if (accom.show_availability || accom.showAvailability) {
-      return true;
-    }
-
-    // Default: show accommodation if no availability data is configured
-    return true;
+    // Fallback: if no available_dates and date filter is applied, hide accommodation
+    // This ensures only accommodations with matching available dates are shown
+    return false;
   }
 
   private loadActivities() {
