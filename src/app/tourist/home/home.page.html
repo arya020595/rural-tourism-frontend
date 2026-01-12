@@ -53,33 +53,51 @@
         </p>
       </div>
 
-      <ion-item
+      <!-- <ion-item
         mode="ios"
         class="item-nav"
         detail="false"
         style="--background: white; margin: 10px 0"
-        (click)="closeMenu()"
+        (click)="showFeatureUnavailableToast();"
         [routerLink]="['/booking-home']"
       >
         <ion-icon name="clipboard" slot="start"></ion-icon>
         Booking/Transaction History
-      </ion-item>
+      </ion-item> -->
 
-      <ion-item
+      <!-- <ion-item
         mode="ios"
         class="item-nav"
         detail="false"
         style="--background: white; margin: 10px 0"
-        (click)="closeMenu()"
-        [routerLink]="['/messages']"
+        (click)="showFeatureUnavailableToast();"
       >
         <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
         Messages
+      </ion-item> -->
+      <ion-item [routerLink]="['/tourist/tourist-bookings']" class="item-nav" detail="false" lines="none">
+        <ion-icon name="clipboard" slot="start"></ion-icon>
+        <ion-text>Booking/Transaction History</ion-text>
+
+          <!-- Notification Badge -->
+          <ion-badge 
+            *ngIf="newBookingCount > 0" 
+            color="danger" 
+            slot="end"
+          >
+            {{ newBookingCount }}
+          </ion-badge>
+      </ion-item>
+
+
+      <ion-item (click)="showFeatureUnavailableToast();" class="item-nav" detail="false" lines="none">
+        <ion-icon name="chatbubbles" slot="start"></ion-icon>
+        <ion-text>Messages</ion-text>
       </ion-item>
 
       <ion-item (click)="logOut()" class="item-nav" detail="false" lines="none">
         <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
-        <ion-text style="color: red">Log-Out</ion-text>
+        <ion-text style="color: red">Log-Out Account</ion-text>
       </ion-item>
     </ng-template>
   </ion-content>
@@ -87,11 +105,30 @@
 
 <ion-header>
   <ion-toolbar color="dark">
+    <!-- Left side menu button -->
     <ion-buttons slot="start">
       <ion-menu-button menu="mainMenu" autoHide="false"></ion-menu-button>
     </ion-buttons>
+
+    <!-- Right side notification button -->
+      <ion-buttons slot="end">
+        <ion-button 
+          class="notification-button"
+          (click)="showFeatureUnavailableToast()"
+        >
+          <ion-icon
+            class="notification-bell"
+            slot="icon-only"
+            name="notifications"
+          ></ion-icon>
+          <ion-badge color="danger" class="notification-badge">
+            0
+          </ion-badge>
+        </ion-button>
+      </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
 
 <!-- Main Content -->
 <ion-content id="main-content" [fullscreen]="true" color="dark">
@@ -251,11 +288,12 @@
 
       <!-- Scrollable Accommodations List -->
       <div class="horizontal-scroll" *ngIf="filteredAccommodations.length > 0">
-        <ion-card
-          class="option-card"
-          *ngFor="let accom of filteredAccommodations"
-          (click)="goToAccommodationDetails(accom.id)"
-        >
+      <ion-card
+        class="option-card"
+        *ngFor="let accom of filteredAccommodations"
+        (click)="goToAccommodationDetails(accom.accommodation_id)"
+      >
+
           <div class="card-image-wrapper">
             <img
               [src]="getImageUrl(accom.image, 'accommodations')"

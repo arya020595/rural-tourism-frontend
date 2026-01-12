@@ -33,33 +33,50 @@ export class ActivityOperatorDetailPage implements OnInit {
       (res: any) => {
         console.log('Operator detail:', res);
 
-        // Parse services_provided_list if it's a string
         let services: any[] = [];
         if (res.services_provided_list) {
           try {
             services = Array.isArray(res.services_provided_list)
               ? res.services_provided_list
               : JSON.parse(res.services_provided_list);
-          } catch (err) {
-            console.error('Error parsing services_provided_list:', err);
+          } catch {
             services = [];
           }
         }
 
+        // Set base operator data FIRST
         this.operatorData = {
           ...res,
+          activity_id: res.activity_id || null, // <--- ensure it's set
           business_name: res.business_name || res.rt_user?.business_name || 'No Business Name',
           image: res.image || 'assets/default-operator.jpg',
+          operator_logo: null, // set later
           address: res.address || 'No address provided',
           district: res.district || '',
           description: res.description || 'No description available',
           services_provided_list: services,
           price_per_pax: res.price_per_pax || 0,
         };
+
+        // ✅ FETCH FULL USER DATA FOR LOGO
+        if (res.rt_user_id) {
+          this.api.getAccommodationOperatorById(res.rt_user_id).subscribe(
+            (userRes: any) => {
+              if (userRes?.company_logo) {
+                this.operatorData.operator_logo =
+                  userRes.company_logo.startsWith('data:')
+                    ? userRes.company_logo
+                    : 'data:image/png;base64,' + userRes.company_logo;
+              }
+            },
+            err => console.error('Error loading operator logo:', err)
+          );
+        }
       },
-      (err) => console.error('Error loading operator details:', err)
+      err => console.error('Error loading operator details:', err)
     );
   }
+
 
   toggleFavorite() {
     this.isFavorite = !this.isFavorite;
@@ -86,6 +103,9 @@ export class ActivityOperatorDetailPage implements OnInit {
                 activity_id: this.operatorData?.activity_id,
                 operator_id: this.operatorId,
                 price: this.operatorData?.price_per_pax || 0,
+                availableDates: JSON.stringify(this.operatorData.available_dates_list || []),
+                activityName: this.operatorData.business_name,
+                image: this.operatorData.image,
               },
             });
           },
@@ -107,14 +127,17 @@ export class ActivityOperatorDetailPage implements OnInit {
     }
 
     // Navigate to booking page with all parameters
-    this.navCtrl.navigateForward(['/tourist/activity-booking'], {
-      queryParams: {
-        activity_id: this.operatorData.activity_id,
-        operator_id: this.operatorId,
-        tourist_user_id: touristUserId,
-        price: this.operatorData.price_per_pax || 0,
-      },
-    });
+      this.navCtrl.navigateForward(['/tourist/activity-booking'], {
+        state: {
+          activityId: this.operatorData.activity_id,
+          operatorId: this.operatorId,
+          touristUserId: touristUserId,
+          price: +this.operatorData.price_per_pax || 0,
+          availableDates: this.operatorData.available_dates_list || [],
+          activityName: this.operatorData.business_name,
+          image: this.operatorData.image,
+        }
+      });
   }
 
   backHome() {

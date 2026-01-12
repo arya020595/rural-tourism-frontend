@@ -26,7 +26,7 @@
       </ion-icon>
 
       <ion-label>
-        <h3 class="notif-title">Booking Update</h3>
+        <h3 class="notif-title">{{ notification.title }}</h3>
         <p class="notif-message">{{ notification.message }}</p>
         <small *ngIf="!notification.read" class="unread-tag">Unread</small>
       </ion-label>

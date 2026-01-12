@@ -84,6 +84,11 @@ export class LoginPage implements OnInit {
             };
 
             if (activity_id) queryParams.activity_id = activity_id;
+
+            const availableDates = this.route.snapshot.queryParamMap.get('availableDates');
+            if (availableDates) queryParams.availableDates = availableDates;
+
+
             if (accommodation_id) queryParams.accommodation_id = accommodation_id;
 
             // Navigate back to intended page

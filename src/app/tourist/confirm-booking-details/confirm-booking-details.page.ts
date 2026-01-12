@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class ConfirmBookingDetailsPage implements OnInit {
   bookingData: any = {};
-  operatorId: string | null = null;
+  operatorId: string | null = null; // this will store the correct operator user id
   operatorData: any = null;
   isSubmitting = false;
   perPaxPrice: number = 0;
@@ -32,17 +32,26 @@ export class ConfirmBookingDetailsPage implements OnInit {
       this.bookingData = navigation.extras.state;
     }
 
+    // ✅ Add tourist full name from localStorage or fallback
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        this.bookingData.tourist_name =
+          this.bookingData.contact_name || user.full_name || user.name || user.username || 'A tourist';
+      } catch {
+        this.bookingData.tourist_name = this.bookingData.contact_name || 'A tourist';
+      }
+    } else {
+      this.bookingData.tourist_name = this.bookingData.contact_name || 'A tourist';
+    }
+
     this.route.queryParams.subscribe((params) => {
-      // Merge query params into bookingData
       this.bookingData.activity_id = this.bookingData.activity_id || params['activity_id'];
       this.bookingData.operator_id = params['operator_id'] || this.bookingData.operator_id;
-      this.bookingData.tourist_user_id = this.bookingData.tourist_user_id || params['tourist_user_id'];
+      this.bookingData.tourist_user_id = this.bookingData.tourist_user_id || params['tourist_user_id'] || localStorage.getItem('tourist_user_id');
       this.bookingData.total_price = this.bookingData.total_price || (params['price'] ? parseFloat(params['price']) : 0);
 
-      // Set operatorId if provided in bookingData or params
-      this.operatorId = this.bookingData.operator_id || null;
-
-      // Calculate per pax price if possible
       if (this.bookingData.total_price && this.bookingData.no_of_pax) {
         this.perPaxPrice = this.bookingData.total_price / this.bookingData.no_of_pax;
       }
@@ -50,6 +59,16 @@ export class ConfirmBookingDetailsPage implements OnInit {
       if (!this.bookingData.activity_id) {
         this.navCtrl.navigateBack('/tourist/home');
         return;
+      }
+
+      if (params['availableDates']) {
+        try {
+          const dates = JSON.parse(params['availableDates']);
+          this.bookingData.available_dates_list = Array.isArray(dates) ? dates : [];
+        } catch (err) {
+          console.error('Failed to parse availableDates from queryParams:', err);
+          this.bookingData.available_dates_list = [];
+        }
       }
 
       this.fetchActivityAndOperator(this.bookingData.activity_id);
@@ -67,10 +86,17 @@ export class ConfirmBookingDetailsPage implements OnInit {
       this.bookingData.activity_name = activity.activity_name || activity.name || 'Unknown Activity';
       this.bookingData.activity_image = activity.image || 'assets/images/placeholder.jpg';
 
-      // Assign operatorId reliably
-      this.operatorId = this.bookingData.operator_id || activity.user_id || activity.rt_user?.id || null;
+      // Use operator_id from bookingData or activity
+      this.operatorId = (
+        this.bookingData.operator_id ?? 
+        activity.operator_id ?? 
+        activity.user_id ?? 
+        activity.rt_user?.id
+      )?.toString() || null;
 
-      if (this.operatorId) {
+      if (!this.operatorId) {
+        console.error('Operator ID missing! Cannot send notification.');
+      } else {
         await this.fetchOperator(this.operatorId);
       }
     } catch (err) {
@@ -83,9 +109,16 @@ export class ConfirmBookingDetailsPage implements OnInit {
     try {
       const res: any = await firstValueFrom(this.api.getOperatorById(operatorId));
       this.operatorData = res;
+
       this.bookingData.operator_name = res.business_name || 'N/A';
       this.bookingData.operator_image = res.image || 'assets/images/default-operator.jpg';
       this.bookingData.location = res.address || 'N/A';
+
+      // ✅ Assign correct operator user ID for notifications
+      this.operatorId = res.rt_user_id?.toString() || this.operatorId;
+      if (!this.operatorId) {
+        console.error('Operator user ID (rt_user_id) missing! Notifications may not work.');
+      }
     } catch (err) {
       console.error('Failed to fetch operator', err);
     }
@@ -94,9 +127,7 @@ export class ConfirmBookingDetailsPage implements OnInit {
   async changePax() {
     const alert = await this.alertController.create({
       header: 'Change Number of Pax',
-      inputs: [
-        { name: 'pax', type: 'number', min: 1, value: this.bookingData.no_of_pax || 1 },
-      ],
+      inputs: [{ name: 'pax', type: 'number', min: 1, value: this.bookingData.no_of_pax || 1 }],
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
@@ -136,10 +167,13 @@ export class ConfirmBookingDetailsPage implements OnInit {
   async confirmCancel() {
     const alert = await this.alertController.create({
       header: 'Cancel Booking',
-      message: 'Are you sure you want to cancel your booking?',
+      message: 'Are you sure you want to cancel the booking?',
       buttons: [
         { text: 'Cancel', role: 'cancel' },
-        { text: 'Yes!', handler: () => this.navCtrl.back() },
+        { 
+          text: 'Yes!', 
+          handler: () => this.navCtrl.navigateRoot('/tourist/home', { animated: true, animationDirection: 'forward' })
+        },
       ],
     });
     await alert.present();
@@ -162,7 +196,7 @@ export class ConfirmBookingDetailsPage implements OnInit {
     const finalBooking = {
       ...this.bookingData,
       operator_id: this.operatorId,
-      status: 'confirmed',
+      status: 'Booked',
       date: this.bookingData.date || new Date().toISOString().split('T')[0],
     };
 
@@ -172,27 +206,29 @@ export class ConfirmBookingDetailsPage implements OnInit {
 
       const bookingId = bookingResponse?.data?.id || bookingResponse?.id;
 
+      // ✅ Send notification to operator with tourist full name
       if (this.operatorId && bookingId) {
-        const notification = {
-          tourist_user_id: this.bookingData.tourist_user_id,
-          operator_id: this.operatorId,
-          booking_id: bookingId,
-          message: `Your booking for ${finalBooking.activity_name} has been confirmed!`,
-          read_status: 0,
+        const notificationPayload = {
+          user_id: this.operatorId,
+          title: `New booking from ${this.bookingData.tourist_name}`,
+          message: `${this.bookingData.tourist_name} booked "${finalBooking.activity_name}" for ${finalBooking.date}. Total: $${finalBooking.total_price}`,
+          type: 'booking',
+          related_id: bookingId,
+          is_read: 0,
         };
 
         try {
-          await firstValueFrom(this.notificationService.createOperatorNotification(notification));
-          console.log('Notification sent successfully');
+          await firstValueFrom(this.notificationService.createOperatorNotification(notificationPayload));
+          console.log('Activity notification sent successfully');
         } catch (err) {
-          console.error('Notification failed:', err);
+          console.error('Failed to send activity notification', err);
         }
       }
 
       const alert = await this.alertController.create({
-        header: 'Booking Confirmed',
-        message: 'Your booking has been successfully confirmed!',
-        buttons: [{ text: 'OK', handler: () => this.navCtrl.navigateRoot('/tourist/home') }],
+        header: 'Booking Successful!',
+        message: 'Your booking has been confirmed! You will be contacted soon for more inquiries. Thank you!',
+        buttons: [{ text: 'Return to Home Page', handler: () => this.navCtrl.navigateRoot('/tourist/home') }],
       });
       await alert.present();
     } catch (err: any) {

@@ -1,6 +1,3 @@
-
-
-
 .booking-content {
   ion-img.logo {
     display: block;
@@ -21,7 +18,63 @@ ion-datetime{
     height: 50%;
 }
 
+h4{
+  font-weight: 900;
+  margin-left: 12px;
+  margin-bottom: 30px;
 }
+
+}
+
+.dates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between each date group */
+  margin: 15px 0;
+  width: 95%;
+  margin-top: 30px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.date-label {
+  font-weight: 800;
+  font-size: 16px;
+  color: #024e25;
+  margin-bottom: 5px;
+  text-align: left;
+  margin-top: 10px;
+}
+
+.date-box {
+  width: 100%;
+  border: 1px solid #919191;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  color: #024e25;
+  transition: all 0.2s ease-in-out;
+}
+
+.date-box h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 0px;
+}
+
+.date-box p {
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+.date-box.selected {
+  background-color: #024e25; /* Dark green */
+  color: white;              /* Text white */
+  border-color: #024e25;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
 
 
 .close-btn {

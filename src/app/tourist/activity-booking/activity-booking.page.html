@@ -1,6 +1,5 @@
 <ion-content class="ion-padding booking-content" fullscreen>
 
-  <!-- Close button above logo -->
   <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
     <ion-icon slot="icon-only" name="close"></ion-icon>
   </ion-button>
@@ -9,33 +8,49 @@
 
   <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
 
+    <h4>Choose Time</h4>
+
     <ion-item>
       <ion-label position="stacked">Number of Pax</ion-label>
       <ion-input type="number" formControlName="no_of_pax" placeholder="Enter number of pax"></ion-input>
     </ion-item>
 
-<ion-item>
-  <ion-label position="stacked">Booking Date</ion-label>
+    <!-- Month-Year Filter -->
+    <ion-item>
+      <ion-label position="stacked">Month - Year</ion-label>
+      <ion-select 
+        placeholder="Select Month" 
+        [interfaceOptions]="monthYearSelectOptions"
+        (ionChange)="onMonthYearChange($event)">
+        
+        <ion-select-option *ngFor="let option of monthYearOptions" [value]="option.value">
+          {{ option.label }}
+        </ion-select-option>
+        
+      </ion-select>
+    </ion-item>
 
-  <!-- Datetime Button that opens the modal -->
-  <ion-datetime-button datetime="bookingDate"></ion-datetime-button>
 
-    <!-- Datetime Modal -->
-    <ion-modal [keepContentsMounted]="true">
-      <ng-template>
-        <ion-datetime
-          id="bookingDate"
-          formControlName="date"
-          presentation="date"
-          display-format="DD/MM/YYYY"
-          picker-format="DD/MM/YYYY"
-          placeholder="Select a date"
-          (ionChange)="onDateSelected($event)">
-        </ion-datetime>
-      </ng-template>
-    </ion-modal>
-  </ion-item>
+    <!-- Available Dates & Times -->
+    <div *ngIf="filteredDates.length > 0" class="dates-container">
+      <div *ngFor="let d of filteredDates">
+        <div class="date-label">{{ formatDate(d.date) }}</div>
 
+        <div class="date-box" [class.selected]="d.date === selectedDate" (click)="selectBookingDate(d)">
+          <h3>{{ formatTime(d.time) }}</h3>
+          <p>RM {{ d.price }} per pax</p>
+        </div>
+      </div>
+    </div>
+
+    <ion-text color="medium" *ngIf="filteredDates.length === 0">
+      <p>No available dates for selected month</p>
+    </ion-text>
+
+    <hr><hr>
+    
+
+    <h4>Your Details</h4>
 
     <ion-item>
       <ion-label position="stacked">Contact Name</ion-label>
@@ -63,7 +78,6 @@
         <span> RM {{ totalPrice | number:'1.2-2' }} </span> 
         <small>per pax</small>
       </div>
-    
       <ion-button expand="block" (click)="submitBooking()">Book Now</ion-button>
     </div>
   </ion-toolbar>

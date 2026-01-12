@@ -1,0 +1,33 @@
+ion-card {
+  margin-bottom: 15px;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+  }
+
+  p {
+    font-size: 0.95rem;
+    margin: 2px 0;
+  }
+
+  strong.booked {
+    color: green;
+  }
+
+  strong.pending {
+    color: orange;
+  }
+
+  strong.cancelled {
+    color: red;
+  }
+
+  ion-button {
+    margin-left: 10px;
+  }
+}
+
+ion-spinner {
+  margin-top: 30px;
+}

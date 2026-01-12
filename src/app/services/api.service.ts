@@ -211,12 +211,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/accommodation-booking`, bookingData);
   }
 
-  // Get bookings for a tourist user
-  getTouristAccommodationBookings(touristId: string): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/accommodation-booking/user/${touristId}`
-    );
-  }
+
 
   // Get a booking by ID
   getAccommodationBookingById(id: string): Observable<any> {
@@ -245,5 +240,23 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/${operatorId}`);
   }
 
+cancelAccommodationBooking(bookingId: string) {
+  return this.http.delete(`${this.apiUrl}/tourist-bookings/accommodation-booking/${bookingId}`);
+}
+
+cancelActivityBooking(bookingId: string) {
+  return this.http.delete(`${this.apiUrl}/tourist-bookings/activity-booking/${bookingId}`);
+}
+
+
+// Get all bookings (accommodation + activity) for a tourist
+getTouristAllBookings(touristUserId: string) {
+  return this.http.get<any[]>(`${this.apiUrl}/tourist-bookings/user/${touristUserId}`);
+}
+
+
   // Other methods...
 }
+
+
+

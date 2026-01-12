@@ -93,6 +93,7 @@ const routes: Routes = [
     path: 'faq',
     loadChildren: () => import('./tourist/faq/faq.module').then( m => m.FaqPageModule)
   },
+
   {
   path: 'tourist/activity-detail/:id',
   loadChildren: () =>
@@ -123,6 +124,7 @@ const routes: Routes = [
   loadChildren: () => import('./tourist/activity-operator-detail/activity-operator-detail.module')
     .then(m => m.ActivityOperatorDetailPageModule)
 },
+
   {
     path: 'tourist/activity-booking',
     loadChildren: () => import('./tourist/activity-booking/activity-booking.module').then( m => m.ActivityBookingPageModule)
@@ -138,10 +140,16 @@ const routes: Routes = [
   {
     path: 'tourist/confirm-booking-accommodation-details',
     loadChildren: () => import('./tourist/confirm-booking-accommodation-details/confirm-booking-accommodation-details.module').then( m => m.ConfirmBookingAccommodationDetailsPageModule)
-  },  {
+  },
+  {
     path: 'notifications',
     loadChildren: () => import('./notifications/notifications.module').then( m => m.NotificationsPageModule)
-  }
+  },
+  {
+    path: 'tourist/tourist-bookings',
+    loadChildren: () => import('./tourist/tourist-bookings/tourist-bookings.module').then( m => m.TouristBookingsPageModule)
+  },
+
 
 ];
 

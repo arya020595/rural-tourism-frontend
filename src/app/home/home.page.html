@@ -6,13 +6,19 @@
     </ion-toolbar>
   </ion-header>
   <ion-content style="--background: white" class="ion-padding">
+    
+    <ion-img
+      class="logo-side-panel"
+      src="../../assets/icon/rt logo.png"
+    ></ion-img>
+
     <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b">
-      <ion-avatar>
-        <img
-          alt="Silhouette of a person's head"
-          src="https://ionicframework.com/docs/img/demos/avatar.svg"
-        />
-      </ion-avatar>
+        <ion-avatar>
+          <img
+            alt="User Avatar"
+            src="https://ionicframework.com/docs/img/demos/avatar.svg"
+          />
+        </ion-avatar>
       <h3>{{ user?.username }}</h3>
       <p style="margin-top: 2%">{{ user?.user_email}}</p>
     </div>
@@ -28,7 +34,7 @@
       [routerLink]="['/add-item']"
     >
       <ion-icon name="add-circle" slot="start"></ion-icon>
-      Tambah Aktiviti/Tempat Penginapan
+      Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation
     </ion-item>
 
     <ion-item
@@ -36,11 +42,21 @@
       class="item-nav"
       detail="false"
       style="--background: white; margin-top: 10%"
-      (click)="closeMenu()"
-      [routerLink]="['/booking-home']"
+      (click)="showFeatureUnavailableToast();"
     >
-      <ion-icon name="calendar-outline" slot="start"></ion-icon>
-      Booking Destinasi & Aktiviti
+    <ion-icon name="chatbubbles" slot="start"></ion-icon>
+      Mesej/Message
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 10%"
+      (click)="showFeatureUnavailableToast();"
+    >
+    <ion-icon name="calendar" slot="start"></ion-icon>
+      Aktiviti & Penginapan Ditempah/Booked Activity & Accommodation
     </ion-item>
 
     <ion-item

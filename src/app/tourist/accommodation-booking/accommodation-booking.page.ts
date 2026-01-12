@@ -121,17 +121,27 @@ export class AccommodationBookingPage implements OnInit {
     this.totalPrice = this.pricePerNight * nights;
   }
 
-  async confirmCancel() {
-    const alert = await this.alertController.create({
-      header: 'Cancel Booking',
-      message: 'Are you sure you want to cancel the booking?',
-      buttons: [
-        { text: 'No', role: 'cancel' },
-        { text: 'Yes', handler: () => this.navCtrl.back() },
-      ],
-    });
-    await alert.present();
-  }
+async confirmCancel() {
+  const alert = await this.alertController.create({
+    header: 'Cancel Booking',
+    message: 'Are you sure you want to cancel the booking?',
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      { 
+        text: 'Yes!', 
+        handler: () => {
+          // Navigate to Home page with sliding animation
+          this.navCtrl.navigateRoot('/tourist/home', {
+            animated: true,
+            animationDirection: 'forward' // 'forward' slides left, 'back' slides right
+          });
+        } 
+      },
+    ],
+  });
+  await alert.present();
+}
+
 
   logInvalidControls() {
     const invalid = [];
@@ -207,6 +217,11 @@ export class AccommodationBookingPage implements OnInit {
       image: this.accommodationDetails?.image || 'assets/placeholder.jpg',
       operator_name: 'N/A',
     };
+
+    // ✅ Increment new booking notification counter
+    const currentCount = parseInt(localStorage.getItem('newBookingCount') || '0', 10);
+    localStorage.setItem('newBookingCount', (currentCount + 1).toString());
+
 
     this.navCtrl.navigateForward('/tourist/confirm-booking-accommodation-details', { state: bookingData });
   }
