@@ -19,6 +19,7 @@ interface Booking {
   total_price?: number | string;
   status?: string;
   [key: string]: any; // for backend fields with different names
+  
 }
 
 @Component({
@@ -31,6 +32,8 @@ export class TouristBookingsPage implements OnInit {
   activityBookings: Booking[] = [];
   accommodationBookings: Booking[] = [];
   loading: boolean = false;
+  filterStatus: string = 'all';
+
 
   selectedSegment: 'activity' | 'accommodation' = 'activity';
 
@@ -61,41 +64,114 @@ export class TouristBookingsPage implements OnInit {
   }
 
   loadBookings() {
-    if (!this.touristId) return;
+  if (!this.touristId) return;
 
-    this.loading = true;
+  this.loading = true;
 
-    this.apiService.getTouristAllBookings(this.touristId).subscribe({
-      next: (response: any) => {
-        this.loading = false;
-        const bookings: Booking[] = Array.isArray(response.data) ? response.data : [];
+  this.apiService.getTouristAllBookings(this.touristId).subscribe({
+    next: (response: any) => {
+      this.loading = false;
+      const bookings: Booking[] = Array.isArray(response.data) ? response.data : [];
 
-        this.activityBookings = bookings.filter(b => b.type === 'activity');
-        //this.accommodationBookings = bookings.filter(b => b.type === 'accommodation');
-        this.accommodationBookings = bookings
+      // Filter activity bookings and sort by date descending
+      this.activityBookings = bookings
+        .filter(b => b.type === 'activity')
+        .sort((a, b) => {
+          const dateA = a.date ? new Date(a.date).getTime() : 0;
+          const dateB = b.date ? new Date(b.date).getTime() : 0;
+          return dateB - dateA; // latest first
+        });
+
+      // Filter accommodation bookings, map display name, and sort by check-in descending
+      this.accommodationBookings = bookings
         .filter(b => b.type === 'accommodation')
         .map(b => ({
           ...b,
-          accommodationDisplayName:
-            b.accommodationName ||
-            b['accommodation_name'] ||
-            'Accommodation',
-        }));
+          accommodationDisplayName: b.accommodationName || b['accommodation_name'] || 'Accommodation',
+        }))
+        .sort((a, b) => {
+          const checkInA = a.check_in ? new Date(a.check_in).getTime() : 0;
+          const checkInB = b.check_in ? new Date(b.check_in).getTime() : 0;
+          return checkInB - checkInA; // latest first
+        });
+
+      // auto-select segment with bookings
+      if (this.selectedSegment === 'activity' && this.activityBookings.length === 0 && this.accommodationBookings.length > 0) {
+        this.selectedSegment = 'accommodation';
+      } else if (this.selectedSegment === 'accommodation' && this.accommodationBookings.length === 0 && this.activityBookings.length > 0) {
+        this.selectedSegment = 'activity';
+      }
+    },
+    error: () => {
+      this.loading = false;
+      this.showToast('Failed to load bookings');
+    },
+  });
+}
+
+contactBooking(bookingId: string | number, type: 'activity' | 'accommodation') {
+  console.log(`Contact booking ${bookingId} of type ${type}`);
+
+    this.showToast(
+      'Contact Feature Coming Soon!',
+      'danger',
+      'information-circle-outline'
+    );
+}
 
 
-        // auto-select segment with bookings
-        if (this.selectedSegment === 'activity' && this.activityBookings.length === 0 && this.accommodationBookings.length > 0) {
-          this.selectedSegment = 'accommodation';
-        } else if (this.selectedSegment === 'accommodation' && this.accommodationBookings.length === 0 && this.activityBookings.length > 0) {
-          this.selectedSegment = 'activity';
-        }
-      },
-      error: () => {
-        this.loading = false;
-        this.showToast('Failed to load bookings');
-      },
-    });
-  }
+getFilteredActivityBookings(): Booking[] {
+  if (this.filterStatus === 'all') return this.activityBookings;
+  return this.activityBookings.filter(
+    b => (b.status || '').toLowerCase() === this.filterStatus.toLowerCase()
+  );
+}
+
+getFilteredAccommodationBookings(): Booking[] {
+  if (this.filterStatus === 'all') return this.accommodationBookings;
+  return this.accommodationBookings.filter(
+    b => (b.status || '').toLowerCase() === this.filterStatus.toLowerCase()
+  );
+}
+
+
+
+  // loadBookings() {
+  //   if (!this.touristId) return;
+
+  //   this.loading = true;
+
+  //   this.apiService.getTouristAllBookings(this.touristId).subscribe({
+  //     next: (response: any) => {
+  //       this.loading = false;
+  //       const bookings: Booking[] = Array.isArray(response.data) ? response.data : [];
+
+  //       this.activityBookings = bookings.filter(b => b.type === 'activity');
+  //       //this.accommodationBookings = bookings.filter(b => b.type === 'accommodation');
+  //       this.accommodationBookings = bookings
+  //       .filter(b => b.type === 'accommodation')
+  //       .map(b => ({
+  //         ...b,
+  //         accommodationDisplayName:
+  //           b.accommodationName ||
+  //           b['accommodation_name'] ||
+  //           'Accommodation',
+  //       }));
+
+
+  //       // auto-select segment with bookings
+  //       if (this.selectedSegment === 'activity' && this.activityBookings.length === 0 && this.accommodationBookings.length > 0) {
+  //         this.selectedSegment = 'accommodation';
+  //       } else if (this.selectedSegment === 'accommodation' && this.accommodationBookings.length === 0 && this.activityBookings.length > 0) {
+  //         this.selectedSegment = 'activity';
+  //       }
+  //     },
+  //     error: () => {
+  //       this.loading = false;
+  //       this.showToast('Failed to load bookings');
+  //     },
+  //   });
+  // }
 
   async confirmCancel(bookingId: string | number, type: 'activity' | 'accommodation') {
   const alert = await this.alertController.create({
@@ -150,8 +226,10 @@ export class TouristBookingsPage implements OnInit {
 
   getStatusColor(status?: string): string {
     switch ((status || 'Pending').toLowerCase()) {
-      case 'confirmed':
+      case 'paid':
         return 'success';
+      case 'booked':
+        return 'warning';
       case 'pending':
         return 'warning';
       case 'cancelled':
@@ -171,14 +249,21 @@ export class TouristBookingsPage implements OnInit {
     return 0;
   }
 
-  async showToast(msg: string) {
-    const toast = await this.toastController.create({
-      message: msg,
-      duration: 1500,
-      position: 'bottom',
-    });
-    toast.present();
-  }
+async showToast(
+  msg: string,
+  color: 'success' | 'warning' | 'danger' | 'primary' | 'medium' = 'primary',
+  icon: string = 'information-circle-outline'
+) {
+  const toast = await this.toastController.create({
+    message: msg,
+    duration: 1500,
+    position: 'bottom',
+    color,
+    icon,
+  });
+
+  await toast.present();
+}
 
   goBack() {
   // Clear the new booking notification count

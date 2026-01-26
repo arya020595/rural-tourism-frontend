@@ -23,7 +23,7 @@ export class LoginPage implements OnInit {
     private router: Router,
     private alertCtrl: AlertController,
     private toastController: ToastController,
-    private route: ActivatedRoute, // For redirect query params
+    private route: ActivatedRoute // For redirect query params
   ) {}
 
   ngOnInit() {}
@@ -62,41 +62,59 @@ export class LoginPage implements OnInit {
     this.apiService.loginTourist(credentials).subscribe(
       async (res: any) => {
         if (res.success) {
-          // Save user info
+          // ✅ Save user info
           localStorage.setItem('user', JSON.stringify(res.user));
           localStorage.setItem('tourist_user_id', res.user.tourist_user_id);
 
           await this.successToast('Login successful!');
 
-          // --- Handle redirect parameters ---
-          const redirectUrl = this.route.snapshot.queryParamMap.get('redirect');
-          const activity_id = this.route.snapshot.queryParamMap.get('activity_id');
-          const accommodation_id = this.route.snapshot.queryParamMap.get('accommodation_id');
-          const operator_id = this.route.snapshot.queryParamMap.get('operator_id');
-          const price = this.route.snapshot.queryParamMap.get('price');
+          // ----------------------
+          // ✅ Handle pending booking if user clicked "Proceed"
+          // ----------------------
+          const pendingBooking = localStorage.getItem('pendingBooking');
+          if (pendingBooking) {
+            const booking = JSON.parse(pendingBooking);
+            localStorage.removeItem('pendingBooking'); // cleanup
 
-          if (redirectUrl) {
-            // Build dynamic query params
-            const queryParams: any = {
-              tourist_user_id: res.user.tourist_user_id,
-              operator_id,
-              price
-            };
-
-            if (activity_id) queryParams.activity_id = activity_id;
-
-            const availableDates = this.route.snapshot.queryParamMap.get('availableDates');
-            if (availableDates) queryParams.availableDates = availableDates;
-
-
-            if (accommodation_id) queryParams.accommodation_id = accommodation_id;
-
-            // Navigate back to intended page
-            this.navCtrl.navigateForward([redirectUrl], { queryParams });
-          } else {
-            // Default landing page after login
-            this.navCtrl.navigateRoot('/tourist/home');
+            this.navCtrl.navigateForward(['/tourist/activity-booking'], {
+              state: {
+                activityId: booking.activityId,
+                operatorId: booking.operatorId,
+                touristUserId: res.user.tourist_user_id,
+                price: booking.price,
+                availableDates: booking.availableDates,
+                activityName: booking.activityName,
+                image: booking.image
+              }
+            });
+            return; // stop further navigation
           }
+          // ----------------------
+          // ✅ End pending booking handling
+          // ----------------------
+
+          // --- Optional: Handle redirect query param if set ---
+          const redirectUrl = this.route.snapshot.queryParamMap.get('redirect');
+          if (redirectUrl) {
+            const activity_id = this.route.snapshot.queryParamMap.get('activity_id');
+            const operator_id = this.route.snapshot.queryParamMap.get('operator_id');
+            const price = this.route.snapshot.queryParamMap.get('price');
+            const availableDates = this.route.snapshot.queryParamMap.get('availableDates');
+
+            this.navCtrl.navigateForward([redirectUrl], {
+              state: {
+                tourist_user_id: res.user.tourist_user_id,
+                activity_id,
+                operator_id,
+                price,
+                available_dates_list: availableDates ? JSON.parse(availableDates) : []
+              }
+            });
+            return;
+          }
+
+          // ✅ Default landing page after login
+          this.navCtrl.navigateRoot('/tourist/home');
 
         } else {
           await this.errorToast(res.message || 'Login failed');

@@ -11,9 +11,9 @@ export interface Notification {
   title: string;
   type: string;
   message: string;
-  read_status?: number; // original backend field
-  is_read?: number;     // sometimes backend uses this
-  read: boolean;        // frontend-friendly
+  read_status?: number;
+  is_read?: number;
+  read: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,60 +24,75 @@ export interface Notification {
 export class NotificationService {
   private apiUrl = environment.apiUrl;
 
-  // Reactive unread count
   private unreadCountSubject = new BehaviorSubject<number>(0);
   public unreadCount$ = this.unreadCountSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  /** Get notifications for operator */
-  getNotifications(operatorId: string): Observable<Notification[]> {
-    return this.http.get<Notification[]>(`${this.apiUrl}/notifications/operator/${operatorId}`).pipe(
+  private normalizeDate(dateStr?: string): string {
+    if (!dateStr) return '';
+    const isoStr = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + 'Z';
+    const date = new Date(isoStr);
+    return isNaN(date.getTime()) ? '' : isoStr;
+  }
+
+  /**
+   * Get notifications.
+   * If lastCreated is provided, fetch only notifications newer than lastCreated
+   */
+  getNotifications(operatorId: string, lastCreated?: string): Observable<Notification[]> {
+    let url = `${this.apiUrl}/notifications/operator/${operatorId}`;
+    if (lastCreated) {
+      url += `?after=${encodeURIComponent(lastCreated)}`; // backend should support this
+    }
+
+    return this.http.get<Notification[]>(url).pipe(
       map(notifications =>
         notifications.map(n => ({
           ...n,
-          read: Number(n.read_status ?? n.is_read) === 1
+          read: Number(n.read_status ?? n.is_read) === 1,
+          createdAt: this.normalizeDate(n.createdAt),
+          updatedAt: this.normalizeDate(n.updatedAt)
         }))
       ),
       tap(notifications => {
-        // Update unread count reactively
         const unread = notifications.filter(n => !n.read).length;
-        this.unreadCountSubject.next(unread);
+        if (!lastCreated) this.unreadCountSubject.next(unread);
       })
     );
   }
 
-  /** Create a new notification */
   createOperatorNotification(notificationData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/notifications`, notificationData);
+    return this.http.post(`${this.apiUrl}/notifications`, notificationData).pipe(
+      tap(() => {
+        // 🔥 increment unread badge instantly
+        this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
+      })
+    );
   }
 
-  /** Mark a single notification as read */
+
   markAsRead(notificationId: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}/notifications/${notificationId}/read`, {}).pipe(
       tap(() => {
-        // Reduce unread count by 1 when marking read
         const current = this.unreadCountSubject.value;
         this.unreadCountSubject.next(Math.max(0, current - 1));
       })
     );
   }
 
-  /** Mark all notifications as read */
   markAllAsRead(operatorId: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/notifications/operator/${operatorId}/read-all`, {}).pipe(
-      tap(() => this.unreadCountSubject.next(0)) // instantly reset badge
+      tap(() => this.unreadCountSubject.next(0))
     );
   }
 
-  /** Mark multiple notifications as read */
   markMultipleAsRead(notificationIds: number[]): Observable<any> {
     if (!notificationIds?.length) return new Observable(observer => { observer.next([]); observer.complete(); });
     const requests = notificationIds.map(id => this.markAsRead(id));
     return forkJoin(requests);
   }
 
-  /** Get unread count from backend */
   getUnreadCount(operatorId: string): Observable<{ unread_count: number }> {
     return this.http.get<{ unread_count: number }>(`${this.apiUrl}/notifications/operator/${operatorId}/unread-count`).pipe(
       tap(resp => this.unreadCountSubject.next(resp.unread_count))

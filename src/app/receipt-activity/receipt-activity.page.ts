@@ -69,21 +69,19 @@ export class ReceiptActivityPage implements OnInit {
   //get receipt details
   loadForm(){
     if(this.receiptId){
-      this.apiService.getFormByID(this.receiptId).subscribe(
+     this.apiService.getFormByID(this.receiptId).subscribe(
         (data) => {
-          this.receipt = data;
-          console.log(data);
-          //generate pdf here
-
-          // setTimeout(() => {
-            // this.generateReceipt();  // Delay calling generateReceipt
-          // }, 2000);
-            // this.generateReceipt();
+          if (data.success && data.data) {
+            this.receipt = data.data; // Assign the actual form object
+            console.log('Loaded receipt:', this.receipt);
+          } else {
+            console.error('Form data not found');
+          }
         },
-        (error) =>{
-          console.log(error);
+        (error) => {
+          console.error('Error loading form:', error);
         }
-      )
+      );
     }else {
       console.log("uid not found in storage")
     }

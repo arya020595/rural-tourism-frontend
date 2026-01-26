@@ -16,6 +16,8 @@ export class HomePage implements OnInit {
   user: any = null;
   unreadCount: number = 0;
   notifications: Notification[] = [];
+  pendingBookingsCount: number = 0; // new property
+
 
   constructor(
     private apiService: ApiService,
@@ -73,6 +75,31 @@ export class HomePage implements OnInit {
       error: (err: any) => console.error('Error fetching notifications:', err)
     });
   }
+
+  // Call this whenever you load operator bookings
+updatePendingBookingsCount() {
+  const operatorId = this.user?.id;
+  if (!operatorId) return;
+
+  this.apiService.getOperatorAllBookings(operatorId).subscribe({
+    next: (res: any) => {
+      if (res.success && res.data) {
+        // Count only bookings that are not yet Paid or Cancelled
+        this.pendingBookingsCount = res.data.filter(
+          (b: any) => b.status?.toLowerCase() === 'booked'
+        ).length;
+      } else {
+        this.pendingBookingsCount = 0;
+      }
+    },
+    error: (err) => {
+      console.error('Error fetching bookings:', err);
+      this.pendingBookingsCount = 0;
+    }
+  });
+}
+
+
 
   /** Mark a single notification as read */
   markNotificationAsRead(notification: Notification): void {

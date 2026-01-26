@@ -31,7 +31,7 @@ export class AddItemPage implements OnInit {
     activity_name: '',
     location: '',
     description: '',
-    price: '',
+    //price: '',
     image: '',
     district: '',
     operator_logo: '' as string | ArrayBuffer | null,
@@ -42,6 +42,16 @@ export class AddItemPage implements OnInit {
     available_dates_list: [] as { date: string; time: string; price: number }[],
     services_provided_list: [] as { title: string; description: string }[],
   };
+
+// Temporary slot before adding
+newTimeSlot = { startTime: '', endTime: '' };
+
+  availableDateRangeEntry = {
+  startDate: '', // e.g., '2026-01-01'
+  endDate: '',   // e.g., '2026-01-07'
+  timeSlots: [] as { startTime: string; endTime: string }[],
+  price: 0
+};
 
   imagePreview: string | null = null;
 
@@ -175,6 +185,91 @@ export class AddItemPage implements OnInit {
   }
 
   // ===== Available Dates =====
+
+addTimeSlot() {
+  const { startTime, endTime } = this.newTimeSlot;
+
+  // Validation
+  if (!startTime || !endTime) {
+    console.warn('Cannot add slot: start or end time missing');
+    return;
+  }
+
+  // Optional: prevent overlapping slots
+  const overlap = this.availableDateRangeEntry.timeSlots.some(slot =>
+    (startTime >= slot.startTime && startTime < slot.endTime) ||
+    (endTime > slot.startTime && endTime <= slot.endTime)
+  );
+  if (overlap) {
+    alert('Time slot overlaps with an existing slot!');
+    return;
+  }
+
+  // Add to timeSlots array
+  this.availableDateRangeEntry.timeSlots.push({ ...this.newTimeSlot });
+  console.log('Added time slot:', this.newTimeSlot);
+  console.log('Current time slots:', this.availableDateRangeEntry.timeSlots);
+
+  // Reset input
+  this.newTimeSlot = { startTime: '', endTime: '' };
+}
+
+
+removeTimeSlot(index: number) {
+  this.availableDateRangeEntry.timeSlots.splice(index, 1);
+}
+
+addAvailableDateRange() {
+  const { startDate, endDate, timeSlots, price } = this.availableDateRangeEntry;
+
+  // Validation
+  if (!startDate || !endDate) {
+    alert('Please select both start and end dates.');
+    return;
+  }
+  if (timeSlots.length === 0) {
+    alert('Please add at least one time slot.');
+    return;
+  }
+  if (price < 0) {
+    alert('Price must be 0 or greater.');
+    return;
+  }
+
+  const start = new Date(`${startDate}T00:00`);
+  const end = new Date(`${endDate}T00:00`);
+
+  if (start > end) {
+    alert('Start date cannot be after end date.');
+    return;
+  }
+
+  // Loop through dates
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dateStr = this.formatDateYYYYMMDD(d);
+    timeSlots.forEach(slot => {
+      this.activityData.available_dates_list.push({
+        date: dateStr,
+        time: `${slot.startTime} - ${slot.endTime}`,
+        price: price
+      });
+    });
+  }
+
+  console.log('Added date range:', this.availableDateRangeEntry);
+  console.log('Current available dates list:', this.activityData.available_dates_list);
+
+  // Reset form
+  this.availableDateRangeEntry = { startDate: '', endDate: '', timeSlots: [], price: 0 };
+}
+
+get isAvailableDateRangeValid() {
+  const { startDate, endDate, timeSlots, price } = this.availableDateRangeEntry;
+  return startDate && endDate && timeSlots.length > 0 && price >= 0;
+}
+
+
+
   addAvailableDate() {
     if (!this.isAvailableDateValid) return;
 
@@ -198,6 +293,14 @@ export class AddItemPage implements OnInit {
           this.availableDateEntry.time &&
           this.availableDateEntry.price >= 0;
   }
+
+  formatDateYYYYMMDD(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 
 
 
@@ -303,7 +406,7 @@ export class AddItemPage implements OnInit {
         operator_logo: this.operatorLogoPreview || null,
         available_dates: this.activityData.available_dates_list,
         services_provided: JSON.stringify(this.activityData.services_provided_list),
-        price_per_pax: this.activityData.price || null,
+        // price_per_pax: this.activityData.price || null,
       };
 
       this.apiService.createOperatorActivity(dataToSend).subscribe(

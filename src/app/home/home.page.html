@@ -52,12 +52,14 @@
       mode="ios"
       class="item-nav"
       detail="false"
-      style="--background: white; margin-top: 10%"
-      (click)="showFeatureUnavailableToast();"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/operator-bookings']"
     >
-    <ion-icon name="calendar" slot="start"></ion-icon>
-      Aktiviti & Penginapan Ditempah/Booked Activity & Accommodation
+      <ion-icon name="calendar" slot="start"></ion-icon>
+      Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation
     </ion-item>
+
 
     <ion-item
       mode="ios"

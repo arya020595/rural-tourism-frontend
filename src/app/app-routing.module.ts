@@ -149,6 +149,12 @@ const routes: Routes = [
     path: 'tourist/tourist-bookings',
     loadChildren: () => import('./tourist/tourist-bookings/tourist-bookings.module').then( m => m.TouristBookingsPageModule)
   },
+  {
+    path: 'operator-bookings',
+    loadChildren: () => import('./operator-bookings/operator-bookings.module').then( m => m.OperatorBookingsPageModule)
+  }
+
+
 
 
 ];

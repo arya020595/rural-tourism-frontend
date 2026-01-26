@@ -30,15 +30,32 @@
       </ion-select>
     </ion-item>
 
+    <!-- Calendar -->
+    <h4>Choose Date</h4>
 
-    <!-- Available Dates & Times -->
-    <div *ngIf="filteredDates.length > 0" class="dates-container">
-      <div *ngFor="let d of filteredDates">
-        <div class="date-label">{{ formatDate(d.date) }}</div>
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <ion-button fill="clear" (click)="prevMonth()">&lt;</ion-button>
+        <span>{{ currentMonthLabel }}</span>
+        <ion-button fill="clear" (click)="nextMonth()">&gt;</ion-button>
+      </div>
 
-        <div class="date-box" [class.selected]="d.date === selectedDate" (click)="selectBookingDate(d)">
-          <h3>{{ formatTime(d.time) }}</h3>
-          <p>RM {{ d.price }} per pax</p>
+      <div class="weekdays">
+        <div *ngFor="let wd of weekdays">{{ wd }}</div>
+      </div>
+
+      <div class="calendar-grid">
+        <div 
+          *ngFor="let day of calendarDays"
+          [class.available]="day.available"
+          [class.unavailable]="!day.available"
+          [class.selected]="day.date === selectedDate"
+          (click)="day.available ? selectBookingDate(day) : null"
+        >
+          {{ day.day }}
+          <div *ngIf="day.available && day.price" class="date-price">
+            RM {{ day.price }}
+          </div>
         </div>
       </div>
     </div>
@@ -47,9 +64,35 @@
       <p>No available dates for selected month</p>
     </ion-text>
 
+    <!-- Display selected time -->
+    <ion-item *ngIf="availableTimes.length > 0">
+      <ion-label position="stacked">Available Times</ion-label>
+      <ion-select
+        placeholder="Select Time"
+        formControlName="time">
+        
+        <ion-select-option
+          *ngFor="let time of availableTimes"
+          [value]="time">
+          {{ time }}
+        </ion-select-option>
+
+      </ion-select>
+    </ion-item>
+
+
+      <ion-text color="medium" *ngIf="availableTimes.length === 0">
+        <p>No available times for selected date</p>
+      </ion-text>
+
+    <!-- <ion-item lines="none" *ngIf="selectedTime">
+      <ion-label>
+        <strong>Time:</strong> {{ selectedTime }}
+      </ion-label>
+    </ion-item> -->
+
     <hr><hr>
     
-
     <h4>Your Details</h4>
 
     <ion-item>

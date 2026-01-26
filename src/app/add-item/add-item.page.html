@@ -275,6 +275,9 @@
 
             <!-- title -->
             <ion-list class="form-container">
+            <h4>Activity Details</h4>
+            <hr *ngIf="selectedOption === 'activity'">
+
             <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
               <ion-label mode="ios" position="stacked" class="question-label-grey">
                 Jenis Aktiviti / Activity Type
@@ -362,9 +365,9 @@
 
               <!-- activity price per pax -->
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Harga/Price per Pax.</ion-label>
+                <!-- <ion-label mode="ios" position="stacked" class="question-label-grey">Harga/Price per Pax.</ion-label> -->
                 <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input 
+                <!-- <ion-input 
                   class="form-input" 
                   type="number"
                   placeholder="Contoh: RM 50.00"
@@ -372,14 +375,14 @@
                   [required]="selectedOption === 'activity'"
                   #price="ngModel"
                   name="price">
-                </ion-input>
+                </ion-input> -->
 
                 <!-- error msg price per pax  -->
-              <ion-text *ngIf="price.invalid && (price?.touched || form.submitted)">
+              <!-- <ion-text *ngIf="price.invalid && (price?.touched || form.submitted)">
                 <ion-text *ngIf="price?.errors?.['required']">
                   <p class="error-message">*Sila isi Harga / Price is Required</p>
                 </ion-text>
-              </ion-text>
+              </ion-text> -->
 
               </ion-item>
 
@@ -446,65 +449,103 @@
                 </ion-list>
               </ion-item>
 
+               <h4>Date & Time</h4>
               <hr *ngIf="selectedOption === 'activity'">
 
+              <ion-item *ngIf="selectedOption === 'activity'" lines="none">
+                <ion-label position="stacked" class="question-label-grey">Tarikh / Date Range</ion-label>
+                <div class="date-range-inputs">
+                  <ion-input 
+                    type="date"
+                    class="form-input" 
+                    [(ngModel)]="availableDateRangeEntry.startDate"
+                    name="startDate"
+                    placeholder="Dari / From"
+                    clearInput>
+                  </ion-input>
+                  <ion-input 
+                    type="date"
+                    class="form-input" 
+                    [(ngModel)]="availableDateRangeEntry.endDate"
+                    name="endDate"
+                    placeholder="Hingga / To"
+                    clearInput>
+                  </ion-input>
+                </div>
+              </ion-item>
 
-            <ion-item *ngIf="selectedOption === 'activity'" lines="none">
-              <ion-label position="stacked" class="question-label-grey">Tarikh / Date</ion-label>
-              <ion-input 
-                type="date"
-                class="form-input" 
-                [(ngModel)]="availableDateEntry.date"
-                name="availableDateDate"
-                placeholder="Pilih Tarikh / Pick Date"
-                clearInput>
-              </ion-input>
-            </ion-item>
 
-            <ion-item *ngIf="selectedOption === 'activity'" lines="none">
-              <ion-label position="stacked" class="question-label-grey">Masa / Time</ion-label>
-              <ion-input 
-                type="time" 
-                class="form-input" 
-                [(ngModel)]="availableDateEntry.time" 
-                name="availableDateTime"
-                placeholder="HH:MM"
-                clearInput>
-              </ion-input>
-            </ion-item>
+              <ion-item *ngIf="selectedOption === 'activity'" lines="none">
+                <ion-label position="stacked" class="question-label-grey">Masa / Time Slot</ion-label>
+                <div class="time-slot-inputs">
+                  <ion-input 
+                    type="time" 
+                    class="form-input" 
+                    [(ngModel)]="newTimeSlot.startTime" 
+                    name="timeSlotStart"
+                    placeholder="Mula / Start">
+                  </ion-input>
+                  <ion-input 
+                    type="time" 
+                    class="form-input" 
+                    [(ngModel)]="newTimeSlot.endTime" 
+                    name="timeSlotEnd"
+                    placeholder="Tamat / End">
+                  </ion-input>
+                </div>
 
-            <ion-item *ngIf="selectedOption === 'activity'" lines="none">
-              <ion-label position="stacked" class="question-label-grey">Harga / Price</ion-label>
-              <ion-input 
-                type="number" 
-                class="form-input" 
-                [(ngModel)]="availableDateEntry.price"
-                name="availableDatePrice"
-                placeholder="RM"
-                (ngModelChange)="availableDateEntry.price = +$event"
-                clearInput>
-              </ion-input>
-            </ion-item>
+                <ion-button class="add-time-slots-btn" size="small" color="primary" (click)="addTimeSlot()">Tambah Slot / Add Slot</ion-button>
 
-            <div class="ion-padding-top" *ngIf="selectedOption === 'activity'">
-              <ion-button color="primary" expand="block" (click)="addAvailableDate()"
-                [disabled]="!isAvailableDateValid">
-                Tambah / Add
-              </ion-button>
-            </div>
+              </ion-item>
 
-              <!-- Display Available Dates Table -->
-              <ion-list *ngIf="activityData.available_dates_list.length > 0">
-                <ion-item *ngFor="let date of activityData.available_dates_list; let i = index" lines="full">
-                  <ion-label>
-                    <h3>{{ date.date }} | {{ date.time }}</h3>
-                    <p>RM {{ date.price }}</p>
-                  </ion-label>
-                  <ion-button fill="clear" color="danger" (click)="removeAvailableDate(i)">
-                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-                  </ion-button>
-                </ion-item>
-              </ion-list>
+<!-- Display current time slots -->
+<ion-list *ngIf="availableDateRangeEntry.timeSlots.length > 0">
+  <ion-item *ngFor="let slot of availableDateRangeEntry.timeSlots; let i = index">
+    <ion-label>{{ slot.startTime }} - {{ slot.endTime }}</ion-label>
+    <ion-button fill="clear" color="danger" (click)="removeTimeSlot(i)">
+      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-list>
+
+<!-- Price -->
+<ion-item *ngIf="selectedOption === 'activity'" lines="none">
+  <ion-label position="stacked" class="question-label-grey">Harga / Price</ion-label>
+  <div class="price-per-pax">
+    <ion-input 
+      type="number" 
+      class="form-input" 
+      [(ngModel)]="availableDateRangeEntry.price"
+      name="dateRangePrice"
+      placeholder="RM"
+      (ngModelChange)="availableDateRangeEntry.price = +$event"
+      clearInput>
+    </ion-input>
+    <span class="per-pax-text">per pax</span>
+  </div>
+</ion-item>
+
+
+<!-- Add Date Range Button -->
+<div class="ion-padding-top" *ngIf="selectedOption === 'activity'">
+  <ion-button class="add-date-range" color="primary" expand="block" (click)="addAvailableDateRange()"
+    [disabled]="!isAvailableDateRangeValid">
+    Tambah / Add Date Range
+  </ion-button>
+</div>
+
+<!-- Display Available Dates Table -->
+<ion-list *ngIf="activityData.available_dates_list.length > 0">
+  <ion-item *ngFor="let date of activityData.available_dates_list; let i = index" lines="full">
+    <ion-label>
+      <h3>{{ date.date }} | {{ date.time }}</h3>
+      <p>RM {{ date.price }} per pax</p>
+    </ion-label>
+    <ion-button fill="clear" color="danger" (click)="removeAvailableDate(i)">
+      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-list>
 
 
 
@@ -523,7 +564,8 @@
                   <img [src]="operatorLogoPreview" alt="Operator Logo Preview" style="width: 100%; height: auto; border-radius: 10px;" />
                 </ion-item> -->
                             
-
+              <h4>Display Image</h4>
+              <hr *ngIf="selectedOption === 'activity'">
               <!-- Image Upload -->
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
                 <ion-label mode="ios" position="stacked" class="question-label-grey">Gambar / Image</ion-label>

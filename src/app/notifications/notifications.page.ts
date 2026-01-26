@@ -8,7 +8,6 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./notifications.page.scss'],
 })
 export class NotificationsPage implements OnInit {
-
   uid: string | null = null;
   notifications: Notification[] = [];
   unreadCount: number = 0;
@@ -19,13 +18,12 @@ export class NotificationsPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.uid = localStorage.getItem('operator_id'); // ensure this is operator_id
-    console.log('Operator ID:', this.uid);
+    this.uid = localStorage.getItem('operator_id');
     if (this.uid) this.loadNotifications();
   }
 
   ionViewWillEnter() {
-    if (this.uid) this.loadNotifications(); // refresh every time page is entered
+    if (this.uid) this.loadNotifications();
   }
 
   backHome() {
@@ -35,34 +33,29 @@ export class NotificationsPage implements OnInit {
     });
   }
 
-  /** Load notifications */
   loadNotifications() {
     if (!this.uid) return;
 
-    this.notificationService.getNotifications(this.uid).subscribe({
-      next: (data) => {
-        console.log('Notifications fetched:', data);
+    // Get the latest notification timestamp (if any)
+    const latest = this.notifications.length ? this.notifications[0].createdAt : undefined;
 
-        // Convert backend is_read (0/1) to frontend boolean
-        this.notifications = data.map(n => ({
-          ...n,
-          read: !!n.is_read // <-- only map is_read
-        }));
+    this.notificationService.getNotifications(this.uid, latest).subscribe({
+      next: (newNotifications) => {
+        if (newNotifications.length) {
+          // Prepend new notifications to the existing list
+          this.notifications = [...newNotifications, ...this.notifications];
 
-        // Count unread notifications
-        this.unreadCount = this.notifications.filter(n => !n.read).length;
-
-        console.log('Loaded notifications from API:', this.notifications);
+          // Update unread count
+          this.unreadCount = this.notifications.filter(n => !n.read).length;
+        }
       },
       error: (err) => console.error('Error loading notifications:', err)
     });
   }
 
-  /** Mark single notification as read */
   markAsRead(notification: Notification) {
     if (notification.read) return;
 
-    // Optimistic update
     notification.read = true;
     this.unreadCount = this.notifications.filter(n => !n.read).length;
 
@@ -72,7 +65,6 @@ export class NotificationsPage implements OnInit {
     });
   }
 
-  /** Mark all notifications as read */
   markAllAsRead() {
     if (!this.uid) return;
 
@@ -82,6 +74,40 @@ export class NotificationsPage implements OnInit {
     this.notificationService.markAllAsRead(this.uid).subscribe({
       next: () => console.log('All notifications marked as read'),
       error: err => console.error('Error marking all notifications as read:', err)
+    });
+  }
+
+  /** Convert a date string to "seconds/minutes/hours/days ago" format */
+timeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime(); // difference in milliseconds
+
+  const seconds = Math.floor(diffMs / 1000);
+  if (seconds < 60) return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? 's' : ''} ago`;
+}
+
+
+  /** Format full date and time nicely */
+  formatDateTime(dateString: string): string {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid date';
+
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 }

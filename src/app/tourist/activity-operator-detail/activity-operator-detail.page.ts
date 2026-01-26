@@ -1,7 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import { NavController, AlertController } from '@ionic/angular';
 import { ApiService } from 'src/app/services/api.service';
+
+interface AvailableDate {
+  date: string;
+  price?: number;
+  time?: string;
+  startTime?: string;
+  endTime?: string;
+}
 
 @Component({
   selector: 'app-activity-operator-detail',
@@ -16,7 +24,8 @@ export class ActivityOperatorDetailPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private api: ApiService
+    private api: ApiService,
+    private alertController: AlertController // ✅ proper Ionic alerts
   ) {}
 
   ngOnInit() {
@@ -44,13 +53,13 @@ export class ActivityOperatorDetailPage implements OnInit {
           }
         }
 
-        // Set base operator data FIRST
+        // Set base operator data
         this.operatorData = {
           ...res,
-          activity_id: res.activity_id || null, // <--- ensure it's set
+          activity_id: res.activity_id || null,
           business_name: res.business_name || res.rt_user?.business_name || 'No Business Name',
           image: res.image || 'assets/default-operator.jpg',
-          operator_logo: null, // set later
+          operator_logo: null,
           address: res.address || 'No address provided',
           district: res.district || '',
           description: res.description || 'No description available',
@@ -58,7 +67,7 @@ export class ActivityOperatorDetailPage implements OnInit {
           price_per_pax: res.price_per_pax || 0,
         };
 
-        // ✅ FETCH FULL USER DATA FOR LOGO
+        // Fetch full user data for logo
         if (res.rt_user_id) {
           this.api.getAccommodationOperatorById(res.rt_user_id).subscribe(
             (userRes: any) => {
@@ -77,7 +86,6 @@ export class ActivityOperatorDetailPage implements OnInit {
     );
   }
 
-
   toggleFavorite() {
     this.isFavorite = !this.isFavorite;
     console.log('Favorite status:', this.isFavorite);
@@ -88,33 +96,33 @@ export class ActivityOperatorDetailPage implements OnInit {
 
     // If user not logged in, prompt login
     if (!userData) {
-      const alert = document.createElement('ion-alert');
-      alert.header = 'Login Required';
-      alert.message = 'You need to log in before making a booking.';
-      alert.buttons = [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Login',
-          handler: () => {
-            // Pass redirect info and activity details
-            this.navCtrl.navigateForward(['/tourist/login'], {
-              queryParams: {
-                redirect: '/tourist/activity-booking',
-                activity_id: this.operatorData?.activity_id,
-                operator_id: this.operatorId,
-                price: this.operatorData?.price_per_pax || 0,
-                availableDates: JSON.stringify(this.operatorData.available_dates_list || []),
-                activityName: this.operatorData.business_name,
-                image: this.operatorData.image,
-              },
-            });
+      const pendingBooking = {
+        activityId: this.operatorData.activity_id,
+        operatorId: this.operatorId,
+        price: this.operatorData.price_per_pax || 0,
+        availableDates: this.operatorData.available_dates_list,
+        activityName: this.operatorData.business_name,
+        image: this.operatorData.image,
+      };
+      localStorage.setItem('pendingBooking', JSON.stringify(pendingBooking));
+
+      const alert = await this.alertController.create({
+        header: 'Login Required',
+        message: 'You need to log in before making a booking.',
+        buttons: [
+          { text: 'Cancel', role: 'cancel' },
+          {
+            text: 'Login',
+            handler: () => {
+              this.navCtrl.navigateForward(['/tourist/login']);
+            },
           },
-        },
-      ];
-      document.body.appendChild(alert);
+        ],
+      });
       await alert.present();
       return;
     }
+
 
     // Parse logged-in user
     const user = JSON.parse(userData);
@@ -126,18 +134,27 @@ export class ActivityOperatorDetailPage implements OnInit {
       return;
     }
 
+    // Map available dates into proper format
+    const mappedDates = (this.operatorData.available_dates_list as AvailableDate[] || []).map(d => ({
+      date: d.date,
+      price: d.price ?? this.operatorData.price_per_pax ?? 0,
+      time: d.time || '',
+      startTime: d.startTime || '',
+      endTime: d.endTime || '',
+    }));
+
     // Navigate to booking page with all parameters
-      this.navCtrl.navigateForward(['/tourist/activity-booking'], {
-        state: {
-          activityId: this.operatorData.activity_id,
-          operatorId: this.operatorId,
-          touristUserId: touristUserId,
-          price: +this.operatorData.price_per_pax || 0,
-          availableDates: this.operatorData.available_dates_list || [],
-          activityName: this.operatorData.business_name,
-          image: this.operatorData.image,
-        }
-      });
+    this.navCtrl.navigateForward(['/tourist/activity-booking'], {
+      state: {
+        activityId: this.operatorData.activity_id,
+        operatorId: this.operatorId,
+        touristUserId: touristUserId,
+        price: +this.operatorData.price_per_pax || 0,
+        availableDates: mappedDates,
+        activityName: this.operatorData.business_name,
+        image: this.operatorData.image,
+      },
+    });
   }
 
   backHome() {

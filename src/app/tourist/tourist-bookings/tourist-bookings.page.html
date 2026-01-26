@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="goBack()">
@@ -7,48 +7,107 @@
     </ion-buttons>
     <ion-title>Tourist Bookings</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
 <ion-content *ngIf="!loading; else loadingTemplate" class="ion-padding">
 
+<!-- Header / Logo Section -->
+  <div class="header-container">
+    <ion-button class="back-button" fill="clear" (click)="goBack()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+
+    <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+    <h2 class="page-title">Your Bookings</h2>
+    <div class="divider"></div>
+    <hr>
+    
+    <!-- Status Filter -->
+    <ion-segment [(ngModel)]="filterStatus" color="primary" style="margin: 15px 0;">
+      <ion-segment-button value="all">
+        All
+      </ion-segment-button>
+      <ion-segment-button value="booked">
+        Booked
+      </ion-segment-button>
+      <ion-segment-button value="paid">
+        Paid
+      </ion-segment-button>
+      <ion-segment-button value="cancelled">
+        Cancelled
+      </ion-segment-button>
+    </ion-segment>
+
+  </div>
+
+
+
   <!-- Segment buttons -->
-  <ion-segment [(ngModel)]="selectedSegment">
-    <ion-segment-button value="activity">
-      Activity Bookings ({{ activityBookings.length }})
-    </ion-segment-button>
-    <ion-segment-button value="accommodation">
-      Accommodation Bookings ({{ accommodationBookings.length }})
-    </ion-segment-button>
-  </ion-segment>
+<ion-segment [(ngModel)]="selectedSegment">
+  <ion-segment-button value="activity" class="segment-with-badge">
+    <div class="label-badge-wrapper">
+      <span class="segment-label">Activity</span>
+      <ion-badge color="danger" class="side-badge">{{ activityBookings.length }}</ion-badge>
+    </div>
+  </ion-segment-button>
+
+  <ion-segment-button value="accommodation" class="segment-with-badge">
+    <div class="label-badge-wrapper">
+      <span class="segment-label">Accommodation</span>
+      <ion-badge color="danger" class="side-badge">{{ accommodationBookings.length }}</ion-badge>
+    </div>
+  </ion-segment-button>
+</ion-segment>
+
+
 
   <!-- Activity Bookings -->
   <div *ngIf="selectedSegment === 'activity'">
     <ion-card *ngIf="activityBookings.length > 0; else noActivityBookings">
       <ion-list>
-        <ion-item *ngFor="let booking of activityBookings">
+        <ion-item *ngFor="let booking of getFilteredActivityBookings()">
           <ion-label>
             <h2>{{ booking.activityName || 'Activity' }}</h2>
+            <hr>
             <p *ngIf="booking['operatorName']">
-              Operated by: {{ booking['operatorName'] }}
+              <strong>Operated by:</strong> {{ booking['operatorName'] }}
             </p>
-
-
-            <!-- <h2>{{ booking.activityName || booking['activity_name'] || 'Activity' }}</h2> -->
-            <p>Date: {{ booking.date ? (booking.date | date:'mediumDate') : 'N/A' }}</p>
-            <p>No. of pax: {{ booking.no_of_pax || booking['pax'] || 1 }}</p>
-            <p>Total Price: {{ parsePrice(booking.total_price || booking['price']) | currency }}</p>
-            <p>Status: 
+            <p><strong>Date:</strong> {{ booking.date ? (booking.date | date:'mediumDate') : 'N/A' }}</p>
+            <p *ngIf="booking['time']"><strong>Time:</strong> {{ booking['time'] }}</p>
+            <p><strong>No. of pax:</strong> {{ booking.no_of_pax || booking['pax'] || 1 }}</p>
+            <p><strong>Total Price:</strong> {{ parsePrice(booking.total_price || booking['price']) | currency }}</p>
+            <p><strong>Status:</strong>
               <ion-badge [color]="getStatusColor(booking.status)">
                 {{ booking.status || 'Pending' }}
               </ion-badge>
             </p>
           </ion-label>
+
+          <!-- Buttons stacked with smaller width -->
+          <div style="display: flex; flex-direction: column; gap: 4px; width: 35%; margin: 10px auto 0 auto;">
+          <!-- Contact button -->
           <ion-button
-            *ngIf="booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+            *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+            expand="block"
+            color="primary"
+            fill="solid"
+            (click)="contactBooking(booking.id, booking.type)">
+            <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+            Contact
+          </ion-button>
+
+          <!-- Cancel button -->
+          <ion-button
+            *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+            expand="block"
             color="danger"
-            (click)="confirmCancel(booking.id, 'activity')">
+            fill="solid"
+            (click)="confirmCancel(booking.id, booking.type)">
+            <ion-icon slot="start" name="close-circle-outline"></ion-icon>
             Cancel
           </ion-button>
+
+          </div>
         </ion-item>
       </ion-list>
     </ion-card>
@@ -66,26 +125,46 @@
   <div *ngIf="selectedSegment === 'accommodation'">
     <ion-card *ngIf="accommodationBookings.length > 0; else noAccommodationBookings">
       <ion-list>
-        <ion-item *ngFor="let booking of accommodationBookings">
+        <ion-item *ngFor="let booking of getFilteredAccommodationBookings()">
           <ion-label>
             <h2>{{ booking['accommodationDisplayName'] }}</h2>
-            <p>Check-in: {{ booking.check_in || booking['checkIn'] ? (booking.check_in || booking['checkIn'] | date:'mediumDate') : 'N/A' }}</p>
-            <p>Check-out: {{ booking.check_out || booking['checkOut'] ? (booking.check_out || booking['checkOut'] | date:'mediumDate') : 'N/A' }}</p>
-            <p>No. of nights: {{ booking.total_no_of_nights || booking['totalNoOfNights'] || 1 }}</p>
-            <p>No. of pax: {{ booking.no_of_pax || booking['pax'] || 1 }}</p>
-            <p>Total Price: {{ parsePrice(booking.total_price || booking['price']) | currency }}</p>
-            <p>Status: 
+            <p><strong>Check-in:</strong> {{ booking.check_in || booking['checkIn'] ? (booking.check_in || booking['checkIn'] | date:'mediumDate') : 'N/A' }}</p>
+            <p><strong>Check-out:</strong> {{ booking.check_out || booking['checkOut'] ? (booking.check_out || booking['checkOut'] | date:'mediumDate') : 'N/A' }}</p>
+            <p><strong>No. of nights:</strong> {{ booking.total_no_of_nights || booking['totalNoOfNights'] || 1 }}</p>
+            <p><strong>No. of pax:</strong> {{ booking.no_of_pax || booking['pax'] || 1 }}</p>
+            <p><strong>Total Price:</strong> {{ parsePrice(booking.total_price || booking['price']) | currency }}</p>
+            <p><strong>Status:</strong>
               <ion-badge [color]="getStatusColor(booking.status)">
                 {{ booking.status || 'Pending' }}
               </ion-badge>
             </p>
           </ion-label>
+
+          <!-- Buttons stacked with smaller width -->
+          <div style="display: flex; flex-direction: column; gap: 8px; width: 35%; margin: 10px auto 0 auto;">
+          <!-- Contact button -->
           <ion-button
-            *ngIf="booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+            *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+            expand="block"
+            color="primary"
+            fill="solid"
+            (click)="contactBooking(booking.id, booking.type)">
+            <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+            Contact
+          </ion-button>
+
+          <!-- Cancel button -->
+          <ion-button
+            *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+            expand="block"
             color="danger"
+            fill="solid"
             (click)="confirmCancel(booking.id, booking.type)">
+            <ion-icon slot="start" name="close-circle-outline"></ion-icon>
             Cancel
           </ion-button>
+
+          </div>
         </ion-item>
       </ion-list>
     </ion-card>

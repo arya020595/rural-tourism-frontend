@@ -93,9 +93,10 @@ export class ApiService {
   }
 
   // load transaction history
-  getFormsByUser(user_id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/form/trans/${user_id}`);
-  }
+getFormsByUser(user_id: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/form/operator/${user_id}`);
+}
+
 
   // voidTransaction(user_id: string): Observable<any> {
   //   return this.http.get(`${this.apiUrl}/form/trans/${user_id}`);
@@ -225,6 +226,15 @@ export class ApiService {
     );
   }
 
+getBookedDatesByActivity(activityId: string): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrl}/activity-booking/booked-dates/${activityId}`
+  );
+}
+
+
+
+
   // src/app/services/api.service.ts
 
   getNotificationsByOperator(operatorId: string) {
@@ -254,9 +264,30 @@ getTouristAllBookings(touristUserId: string) {
   return this.http.get<any[]>(`${this.apiUrl}/tourist-bookings/user/${touristUserId}`);
 }
 
-
-  // Other methods...
+// Get all booked dates for a specific activity
+getBookedDates(activityId: string): Observable<{ success: boolean; data: string[] }> {
+  return this.http.get<{ success: boolean; data: string[] }>(
+    `${this.apiUrl}/activity-booking/${activityId}/booked-dates`
+  );
 }
+
+getOperatorAllBookings(operatorId: string) {
+  return this.http.get<any>(`${this.apiUrl}/operator-bookings/user/${operatorId}`);
+}
+
+markActivityPaid(bookingId: string) {
+  return this.http.post<any>(`${this.apiUrl}/operator-bookings/activity/${bookingId}/paid`, {});
+}
+
+markAccommodationPaid(bookingId: string) {
+  return this.http.post<any>(`${this.apiUrl}/operator-bookings/accommodation/${bookingId}/paid`, {});
+}
+
+
+//Apply more methods here...
+
+}
+
 
 
 

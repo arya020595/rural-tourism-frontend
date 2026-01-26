@@ -1,0 +1,50 @@
+.back-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  color: white;
+  background: #025930;
+  border-radius: 90px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button ion-icon {
+  font-size: 22px;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+
+.logo {
+  width: 180px;
+  height: auto;
+  margin: 0 auto 10px auto;
+  display: block;
+}
+
+
+.page-title{
+    font-size: 30px;
+    margin-bottom: 5px;
+    padding: 10px;
+    font-weight: 900;
+    margin-top: 10px;
+    color: #024e25;
+}
+
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    margin-top: 30px;
+    font-weight: 900;
+    margin-top: 10px;
+    color: #024e25;
+
+  }
