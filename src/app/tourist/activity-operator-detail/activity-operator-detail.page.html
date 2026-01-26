@@ -1,22 +1,24 @@
-
-
 <ion-content [fullscreen]="true" class="operator-detail">
-  <div class="hero-image-container">
-    <img [src]="operatorData?.image || 'assets/default-operator.jpg'" alt="Operator Image" />
-    <ion-button fill="clear" class="back-btn" (click)="backHome()">
-      <ion-icon name="arrow-back-outline"></ion-icon>
-    </ion-button>
-    <ion-button fill="clear" class="favorite-btn" (click)="toggleFavorite()">
-      <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
-    </ion-button>
-  </div>
+<div class="hero-image-container">
+  <img [src]="operatorData?.image || 'assets/default-operator.jpg'" alt="Operator Image" />
+
+  <!-- Circular Green Back Button -->
+  <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+    <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+  </ion-button>
+
+  <!-- Circular Green Favorite/Like Button -->
+  <ion-button class="favorite-button" fill="clear" (click)="toggleFavorite()" mode="ios">
+    <ion-icon slot="icon-only" [name]="isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
+  </ion-button>
+</div>
+
 
   <div class="operator-header">
-    <img [src]="operatorData?.operator_logo || 'assets/default-operator.jpg'" alt="Operator Logo" />
     <h1>{{ operatorData?.business_name }}</h1>
     <ion-icon name="location"></ion-icon>
     <div class="address-details">
-         <p>{{ operatorData?.address }}</p>
+      <p>{{ operatorData?.address }}</p>
     </div>
   </div>
 
@@ -29,26 +31,23 @@
 
   <hr/>
 
-
-    <section class="section-services">
-      <h2>Services Provided</h2>
-      <ion-list>
+  <section class="section-services">
+    <h2>Services Provided</h2>
+    <ion-list>
       <ion-item *ngFor="let service of operatorData?.services_provided_list">
         <ion-label>
           <h3>{{ service.title }}</h3>
           <p>{{ service.description }}</p>
         </ion-label>
       </ion-item>
-
-      </ion-list>
-    </section>
-
+    </ion-list>
+  </section>
 
   <div class="price-container">
-    <div class="price">
+    <!-- <div class="price">
       <span>RM {{ operatorData?.price_per_pax }}</span>
       <small>per pax</small>
-    </div>
+    </div> -->
     <ion-button class="proceed" expand="block" (click)="proceed()">
       Proceed
     </ion-button>

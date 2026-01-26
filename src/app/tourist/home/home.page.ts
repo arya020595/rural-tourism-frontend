@@ -8,6 +8,8 @@ import {
 import { CalendarModal, CalendarModalOptions } from 'ion7-calendar';
 import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
+import { AlertController } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-home',
@@ -19,6 +21,7 @@ export class HomePage implements OnInit {
   activities: any[] = [];
   accommodations: any[] = [];
   user: any = null;
+  newBookingCount: number = 0; 
 
   // Search and filter
   searchQuery: string = '';
@@ -27,43 +30,79 @@ export class HomePage implements OnInit {
   startDate: string = '';
   endDate: string = '';
   showDateFilter: boolean = false;
+  private hasShownDevAlert = false;
 
   constructor(
     private apiService: ApiService,
     private menu: MenuController,
     private router: Router,
     private toastController: ToastController,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private alertController: AlertController
+    
   ) {}
 
   ngOnInit() {
     this.loadUser();
     this.loadActivities();
     this.loadAccommodations();
+    this.loadNewBookingCount();
+
   }
 
   ionViewWillEnter() {
     this.loadUser();
     this.menu.enable(true, 'mainMenu');
+    this.showUnderDevelopmentAlert();
+    this.hasShownDevAlert = true;
+    this.loadNewBookingCount();
   }
 
-  loadUser() {
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      this.user = null;
-      return;
-    }
+async showUnderDevelopmentAlert() {
+  const alert = await this.alertController.create({
+    header: '⚠️ Under Development',
+    message: 'Rural Tourism is currently still under development. Thank you for your understanding',
+    buttons: ['OK'],
+    backdropDismiss: false,
+  });
 
-    try {
-      this.user = JSON.parse(userData);
-      if (this.user.tourist_user_id) {
-        localStorage.setItem('tourist_user_id', this.user.tourist_user_id);
-      }
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      this.user = null;
-    }
+  await alert.present();
+}
+
+async showFeatureUnavailableToast() {
+  const toast = await this.toastController.create({
+    message: 'This feature is not available yet.',
+    duration: 2000,
+    position: 'bottom',
+    icon: 'alert-circle-outline',
+    color: 'warning',
+  });
+
+  await toast.present();
+}
+
+
+  
+
+loadUser() {
+  const userData = localStorage.getItem('user');
+  if (!userData) {
+    this.user = null;
+    return;
   }
+
+  try {
+    this.user = JSON.parse(userData);
+
+    // ✅ Log full details
+    console.log('Logged-in Tourist Details:', this.user);
+    console.table(this.user); // nice tabular view in console
+
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    this.user = null;
+  }
+}
 
   logOut() {
     localStorage.removeItem('user');
@@ -81,9 +120,13 @@ export class HomePage implements OnInit {
     this.router.navigate(['/tourist/activity-operator-list', id]);
   }
 
-  goToAccommodationDetails(accomId: string) {
-    this.router.navigate(['/tourist/accommodation-detail', accomId]);
+ goToAccommodationDetails(accomId: any) {
+  if (!accomId) {
+    console.error('Accommodation ID is undefined!', accomId);
+    return;
   }
+  this.router.navigate(['/tourist/accommodation-detail', accomId]);
+}
 
   /**
    * Get image URL for any resource type
@@ -322,5 +365,23 @@ export class HomePage implements OnInit {
       icon: 'alert-circle',
     });
     await toast.present();
+  }
+
+   // Load new booking count from localStorage
+  private loadNewBookingCount() {
+    const count = localStorage.getItem('newBookingCount');
+    this.newBookingCount = count ? parseInt(count, 10) : 0;
+  }
+
+  // Reset booking count (called when user visits Booking page)
+  resetNewBookingCount() {
+    this.newBookingCount = 0;
+    localStorage.setItem('newBookingCount', '0');
+  }
+
+  // Call this from booking success page
+  incrementNewBookingCount() {
+    this.newBookingCount = (this.newBookingCount || 0) + 1;
+    localStorage.setItem('newBookingCount', this.newBookingCount.toString());
   }
 }

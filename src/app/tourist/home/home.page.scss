@@ -23,6 +23,7 @@ ion-content {
   --border-width: 0;
   --border-style: none !important;
   margin-left: 5%;
+  margin-top: 20px;
 }
 
 .results-summary {
@@ -86,7 +87,7 @@ ion-content {
 
 .page-padding {
   background-color: white;
-  height: auto;
+  height: 100%;
   padding: 10px;
   border-top-left-radius: 40px;
   border-top-right-radius: 40px;
@@ -357,4 +358,24 @@ ion-segment-button {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.notification-button {
+  position: relative; 
+}
+
+.notification-bell {
+  font-size: 24px; 
+  color: #FFC107; 
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  z-index: 10;
+  transform: translate(25%, -25%); /* Move badge slightly up and right */
 }

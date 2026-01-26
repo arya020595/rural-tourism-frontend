@@ -11,6 +11,7 @@ import { ApiService } from '../services/api.service';
 export class LoginPage implements OnInit {
   username: string = '';
   password: string = '';
+  submitted = false;
 
   constructor(
     private apiService: ApiService,
@@ -37,41 +38,36 @@ export class LoginPage implements OnInit {
       cssClass: 'error-toast',
       icon: 'alert-circle',
     });
-
     await toast.present();
   }
-
-  submitted = false;
 
   login(form: NgForm) {
     this.submitted = true;
 
     if (form.valid) {
-      // console.log(this.password)
       const credentials = { username: this.username, password: this.password };
 
       this.apiService.login(credentials).subscribe(
         (response) => {
           console.log('Login successful:', response);
 
-          // Get user_id from response - try multiple possible field names
-          const userId =
+          const operatorId =
             response.user_id ||
             response.id ||
             response.user?.user_id ||
             response.user?.id;
-          console.log('User ID from response:', userId);
 
-          if (!userId) {
-            console.error('No user_id found in response:', response);
+          if (!operatorId) {
+            console.error('No operator_id found in response:', response);
             this.errorToast('Login failed: Invalid response from server');
             return;
           }
 
+          // ✅ Store operator_id for notifications page
+          localStorage.setItem('operator_id', operatorId.toString());
+          localStorage.setItem('uid', operatorId.toString()); // optional
           localStorage.setItem('token', response.token);
-          localStorage.setItem('uid', userId);
 
-          // Store user data in localStorage for fallback
           const userData = response.user || response;
           localStorage.setItem('user', JSON.stringify(userData));
 
@@ -89,12 +85,7 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
-    this.checkStandaloneMode();
-  }
-
-  checkStandaloneMode() {
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      // Add 'standalone-app' class to body for full-screen behavior
       document.body.classList.add('standalone-app');
     } else {
       document.body.classList.remove('standalone-app');
@@ -111,8 +102,8 @@ export class LoginPage implements OnInit {
 
   backRole() {
     this.navCtrl.navigateForward('/role', {
-      animated: true, // Enable animation
-      animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
+      animated: true,
+      animationDirection: 'back',
     });
   }
 }

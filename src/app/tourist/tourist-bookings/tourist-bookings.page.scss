@@ -1,0 +1,132 @@
+ion-card {
+  margin-bottom: 15px;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    font-weight: 900;
+    margin-top: 10px;
+    color: #024e25;
+
+  }
+
+
+  p {
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+
+  }
+
+
+  strong.booked {
+    color: green;
+  }
+
+  strong.pending {
+    color: orange;
+  }
+
+  strong.cancelled {
+    color: red;
+  }
+
+  ion-button {
+    margin-left: 10px;
+  }
+}
+
+.back-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  color: white;
+  background: #025930;
+  border-radius: 90px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button ion-icon {
+  font-size: 22px;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+
+strong{
+  color: black;
+}
+
+ion-spinner {
+  margin-top: 30px;
+}
+
+.logo {
+  width: 180px;
+  height: auto;
+  margin: 0 auto 10px auto;
+  display: block;
+}
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #222;
+  margin-left: 10px;
+  margin-bottom: 40px;
+}
+
+/* Make ion-badge align properly with text inside a paragraph */
+p ion-badge {
+  display: inline-flex;       /* keep badge on same line as text */
+  align-items: center;        /* vertically center text inside badge */
+  justify-content: center;    
+  vertical-align: middle;     /* align with surrounding text */
+  margin-left: 6px;           /* small space between label and badge */
+  height: 20px;               /* optional: match line height */
+  font-size: 0.8rem;          /* optional: smaller badge text */
+  padding: 0 6px;             /* horizontal padding inside badge */
+}
+
+
+ion-segment{
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.segment-with-badge {
+  padding: 1cqh; /* Optional: adjust padding */
+}
+
+.label-badge-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%; /* Make sure it uses full width */
+  justify-content: center; /* Center content horizontally */
+}
+
+.segment-label {
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.side-badge {
+  font-size: 15px;
+  min-width: 20px;
+  height: 20px;
+  padding-top: 5px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}

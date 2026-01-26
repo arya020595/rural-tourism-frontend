@@ -125,6 +125,23 @@
       </div>
       <hr />
 
+      <!-- Time Row -->
+      <div class="review-row">
+        <div>
+          <h2>Time</h2>
+          <p>{{ bookingData.time || 'Not selected' }}</p>
+        </div>
+        <ion-button
+          class="mini-btn"
+          fill="solid"
+          (click)="changeTime()">
+          Change
+        </ion-button>
+      </div>
+
+     <hr />
+
+
       <!-- Pax Row -->
       <div class="review-row">
         <div>
@@ -142,9 +159,9 @@
           <p>RM {{ bookingData.total_price | number:'1.2-2' }}</p>
         </div>
       </div>
-      <hr />
+      <!-- <hr />
 
-      <h3>This booking is non-refundable</h3>
+      <h3>This booking is non-refundable</h3> -->
     </div>
   </div>
 

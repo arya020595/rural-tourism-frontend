@@ -6,7 +6,6 @@
     </ion-button>
   </ion-header>
 
-
   <div style="margin: 5%;">
     <ion-col class="center">
       <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
@@ -25,7 +24,6 @@
       </div>
     </ion-item>
 
-  
     <h2 class="title">Transaksi/Transaction History</h2>
 
     <ion-list *ngIf="filteredTransactions.length > 0">
@@ -38,7 +36,22 @@
               <h2 [class.voided]="isVoided(transaction.status)" class="details">
                 {{ transaction?.activity_name || transaction?.homest_name || 'Unknown'}}
               </h2>
-              <p>{{ transaction?.createdAt | date: 'dd-MMM-yyyy | hh:mm a' }}</p>
+
+              <!-- Tourist Name -->
+              <p><strong>Booked By:</strong> {{ transaction?.tourist?.full_name || transaction?.tourist_name || 'N/A' }}</p>
+
+              <!-- Booking Date -->
+              <p><strong>Booking Date:</strong> {{ transaction?.date | date: 'dd-MMM-yyyy' }}</p>
+
+              <!-- Transaction Date -->
+              <p><strong>Transaction Date:</strong> {{ transaction?.created_at | date: 'dd-MMM-yyyy | hh:mm a' }}</p>
+
+              <!-- Status -->
+              <p><strong>Status:</strong> 
+                <span [ngClass]="{ 'voided-text': isVoided(transaction.status), 'active-text': !isVoided(transaction.status) }">
+                  {{ isVoided(transaction.status) ? 'Voided' : transaction.status }}
+                </span>
+              </p>
             </ion-label>
             <ion-note slot="end">
               <ion-label style="text-align: right;">
@@ -51,12 +64,12 @@
             </ion-note>
           </ion-item>
 
-          <ion-item-options *ngIf="!isVoided(transaction.status)" >
+          <ion-item-options *ngIf="!isVoided(transaction.status)">
             <ion-item-option (click)="showReceipt(transaction)">View</ion-item-option>
             <ion-item-option color="danger" (click)="onTransactionClick(transaction)">Void</ion-item-option>
           </ion-item-options>
 
-          <ion-item-options *ngIf="isVoided(transaction.status)" >
+          <ion-item-options *ngIf="isVoided(transaction.status)">
             <ion-item-option (click)="showReceipt(transaction)">View</ion-item-option>
           </ion-item-options>
         </ion-item-sliding>
@@ -66,10 +79,26 @@
           <ion-item *ngIf="transaction.package" [class.voided]="isVoided(transaction.status)">
             <ion-label>
               <h2 class="details" [class.voided]="isVoided(transaction.status)">Package</h2>
+
               <h3 *ngFor="let item of transaction.packageDescArray">
                 {{ item.desc }} (RM{{ item.rm | number: '1.2-2' }})
               </h3>
-              <p>{{ transaction?.createdAt | date: 'dd-MMM-yyyy | hh:mm a' }}</p>
+
+              <!-- Tourist Name -->
+              <p><strong>Booked By:</strong> {{ transaction?.tourist?.full_name || transaction?.tourist_name || 'N/A' }}</p>
+
+              <!-- Booking Date -->
+              <p><strong>Booking Date:</strong> {{ transaction?.date | date: 'dd-MMM-yyyy' }}</p>
+
+              <!-- Transaction Date -->
+              <p><strong>Transaction Date:</strong> {{ transaction?.createdAt | date: 'dd-MMM-yyyy | hh:mm a' }}</p>
+
+              <!-- Status -->
+              <p><strong>Status:</strong> 
+                <span [ngClass]="{ 'voided-text': isVoided(transaction.status), 'active-text': !isVoided(transaction.status) }">
+                  {{ isVoided(transaction.status) ? 'Voided' : transaction.status }}
+                </span>
+              </p>
             </ion-label>
             <ion-note slot="end">
               <ion-label style="text-align: right;">
@@ -82,12 +111,12 @@
             </ion-note>
           </ion-item>
 
-          <ion-item-options *ngIf="!isVoided(transaction.status)" >
+          <ion-item-options *ngIf="!isVoided(transaction.status)">
             <ion-item-option (click)="showReceipt(transaction)">View</ion-item-option>
             <ion-item-option color="danger" (click)="onTransactionClick(transaction)">Void</ion-item-option>
           </ion-item-options>
 
-          <ion-item-options *ngIf="isVoided(transaction.status)" >
+          <ion-item-options *ngIf="isVoided(transaction.status)">
             <ion-item-option (click)="showReceipt(transaction)">View</ion-item-option>
           </ion-item-options>
         </ion-item-sliding>

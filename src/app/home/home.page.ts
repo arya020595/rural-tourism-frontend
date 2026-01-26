@@ -16,6 +16,8 @@ export class HomePage implements OnInit {
   user: any = null;
   unreadCount: number = 0;
   notifications: Notification[] = [];
+  pendingBookingsCount: number = 0; // new property
+
 
   constructor(
     private apiService: ApiService,
@@ -27,13 +29,18 @@ export class HomePage implements OnInit {
 
   ngOnInit(): void {
     this.loadUserData();
+
+    // Subscribe to reactive unread count
+    this.notificationService.unreadCount$.subscribe(count => {
+      this.unreadCount = count;
+    });
   }
 
   ionViewWillEnter(): void {
     this.loadUserData();
   }
 
-  /** Load user and notifications from localStorage / API */
+  /** Load user and notifications */
   private loadUserData(): void {
     this.uid = localStorage.getItem('uid');
     const storedUser = localStorage.getItem('user');
@@ -57,67 +64,64 @@ export class HomePage implements OnInit {
     });
   }
 
-  /** Load notifications and update unread count */
+  /** Load notifications via service (reactive) */
   private loadNotifications(): void {
     if (!this.uid) return;
 
     this.notificationService.getNotifications(this.uid).subscribe({
       next: (notifications: Notification[]) => {
-        // Convert TINYINT read_status to boolean
-        this.notifications = notifications.map(n => ({
-          ...n,
-          read: Number(n.read_status) === 1
-        }));
-        this.updateUnreadCount();
+        this.notifications = notifications;
       },
       error: (err: any) => console.error('Error fetching notifications:', err)
     });
   }
 
-  /** Update unreadCount based on notifications array */
-  private updateUnreadCount(): void {
-    this.unreadCount = this.notifications.filter(n => !n.read).length;
-  }
+  // Call this whenever you load operator bookings
+updatePendingBookingsCount() {
+  const operatorId = this.user?.id;
+  if (!operatorId) return;
+
+  this.apiService.getOperatorAllBookings(operatorId).subscribe({
+    next: (res: any) => {
+      if (res.success && res.data) {
+        // Count only bookings that are not yet Paid or Cancelled
+        this.pendingBookingsCount = res.data.filter(
+          (b: any) => b.status?.toLowerCase() === 'booked'
+        ).length;
+      } else {
+        this.pendingBookingsCount = 0;
+      }
+    },
+    error: (err) => {
+      console.error('Error fetching bookings:', err);
+      this.pendingBookingsCount = 0;
+    }
+  });
+}
+
+
 
   /** Mark a single notification as read */
   markNotificationAsRead(notification: Notification): void {
     if (notification.read) return;
 
-    // Optimistically mark as read locally
-    notification.read = true;
-    notification.read_status = 1;
-    this.updateUnreadCount();
-
-    // Update backend
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        console.log(`Notification ${notification.id} marked as read on backend`);
-        // Reload notifications to ensure consistency
-        this.loadNotifications();
+        notification.read = true; // update locally for UI
       },
       error: (err) => console.error('Error marking notification as read:', err)
     });
   }
 
-  /** Navigate to notifications and mark all as read */
+  /** Go to notifications page and mark all as read */
   goToNotifications(): void {
     if (!this.uid) return;
 
     this.router.navigate(['/notifications']);
-
-    // Optimistically mark all as read locally
-    this.notifications = this.notifications.map(n => ({
-      ...n,
-      read: true,
-      read_status: 1
-    }));
-    this.updateUnreadCount();
-
-    // Update backend
     this.notificationService.markAllAsRead(this.uid).subscribe({
       next: () => {
-        console.log('All notifications marked as read on backend');
-        this.loadNotifications(); // reload from backend
+        // notifications marked read, badge auto-updates via BehaviorSubject
+        this.notifications.forEach(n => n.read = true); // optional local update
       },
       error: (err) => console.error('Error marking all notifications as read:', err)
     });
@@ -138,7 +142,7 @@ export class HomePage implements OnInit {
     try {
       await firstValueFrom(this.notificationService.createOperatorNotification(notificationData));
       console.log('Notification sent successfully');
-      this.loadNotifications(); // Refresh badge after sending
+      this.loadNotifications();
     } catch (err: any) {
       console.error('Error sending notification:', err);
     }
@@ -160,6 +164,18 @@ export class HomePage implements OnInit {
       cssClass: 'error-toast',
       icon: 'alert-circle'
     });
+    await toast.present();
+  }
+
+  async showFeatureUnavailableToast() {
+    const toast = await this.toastController.create({
+      message: 'This feature is not available yet.',
+      duration: 2000,
+      position: 'bottom',
+      icon: 'alert-circle-outline',
+      color: 'warning',
+    });
+
     await toast.present();
   }
 

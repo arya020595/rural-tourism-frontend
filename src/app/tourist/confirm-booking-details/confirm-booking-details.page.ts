@@ -27,33 +27,51 @@ export class ConfirmBookingDetailsPage implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Try router navigation first
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
       this.bookingData = navigation.extras.state;
+    } 
+    // fallback to history.state
+    else if (history.state && Object.keys(history.state).length) {
+      this.bookingData = history.state;
+    } 
+    // no booking data
+    else {
+      this.navCtrl.navigateBack('/tourist/home');
+      return;
     }
 
-    this.route.queryParams.subscribe((params) => {
-      // Merge query params into bookingData
-      this.bookingData.activity_id = this.bookingData.activity_id || params['activity_id'];
-      this.bookingData.operator_id = params['operator_id'] || this.bookingData.operator_id;
-      this.bookingData.tourist_user_id = this.bookingData.tourist_user_id || params['tourist_user_id'];
-      this.bookingData.total_price = this.bookingData.total_price || (params['price'] ? parseFloat(params['price']) : 0);
-
-      // Set operatorId if provided in bookingData or params
-      this.operatorId = this.bookingData.operator_id || null;
-
-      // Calculate per pax price if possible
-      if (this.bookingData.total_price && this.bookingData.no_of_pax) {
-        this.perPaxPrice = this.bookingData.total_price / this.bookingData.no_of_pax;
+    // set default tourist name
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        this.bookingData.tourist_name =
+          this.bookingData.contact_name || user.full_name || user.name || user.username || 'A tourist';
+      } catch {
+        this.bookingData.tourist_name = this.bookingData.contact_name || 'A tourist';
       }
+    } else {
+      this.bookingData.tourist_name = this.bookingData.contact_name || 'A tourist';
+    }
 
-      if (!this.bookingData.activity_id) {
-        this.navCtrl.navigateBack('/tourist/home');
-        return;
-      }
-
+    // Fetch operator/activity
+    if (this.bookingData.activity_id) {
       this.fetchActivityAndOperator(this.bookingData.activity_id);
-    });
+    } else {
+      this.navCtrl.navigateBack('/tourist/home');
+    }
+
+    // Set per-pax price from initial total and number of pax
+    if (this.bookingData && this.bookingData.total_price && this.bookingData.no_of_pax) {
+      this.perPaxPrice = this.bookingData.total_price / this.bookingData.no_of_pax;
+    } else if (this.bookingData && this.bookingData.total_price) {
+      this.perPaxPrice = this.bookingData.total_price;
+    }
+
+    // Ensure total price is consistent
+    this.updateTotalPrice();
   }
 
   private async fetchActivityAndOperator(activityId: string) {
@@ -67,10 +85,17 @@ export class ConfirmBookingDetailsPage implements OnInit {
       this.bookingData.activity_name = activity.activity_name || activity.name || 'Unknown Activity';
       this.bookingData.activity_image = activity.image || 'assets/images/placeholder.jpg';
 
-      // Assign operatorId reliably
-      this.operatorId = this.bookingData.operator_id || activity.user_id || activity.rt_user?.id || null;
+      this.operatorId = (
+        this.bookingData.operator_id ?? 
+        activity.operator_id ?? 
+        activity.user_id ?? 
+        activity.rt_user?.id
+      )?.toString() || null;
 
-      if (this.operatorId) {
+      if (!this.operatorId) {
+        console.warn('Operator ID missing! Cannot fetch operator data or send notification.');
+      } else {
+        // ✅ Only call fetchOperator if operatorId is not null
         await this.fetchOperator(this.operatorId);
       }
     } catch (err) {
@@ -83,9 +108,15 @@ export class ConfirmBookingDetailsPage implements OnInit {
     try {
       const res: any = await firstValueFrom(this.api.getOperatorById(operatorId));
       this.operatorData = res;
+
       this.bookingData.operator_name = res.business_name || 'N/A';
       this.bookingData.operator_image = res.image || 'assets/images/default-operator.jpg';
       this.bookingData.location = res.address || 'N/A';
+
+      this.operatorId = res.rt_user_id?.toString() || this.operatorId;
+      if (!this.operatorId) {
+        console.warn('Operator user ID (rt_user_id) missing! Notifications may not work.');
+      }
     } catch (err) {
       console.error('Failed to fetch operator', err);
     }
@@ -94,9 +125,12 @@ export class ConfirmBookingDetailsPage implements OnInit {
   async changePax() {
     const alert = await this.alertController.create({
       header: 'Change Number of Pax',
-      inputs: [
-        { name: 'pax', type: 'number', min: 1, value: this.bookingData.no_of_pax || 1 },
-      ],
+      inputs: [{ 
+        name: 'pax', 
+        type: 'number', 
+        min: 1, 
+        value: this.bookingData.no_of_pax || 1 
+      }],
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
@@ -105,7 +139,7 @@ export class ConfirmBookingDetailsPage implements OnInit {
             const pax = parseInt(data.pax, 10);
             if (pax >= 1) {
               this.bookingData.no_of_pax = pax;
-              this.bookingData.total_price = parseFloat((this.perPaxPrice * pax).toFixed(2));
+              this.updateTotalPrice();
             }
           },
         },
@@ -114,32 +148,127 @@ export class ConfirmBookingDetailsPage implements OnInit {
     await alert.present();
   }
 
+  updateTotalPrice() {
+    const pax = this.bookingData.no_of_pax || 1;
+    this.bookingData.total_price = parseFloat((this.perPaxPrice * pax).toFixed(2));
+  }
+
   async changeDate() {
+    if (!this.bookingData.available_dates_list || this.bookingData.available_dates_list.length === 0) return;
+
+    const uniqueDates = Array.from(
+      new Set(this.bookingData.available_dates_list.map((d: any) => d.date))
+    ) as string[];
+
     const alert = await this.alertController.create({
       header: 'Change Date',
-      inputs: [
-        { name: 'date', type: 'date', value: this.bookingData.date ? this.bookingData.date.split('T')[0] : '' },
-      ],
+      inputs: uniqueDates.map((date) => ({
+        name: 'date',
+        type: 'radio',
+        label: this.formatDate(date),
+        value: date,
+        checked: date === this.bookingData.date
+      })),
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        { 
+          text: 'OK', 
+          handler: (selectedDate) => {
+            if (selectedDate) {
+              this.bookingData.date = selectedDate;
+
+              const timesForDate = this.bookingData.available_dates_list
+                .filter((d: any) => d.date === selectedDate)
+                .map((d: any) => d.time || `${d.startTime} - ${d.endTime}`);
+
+              if (!timesForDate.includes(this.bookingData.time)) {
+                this.bookingData.time = timesForDate[0] || null;
+              }
+
+              const firstSlot = this.bookingData.available_dates_list.find((d: any) => d.date === selectedDate);
+              if (firstSlot) {
+                this.perPaxPrice = Number(firstSlot.price ?? this.perPaxPrice);
+                this.updateTotalPrice();
+              }
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  formatDate(dateStr: string): string {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  async changeTime() {
+    if (!this.bookingData.available_dates_list || !this.bookingData.date) return;
+
+    const timesForDate: string[] = this.bookingData.available_dates_list
+      .filter((d: any) => d.date === this.bookingData.date)
+      .map((d: any) => d.time || `${d.startTime} - ${d.endTime}`)
+      .filter((t: string) => t);
+
+    if (timesForDate.length === 0) {
+      const alert = await this.alertController.create({
+        header: 'No Available Times',
+        message: 'There are no available times for the selected date.',
+        buttons: ['OK'],
+      });
+      await alert.present();
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Change Time',
+      inputs: timesForDate.map((time: string) => ({
+        name: 'time',
+        type: 'radio',
+        label: time,
+        value: time,
+        checked: time === this.bookingData.time
+      })),
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'OK',
-          handler: (data) => {
-            if (data.date) this.bookingData.date = data.date;
+          handler: (selectedTime: string) => {
+            if (selectedTime) {
+              this.bookingData.time = selectedTime;
+
+              const slot = this.bookingData.available_dates_list.find((d: any) =>
+                d.date === this.bookingData.date && (d.time || `${d.startTime} - ${d.endTime}`) === selectedTime
+              );
+              if (slot) {
+                this.perPaxPrice = Number(slot.price ?? this.perPaxPrice);
+                this.updateTotalPrice();
+              }
+            }
           },
         },
       ],
     });
+
     await alert.present();
   }
 
   async confirmCancel() {
     const alert = await this.alertController.create({
       header: 'Cancel Booking',
-      message: 'Are you sure you want to cancel your booking?',
+      message: 'Are you sure you want to cancel the booking?',
       buttons: [
         { text: 'Cancel', role: 'cancel' },
-        { text: 'Yes!', handler: () => this.navCtrl.back() },
+        { 
+          text: 'Yes!', 
+          handler: () => this.navCtrl.navigateRoot('/tourist/home', { animated: true, animationDirection: 'forward' })
+        },
       ],
     });
     await alert.present();
@@ -148,7 +277,11 @@ export class ConfirmBookingDetailsPage implements OnInit {
   async confirmBooking() {
     this.isSubmitting = true;
 
-    if (!this.bookingData.tourist_user_id || !this.bookingData.activity_id || !this.bookingData.total_price) {
+    if (
+      !this.bookingData.tourist_user_id ||
+      !this.bookingData.activity_id ||
+      !this.bookingData.total_price
+    ) {
       const errorAlert = await this.alertController.create({
         header: 'Booking Failed',
         message: 'Booking data is incomplete.',
@@ -162,46 +295,77 @@ export class ConfirmBookingDetailsPage implements OnInit {
     const finalBooking = {
       ...this.bookingData,
       operator_id: this.operatorId,
-      status: 'confirmed',
+      status: 'Booked',
       date: this.bookingData.date || new Date().toISOString().split('T')[0],
+      time: this.bookingData.time || null,
     };
 
     try {
-      const bookingResponse: any = await firstValueFrom(this.api.createBooking(finalBooking));
+      const bookingResponse: any = await firstValueFrom(
+        this.api.createBooking(finalBooking)
+      );
+
       this.isSubmitting = false;
 
       const bookingId = bookingResponse?.data?.id || bookingResponse?.id;
 
+      // ==============================
+      //  UPDATE BOOKING BADGE COUNT
+      // ==============================
+      const currentCount = parseInt(
+        localStorage.getItem('newBookingCount') || '0',
+        10
+      );
+      localStorage.setItem(
+        'newBookingCount',
+        (currentCount + 1).toString()
+      );
+      // ==============================
+
       if (this.operatorId && bookingId) {
-        const notification = {
-          tourist_user_id: this.bookingData.tourist_user_id,
-          operator_id: this.operatorId,
-          booking_id: bookingId,
-          message: `Your booking for ${finalBooking.activity_name} has been confirmed!`,
-          read_status: 0,
+        const notificationPayload = {
+          user_id: this.operatorId,
+          title: `New booking from ${this.bookingData.tourist_name}`,
+          message: `${this.bookingData.tourist_name} booked "${finalBooking.activity_name}" for ${finalBooking.date}. Total: RM ${finalBooking.total_price}`,
+          type: 'booking',
+          related_id: bookingId,
+          is_read: 0,
         };
 
         try {
-          await firstValueFrom(this.notificationService.createOperatorNotification(notification));
-          console.log('Notification sent successfully');
+          await firstValueFrom(
+            this.notificationService.createOperatorNotification(notificationPayload)
+          );
+          console.log('Activity notification sent successfully');
         } catch (err) {
-          console.error('Notification failed:', err);
+          console.error('Failed to send activity notification', err);
         }
       }
 
       const alert = await this.alertController.create({
-        header: 'Booking Confirmed',
-        message: 'Your booking has been successfully confirmed!',
-        buttons: [{ text: 'OK', handler: () => this.navCtrl.navigateRoot('/tourist/home') }],
+        header: 'Booking Successful!',
+        message:
+          'Your booking has been confirmed! You will be contacted soon for more inquiries. Thank you!',
+        buttons: [
+          {
+            text: 'Return to Home Page',
+            handler: () => this.navCtrl.navigateRoot('/tourist/home'),
+          },
+        ],
       });
+
       await alert.present();
     } catch (err: any) {
       this.isSubmitting = false;
+
       const errorAlert = await this.alertController.create({
         header: 'Booking Failed',
-        message: err?.error?.message || 'Something went wrong. Please try again later.',
+        message:
+          err?.error?.message ||
+          'Something went wrong. Please try again later.',
         buttons: ['OK'],
       });
+
       await errorAlert.present();
     }
   }

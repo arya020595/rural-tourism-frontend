@@ -93,9 +93,10 @@ export class ApiService {
   }
 
   // load transaction history
-  getFormsByUser(user_id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/form/trans/${user_id}`);
-  }
+getFormsByUser(user_id: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/form/operator/${user_id}`);
+}
+
 
   // voidTransaction(user_id: string): Observable<any> {
   //   return this.http.get(`${this.apiUrl}/form/trans/${user_id}`);
@@ -211,12 +212,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/accommodation-booking`, bookingData);
   }
 
-  // Get bookings for a tourist user
-  getTouristAccommodationBookings(touristId: string): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/accommodation-booking/user/${touristId}`
-    );
-  }
+
 
   // Get a booking by ID
   getAccommodationBookingById(id: string): Observable<any> {
@@ -229,6 +225,15 @@ export class ApiService {
       notificationData
     );
   }
+
+getBookedDatesByActivity(activityId: string): Observable<any> {
+  return this.http.get<any>(
+    `${this.apiUrl}/activity-booking/booked-dates/${activityId}`
+  );
+}
+
+
+
 
   // src/app/services/api.service.ts
 
@@ -245,5 +250,44 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/${operatorId}`);
   }
 
-  // Other methods...
+cancelAccommodationBooking(bookingId: string) {
+  return this.http.delete(`${this.apiUrl}/tourist-bookings/accommodation-booking/${bookingId}`);
 }
+
+cancelActivityBooking(bookingId: string) {
+  return this.http.delete(`${this.apiUrl}/tourist-bookings/activity-booking/${bookingId}`);
+}
+
+
+// Get all bookings (accommodation + activity) for a tourist
+getTouristAllBookings(touristUserId: string) {
+  return this.http.get<any[]>(`${this.apiUrl}/tourist-bookings/user/${touristUserId}`);
+}
+
+// Get all booked dates for a specific activity
+getBookedDates(activityId: string): Observable<{ success: boolean; data: string[] }> {
+  return this.http.get<{ success: boolean; data: string[] }>(
+    `${this.apiUrl}/activity-booking/${activityId}/booked-dates`
+  );
+}
+
+getOperatorAllBookings(operatorId: string) {
+  return this.http.get<any>(`${this.apiUrl}/operator-bookings/user/${operatorId}`);
+}
+
+markActivityPaid(bookingId: string) {
+  return this.http.post<any>(`${this.apiUrl}/operator-bookings/activity/${bookingId}/paid`, {});
+}
+
+markAccommodationPaid(bookingId: string) {
+  return this.http.post<any>(`${this.apiUrl}/operator-bookings/accommodation/${bookingId}/paid`, {});
+}
+
+
+//Apply more methods here...
+
+}
+
+
+
+

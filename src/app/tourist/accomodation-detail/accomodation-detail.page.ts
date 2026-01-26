@@ -16,6 +16,9 @@ export class AccomodationDetailPage implements OnInit {
   errorMessage: string = '';
   showAllAmenities: boolean = false;
 
+  // NEW: for favorite button
+  isFavorite: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
@@ -33,8 +36,16 @@ export class AccomodationDetailPage implements OnInit {
     }
   }
 
+  /** Back button */
   goBack() {
     this.navCtrl.back();
+  }
+
+  /** Toggle favorite */
+  toggleFavorite() {
+    this.isFavorite = !this.isFavorite;
+    console.log('Favorite toggled:', this.isFavorite);
+    // Optional: call API to save favorite state
   }
 
   loadAccommodation() {
@@ -42,9 +53,15 @@ export class AccomodationDetailPage implements OnInit {
 
     this.apiService.getAccommodationById(this.accommodationId).subscribe({
       next: (res: any) => {
-        this.accommodation = res;
+        // Normalize ID
+        this.accommodation = {
+          ...res,
+          id: res.id ?? res.accommodation_id
+        };
 
-        const provided = this.accommodation?.provided_accomodation || [];
+        // Parse amenities
+        const provided = this.accommodation?.provided || [];
+
         let amenities: string[] = [];
 
         if (Array.isArray(provided)) {
@@ -103,15 +120,14 @@ export class AccomodationDetailPage implements OnInit {
     const user = JSON.parse(userData);
     const touristUserId = user.tourist_user_id;
 
-    // ✅ send "no_of_pax" and keep "no_of_rooms" for compatibility
     this.navCtrl.navigateForward(['/tourist/accommodation-booking'], {
       queryParams: {
         accommodation_id: this.accommodation.id,
         price: this.accommodation.price,
         operator_id: this.accommodation.operator_id,
         tourist_user_id: touristUserId,
-        no_of_pax: 1,      // new key
-        no_of_rooms: 1     // keep this temporarily for backward compatibility
+        no_of_pax: 1,
+        no_of_rooms: 1
       },
     });
   }

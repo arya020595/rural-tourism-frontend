@@ -98,6 +98,14 @@ ion-item {
   font-size: 0.85rem;
 }
 
+  .notif-timestamp {
+    display: block;
+    color: #888;
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+
+
 /* ===== Empty State ===== */
 .no-notifications {
   display: flex;
