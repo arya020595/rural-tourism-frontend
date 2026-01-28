@@ -12,7 +12,6 @@ import { environment } from 'src/environments/environment';
 export class ActivityOperatorListPage implements OnInit {
   activityId: string | null = null;
   operators: any[] = [];
-  operatorsUpdated: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -37,12 +36,27 @@ export class ActivityOperatorListPage implements OnInit {
   loadOperators(activityId: string) {
     this.api.getOperatorsByActivityId(activityId).subscribe(
       (res: any[]) => {
-        this.operators = res.map((op) => ({
-          ...op,
-          // Use operator.business_name first, fallback to rt_user.business_name
-          business_name:
-            op.business_name || op.rt_user?.business_name || 'No Business Name',
-        }));
+        console.log('Operators API response:', res); // DEBUG
+
+        this.operators = res.map((op) => {
+          // Support multiple possible slot arrays
+          const slots = op.activity_slots || op.available_dates_list || [];
+
+          // Extract prices safely
+          const prices = slots.map((slot: any) =>
+            Number(slot.price ?? slot.price_per_pax ?? 0)
+          );
+
+          const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+          const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+
+          return {
+            ...op,
+            business_name: op.business_name || op.rt_user?.business_name || 'No Business Name',
+            minPrice,
+            maxPrice,
+          };
+        });
       },
       (err) => {
         if (!environment.production) {
@@ -69,8 +83,6 @@ export class ActivityOperatorListPage implements OnInit {
   }
 
   goToOperatorDetail(operatorId: string) {
-    this.navCtrl.navigateForward(
-      `/tourist/activity-operator-detail/${operatorId}`
-    );
+    this.navCtrl.navigateForward(`/tourist/activity-operator-detail/${operatorId}`);
   }
 }

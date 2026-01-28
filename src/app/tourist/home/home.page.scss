@@ -23,7 +23,7 @@ ion-content {
   --border-width: 0;
   --border-style: none !important;
   margin-left: 5%;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .results-summary {
@@ -361,12 +361,12 @@ ion-segment-button {
 }
 
 .notification-button {
-  position: relative; 
+  position: relative;
 }
 
 .notification-bell {
-  font-size: 24px; 
-  color: #FFC107; 
+  font-size: 24px;
+  color: #ffc107;
 }
 
 .notification-badge {

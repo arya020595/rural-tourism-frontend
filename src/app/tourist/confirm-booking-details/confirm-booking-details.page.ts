@@ -63,6 +63,16 @@ export class ConfirmBookingDetailsPage implements OnInit {
       this.navCtrl.navigateBack('/tourist/home');
     }
 
+    // If no date selected, pick the first available one
+    if (this.bookingData.available_dates_list?.length && !this.bookingData.date) {
+      const firstSlot = this.bookingData.available_dates_list[0];
+      this.bookingData.date = firstSlot.date;
+      this.bookingData.time = firstSlot.time || `${firstSlot.startTime} - ${firstSlot.endTime}`;
+      this.perPaxPrice = Number(firstSlot.price ?? this.perPaxPrice);
+      this.updateTotalPrice();
+    }
+
+
     // Set per-pax price from initial total and number of pax
     if (this.bookingData && this.bookingData.total_price && this.bookingData.no_of_pax) {
       this.perPaxPrice = this.bookingData.total_price / this.bookingData.no_of_pax;
@@ -153,51 +163,64 @@ export class ConfirmBookingDetailsPage implements OnInit {
     this.bookingData.total_price = parseFloat((this.perPaxPrice * pax).toFixed(2));
   }
 
-  async changeDate() {
-    if (!this.bookingData.available_dates_list || this.bookingData.available_dates_list.length === 0) return;
+async changeDate() {
+  if (!this.bookingData.available_dates_list || this.bookingData.available_dates_list.length === 0) return;
 
-    const uniqueDates = Array.from(
-      new Set(this.bookingData.available_dates_list.map((d: any) => d.date))
-    ) as string[];
+  // Build unique dates with first available slot info
+  const dateOptionsMap: Record<string, any> = {};
+  this.bookingData.available_dates_list.forEach((slot: any) => {
+    if (!dateOptionsMap[slot.date]) {
+      dateOptionsMap[slot.date] = slot; // only take first slot per date
+    }
+  });
 
-    const alert = await this.alertController.create({
-      header: 'Change Date',
-      inputs: uniqueDates.map((date) => ({
-        name: 'date',
-        type: 'radio',
-        label: this.formatDate(date),
-        value: date,
-        checked: date === this.bookingData.date
-      })),
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        { 
-          text: 'OK', 
-          handler: (selectedDate) => {
-            if (selectedDate) {
-              this.bookingData.date = selectedDate;
+  const dateOptions = Object.keys(dateOptionsMap).map((date: string) => {
+    const slot = dateOptionsMap[date];
+    const formattedDate = this.formatDate(date);
+    const price = slot.price ?? this.perPaxPrice;
+    return {
+      name: 'date',
+      type: 'radio' as const,
+      label: `${formattedDate} (RM ${price} / per pax)`,
+      value: date,
+      checked: date === this.bookingData.date
+    };
+  });
 
-              const timesForDate = this.bookingData.available_dates_list
-                .filter((d: any) => d.date === selectedDate)
-                .map((d: any) => d.time || `${d.startTime} - ${d.endTime}`);
+  const alert = await this.alertController.create({
+    header: 'Change Date',
+    inputs: dateOptions,
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      { 
+        text: 'OK', 
+        handler: (selectedDate: string) => {
+          if (selectedDate) {
+            this.bookingData.date = selectedDate;
 
-              if (!timesForDate.includes(this.bookingData.time)) {
-                this.bookingData.time = timesForDate[0] || null;
-              }
+            // Update available times for the new date
+            const timesForDate = this.bookingData.available_dates_list
+              .filter((d: any) => d.date === selectedDate)
+              .map((d: any) => d.time || `${d.startTime} - ${d.endTime}`);
 
-              const firstSlot = this.bookingData.available_dates_list.find((d: any) => d.date === selectedDate);
-              if (firstSlot) {
-                this.perPaxPrice = Number(firstSlot.price ?? this.perPaxPrice);
-                this.updateTotalPrice();
-              }
+            if (!timesForDate.includes(this.bookingData.time)) {
+              this.bookingData.time = timesForDate[0] || null;
+            }
+
+            // Update per-pax price based on first slot of selected date
+            const firstSlot = this.bookingData.available_dates_list.find((d: any) => d.date === selectedDate);
+            if (firstSlot) {
+              this.perPaxPrice = Number(firstSlot.price ?? this.perPaxPrice);
+              this.updateTotalPrice();
             }
           }
         }
-      ]
-    });
+      }
+    ]
+  });
 
-    await alert.present();
-  }
+  await alert.present();
+}
 
   formatDate(dateStr: string): string {
     try {

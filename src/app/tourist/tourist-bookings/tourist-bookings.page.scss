@@ -17,6 +17,10 @@ ion-card {
 
   }
 
+  
+
+
+
 
   strong.booked {
     color: green;
@@ -74,11 +78,10 @@ ion-spinner {
 }
 
 .page-title {
-  font-size: 1.4rem;
+  font-size: 30px;
   font-weight: 800;
   color: #222;
   margin-left: 10px;
-  margin-bottom: 40px;
 }
 
 /* Make ion-badge align properly with text inside a paragraph */
@@ -129,4 +132,14 @@ ion-segment{
   justify-content: center;
   color: white;
   font-weight: bold;
+}
+
+.divider {
+  width: 90%;
+  height: 1px;
+  background: #ccc;
+  margin-left: 10px;
+  margin-top: 5px;
+  margin-bottom: 30px;
+  border-radius: 2px;
 }
