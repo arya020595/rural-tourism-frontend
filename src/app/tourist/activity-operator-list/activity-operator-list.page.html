@@ -1,14 +1,9 @@
 <ion-content id="main-content" [fullscreen]="true" color="dark">
   <div class="page-padding">
     <!-- Back Button -->
-    <ion-button
-      class="back-button"
-      fill="clear"
-      (click)="backHome()"
-      mode="ios"
-    >
-      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon> Back to
-      Home Page
+    <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      Back to Home Page
     </ion-button>
 
     <!-- Logo -->
@@ -23,7 +18,6 @@
       </ion-text>
 
       <!-- If there are operators -->
-      <!-- If there are operators -->
       <div class="vertical-scroll" *ngIf="operators && operators.length > 0">
         <ion-card
           class="option-card"
@@ -31,18 +25,31 @@
           [routerLink]="['/activity-operator-detail', operator.id]"
         >
           <img [src]="getOperatorImage(operator.image)" />
-          <div class="card-title-overlay">{{ operator.business_name }}</div>
+
+          <div class="card-title-overlay">
+            <!-- Operator Name -->
+            <div>{{ operator.business_name }}</div>
+
+            <!-- Price Range -->
+            <div class="price-range" *ngIf="operator.minPrice !== null && operator.maxPrice !== null">
+              RM {{ operator.minPrice }}
+              <span *ngIf="operator.minPrice !== operator.maxPrice">
+                - RM {{ operator.maxPrice }}
+              </span>
+            </div>
+
+            <!-- No Price Available -->
+            <div class="price-range" *ngIf="operator.minPrice === null && operator.maxPrice === null">
+              Price not available
+            </div>
+          </div>
         </ion-card>
       </div>
 
       <!-- If no operators -->
-      <div
-        class="no-operators-message"
-        *ngIf="!operators || operators.length === 0"
-      >
+      <div class="no-operators-message" *ngIf="!operators || operators.length === 0">
         <p>No operators are handling this activity at the moment.</p>
       </div>
     </div>
   </div>
-  <!-- end page-padding -->
 </ion-content>

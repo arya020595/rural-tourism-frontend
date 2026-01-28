@@ -58,7 +58,7 @@ ion-content {
 
 .page-padding {
   background-color: white;
-  height: auto;
+  height: 100%;
   padding: 10px;
   border-top-left-radius: 40px;
   border-top-right-radius: 40px;
@@ -179,18 +179,26 @@ ion-segment-button {
     display: block;
   }
 
-  .card-title-overlay {
-    position: absolute; /* now overlay is on top of image */
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 8px;
-    font-weight: bold;
-    color: #fff;
-    text-align: left;
-    font-size: 16px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-  }
+.card-title-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.8rem 1rem;
+  /* gradient: dark at bottom for text, transparent at top to see image */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.0));
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(2px); /* soft blur for text readability */
+  -webkit-backdrop-filter: blur(2px); /* Safari support */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+
 }
 
 
@@ -203,4 +211,12 @@ ion-segment-button {
   padding: 20px;
   background: #f5f5f5;
   border-radius: 12px;
+}
+
+
+
+.price-range {
+  font-size: 0.8rem;
+  color: #ffd700; /* Golden color for visibility */
+  margin-top: 2px;
 }

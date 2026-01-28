@@ -77,7 +77,21 @@
       </ion-item> -->
       <ion-item [routerLink]="['/tourist/tourist-bookings']" class="item-nav" detail="false" lines="none">
         <ion-icon name="clipboard" slot="start"></ion-icon>
-        <ion-text>Booking/Transaction History</ion-text>
+        <ion-text>List of Bookings</ion-text>
+
+          <!-- Notification Badge -->
+          <ion-badge 
+            *ngIf="newBookingCount > 0" 
+            color="danger" 
+            slot="end"
+          >
+            {{ newBookingCount }}
+          </ion-badge>
+      </ion-item>
+
+      <ion-item (click)="showFeatureUnavailableToast();" class="item-nav" detail="false" lines="none">
+        <ion-icon name="clipboard" slot="start"></ion-icon>
+        <ion-text>Transaction History</ion-text>
 
           <!-- Notification Badge -->
           <ion-badge 

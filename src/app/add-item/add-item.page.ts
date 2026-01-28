@@ -21,7 +21,13 @@ export class AddItemPage implements OnInit {
 
   activityTypes: any[] = []; // To hold activity master data
   districtList: string[] = [
-    'Kiulu', 'Kota Belud', 'Kundasang', 'Ranau', 'Sandakan', 'Tawau', 'Kota Kinabalu'
+    'Kiulu',
+    'Kota Belud',
+    'Kundasang',
+    'Ranau',
+    'Sandakan',
+    'Tawau',
+    'Kota Kinabalu',
   ];
 
   // ===== Activity Data =====
@@ -43,15 +49,15 @@ export class AddItemPage implements OnInit {
     services_provided_list: [] as { title: string; description: string }[],
   };
 
-// Temporary slot before adding
-newTimeSlot = { startTime: '', endTime: '' };
+  // Temporary slot before adding
+  newTimeSlot = { startTime: '', endTime: '' };
 
   availableDateRangeEntry = {
-  startDate: '', // e.g., '2026-01-01'
-  endDate: '',   // e.g., '2026-01-07'
-  timeSlots: [] as { startTime: string; endTime: string }[],
-  price: 0
-};
+    startDate: '', // e.g., '2026-01-01'
+    endDate: '', // e.g., '2026-01-07'
+    timeSlots: [] as { startTime: string; endTime: string }[],
+    price: 0,
+  };
 
   imagePreview: string | null = null;
 
@@ -114,7 +120,7 @@ newTimeSlot = { startTime: '', endTime: '' };
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private navController: NavController
+    private navController: NavController,
   ) {}
 
   ngOnInit() {
@@ -142,13 +148,13 @@ newTimeSlot = { startTime: '', endTime: '' };
       (err) => {
         console.error('Error fetching activity master data', err);
         this.activityTypes = [];
-      }
+      },
     );
   }
 
   selectActivity(activityId: string) {
     this.activityData.activity_id = activityId;
-    const selected = this.activityTypes.find(a => a.id === activityId);
+    const selected = this.activityTypes.find((a) => a.id === activityId);
     if (selected) {
       this.activityData.activity_name = selected.activity_name;
       this.activityData.district = selected.district || '';
@@ -163,11 +169,19 @@ newTimeSlot = { startTime: '', endTime: '' };
     }
   }
 
-  goNext() { this.swiper?.slideNext(); }
-  goPrev() { this.swiper?.slidePrev(); }
-  goToStep(step: number) { this.currentStep = step; }
+  goNext() {
+    this.swiper?.slideNext();
+  }
+  goPrev() {
+    this.swiper?.slidePrev();
+  }
+  goToStep(step: number) {
+    this.currentStep = step;
+  }
 
-  onSlideChange(event: any) { /* optional */ }
+  onSlideChange(event: any) {
+    /* optional */
+  }
 
   // ===== Option Selection =====
   selectOption(option: string) {
@@ -181,94 +195,105 @@ newTimeSlot = { startTime: '', endTime: '' };
   }
 
   onShowInSuggestionsChange() {
-    console.log('Show in Suggestions changed:', this.activityData.showInSuggestions);
+    console.log(
+      'Show in Suggestions changed:',
+      this.activityData.showInSuggestions,
+    );
   }
 
   // ===== Available Dates =====
 
-addTimeSlot() {
-  const { startTime, endTime } = this.newTimeSlot;
+  addTimeSlot() {
+    const { startTime, endTime } = this.newTimeSlot;
 
-  // Validation
-  if (!startTime || !endTime) {
-    console.warn('Cannot add slot: start or end time missing');
-    return;
+    // Validation
+    if (!startTime || !endTime) {
+      console.warn('Cannot add slot: start or end time missing');
+      return;
+    }
+
+    // Optional: prevent overlapping slots
+    const overlap = this.availableDateRangeEntry.timeSlots.some(
+      (slot) =>
+        (startTime >= slot.startTime && startTime < slot.endTime) ||
+        (endTime > slot.startTime && endTime <= slot.endTime),
+    );
+    if (overlap) {
+      alert('Time slot overlaps with an existing slot!');
+      return;
+    }
+
+    // Add to timeSlots array
+    this.availableDateRangeEntry.timeSlots.push({ ...this.newTimeSlot });
+    console.log('Added time slot:', this.newTimeSlot);
+    console.log('Current time slots:', this.availableDateRangeEntry.timeSlots);
+
+    // Reset input
+    this.newTimeSlot = { startTime: '', endTime: '' };
   }
 
-  // Optional: prevent overlapping slots
-  const overlap = this.availableDateRangeEntry.timeSlots.some(slot =>
-    (startTime >= slot.startTime && startTime < slot.endTime) ||
-    (endTime > slot.startTime && endTime <= slot.endTime)
-  );
-  if (overlap) {
-    alert('Time slot overlaps with an existing slot!');
-    return;
+  removeTimeSlot(index: number) {
+    this.availableDateRangeEntry.timeSlots.splice(index, 1);
   }
 
-  // Add to timeSlots array
-  this.availableDateRangeEntry.timeSlots.push({ ...this.newTimeSlot });
-  console.log('Added time slot:', this.newTimeSlot);
-  console.log('Current time slots:', this.availableDateRangeEntry.timeSlots);
+  addAvailableDateRange() {
+    const { startDate, endDate, timeSlots, price } =
+      this.availableDateRangeEntry;
 
-  // Reset input
-  this.newTimeSlot = { startTime: '', endTime: '' };
-}
+    // Validation
+    if (!startDate || !endDate) {
+      alert('Please select both start and end dates.');
+      return;
+    }
+    if (timeSlots.length === 0) {
+      alert('Please add at least one time slot.');
+      return;
+    }
+    if (price < 0) {
+      alert('Price must be 0 or greater.');
+      return;
+    }
 
+    const start = new Date(`${startDate}T00:00`);
+    const end = new Date(`${endDate}T00:00`);
 
-removeTimeSlot(index: number) {
-  this.availableDateRangeEntry.timeSlots.splice(index, 1);
-}
+    if (start > end) {
+      alert('Start date cannot be after end date.');
+      return;
+    }
 
-addAvailableDateRange() {
-  const { startDate, endDate, timeSlots, price } = this.availableDateRangeEntry;
-
-  // Validation
-  if (!startDate || !endDate) {
-    alert('Please select both start and end dates.');
-    return;
-  }
-  if (timeSlots.length === 0) {
-    alert('Please add at least one time slot.');
-    return;
-  }
-  if (price < 0) {
-    alert('Price must be 0 or greater.');
-    return;
-  }
-
-  const start = new Date(`${startDate}T00:00`);
-  const end = new Date(`${endDate}T00:00`);
-
-  if (start > end) {
-    alert('Start date cannot be after end date.');
-    return;
-  }
-
-  // Loop through dates
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const dateStr = this.formatDateYYYYMMDD(d);
-    timeSlots.forEach(slot => {
-      this.activityData.available_dates_list.push({
-        date: dateStr,
-        time: `${slot.startTime} - ${slot.endTime}`,
-        price: price
+    // Loop through dates
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = this.formatDateYYYYMMDD(d);
+      timeSlots.forEach((slot) => {
+        this.activityData.available_dates_list.push({
+          date: dateStr,
+          time: `${slot.startTime} - ${slot.endTime}`,
+          price: price,
+        });
       });
-    });
+    }
+
+    console.log('Added date range:', this.availableDateRangeEntry);
+    console.log(
+      'Current available dates list:',
+      this.activityData.available_dates_list,
+    );
+
+    // Reset form
+    this.availableDateRangeEntry = {
+      startDate: '',
+      endDate: '',
+      timeSlots: [],
+      price: 0,
+    };
   }
 
-  console.log('Added date range:', this.availableDateRangeEntry);
-  console.log('Current available dates list:', this.activityData.available_dates_list);
-
-  // Reset form
-  this.availableDateRangeEntry = { startDate: '', endDate: '', timeSlots: [], price: 0 };
-}
-
-get isAvailableDateRangeValid() {
-  const { startDate, endDate, timeSlots, price } = this.availableDateRangeEntry;
-  return startDate && endDate && timeSlots.length > 0 && price >= 0;
-}
-
-
+  get isAvailableDateRangeValid() {
+    const { startDate, endDate, timeSlots, price } =
+      this.availableDateRangeEntry;
+    return startDate && endDate && timeSlots.length > 0 && price >= 0;
+  }
 
   addAvailableDate() {
     if (!this.isAvailableDateValid) return;
@@ -276,33 +301,31 @@ get isAvailableDateRangeValid() {
     this.activityData.available_dates_list.push({
       date: this.availableDateEntry.date,
       time: this.availableDateEntry.time,
-      price: this.availableDateEntry.price
+      price: this.availableDateEntry.price,
     });
 
     // Reset fields after adding
     this.availableDateEntry = { date: '', time: '', price: 0 };
   }
 
-
   removeAvailableDate(index: number) {
     this.activityData.available_dates_list.splice(index, 1);
   }
 
   get isAvailableDateValid() {
-    return this.availableDateEntry.date &&
-          this.availableDateEntry.time &&
-          this.availableDateEntry.price >= 0;
+    return (
+      this.availableDateEntry.date &&
+      this.availableDateEntry.time &&
+      this.availableDateEntry.price >= 0
+    );
   }
 
   formatDateYYYYMMDD(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-
-
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
 
   // ===== Services Provided =====
   addServiceProvided() {
@@ -405,13 +428,21 @@ get isAvailableDateRangeValid() {
         image: this.activityData.image || null,
         operator_logo: this.operatorLogoPreview || null,
         available_dates: this.activityData.available_dates_list,
-        services_provided: JSON.stringify(this.activityData.services_provided_list),
+        services_provided: JSON.stringify(
+          this.activityData.services_provided_list,
+        ),
         // price_per_pax: this.activityData.price || null,
       };
 
       this.apiService.createOperatorActivity(dataToSend).subscribe(
-        res => { console.log('Activity created:', res); this.setOpen(true); },
-        err => { console.error('Error creating activity:', err); alert('Error: ' + err); }
+        (res) => {
+          console.log('Activity created:', res);
+          this.setOpen(true);
+        },
+        (err) => {
+          console.error('Error creating activity:', err);
+          alert('Error: ' + err);
+        },
       );
     }
 
@@ -435,22 +466,32 @@ get isAvailableDateRangeValid() {
         district: this.accomData.district,
         user_id: this.accomData.user_id,
         showAvailability: this.accomData.showAvailability ? 1 : 0,
-        provided_accomodation: JSON.stringify(this.accomData.provided_accomodation),
+        provided_accomodation: JSON.stringify(
+          this.accomData.provided_accomodation,
+        ),
         activity_id: this.accomData.activity_id,
       };
 
-      console.log('Submitting accommodation with user_id:', this.accomData.user_id);
+      console.log(
+        'Submitting accommodation with user_id:',
+        this.accomData.user_id,
+      );
 
       this.apiService.createAccom(dataToSend).subscribe(
-        res => { console.log('Accommodation created:', res); this.setOpen(true); },
-        err => {
+        (res) => {
+          console.log('Accommodation created:', res);
+          this.setOpen(true);
+        },
+        (err) => {
           console.error('Error creating accommodation:', err);
           if (err.error?.message?.includes('foreign key constraint')) {
-            alert('Error: Your user account was not properly created. Please register again or contact support.');
+            alert(
+              'Error: Your user account was not properly created. Please register again or contact support.',
+            );
           } else {
             alert('Error: ' + (err.error?.message || JSON.stringify(err)));
           }
-        }
+        },
       );
     }
   }

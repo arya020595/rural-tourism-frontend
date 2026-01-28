@@ -294,6 +294,7 @@ const selectedSlot = slotsForDate.find((slot: {
       contact_phone: this.bookingForm.value.contact_phone,
       nationality: this.bookingForm.value.nationality,
       total_price: this.totalPrice,
+      available_dates_list: this.filteredDates,
       status: 'pending',
 
       activity_name: this.activityDetails?.activity_name || '',
