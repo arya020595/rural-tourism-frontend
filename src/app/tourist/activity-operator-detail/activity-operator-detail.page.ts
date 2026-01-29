@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 import { ApiService } from 'src/app/services/api.service';
 
 interface AvailableDate {
@@ -25,7 +25,7 @@ export class ActivityOperatorDetailPage implements OnInit {
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private api: ApiService,
-    private alertController: AlertController // ✅ proper Ionic alerts
+    private alertController: AlertController,
   ) {}
 
   ngOnInit() {
@@ -42,6 +42,7 @@ export class ActivityOperatorDetailPage implements OnInit {
       (res: any) => {
         console.log('Operator detail:', res);
 
+        // Parse services list safely
         let services: any[] = [];
         if (res.services_provided_list) {
           try {
@@ -53,11 +54,22 @@ export class ActivityOperatorDetailPage implements OnInit {
           }
         }
 
-        // Set base operator data
+        // Calculate min/max price from available dates or activity slots
+        const slots = res.activity_slots || res.available_dates_list || [];
+        const prices = slots.map((slot: any) =>
+          Number(slot.price ?? slot.price_per_pax ?? 0),
+        );
+        const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+        const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+
+        // Set operator data
         this.operatorData = {
           ...res,
           activity_id: res.activity_id || null,
-          business_name: res.business_name || res.rt_user?.business_name || 'No Business Name',
+          business_name:
+            res.business_name ||
+            res.rt_user?.business_name ||
+            'No Business Name',
           image: res.image || 'assets/default-operator.jpg',
           operator_logo: null,
           address: res.address || 'No address provided',
@@ -65,9 +77,12 @@ export class ActivityOperatorDetailPage implements OnInit {
           description: res.description || 'No description available',
           services_provided_list: services,
           price_per_pax: res.price_per_pax || 0,
+          minPrice,
+          maxPrice,
+          available_dates_list: res.available_dates_list || [],
         };
 
-        // Fetch full user data for logo
+        // Fetch operator logo if exists
         if (res.rt_user_id) {
           this.api.getAccommodationOperatorById(res.rt_user_id).subscribe(
             (userRes: any) => {
@@ -78,11 +93,11 @@ export class ActivityOperatorDetailPage implements OnInit {
                     : 'data:image/png;base64,' + userRes.company_logo;
               }
             },
-            err => console.error('Error loading operator logo:', err)
+            (err) => console.error('Error loading operator logo:', err),
           );
         }
       },
-      err => console.error('Error loading operator details:', err)
+      (err) => console.error('Error loading operator details:', err),
     );
   }
 
@@ -94,12 +109,11 @@ export class ActivityOperatorDetailPage implements OnInit {
   async proceed() {
     const userData = localStorage.getItem('user');
 
-    // If user not logged in, prompt login
     if (!userData) {
       const pendingBooking = {
         activityId: this.operatorData.activity_id,
         operatorId: this.operatorId,
-        price: this.operatorData.price_per_pax || 0,
+        price: this.operatorData.minPrice || 0,
         availableDates: this.operatorData.available_dates_list,
         activityName: this.operatorData.business_name,
         image: this.operatorData.image,
@@ -123,33 +137,30 @@ export class ActivityOperatorDetailPage implements OnInit {
       return;
     }
 
-
-    // Parse logged-in user
     const user = JSON.parse(userData);
     const touristUserId = user.tourist_user_id;
 
-    // Ensure IDs exist
     if (!this.operatorData?.activity_id || !this.operatorId) {
       console.error('Missing activity_id or operator_id');
       return;
     }
 
-    // Map available dates into proper format
-    const mappedDates = (this.operatorData.available_dates_list as AvailableDate[] || []).map(d => ({
+    const mappedDates = (
+      (this.operatorData.available_dates_list as AvailableDate[]) || []
+    ).map((d) => ({
       date: d.date,
-      price: d.price ?? this.operatorData.price_per_pax ?? 0,
+      price: d.price ?? this.operatorData.minPrice ?? 0,
       time: d.time || '',
       startTime: d.startTime || '',
       endTime: d.endTime || '',
     }));
 
-    // Navigate to booking page with all parameters
     this.navCtrl.navigateForward(['/tourist/activity-booking'], {
       state: {
         activityId: this.operatorData.activity_id,
         operatorId: this.operatorId,
-        touristUserId: touristUserId,
-        price: +this.operatorData.price_per_pax || 0,
+        touristUserId,
+        price: this.operatorData.minPrice || 0,
         availableDates: mappedDates,
         activityName: this.operatorData.business_name,
         image: this.operatorData.image,

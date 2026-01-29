@@ -1,18 +1,33 @@
 <ion-content [fullscreen]="true" class="operator-detail">
-<div class="hero-image-container">
-  <img [src]="operatorData?.image || 'assets/default-operator.jpg'" alt="Operator Image" />
+  <div class="hero-image-container">
+    <img
+      [src]="operatorData?.image || 'assets/default-operator.jpg'"
+      alt="Operator Image"
+    />
 
-  <!-- Circular Green Back Button -->
-  <ion-button class="back-button" fill="clear" (click)="backHome()" mode="ios">
-    <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
-  </ion-button>
+    <!-- Circular Green Back Button -->
+    <ion-button
+      class="back-button"
+      fill="clear"
+      (click)="backHome()"
+      mode="ios"
+    >
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
 
-  <!-- Circular Green Favorite/Like Button -->
-  <ion-button class="favorite-button" fill="clear" (click)="toggleFavorite()" mode="ios">
-    <ion-icon slot="icon-only" [name]="isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
-  </ion-button>
-</div>
-
+    <!-- Circular Green Favorite/Like Button -->
+    <ion-button
+      class="favorite-button"
+      fill="clear"
+      (click)="toggleFavorite()"
+      mode="ios"
+    >
+      <ion-icon
+        slot="icon-only"
+        [name]="isFavorite ? 'heart' : 'heart-outline'"
+      ></ion-icon>
+    </ion-button>
+  </div>
 
   <div class="operator-header">
     <h1>{{ operatorData?.business_name }}</h1>
@@ -22,14 +37,14 @@
     </div>
   </div>
 
-  <hr/>
+  <hr />
 
   <section class="section-about">
     <h2>About This Activity</h2>
     <p>{{ operatorData?.description }}</p>
   </section>
 
-  <hr/>
+  <hr />
 
   <section class="section-services">
     <h2>Services Provided</h2>
@@ -44,10 +59,26 @@
   </section>
 
   <div class="price-container">
-    <!-- <div class="price">
-      <span>RM {{ operatorData?.price_per_pax }}</span>
+    <!-- Price Range -->
+    <div
+      class="price"
+      *ngIf="operatorData?.minPrice !== null && operatorData?.maxPrice !== null"
+    >
+      RM {{ operatorData.minPrice | number:'1.2-2' }}
+      <span *ngIf="operatorData.minPrice !== operatorData.maxPrice">
+        - RM {{ operatorData.maxPrice | number:'1.2-2' }}
+      </span>
       <small>per pax</small>
-    </div> -->
+    </div>
+
+    <div
+      class="price"
+      *ngIf="operatorData?.minPrice === null && operatorData?.maxPrice === null"
+    >
+      Price not available
+    </div>
+
+    <!-- Proceed Button -->
     <ion-button class="proceed" expand="block" (click)="proceed()">
       Proceed
     </ion-button>

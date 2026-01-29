@@ -1,5 +1,5 @@
 * {
-  font-family: 'Roboto';
+  font-family: "Roboto";
 }
 
 ion-header {
@@ -15,7 +15,7 @@ ion-toolbar {
 }
 
 ion-content {
-  --background: #000; 
+  --background: #000;
   height: 100%;
 }
 
@@ -129,7 +129,7 @@ ion-segment-button {
     color: #025930;
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: 0;
       left: 0;
@@ -148,9 +148,10 @@ ion-segment-button {
 }
 
 .section h2 {
-  font-size: 16px;
+  font-size: 20px;
   color: #025930;
   font-weight: bolder;
+  margin-left: 18px;
 }
 
 /* Vertical scroll container */
@@ -161,14 +162,13 @@ ion-segment-button {
   padding: 0 10px;
 }
 
-
 .option-card {
   width: 100%;
   max-width: 100%;
-  max-height: 180px;
+  max-height: 300px;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
   position: relative; /* important for absolute overlay */
 
@@ -179,28 +179,32 @@ ion-segment-button {
     display: block;
   }
 
-.card-title-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.8rem 1rem;
-  /* gradient: dark at bottom for text, transparent at top to see image */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.0));
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-  display: flex;
-  flex-direction: column;
-  backdrop-filter: blur(2px); /* soft blur for text readability */
-  -webkit-backdrop-filter: blur(2px); /* Safari support */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  .card-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.8rem 1rem;
+    background: none; /* no full overlay */
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+
+    /* subtle shadow behind text for readability */
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  }
+
+  .card-title-overlay .price-range {
+    font-size: 18px;
+    color: #ffd700;
+    margin-top: 2px;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  }
 }
-
-
-}
-
 
 .no-operators-message {
   text-align: center;
@@ -211,12 +215,4 @@ ion-segment-button {
   padding: 20px;
   background: #f5f5f5;
   border-radius: 12px;
-}
-
-
-
-.price-range {
-  font-size: 0.8rem;
-  color: #ffd700; /* Golden color for visibility */
-  margin-top: 2px;
 }

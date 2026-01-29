@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
-import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { AlertController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AlertController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-register',
@@ -148,147 +147,233 @@ export class RegisterPage implements OnInit {
     { name: 'United Arab Emirates', dial_code: '+971' },
     { name: 'United Kingdom', dial_code: '+44' },
     { name: 'United States', dial_code: '+1' },
-    { name: 'Vietnam', dial_code: '+84' }
+    { name: 'Vietnam', dial_code: '+84' },
   ];
 
   selectedCountryName: string = '';
 
   nationalities: string[] = [
-    'Afghan', 'Albanian', 'Algerian', 'American', 'Andorran', 'Angolan',
-    'Antiguan and Barbudan', 'Argentine', 'Armenian', 'Australian', 'Austrian',
-    'Azerbaijani', 'Bahamian', 'Bahraini', 'Bangladeshi', 'Barbadian', 'Belarusian',
-    'Belgian', 'Belizean', 'Beninese', 'Bhutanese', 'Bolivian', 'Bosnian',
-    'Botswanan', 'Brazilian', 'British', 'Bruneian', 'Bulgarian', 'Burkinabé',
-    'Burmese', 'Canadian', 'Cape Verdean', 'Chilean', 'Chinese', 'Colombian',
-    'Costa Rican', 'Croatian', 'Cuban', 'Cypriot', 'Czech', 'Danish', 'Dutch',
-    'Ecuadorian', 'Egyptian', 'Emirati', 'English', 'Estonian', 'Finnish', 'French',
-    'German', 'Ghanaian', 'Greek', 'Guatemalan', 'Honduran', 'Hungarian', 'Icelandic',
-    'Indian', 'Indonesian', 'Iranian', 'Iraqi', 'Irish', 'Israeli', 'Italian',
-    'Jamaican', 'Japanese', 'Jordanian', 'Kazakh', 'Kenyan', 'Kuwaiti', 'Latvian',
-    'Lebanese', 'Lithuanian', 'Luxembourgish', 'Malaysian', 'Mexican', 'Nepalese',
-    'New Zealander', 'Nigerian', 'Norwegian', 'Pakistani', 'Philippine', 'Polish',
-    'Portuguese', 'Qatari', 'Romanian', 'Russian', 'Saudi', 'Singaporean', 'South Korean',
-    'Spanish', 'Swedish', 'Swiss', 'Thai', 'Turkish', 'Ukrainian', 'United States'
+    'Afghan',
+    'Albanian',
+    'Algerian',
+    'American',
+    'Andorran',
+    'Angolan',
+    'Antiguan and Barbudan',
+    'Argentine',
+    'Armenian',
+    'Australian',
+    'Austrian',
+    'Azerbaijani',
+    'Bahamian',
+    'Bahraini',
+    'Bangladeshi',
+    'Barbadian',
+    'Belarusian',
+    'Belgian',
+    'Belizean',
+    'Beninese',
+    'Bhutanese',
+    'Bolivian',
+    'Bosnian',
+    'Botswanan',
+    'Brazilian',
+    'British',
+    'Bruneian',
+    'Bulgarian',
+    'Burkinabé',
+    'Burmese',
+    'Canadian',
+    'Cape Verdean',
+    'Chilean',
+    'Chinese',
+    'Colombian',
+    'Costa Rican',
+    'Croatian',
+    'Cuban',
+    'Cypriot',
+    'Czech',
+    'Danish',
+    'Dutch',
+    'Ecuadorian',
+    'Egyptian',
+    'Emirati',
+    'English',
+    'Estonian',
+    'Finnish',
+    'French',
+    'German',
+    'Ghanaian',
+    'Greek',
+    'Guatemalan',
+    'Honduran',
+    'Hungarian',
+    'Icelandic',
+    'Indian',
+    'Indonesian',
+    'Iranian',
+    'Iraqi',
+    'Irish',
+    'Israeli',
+    'Italian',
+    'Jamaican',
+    'Japanese',
+    'Jordanian',
+    'Kazakh',
+    'Kenyan',
+    'Kuwaiti',
+    'Latvian',
+    'Lebanese',
+    'Lithuanian',
+    'Luxembourgish',
+    'Malaysian',
+    'Mexican',
+    'Nepalese',
+    'New Zealander',
+    'Nigerian',
+    'Norwegian',
+    'Pakistani',
+    'Philippine',
+    'Polish',
+    'Portuguese',
+    'Qatari',
+    'Romanian',
+    'Russian',
+    'Saudi',
+    'Singaporean',
+    'South Korean',
+    'Spanish',
+    'Swedish',
+    'Swiss',
+    'Thai',
+    'Turkish',
+    'Ukrainian',
+    'United States',
   ];
 
   // Mapping nationality → country name
   nationalityToCountry: { [key: string]: string } = {
-    'Afghan': 'Afghanistan',
-    'Albanian': 'Albania',
-    'Algerian': 'Algeria',
-    'American': 'United States',
-    'Andorran': 'Andorra',
-    'Angolan': 'Angola',
+    Afghan: 'Afghanistan',
+    Albanian: 'Albania',
+    Algerian: 'Algeria',
+    American: 'United States',
+    Andorran: 'Andorra',
+    Angolan: 'Angola',
     'Antiguan and Barbudan': 'Antigua and Barbuda',
-    'Argentine': 'Argentina',
-    'Armenian': 'Armenia',
-    'Australian': 'Australia',
-    'Austrian': 'Austria',
-    'Azerbaijani': 'Azerbaijan',
-    'Bahamian': 'Bahamas',
-    'Bahraini': 'Bahrain',
-    'Bangladeshi': 'Bangladesh',
-    'Barbadian': 'Barbados',
-    'Belarusian': 'Belarus',
-    'Belgian': 'Belgium',
-    'Belizean': 'Belize',
-    'Beninese': 'Benin',
-    'Bhutanese': 'Bhutan',
-    'Bolivian': 'Bolivia',
-    'Bosnian': 'Bosnia and Herzegovina',
-    'Botswanan': 'Botswana',
-    'Brazilian': 'Brazil',
-    'British': 'United Kingdom',
-    'Bruneian': 'Brunei',
-    'Bulgarian': 'Bulgaria',
-    'Burkinabé': 'Burkina Faso',
-    'Burmese': 'Burma', // you might need 'Myanmar'
-    'Canadian': 'Canada',
+    Argentine: 'Argentina',
+    Armenian: 'Armenia',
+    Australian: 'Australia',
+    Austrian: 'Austria',
+    Azerbaijani: 'Azerbaijan',
+    Bahamian: 'Bahamas',
+    Bahraini: 'Bahrain',
+    Bangladeshi: 'Bangladesh',
+    Barbadian: 'Barbados',
+    Belarusian: 'Belarus',
+    Belgian: 'Belgium',
+    Belizean: 'Belize',
+    Beninese: 'Benin',
+    Bhutanese: 'Bhutan',
+    Bolivian: 'Bolivia',
+    Bosnian: 'Bosnia and Herzegovina',
+    Botswanan: 'Botswana',
+    Brazilian: 'Brazil',
+    British: 'United Kingdom',
+    Bruneian: 'Brunei',
+    Bulgarian: 'Bulgaria',
+    Burkinabé: 'Burkina Faso',
+    Burmese: 'Burma', // you might need 'Myanmar'
+    Canadian: 'Canada',
     'Cape Verdean': 'Cape Verde',
-    'Chilean': 'Chile',
-    'Chinese': 'China',
-    'Colombian': 'Colombia',
+    Chilean: 'Chile',
+    Chinese: 'China',
+    Colombian: 'Colombia',
     'Costa Rican': 'Costa Rica',
-    'Croatian': 'Croatia',
-    'Cuban': 'Cuba',
-    'Cypriot': 'Cyprus',
-    'Czech': 'Czech Republic',
-    'Danish': 'Denmark',
-    'Dutch': 'Netherlands',
-    'Ecuadorian': 'Ecuador',
-    'Egyptian': 'Egypt',
-    'Emirati': 'United Arab Emirates',
-    'English': 'United Kingdom',
-    'Estonian': 'Estonia',
-    'Finnish': 'Finland',
-    'French': 'France',
-    'German': 'Germany',
-    'Ghanaian': 'Ghana',
-    'Greek': 'Greece',
-    'Guatemalan': 'Guatemala',
-    'Honduran': 'Honduras',
-    'Hungarian': 'Hungary',
-    'Icelandic': 'Iceland',
-    'Indian': 'India',
-    'Indonesian': 'Indonesia',
-    'Iranian': 'Iran',
-    'Iraqi': 'Iraq',
-    'Irish': 'Ireland',
-    'Israeli': 'Israel',
-    'Italian': 'Italy',
-    'Jamaican': 'Jamaica',
-    'Japanese': 'Japan',
-    'Jordanian': 'Jordan',
-    'Kazakh': 'Kazakhstan',
-    'Kenyan': 'Kenya',
-    'Kuwaiti': 'Kuwait',
-    'Latvian': 'Latvia',
-    'Lebanese': 'Lebanon',
-    'Lithuanian': 'Lithuania',
-    'Luxembourgish': 'Luxembourg',
-    'Malaysian': 'Malaysia',
-    'Mexican': 'Mexico',
-    'Nepalese': 'Nepal',
+    Croatian: 'Croatia',
+    Cuban: 'Cuba',
+    Cypriot: 'Cyprus',
+    Czech: 'Czech Republic',
+    Danish: 'Denmark',
+    Dutch: 'Netherlands',
+    Ecuadorian: 'Ecuador',
+    Egyptian: 'Egypt',
+    Emirati: 'United Arab Emirates',
+    English: 'United Kingdom',
+    Estonian: 'Estonia',
+    Finnish: 'Finland',
+    French: 'France',
+    German: 'Germany',
+    Ghanaian: 'Ghana',
+    Greek: 'Greece',
+    Guatemalan: 'Guatemala',
+    Honduran: 'Honduras',
+    Hungarian: 'Hungary',
+    Icelandic: 'Iceland',
+    Indian: 'India',
+    Indonesian: 'Indonesia',
+    Iranian: 'Iran',
+    Iraqi: 'Iraq',
+    Irish: 'Ireland',
+    Israeli: 'Israel',
+    Italian: 'Italy',
+    Jamaican: 'Jamaica',
+    Japanese: 'Japan',
+    Jordanian: 'Jordan',
+    Kazakh: 'Kazakhstan',
+    Kenyan: 'Kenya',
+    Kuwaiti: 'Kuwait',
+    Latvian: 'Latvia',
+    Lebanese: 'Lebanon',
+    Lithuanian: 'Lithuania',
+    Luxembourgish: 'Luxembourg',
+    Malaysian: 'Malaysia',
+    Mexican: 'Mexico',
+    Nepalese: 'Nepal',
     'New Zealander': 'New Zealand',
-    'Nigerian': 'Nigeria',
-    'Norwegian': 'Norway',
-    'Pakistani': 'Pakistan',
-    'Philippine': 'Philippines',
-    'Polish': 'Poland',
-    'Portuguese': 'Portugal',
-    'Qatari': 'Qatar',
-    'Romanian': 'Romania',
-    'Russian': 'Russia',
-    'Saudi': 'Saudi Arabia',
-    'Singaporean': 'Singapore',
+    Nigerian: 'Nigeria',
+    Norwegian: 'Norway',
+    Pakistani: 'Pakistan',
+    Philippine: 'Philippines',
+    Polish: 'Poland',
+    Portuguese: 'Portugal',
+    Qatari: 'Qatar',
+    Romanian: 'Romania',
+    Russian: 'Russia',
+    Saudi: 'Saudi Arabia',
+    Singaporean: 'Singapore',
     'South Korean': 'Korea, South',
-    'Spanish': 'Spain',
-    'Swedish': 'Sweden',
-    'Swiss': 'Switzerland',
-    'Thai': 'Thailand',
-    'Turkish': 'Turkey',
-    'Ukrainian': 'Ukraine',
-    'United States': 'United States'
+    Spanish: 'Spain',
+    Swedish: 'Sweden',
+    Swiss: 'Switzerland',
+    Thai: 'Thailand',
+    Turkish: 'Turkey',
+    Ukrainian: 'Ukraine',
+    'United States': 'United States',
   };
 
   constructor(
     private navCtrl: NavController,
     private router: Router,
     private http: HttpClient,
-    private alertController: AlertController
+    private alertController: AlertController,
   ) {}
 
   cancelButton = [
     {
       text: 'Cancel',
       role: 'cancel',
-      handler: () => { console.log('Alert canceled'); },
+      handler: () => {
+        console.log('Alert canceled');
+      },
     },
     {
       text: 'Yes',
       role: 'confirm',
       handler: () => {
-        this.navCtrl.navigateForward('/role', { animated: true, animationDirection: 'back' });
+        this.navCtrl.navigateForward('/role', {
+          animated: true,
+          animationDirection: 'back',
+        });
       },
     },
   ];
@@ -302,19 +387,29 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    const match = this.countries.find(c => c.name === countryName);
+    const match = this.countries.find((c) => c.name === countryName);
     this.phonePrefix = match ? match.dial_code : '';
   }
 
   onCountryCodeChange(event: any) {
-    const selected = this.countries.find(c => c.dial_code === event.detail.value);
+    const selected = this.countries.find(
+      (c) => c.dial_code === event.detail.value,
+    );
     if (selected) {
       this.selectedCountryName = selected.name;
     }
   }
 
   async registerUser() {
-    if (!this.full_name || !this.email_address || !this.contact_no || !this.username || !this.password || !this.confirm_password || !this.nationality) {
+    if (
+      !this.full_name ||
+      !this.email_address ||
+      !this.contact_no ||
+      !this.username ||
+      !this.password ||
+      !this.confirm_password ||
+      !this.nationality
+    ) {
       this.showAlert('Error', 'Please fill in all fields.');
       return;
     }
@@ -332,17 +427,22 @@ export class RegisterPage implements OnInit {
       contact_no: fullContactNo,
       username: this.username,
       password: this.password,
-      nationality: this.nationality
+      nationality: this.nationality,
     };
 
     try {
-      const response: any = await this.http.post('http://localhost:3000/api/tourists/register', data).toPromise();
+      const response: any = await this.http
+        .post('http://localhost:3000/api/tourists/register', data)
+        .toPromise();
 
       if (response && response.message) {
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
           if (response.user.tourist_user_id) {
-            localStorage.setItem('tourist_user_id', response.user.tourist_user_id);
+            localStorage.setItem(
+              'tourist_user_id',
+              response.user.tourist_user_id,
+            );
           }
         }
         await this.showAlert('Success', response.message);
