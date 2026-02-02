@@ -50,20 +50,9 @@ export class ActivityFormPage implements OnInit {
     this.apiService.getAllActByUser(uid).subscribe(
       (data) => {
         this.activities = data;
-        console.log('=== LOADED ACTIVITIES ===');
-        console.log('Total activities:', this.activities.length);
-        this.activities.forEach((act, index) => {
-          console.log(`Activity ${index + 1}:`, {
-            id: act.id,
-            activity_id: act.activity_id,
-            activity_name: act.activity_name,
-            activity_master_id: act.activity_master?.id,
-            activity_master_name: act.activity_master?.activity_name,
-          });
-        });
       },
       (error) => {
-        console.error('Failed to load activities:', error);
+        // Failed to load activities
       },
     );
   }
@@ -93,20 +82,9 @@ export class ActivityFormPage implements OnInit {
           total_price: b.total_price || '',
           displayText: `${b.contact_name || 'Unknown'} - ${b.activity_name || 'No Activity'} (${b.date || ''})`,
         }));
-
-        console.log('=== LOADED TOURIST BOOKINGS ===');
-        console.log('Total bookings:', this.touristOptions.length);
-        this.touristOptions.forEach((tourist, index) => {
-          console.log(`Booking ${index + 1}:`, {
-            user_id: tourist.user_id,
-            name: tourist.name,
-            activity_id: tourist.activity_id,
-            activity_name: tourist.activity_name,
-          });
-        });
       },
       (err) => {
-        console.error('Failed to load tourists:', err);
+        // Failed to load tourists
       },
     );
   }
@@ -133,11 +111,8 @@ export class ActivityFormPage implements OnInit {
       (t) => t.user_id === selectedTouristUserId,
     );
     if (!booking) {
-      console.warn('No booking found for tourist:', selectedTouristUserId);
       return;
     }
-
-    console.log('Selected booking:', booking);
 
     // Autofill form fields from booking
     this.form.citizenship = booking.citizenship || '';
@@ -169,8 +144,6 @@ export class ActivityFormPage implements OnInit {
       );
     }
 
-    console.log('Matched activity:', matchedActivity);
-
     // Set selected activity for dropdown
     this.selectedActivity = matchedActivity || null;
 
@@ -188,18 +161,10 @@ export class ActivityFormPage implements OnInit {
         '';
     } else {
       // If no match found, use booking data directly
-      console.warn('No matching activity found, using booking data');
       this.form.activity_name = booking.activity_name || '';
       this.form.activity_id = booking.activity_id || '';
       this.form.location = booking.location || '';
     }
-
-    console.log('Form after tourist change:', {
-      activity_name: this.form.activity_name,
-      activity_id: this.form.activity_id,
-      location: this.form.location,
-      selectedActivity: this.selectedActivity,
-    });
   }
 
   // ---------------- Activity Change ----------------
@@ -252,8 +217,6 @@ export class ActivityFormPage implements OnInit {
         issuer: this.form.issuer || 'Unknown Operator',
       };
 
-      console.log('FINAL PAYLOAD:', payload);
-
       const response: any = await this.apiService
         .createForm(payload)
         .toPromise();
@@ -262,7 +225,6 @@ export class ActivityFormPage implements OnInit {
       this.clearForm(form);
       this.navCtrl.navigateForward('/receipt-activity/' + receiptId);
     } catch (error) {
-      console.error('SAVE FAILED:', error);
       alert('Failed to save form.');
     }
   }
