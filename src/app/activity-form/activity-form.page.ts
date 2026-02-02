@@ -215,6 +215,7 @@ export class ActivityFormPage implements OnInit {
         issuer: this.form.issuer || 'Unknown Operator',
       };
 
+      console.debug('Submitting activity form payload:', payload);
       const response: any = await this.apiService
         .createForm(payload)
         .toPromise();
