@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../services/api.service';
 import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-activity-form',
@@ -9,11 +9,10 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./activity-form.page.scss'],
 })
 export class ActivityFormPage implements OnInit {
-
   constructor(
     private apiService: ApiService,
-    private navCtrl: NavController
-  ) { }
+    private navCtrl: NavController,
+  ) {}
 
   ngOnInit() {
     this.loadActivities();
@@ -49,8 +48,23 @@ export class ActivityFormPage implements OnInit {
   loadActivities() {
     const uid = localStorage.getItem('uid')!;
     this.apiService.getAllActByUser(uid).subscribe(
-      (data) => { this.activities = data; },
-      (error) => { console.error('Failed to load activities:', error); }
+      (data) => {
+        this.activities = data;
+        console.log('=== LOADED ACTIVITIES ===');
+        console.log('Total activities:', this.activities.length);
+        this.activities.forEach((act, index) => {
+          console.log(`Activity ${index + 1}:`, {
+            id: act.id,
+            activity_id: act.activity_id,
+            activity_name: act.activity_name,
+            activity_master_id: act.activity_master?.id,
+            activity_master_name: act.activity_master?.activity_name,
+          });
+        });
+      },
+      (error) => {
+        console.error('Failed to load activities:', error);
+      },
     );
   }
 
@@ -59,10 +73,16 @@ export class ActivityFormPage implements OnInit {
     const operatorUid = localStorage.getItem('uid')!;
     this.apiService.getOperatorAllBookings(operatorUid).subscribe(
       (res: any) => {
-        const bookings: any[] = Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : [];
-        const bookedBookings = bookings.filter(b => (b.status || '').trim().toLowerCase() === 'booked');
+        const bookings: any[] = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res)
+            ? res
+            : [];
+        const bookedBookings = bookings.filter(
+          (b) => (b.status || '').trim().toLowerCase() === 'booked',
+        );
 
-        this.touristOptions = bookedBookings.map(b => ({
+        this.touristOptions = bookedBookings.map((b) => ({
           user_id: b.tourist_user_id,
           name: b.contact_name || 'Unknown',
           activity_name: b.activity_name,
@@ -71,21 +91,35 @@ export class ActivityFormPage implements OnInit {
           date: b.date || '',
           citizenship: b.citizenship || '',
           total_price: b.total_price || '',
-          displayText: `${b.contact_name || 'Unknown'} - ${b.activity_name || 'No Activity'} (${b.date || ''})`
+          displayText: `${b.contact_name || 'Unknown'} - ${b.activity_name || 'No Activity'} (${b.date || ''})`,
         }));
+
+        console.log('=== LOADED TOURIST BOOKINGS ===');
+        console.log('Total bookings:', this.touristOptions.length);
+        this.touristOptions.forEach((tourist, index) => {
+          console.log(`Booking ${index + 1}:`, {
+            user_id: tourist.user_id,
+            name: tourist.name,
+            activity_id: tourist.activity_id,
+            activity_name: tourist.activity_name,
+          });
+        });
       },
-      (err) => { console.error('Failed to load tourists:', err); }
+      (err) => {
+        console.error('Failed to load tourists:', err);
+      },
     );
   }
 
   // ---------------- Autofill Operator ----------------
-autofillOperator() {
-  const operatorName = localStorage.getItem('operator_name') || 'Unknown Operator';
-  const operatorUid = localStorage.getItem('uid'); // the logged-in user_id
+  autofillOperator() {
+    const operatorName =
+      localStorage.getItem('operator_name') || 'Unknown Operator';
+    const operatorUid = localStorage.getItem('uid'); // the logged-in user_id
 
-  this.form.issuer = '';
-  this.form.operator_user_id = operatorUid as string; // now guaranteed to be non-null
-}
+    this.form.issuer = '';
+    this.form.operator_user_id = operatorUid as string; // now guaranteed to be non-null
+  }
 
   // ---------------- Generate Receipt ----------------
   generateReceiptId(): string {
@@ -94,33 +128,87 @@ autofillOperator() {
   }
 
   // ---------------- Tourist Change ----------------
-onTouristChange(selectedTouristUserId: string) {
-  const booking = this.touristOptions.find(t => t.user_id === selectedTouristUserId);
-  if (!booking) return;
+  onTouristChange(selectedTouristUserId: string) {
+    const booking = this.touristOptions.find(
+      (t) => t.user_id === selectedTouristUserId,
+    );
+    if (!booking) {
+      console.warn('No booking found for tourist:', selectedTouristUserId);
+      return;
+    }
 
-  this.form.citizenship = booking.citizenship || '';
-  this.form.date = booking.date || '';
-  this.form.total_rm = booking.total_price ? booking.total_price.toString() : '';
+    console.log('Selected booking:', booking);
 
-  const matchedActivity = this.activities.find(
-    a => a.id === booking.activity_id // ✅ FIX
-  );
+    // Autofill form fields from booking
+    this.form.citizenship = booking.citizenship || '';
+    this.form.date = booking.date || '';
+    this.form.total_rm = booking.total_price
+      ? booking.total_price.toString()
+      : '';
 
-  this.selectedActivity = matchedActivity || null;
+    // Find matching activity from activities list
+    // ✅ FIX: booking.activity_id is activity_master.id, NOT operator_activities.activity_id
+    // Strategy 1: Match booking.activity_id with activity_master.id (CORRECT!)
+    let matchedActivity = this.activities.find(
+      (a) => a.activity_master?.id === booking.activity_id,
+    );
 
-  if (this.selectedActivity) {
-    this.form.activity_name = this.selectedActivity.activity_name;
-    this.form.activity_id = this.selectedActivity.id; // ✅ FIX
-    this.form.location = this.selectedActivity.address || '';
+    // Fallback: Try matching by activity name if ID match fails
+    if (!matchedActivity && booking.activity_name) {
+      matchedActivity = this.activities.find(
+        (a) =>
+          a.activity_name === booking.activity_name ||
+          a.activity_master?.activity_name === booking.activity_name,
+      );
+    }
+
+    // Last resort: Try matching by operator_activities.id
+    if (!matchedActivity) {
+      matchedActivity = this.activities.find(
+        (a) => a.id === booking.activity_id,
+      );
+    }
+
+    console.log('Matched activity:', matchedActivity);
+
+    // Set selected activity for dropdown
+    this.selectedActivity = matchedActivity || null;
+
+    // Populate form fields if activity found
+    if (this.selectedActivity) {
+      this.form.activity_name = this.selectedActivity.activity_name;
+      // ✅ Use activity_master.id (master table ID), not operator_activities.id
+      this.form.activity_id =
+        this.selectedActivity.activity_master?.id ||
+        this.selectedActivity.activity_id;
+      this.form.location =
+        this.selectedActivity.address ||
+        this.selectedActivity.location ||
+        booking.location ||
+        '';
+    } else {
+      // If no match found, use booking data directly
+      console.warn('No matching activity found, using booking data');
+      this.form.activity_name = booking.activity_name || '';
+      this.form.activity_id = booking.activity_id || '';
+      this.form.location = booking.location || '';
+    }
+
+    console.log('Form after tourist change:', {
+      activity_name: this.form.activity_name,
+      activity_id: this.form.activity_id,
+      location: this.form.location,
+      selectedActivity: this.selectedActivity,
+    });
   }
-}
-
 
   // ---------------- Activity Change ----------------
   onActivityChange(selectedActivity: any) {
     if (!selectedActivity) return;
     this.form.activity_name = selectedActivity.activity_name;
-    this.form.activity_id = selectedActivity.activity_id;
+    // ✅ FIX: Use activity_master.id (master table ID), not operator_activities.activity_id field
+    this.form.activity_id =
+      selectedActivity.activity_master?.id || selectedActivity.activity_id;
     this.form.location = selectedActivity.location;
   }
 
@@ -132,14 +220,21 @@ onTouristChange(selectedTouristUserId: string) {
         return;
       }
 
-      const operatorUid = this.form.operator_user_id || localStorage.getItem('uid')!;
+      const operatorUid =
+        this.form.operator_user_id || localStorage.getItem('uid')!;
       const paxDomestik = Number(this.form.pax_domestik) || 0;
       const paxAntarabangsa = Number(this.form.pax_antarabangsa) || 0;
       const totalPax = paxDomestik + paxAntarabangsa;
       const totalPrice = Number(this.form.total_rm);
 
-      if (totalPax <= 0) { alert('Please enter at least 1 pax.'); return; }
-      if (totalPrice <= 0) { alert('Invalid Total RM.'); return; }
+      if (totalPax <= 0) {
+        alert('Please enter at least 1 pax.');
+        return;
+      }
+      if (totalPrice <= 0) {
+        alert('Invalid Total RM.');
+        return;
+      }
 
       const payload = {
         receipt_id: this.generateReceiptId(),
@@ -154,17 +249,18 @@ onTouristChange(selectedTouristUserId: string) {
         location: this.form.location || null,
         total_rm: totalPrice.toString(),
         date: this.form.date || null,
-        issuer: this.form.issuer || 'Unknown Operator'
+        issuer: this.form.issuer || 'Unknown Operator',
       };
 
       console.log('FINAL PAYLOAD:', payload);
 
-      const response: any = await this.apiService.createForm(payload).toPromise();
+      const response: any = await this.apiService
+        .createForm(payload)
+        .toPromise();
       const receiptId = response?.data?.receipt_id || payload.receipt_id;
 
       this.clearForm(form);
       this.navCtrl.navigateForward('/receipt-activity/' + receiptId);
-
     } catch (error) {
       console.error('SAVE FAILED:', error);
       alert('Failed to save form.');
@@ -180,12 +276,13 @@ onTouristChange(selectedTouristUserId: string) {
 
   // ---------------- Navigation ----------------
   backHome() {
-    this.navCtrl.navigateForward('/home', { animated: true, animationDirection: 'back' });
+    this.navCtrl.navigateForward('/home', {
+      animated: true,
+      animationDirection: 'back',
+    });
   }
 
   compareWithFn(o1: any, o2: any) {
-  return o1 && o2 ? o1.activity_id === o2.activity_id : o1 === o2;
-}
-
-
+    return o1 && o2 ? o1.activity_id === o2.activity_id : o1 === o2;
+  }
 }

@@ -65,7 +65,9 @@ export class ActivityOperatorDetailPage implements OnInit {
         // Set operator data
         this.operatorData = {
           ...res,
-          activity_id: res.activity_id || null,
+          // ✅ FIX: Store master activity ID for booking
+          activity_id: res.activity_master?.id || res.activity_id || null,
+          operator_activity_id: res.id || null, // Store operator_activities.id separately
           business_name:
             res.business_name ||
             res.rt_user?.business_name ||
@@ -157,7 +159,8 @@ export class ActivityOperatorDetailPage implements OnInit {
 
     this.navCtrl.navigateForward(['/tourist/activity-booking'], {
       state: {
-        activityId: this.operatorData.activity_id,
+        activityId: this.operatorData.activity_id, // ✅ Master activity ID
+        operatorActivityId: this.operatorData.operator_activity_id, // ✅ Operator activity ID
         operatorId: this.operatorId,
         touristUserId,
         price: this.operatorData.minPrice || 0,
