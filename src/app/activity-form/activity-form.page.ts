@@ -222,7 +222,8 @@ export class ActivityFormPage implements OnInit {
 
       this.clearForm(form);
       this.navCtrl.navigateForward('/receipt-activity/' + receiptId);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Failed to save activity form.', error);
       alert('Failed to save form.');
     }
   }
