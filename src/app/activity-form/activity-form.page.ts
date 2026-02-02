@@ -52,7 +52,8 @@ export class ActivityFormPage implements OnInit {
         this.activities = data;
       },
       (error) => {
-        // Failed to load activities
+        console.error('Failed to load activities:', error);
+        this.activities = [];
       },
     );
   }
@@ -84,7 +85,8 @@ export class ActivityFormPage implements OnInit {
         }));
       },
       (err) => {
-        // Failed to load tourists
+        console.error('Failed to load tourists:', err);
+        this.touristOptions = [];
       },
     );
   }
@@ -128,6 +130,13 @@ export class ActivityFormPage implements OnInit {
 
     // Fallback: Try matching by activity name if ID match fails
     if (!matchedActivity && booking.activity_name) {
+      console.warn(
+        '[Data Quality] Activity ID mismatch - falling back to name match:',
+        {
+          booking_activity_id: booking.activity_id,
+          booking_activity_name: booking.activity_name,
+        },
+      );
       matchedActivity = this.activities.find(
         (a) =>
           a.activity_name === booking.activity_name ||
@@ -137,6 +146,13 @@ export class ActivityFormPage implements OnInit {
 
     // Last resort: Try matching by operator_activities.id
     if (!matchedActivity) {
+      console.warn(
+        '[Data Quality] Activity name mismatch - falling back to operator activity ID:',
+        {
+          booking_activity_id: booking.activity_id,
+          available_activities: this.activities.length,
+        },
+      );
       matchedActivity = this.activities.find(
         (a) => a.id === booking.activity_id,
       );
@@ -172,7 +188,8 @@ export class ActivityFormPage implements OnInit {
     // ✅ FIX: Use activity_master.id (master table ID), not operator_activities.activity_id field
     this.form.activity_id =
       selectedActivity.activity_master?.id || selectedActivity.activity_id;
-    this.form.location = selectedActivity.location;
+    this.form.location =
+      selectedActivity.address || selectedActivity.location || '';
   }
 
   // ---------------- Submit Form ----------------
@@ -245,6 +262,9 @@ export class ActivityFormPage implements OnInit {
   }
 
   compareWithFn(o1: any, o2: any) {
-    return o1 && o2 ? o1.activity_id === o2.activity_id : o1 === o2;
+    // Compare using activity_master.id since that's what we set in form.activity_id
+    return o1 && o2
+      ? (o1.activity_master?.id || o1.id) === (o2.activity_master?.id || o2.id)
+      : o1 === o2;
   }
 }
