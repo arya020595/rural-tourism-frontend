@@ -75,13 +75,14 @@ export class ActivityFormPage implements OnInit {
         this.touristOptions = bookedBookings.map((b) => ({
           user_id: b.tourist_user_id,
           name: b.contact_name || 'Unknown',
-          activity_name: b.activity_name,
+          activity_name: b.activity_name || b.activityName,
           activity_id: b.activity_id || '',
           location: b.location || '',
           date: b.date || '',
-          citizenship: b.citizenship || '',
+          citizenship: b.citizenship || b.nationality || '',
           total_price: b.total_price || '',
-          displayText: `${b.contact_name || 'Unknown'} - ${b.activity_name || 'No Activity'} (${b.date || ''})`,
+          operator_name: b.operatorName || b.operator_name || '',
+          displayText: `${b.contact_name || 'Unknown'} - ${b.activity_name || b.activityName || 'No Activity'} (${b.date || ''})`,
         }));
       },
       (err) => {
@@ -93,10 +94,9 @@ export class ActivityFormPage implements OnInit {
 
   // ---------------- Autofill Operator ----------------
   autofillOperator() {
-    const operatorUid = localStorage.getItem('uid'); // the logged-in user_id
-
-    this.form.issuer = '';
-    this.form.operator_user_id = operatorUid as string; // now guaranteed to be non-null
+    const operatorUid = localStorage.getItem('uid');
+    if (!operatorUid) return;
+    this.form.operator_user_id = operatorUid;
   }
 
   // ---------------- Generate Receipt ----------------
@@ -120,6 +120,7 @@ export class ActivityFormPage implements OnInit {
     this.form.total_rm = booking.total_price
       ? booking.total_price.toString()
       : '';
+    this.form.issuer = booking.operator_name || '';
 
     // Find matching activity from activities list
     // ✅ FIX: booking.activity_id is activity_master.id, NOT operator_activities.activity_id
