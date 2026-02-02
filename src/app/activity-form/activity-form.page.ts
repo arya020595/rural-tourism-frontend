@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
+import { BookingFilter, TouristOptionMapper } from '../utils/booking.utils';
 
 @Component({
   selector: 'app-activity-form',
@@ -41,6 +42,7 @@ export class ActivityFormPage implements OnInit {
 
   touristOptions: any[] = [];
   selectedTouristUserId: string = '';
+  selectedBookingId: number | null = null;
 
   numbers: number[] = Array.from({ length: 20 }, (_, i) => i + 1);
 
@@ -68,22 +70,16 @@ export class ActivityFormPage implements OnInit {
           : Array.isArray(res)
             ? res
             : [];
-        const bookedBookings = bookings.filter(
-          (b) => (b.status || '').trim().toLowerCase() === 'booked',
-        );
 
-        this.touristOptions = bookedBookings.map((b) => ({
-          user_id: b.tourist_user_id,
-          name: b.contact_name || 'Unknown',
-          activity_name: b.activity_name || b.activityName,
-          activity_id: b.activity_id || '',
-          location: b.location || '',
-          date: b.date || '',
-          citizenship: b.citizenship || b.nationality || '',
-          total_price: b.total_price || '',
-          operator_name: b.operatorName || b.operator_name || '',
-          displayText: `${b.contact_name || 'Unknown'} - ${b.activity_name || b.activityName || 'No Activity'} (${b.date || ''})`,
-        }));
+        // Filter: Only show ACTIVITY bookings (exclude accommodation bookings)
+        const activityBookings = bookings.filter((b) => b.type === 'activity');
+
+        // SOLID: Use BookingFilter utility (Single Responsibility)
+        const unpaidBookings =
+          BookingFilter.getUnpaidBookings(activityBookings);
+
+        // SOLID: Use TouristOptionMapper (Interface Segregation)
+        this.touristOptions = TouristOptionMapper.mapToOptions(unpaidBookings);
       },
       (err) => {
         console.error('Failed to load tourists:', err);
@@ -113,6 +109,9 @@ export class ActivityFormPage implements OnInit {
     if (!booking) {
       return;
     }
+
+    // Store booking ID for later use
+    this.selectedBookingId = booking.booking_id || null;
 
     // Autofill form fields from booking
     this.form.citizenship = booking.citizenship || '';
@@ -231,6 +230,7 @@ export class ActivityFormPage implements OnInit {
         total_rm: totalPrice.toString(),
         date: this.form.date || null,
         issuer: this.form.issuer || 'Unknown Operator',
+        activity_booking_id: this.selectedBookingId,
       };
 
       console.debug('Submitting activity form payload:', payload);
@@ -252,6 +252,7 @@ export class ActivityFormPage implements OnInit {
     form.reset();
     this.selectedActivity = null;
     this.selectedTouristUserId = '';
+    this.selectedBookingId = null;
   }
 
   // ---------------- Navigation ----------------
