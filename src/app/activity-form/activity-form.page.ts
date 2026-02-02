@@ -91,8 +91,6 @@ export class ActivityFormPage implements OnInit {
 
   // ---------------- Autofill Operator ----------------
   autofillOperator() {
-    const operatorName =
-      localStorage.getItem('operator_name') || 'Unknown Operator';
     const operatorUid = localStorage.getItem('uid'); // the logged-in user_id
 
     this.form.issuer = '';
