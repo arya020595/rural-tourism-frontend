@@ -2,43 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
-import { BookingFilter } from '../utils/booking.utils';
-
-/**
- * Accommodation Option Mapper
- * Maps accommodation booking data to dropdown options
- */
-class AccommodationTouristOptionMapper {
-  static mapToOption(booking: any): any {
-    return {
-      user_id: booking.tourist_user_id,
-      booking_id: booking.id,
-      name: booking.contact_name || 'Unknown',
-      accommodation_name: booking.accommodation_name || 'Unknown',
-      accommodation_id: booking.accommodation_id || '',
-      check_in: booking.check_in || '',
-      check_out: booking.check_out || '',
-      total_no_of_nights: booking.total_no_of_nights || 1,
-      no_of_pax: booking.no_of_pax || 1,
-      location: booking.location || '',
-      citizenship: booking.citizenship || booking.nationality || '',
-      total_price: booking.total_price || '',
-      operator_name: booking.operatorName || booking.operator_name || '',
-      displayText: this.buildDisplayText(booking),
-    };
-  }
-
-  private static buildDisplayText(booking: any): string {
-    const name = booking.contact_name || 'Unknown';
-    const accommodation = booking.accommodation_name || 'No Accommodation';
-    const checkIn = booking.check_in || '';
-    return `${name} - ${accommodation} (${checkIn})`;
-  }
-
-  static mapToOptions(bookings: any[]): any[] {
-    return bookings.map((b) => this.mapToOption(b));
-  }
-}
+import {
+  AccommodationTouristOptionMapper,
+  BookingFilter,
+} from '../utils/booking.utils';
 
 @Component({
   selector: 'app-acco-form',
