@@ -55,6 +55,7 @@ export class AccommodationBookingPage implements OnInit {
     this.bookingForm = this.fb.group({
       no_of_pax: [1, [Validators.required, Validators.min(1)]],
       contact_name: ['', Validators.required],
+      contact_email: ['', [Validators.email]],
       contact_phone: [
         '',
         [Validators.required, Validators.pattern('^[\\s0-9+()\\-]{8,20}$')],
@@ -97,6 +98,7 @@ export class AccommodationBookingPage implements OnInit {
         const user = JSON.parse(userData);
         this.bookingForm.patchValue({
           contact_name: user.full_name || '',
+          contact_email: user.email || user.user_email || '',
           contact_phone: (user.contact_no || user.phone || '').trim(),
           nationality: (user.nationality || '').trim(),
         });
@@ -406,6 +408,7 @@ export class AccommodationBookingPage implements OnInit {
       start_date: this.checkInDate,
       end_date: this.checkOutDate,
       contact_name: this.bookingForm.value.contact_name,
+      contact_email: this.bookingForm.value.contact_email,
       contact_phone: this.bookingForm.value.contact_phone,
       nationality: this.bookingForm.value.nationality,
       total_price: this.totalPrice,
