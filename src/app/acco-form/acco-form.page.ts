@@ -77,7 +77,11 @@ export class AccoFormPage implements OnInit {
 
   // ---------------- Load Tourists from Bookings ----------------
   loadTouristsFromBookings() {
-    const operatorUid = localStorage.getItem('uid')!;
+    const operatorUid = localStorage.getItem('uid');
+    if (!operatorUid) {
+      this.touristOptions = [];
+      return;
+    }
     this.apiService.getOperatorAllBookings(operatorUid).subscribe(
       (res: any) => {
         const bookings: any[] = Array.isArray(res.data)
@@ -127,7 +131,9 @@ export class AccoFormPage implements OnInit {
     this.form.total_night = booking.total_no_of_nights
       ? booking.total_no_of_nights.toString()
       : '';
-    this.form.issuer = booking.operator_name || '';
+    if (booking.operator_name) {
+      this.form.issuer = booking.operator_name;
+    }
     this.form.date = booking.check_in || '';
 
     // Find matching accommodation from accommodations list
