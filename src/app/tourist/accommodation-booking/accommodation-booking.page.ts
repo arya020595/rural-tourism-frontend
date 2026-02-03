@@ -41,7 +41,6 @@ export class AccommodationBookingPage implements OnInit {
   // Date selection
   checkInDate: string = '';
   checkOutDate: string = '';
-  isSelectingCheckOut: boolean = false;
   bookedDates: string[] = [];
 
   constructor(
@@ -214,7 +213,6 @@ export class AccommodationBookingPage implements OnInit {
     // If clicking on the same check-in date, unselect it
     if (day.date === this.checkInDate && !this.checkOutDate) {
       this.checkInDate = '';
-      this.isSelectingCheckOut = false;
       this.generateCalendar();
       return;
     }
@@ -222,7 +220,6 @@ export class AccommodationBookingPage implements OnInit {
     // If clicking on the check-out date, unselect it
     if (day.date === this.checkOutDate) {
       this.checkOutDate = '';
-      this.isSelectingCheckOut = true;
       this.calculateTotalPrice();
       this.generateCalendar();
       return;
@@ -253,7 +250,6 @@ export class AccommodationBookingPage implements OnInit {
     if (!this.checkInDate) {
       // First click - set check-in date
       this.checkInDate = day.date;
-      this.isSelectingCheckOut = true;
     } else if (!this.checkOutDate) {
       // Second click - set check-out date
       if (day.date <= this.checkInDate) {
@@ -262,14 +258,12 @@ export class AccommodationBookingPage implements OnInit {
         this.checkOutDate = '';
       } else {
         this.checkOutDate = day.date;
-        this.isSelectingCheckOut = false;
         this.calculateTotalPrice();
       }
     } else {
       // Third click - reset and start over
       this.checkInDate = day.date;
       this.checkOutDate = '';
-      this.isSelectingCheckOut = true;
     }
 
     this.generateCalendar();
