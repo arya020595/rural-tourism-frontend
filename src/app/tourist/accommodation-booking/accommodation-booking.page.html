@@ -19,22 +19,36 @@
     </ion-item>
 
     <!-- Check-In Date Display -->
-    <div class="date-display">
-      <span class="label">Check-In Date:</span>
-      <span class="date-value" [class.selected]="checkInDate">
-        {{ checkInDate ? formatDateForDisplay(checkInDate) : 'Select from
-        calendar' }}
-      </span>
-    </div>
+    <ion-item lines="full">
+      <div class="date-item-content">
+        <ion-label position="stacked">Check - In Date</ion-label>
+        <div class="date-value-display">
+          {{ checkInDate ? formatDateForDisplay(checkInDate) : 'Select from
+          calendar' }}
+        </div>
+      </div>
+      <ion-icon
+        name="calendar-outline"
+        slot="end"
+        class="calendar-icon"
+      ></ion-icon>
+    </ion-item>
 
     <!-- Check-Out Date Display -->
-    <div class="date-display">
-      <span class="label">Check-Out Date:</span>
-      <span class="date-value" [class.selected]="checkOutDate">
-        {{ checkOutDate ? formatDateForDisplay(checkOutDate) : 'Select from
-        calendar' }}
-      </span>
-    </div>
+    <ion-item lines="full">
+      <div class="date-item-content">
+        <ion-label position="stacked">Check - Out Date</ion-label>
+        <div class="date-value-display">
+          {{ checkOutDate ? formatDateForDisplay(checkOutDate) : 'Select from
+          calendar' }}
+        </div>
+      </div>
+      <ion-icon
+        name="calendar-outline"
+        slot="end"
+        class="calendar-icon"
+      ></ion-icon>
+    </ion-item>
 
     <!-- Date Selection Instruction -->
     <div class="date-instruction" *ngIf="!checkInDate || !checkOutDate">
