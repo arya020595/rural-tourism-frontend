@@ -110,7 +110,11 @@ export class AccoFormPage implements OnInit {
 
   // ---------------- Load Tourists from Bookings ----------------
   loadTouristsFromBookings() {
-    const operatorUid = localStorage.getItem('uid')!;
+    const operatorUid = localStorage.getItem('uid');
+    if (!operatorUid) {
+      this.touristOptions = [];
+      return;
+    }
     this.apiService.getOperatorAllBookings(operatorUid).subscribe(
       (res: any) => {
         const bookings: any[] = Array.isArray(res.data)
