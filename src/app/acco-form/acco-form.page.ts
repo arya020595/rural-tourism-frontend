@@ -95,6 +95,17 @@ export class AccoFormPage implements OnInit {
     const operatorUid = localStorage.getItem('uid');
     if (!operatorUid) return;
     this.form.operator_user_id = operatorUid;
+
+    // Get operator name from localStorage instead of API call
+    const userDataString = localStorage.getItem('user');
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        this.form.issuer = userData.username || userData.full_name || '';
+      } catch (error) {
+        console.error('Failed to parse user data from localStorage:', error);
+      }
+    }
   }
 
   // ---------------- Load Tourists from Bookings ----------------
