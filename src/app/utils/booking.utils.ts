@@ -98,3 +98,52 @@ export class TouristOptionMapper {
     return bookings.map((b) => this.mapToOption(b));
   }
 }
+
+/**
+ * Accommodation Tourist Option Mapper
+ * Single Responsibility: Transform accommodation booking data to tourist options
+ * Interface Segregation: Only exposes necessary transformation logic
+ */
+export class AccommodationTouristOptionMapper {
+  /**
+   * Map accommodation booking to tourist option format
+   * @param booking - Raw accommodation booking object
+   */
+  static mapToOption(booking: any): any {
+    return {
+      user_id: booking.tourist_user_id,
+      booking_id: booking.id,
+      name: booking.contact_name || 'Unknown',
+      accommodation_name: booking.accommodation_name || 'Unknown',
+      accommodation_id: booking.accommodation_id || '',
+      check_in: booking.check_in || '',
+      check_out: booking.check_out || '',
+      total_no_of_nights: booking.total_no_of_nights || 1,
+      no_of_pax: booking.no_of_pax || 1,
+      location: booking.location || '',
+      citizenship: booking.citizenship || booking.nationality || '',
+      total_price: booking.total_price || '',
+      operator_name: booking.operatorName || booking.operator_name || '',
+      displayText: this.buildDisplayText(booking),
+    };
+  }
+
+  /**
+   * Build display text for dropdown
+   * @param booking - Accommodation booking object
+   */
+  private static buildDisplayText(booking: any): string {
+    const name = booking.contact_name || 'Unknown';
+    const accommodation = booking.accommodation_name || 'No Accommodation';
+    const checkIn = booking.check_in || '';
+    return `${name} - ${accommodation} (${checkIn})`;
+  }
+
+  /**
+   * Map array of accommodation bookings to tourist options
+   * @param bookings - Array of accommodation booking objects
+   */
+  static mapToOptions(bookings: any[]): any[] {
+    return bookings.map((b) => this.mapToOption(b));
+  }
+}
