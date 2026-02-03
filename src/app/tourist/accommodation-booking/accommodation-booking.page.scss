@@ -27,28 +27,6 @@
   --color: #ff3b30;
 }
 
-// Price per night display
-.price-per-night {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: #f0f9f4;
-  border-radius: 8px;
-  margin-bottom: 15px;
-
-  .label {
-    font-weight: 600;
-    color: #024e25;
-  }
-
-  .price {
-    font-size: 18px;
-    font-weight: bold;
-    color: #024e25;
-  }
-}
-
 // Date item styling to match screenshot
 .date-item-content {
   display: flex;
