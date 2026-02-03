@@ -216,6 +216,15 @@ export class ApiService {
     return this.http.get<any>(`${this.apiUrl}/accommodation-booking/${id}`);
   }
 
+  // Get booked dates for a specific accommodation
+  getBookedDatesByAccommodation(
+    accommodationId: string,
+  ): Observable<{ success: boolean; data: string[] }> {
+    return this.http.get<{ success: boolean; data: string[] }>(
+      `${this.apiUrl}/accommodation-booking/booked-dates/${accommodationId}`,
+    );
+  }
+
   createOperatorNotification(notificationData: any) {
     return this.http.post(
       `${environment.apiUrl}/notifications`,
