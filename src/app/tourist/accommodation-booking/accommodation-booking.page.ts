@@ -55,7 +55,7 @@ export class AccommodationBookingPage implements OnInit {
     this.bookingForm = this.fb.group({
       no_of_pax: [1, [Validators.required, Validators.min(1)]],
       contact_name: ['', Validators.required],
-      contact_email: ['', [Validators.email]],
+      contact_email: ['', [Validators.required, Validators.email]],
       contact_phone: [
         '',
         [Validators.required, Validators.pattern('^[\\s0-9+()\\-]{8,20}$')],
