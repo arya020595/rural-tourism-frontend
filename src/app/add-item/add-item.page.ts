@@ -73,7 +73,7 @@ export class AddItemPage implements OnInit {
     name: '',
     location: '',
     description: '',
-    price: '',
+    price: 0, // ✅ number
     image: '',
     address: '',
     district: '',
@@ -81,6 +81,9 @@ export class AddItemPage implements OnInit {
     user_id: localStorage.getItem('uid'),
     showAvailability: false,
     activity_id: '',
+    startDate: '',
+    endDate: '',
+    available_dates_list: [] as Array<{ date: string; price: number }>,
   };
 
   // ===== Alert / Dialog =====
@@ -150,6 +153,30 @@ export class AddItemPage implements OnInit {
         this.activityTypes = [];
       },
     );
+  }
+
+  addAvailableDateRangeForAccommodation() {
+    if (
+      this.accomData.startDate &&
+      this.accomData.endDate &&
+      this.accomData.price
+    ) {
+      const start = new Date(this.accomData.startDate);
+      const end = new Date(this.accomData.endDate);
+
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const formattedDate = d.toISOString().split('T')[0];
+        this.accomData.available_dates_list.push({
+          date: formattedDate,
+          price: this.accomData.price,
+        });
+      }
+
+      // reset input fields
+      this.accomData.startDate = '';
+      this.accomData.endDate = '';
+      this.accomData.price = 0;
+    }
   }
 
   selectActivity(activityId: string) {
@@ -234,6 +261,10 @@ export class AddItemPage implements OnInit {
 
   removeTimeSlot(index: number) {
     this.availableDateRangeEntry.timeSlots.splice(index, 1);
+  }
+
+  removeAccomAvailableDate(index: number) {
+    this.accomData.available_dates_list.splice(index, 1);
   }
 
   addAvailableDateRange() {
@@ -417,22 +448,29 @@ export class AddItemPage implements OnInit {
 
   // ===== Form Submission =====
   submitForm() {
+    if (!this.selectedOption) {
+      alert('Please select activity or accommodation.');
+      return;
+    }
+
     if (this.selectedOption === 'activity') {
+      // --- Activity Submission ---
       const dataToSend = {
         id: this.generateActId(),
         activity_id: parseInt(this.activityData.activity_id),
         rt_user_id: this.activityData.user_id,
         description: this.activityData.description || '',
         address: this.activityData.address || '',
-        district: this.activityData.district,
+        district: this.activityData.district || '',
         image: this.activityData.image || null,
         operator_logo: this.operatorLogoPreview || null,
-        available_dates: this.activityData.available_dates_list,
+        available_dates: this.activityData.available_dates_list || [],
         services_provided: JSON.stringify(
-          this.activityData.services_provided_list,
+          this.activityData.services_provided_list || [],
         ),
-        // price_per_pax: this.activityData.price || null,
       };
+
+      console.log('Submitting activity:', dataToSend);
 
       this.apiService.createOperatorActivity(dataToSend).subscribe(
         (res) => {
@@ -441,12 +479,14 @@ export class AddItemPage implements OnInit {
         },
         (err) => {
           console.error('Error creating activity:', err);
-          alert('Error: ' + err);
+          alert('Error: ' + (err.error?.message || JSON.stringify(err)));
         },
       );
     }
 
     if (this.selectedOption === 'accommodation') {
+      // --- Accommodation Submission ---
+
       if (!this.accomData.user_id) {
         alert('Error: User not logged in. Please login again.');
         this.router.navigate(['/login']);
@@ -455,26 +495,29 @@ export class AddItemPage implements OnInit {
 
       this.accomData.accommodation_id = this.generateAccommId();
 
+      // Ensure arrays are not null
+      const providedArr = this.accomData.provided_accomodation || [];
+      const availableDatesArr = this.accomData.available_dates_list || [];
+
       const dataToSend = {
         accommodation_id: this.accomData.accommodation_id,
-        name: this.accomData.name || this.accomData.address,
-        location: this.accomData.location || this.accomData.address,
-        address: this.accomData.address,
-        description: this.accomData.description,
-        price: this.accomData.price,
-        image: this.accomData.image,
-        district: this.accomData.district,
-        user_id: this.accomData.user_id,
-        showAvailability: this.accomData.showAvailability ? 1 : 0,
-        provided_accomodation: JSON.stringify(
-          this.accomData.provided_accomodation,
-        ),
-        activity_id: this.accomData.activity_id,
+        name: this.accomData.name || this.accomData.address || 'Unknown',
+        location:
+          this.accomData.location || this.accomData.address || 'Unknown',
+        address: this.accomData.address || 'Unknown',
+        description: this.accomData.description || '',
+        image: this.accomData.image || null,
+        district: this.accomData.district || '',
+        rt_user_id: this.accomData.user_id,
+        show_availability: this.accomData.showAvailability ? 1 : 0,
+        provided: JSON.stringify(providedArr),
+        available_dates: this.accomData.available_dates_list,
+        activity_id: this.accomData.activity_id || null,
       };
 
       console.log(
-        'Submitting accommodation with user_id:',
-        this.accomData.user_id,
+        'Submitting accommodation:',
+        JSON.stringify(dataToSend, null, 2),
       );
 
       this.apiService.createAccom(dataToSend).subscribe(

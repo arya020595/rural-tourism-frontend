@@ -105,21 +105,9 @@ export class HttpInterceptorService implements HttpInterceptor {
         }
         break;
 
-      case 403: {
-        const loginUrls = ['/login', '/tourist/login'];
-        const isLoginRequest = loginUrls.some((url) =>
-          request?.url.endsWith(url),
-        );
-
-        //Do not show interceptor toast for login
-        if (isLoginRequest) {
-          return;
-        }
-
+      case 403:
         message = 'You do not have permission to perform this action.';
         break;
-      }
-
       case 404:
         message = error.error?.message || 'Resource not found.';
         break;

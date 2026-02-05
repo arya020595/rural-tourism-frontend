@@ -75,36 +75,37 @@
         <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
         Messages
       </ion-item> -->
-      <ion-item [routerLink]="['/tourist/tourist-bookings']" class="item-nav" detail="false" lines="none">
+      <ion-item
+        [routerLink]="['/tourist/tourist-bookings']"
+        class="item-nav"
+        detail="false"
+        lines="none"
+      >
         <ion-icon name="clipboard" slot="start"></ion-icon>
         <ion-text>List of Bookings</ion-text>
 
-          <!-- Notification Badge -->
-          <ion-badge 
-            *ngIf="newBookingCount > 0" 
-            color="danger" 
-            slot="end"
-          >
-            {{ newBookingCount }}
-          </ion-badge>
+        <!-- Notification Badge -->
+        <ion-badge *ngIf="newBookingCount > 0" color="danger" slot="end">
+          {{ newBookingCount }}
+        </ion-badge>
       </ion-item>
 
-      <ion-item (click)="showFeatureUnavailableToast();" class="item-nav" detail="false" lines="none">
+      <ion-item
+        (click)="showFeatureUnavailableToast();"
+        class="item-nav"
+        detail="false"
+        lines="none"
+      >
         <ion-icon name="clipboard" slot="start"></ion-icon>
         <ion-text>Transaction History</ion-text>
-
-          <!-- Notification Badge -->
-          <ion-badge 
-            *ngIf="newBookingCount > 0" 
-            color="danger" 
-            slot="end"
-          >
-            {{ newBookingCount }}
-          </ion-badge>
       </ion-item>
 
-
-      <ion-item (click)="showFeatureUnavailableToast();" class="item-nav" detail="false" lines="none">
+      <ion-item
+        (click)="showFeatureUnavailableToast();"
+        class="item-nav"
+        detail="false"
+        lines="none"
+      >
         <ion-icon name="chatbubbles" slot="start"></ion-icon>
         <ion-text>Messages</ion-text>
       </ion-item>
@@ -125,24 +126,21 @@
     </ion-buttons>
 
     <!-- Right side notification button -->
-      <ion-buttons slot="end">
-        <ion-button 
-          class="notification-button"
-          (click)="showFeatureUnavailableToast()"
-        >
-          <ion-icon
-            class="notification-bell"
-            slot="icon-only"
-            name="notifications"
-          ></ion-icon>
-          <ion-badge color="danger" class="notification-badge">
-            0
-          </ion-badge>
-        </ion-button>
-      </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button
+        class="notification-button"
+        (click)="showFeatureUnavailableToast()"
+      >
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+        <ion-badge color="danger" class="notification-badge"> 0 </ion-badge>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-
 
 <!-- Main Content -->
 <ion-content id="main-content" [fullscreen]="true" color="dark">
@@ -174,7 +172,8 @@
         <div class="calendar-icon-wrapper">
           <ion-icon name="calendar-outline" class="calendar-icon"></ion-icon>
           <span class="calendar-day">
-            {{ startDate ? (startDate | date:'dd') : (endDate ? (endDate | date:'dd') : '') }}
+            {{ startDate ? (startDate | date:'dd') : (endDate ? (endDate |
+            date:'dd') : '') }}
           </span>
         </div>
         <span class="date-text" *ngIf="startDate && endDate">
@@ -299,12 +298,11 @@
 
       <!-- Scrollable Accommodations List -->
       <div class="horizontal-scroll" *ngIf="filteredAccommodations.length > 0">
-      <ion-card
-        class="option-card"
-        *ngFor="let accom of filteredAccommodations"
-        (click)="goToAccommodationDetails(accom.accommodation_id)"
-      >
-
+        <ion-card
+          class="option-card"
+          *ngFor="let accom of filteredAccommodations"
+          (click)="goToAccommodationDetails(accom.accommodation_id)"
+        >
           <div class="card-image-wrapper">
             <img
               [src]="getImageUrl(accom.image, 'accommodations')"

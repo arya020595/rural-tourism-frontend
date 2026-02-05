@@ -300,5 +300,14 @@ export class ApiService {
     );
   }
 
+  updateOperatorActivity(id: string, form: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/operator-activities/${id}`, form);
+  }
+
+  // UPDATE accommodation
+  updateAccommodation(accomId: string, form: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/accom/${accomId}`, form);
+  }
+
   //Apply more methods here...
 }

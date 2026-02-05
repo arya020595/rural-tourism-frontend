@@ -1,8 +1,25 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 import { ApiService } from 'src/app/services/api.service';
+
+interface Slot {
+  date: string;
+  time?: string;
+  startTime?: string;
+  endTime?: string;
+  price?: number;
+  operator_id?: string;
+  operator_activity_id?: string;
+}
+
+interface BookedSlot {
+  date: string;
+  time?: string;
+  startTime?: string;
+  endTime?: string;
+}
 
 @Component({
   selector: 'app-activity-booking',
@@ -23,19 +40,54 @@ export class ActivityBookingPage implements OnInit {
 
   selectedDate: string = '';
   selectedTime: string = '';
-  filteredDates: any[] = [];
+  filteredDates: Slot[] = [];
   availableTimes: string[] = [];
 
   weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  bookedSlots: { date: string; time: string }[] = [];
-  calendarDays: { date: string; day: number; available: boolean; price?: number; time?: string }[] = [];
+  bookedSlots: BookedSlot[] = [];
+  calendarDays: {
+    date: string;
+    day: number;
+    available: boolean;
+    price?: number;
+  }[] = [];
+
   currentMonth: number = new Date().getMonth();
   currentYear: number = new Date().getFullYear();
   currentMonthLabel: string = '';
 
   monthYearOptions: { label: string; value: string }[] = [];
-  monthYearSelectOptions = { header: 'Select Month & Year', message: '' };
+
+  monthYearSelectOptions = {
+    header: 'Select Month & Year',
+    buttons: [
+      {
+        text: 'Submit',
+        handler: () => true,
+        cssClass: 'red-text-left', // Custom class for red text
+      },
+      {
+        text: 'Cancel',
+        role: 'cancel',
+      },
+    ],
+  };
+
+  timeSelectOptions = {
+    header: 'Select Available Scheduled Time',
+    buttons: [
+      {
+        text: 'Submit',
+        handler: () => true,
+        cssClass: 'red-text-left',
+      },
+      {
+        text: 'Cancel',
+        role: 'cancel',
+      },
+    ],
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -43,14 +95,17 @@ export class ActivityBookingPage implements OnInit {
     private api: ApiService,
     private navCtrl: NavController,
     private alertController: AlertController,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {
     this.bookingForm = this.fb.group({
       no_of_pax: [1, [Validators.required, Validators.min(1)]],
       date: [this.formatDateToYYYYMMDD(new Date()), Validators.required],
       time: ['', Validators.required],
       contact_name: ['', Validators.required],
-      contact_phone: ['', [Validators.required, Validators.pattern('^[\\s0-9+()\\-]{8,20}$')]],
+      contact_phone: [
+        '',
+        [Validators.required, Validators.pattern('^[\\s0-9+()\\-]{8,20}$')],
+      ],
       nationality: ['', Validators.required],
     });
   }
@@ -58,49 +113,62 @@ export class ActivityBookingPage implements OnInit {
   ngOnInit() {
     const state = history.state || {};
 
-    // Core IDs
-    this.activityId = state.activityId || this.route.snapshot.queryParamMap.get('activity_id') || '';
-    this.operatorId = state.operatorId || state.rt_user_id || this.route.snapshot.queryParamMap.get('operator_id') || '';
+    this.activityId =
+      state.activityId ||
+      this.route.snapshot.queryParamMap.get('activity_id') ||
+      '';
+
+    this.operatorId =
+      state.operatorId ||
+      state.rt_user_id ||
+      this.route.snapshot.queryParamMap.get('operator_id') ||
+      '';
+
     this.operatorActivityId = state.operatorActivityId || '';
-    this.touristUserId = state.touristUserId || localStorage.getItem('tourist_user_id') || '';
+    this.touristUserId =
+      state.touristUserId || localStorage.getItem('tourist_user_id') || '';
+
     this.pricePerPax = +state.price || 0;
 
-    // Load preloaded available dates
     if (state.availableDates && Array.isArray(state.availableDates)) {
-      this.activityDetails = { ...state, available_dates_list: state.availableDates };
+      this.activityDetails = {
+        ...state,
+        available_dates_list: state.availableDates,
+      };
       this.filteredDates = [...this.activityDetails.available_dates_list];
-      if (!this.operatorActivityId && state.operatorActivityId) this.operatorActivityId = state.operatorActivityId;
     }
 
-    // Fetch activity details if not provided
     if (!this.activityDetails && this.activityId) {
-      this.api.getActivityById(this.activityId).subscribe(res => {
-        const activity = res?.data && Array.isArray(res.data) ? res.data[0] : res || {};
-        activity.available_dates_list = Array.isArray(activity.available_dates_list) ? activity.available_dates_list : [];
+      this.api.getActivityById(this.activityId).subscribe((res) => {
+        const activity =
+          res?.data && Array.isArray(res.data) ? res.data[0] : res || {};
+
+        activity.available_dates_list = Array.isArray(
+          activity.available_dates_list,
+        )
+          ? activity.available_dates_list
+          : [];
 
         this.activityDetails = activity;
         this.filteredDates = activity.available_dates_list;
 
-        // Generate calendar and month-year options
         this.generateMonthYearOptions();
         this.loadBookedSlots();
         this.generateCalendar();
+        this.autoSelectFirstAvailableDate();
+        this.setCalendarToFirstAvailableDate();
         this.calculateTotalPrice();
         this.cdr.detectChanges();
-
-        // Preselect first available date
-        if (this.filteredDates.length > 0) this.selectBookingDate(this.filteredDates[0]);
       });
     } else {
-      // Already have dates
-      if (this.filteredDates.length > 0) this.selectBookingDate(this.filteredDates[0]);
       this.generateMonthYearOptions();
       this.loadBookedSlots();
       this.generateCalendar();
+      this.autoSelectFirstAvailableDate();
+      this.setCalendarToFirstAvailableDate();
       this.calculateTotalPrice();
     }
 
-    // Prefill tourist info
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
@@ -113,48 +181,93 @@ export class ActivityBookingPage implements OnInit {
       localStorage.setItem('tourist_user_id', this.touristUserId);
     }
 
-    // Update total price when pax changes
-    this.bookingForm.get('no_of_pax')?.valueChanges.subscribe(() => this.calculateTotalPrice());
+    this.bookingForm
+      .get('no_of_pax')
+      ?.valueChanges.subscribe(() => this.calculateTotalPrice());
   }
 
-  selectBookingDate(dateEntry: { date: string }) {
-    this.selectedDate = dateEntry.date;
-    this.bookingForm.patchValue({ date: this.selectedDate });
-
-    const slotsForDate = this.activityDetails.available_dates_list.filter(
-      (d: { date: string }) => d.date === dateEntry.date
+  normalizeTime(slot: Slot | BookedSlot): string {
+    return (
+      slot.time ??
+      (slot.startTime && slot.endTime
+        ? `${slot.startTime} - ${slot.endTime}`
+        : '')
     );
+  }
 
-    // Map available times
+  updateAvailableTimes(date: string) {
+    const slotsForDate: Slot[] =
+      this.activityDetails.available_dates_list.filter(
+        (d: Slot) => d.date === date,
+      );
+
     this.availableTimes = slotsForDate
-      .map((slot: { time?: string; startTime?: string; endTime?: string }) =>
-        slot.time ?? (slot.startTime && slot.endTime ? `${slot.startTime} - ${slot.endTime}` : '')
-      )
-      .filter((time: string) => !this.bookedSlots.some(b => b.date === dateEntry.date && b.time === time));
+      .filter((slot: Slot) => {
+        const slotTime = this.normalizeTime(slot);
+        return !this.bookedSlots.some(
+          (b: BookedSlot) =>
+            b.date === date && this.normalizeTime(b) === slotTime,
+        );
+      })
+      .map((slot: Slot) => this.normalizeTime(slot));
 
-    // Default selection
+    this.selectedDate = date;
     this.selectedTime = this.availableTimes[0] || '';
-    this.bookingForm.patchValue({ time: this.selectedTime });
+    this.bookingForm.patchValue({ date, time: this.selectedTime });
 
-    // Find the selected slot to assign operator info
-const selectedSlot = slotsForDate.find((slot: {
-  time?: string;
-  startTime?: string;
-  endTime?: string;
-  price?: number;
-  operator_id?: string;
-  operator_activity_id?: string;
-}) =>
-  (slot.time ?? (slot.startTime && slot.endTime ? `${slot.startTime} - ${slot.endTime}` : '')) === this.selectedTime
-);
+    const selectedSlot = slotsForDate.find(
+      (slot: Slot) => this.normalizeTime(slot) === this.selectedTime,
+    );
 
     if (selectedSlot) {
       this.operatorId = selectedSlot.operator_id || this.operatorId;
-      this.operatorActivityId = selectedSlot.operator_activity_id || this.operatorActivityId;
+      this.operatorActivityId =
+        selectedSlot.operator_activity_id || this.operatorActivityId;
       this.pricePerPax = Number(selectedSlot.price ?? this.pricePerPax);
     }
 
     this.calculateTotalPrice();
+  }
+
+  setCalendarToFirstAvailableDate() {
+    if (!this.activityDetails?.available_dates_list?.length) return;
+
+    const sortedDates = [...this.activityDetails.available_dates_list].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+
+    const firstDate = new Date(sortedDates[0].date);
+    this.currentYear = firstDate.getFullYear();
+    this.currentMonth = firstDate.getMonth();
+  }
+
+  autoSelectFirstAvailableDate() {
+    for (const dateEntry of this.filteredDates) {
+      const slotsForDate = this.activityDetails.available_dates_list.filter(
+        (d: Slot) => d.date === dateEntry.date,
+      );
+
+      const hasAvailableSlot = slotsForDate.some(
+        (slot: Slot) =>
+          !this.bookedSlots.some(
+            (b: BookedSlot) =>
+              b.date === dateEntry.date &&
+              this.normalizeTime(b) === this.normalizeTime(slot),
+          ),
+      );
+
+      if (hasAvailableSlot) {
+        this.updateAvailableTimes(dateEntry.date);
+        return;
+      }
+    }
+
+    this.availableTimes = [];
+    this.selectedTime = '';
+  }
+
+  selectBookingDate(dateEntry: Slot) {
+    this.updateAvailableTimes(dateEntry.date);
   }
 
   calculateTotalPrice() {
@@ -163,53 +276,77 @@ const selectedSlot = slotsForDate.find((slot: {
   }
 
   formatDateToYYYYMMDD(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      '0',
+    )}-${String(date.getDate()).padStart(2, '0')}`;
   }
 
   generateMonthYearOptions() {
     const monthsSet = new Set<string>();
-    this.activityDetails?.available_dates_list.forEach((d: any) => {
+    this.activityDetails?.available_dates_list.forEach((d: Slot) => {
       const date = new Date(d.date);
       monthsSet.add(`${date.getFullYear()}-${date.getMonth() + 1}`);
     });
 
-    this.monthYearOptions = Array.from(monthsSet).map(val => {
+    this.monthYearOptions = Array.from(monthsSet).map((val) => {
       const [year, month] = val.split('-').map(Number);
       return {
-        label: new Date(year, month - 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' }),
-        value: val
+        label: new Date(year, month - 1).toLocaleString('en-GB', {
+          month: 'long',
+          year: 'numeric',
+        }),
+        value: val,
       };
     });
   }
 
   generateCalendar() {
     this.calendarDays = [];
-    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
-    const lastDate = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
 
-    for (let i = 0; i < firstDay; i++) this.calendarDays.push({ date: '', day: 0, available: false });
+    const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+    const lastDate = new Date(
+      this.currentYear,
+      this.currentMonth + 1,
+      0,
+    ).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+      this.calendarDays.push({ date: '', day: 0, available: false });
+    }
 
     for (let day = 1; day <= lastDate; day++) {
-      const dateObj = new Date(this.currentYear, this.currentMonth, day);
-      const dateStr = this.formatDateToYYYYMMDD(dateObj);
+      const dateStr = this.formatDateToYYYYMMDD(
+        new Date(this.currentYear, this.currentMonth, day),
+      );
 
-      const slotsForDate = this.activityDetails?.available_dates_list?.filter((d: any) => d.date === dateStr) || [];
-      const bookedForDate = this.bookedSlots.filter(b => b.date === dateStr);
+      const slotsForDate =
+        this.activityDetails?.available_dates_list?.filter(
+          (d: Slot) => d.date === dateStr,
+        ) || [];
 
-      const isFullyBooked = slotsForDate.every((slot: any) => {
-        const slotTime = slot.time ?? (slot.startTime && slot.endTime ? `${slot.startTime} - ${slot.endTime}` : '');
-        return bookedForDate.some(booked => booked.time === slotTime);
-      });
+      const isFullyBooked =
+        slotsForDate.length > 0 &&
+        slotsForDate.every((slot: Slot) =>
+          this.bookedSlots.some(
+            (b: BookedSlot) =>
+              b.date === dateStr &&
+              this.normalizeTime(b) === this.normalizeTime(slot),
+          ),
+        );
 
       this.calendarDays.push({
         date: dateStr,
         day,
         available: slotsForDate.length > 0 && !isFullyBooked,
-        price: Number(slotsForDate[0]?.price ?? 0),
+        price: slotsForDate[0]?.price ?? 0,
       });
     }
 
-    this.currentMonthLabel = new Date(this.currentYear, this.currentMonth).toLocaleString('en-GB', {
+    this.currentMonthLabel = new Date(
+      this.currentYear,
+      this.currentMonth,
+    ).toLocaleString('en-GB', {
       month: 'long',
       year: 'numeric',
     });
@@ -218,10 +355,10 @@ const selectedSlot = slotsForDate.find((slot: {
   loadBookedSlots() {
     if (!this.activityId) return;
 
-    // ✅ Use operator-scoped bookings if needed:
-    this.api.getBookedDatesByActivity(this.activityId).subscribe(res => {
+    this.api.getBookedDatesByActivity(this.activityId).subscribe((res) => {
       this.bookedSlots = res?.data || [];
       this.generateCalendar();
+      this.autoSelectFirstAvailableDate();
       this.cdr.detectChanges();
     });
   }
@@ -234,7 +371,11 @@ const selectedSlot = slotsForDate.find((slot: {
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'Yes!',
-          handler: () => this.navCtrl.navigateRoot('/tourist/home', { animated: true, animationDirection: 'forward' }),
+          handler: () =>
+            this.navCtrl.navigateRoot('/tourist/home', {
+              animated: true,
+              animationDirection: 'forward',
+            }),
         },
       ],
     });
@@ -243,66 +384,67 @@ const selectedSlot = slotsForDate.find((slot: {
 
   onMonthYearChange(event: any) {
     const [year, month] = event.detail.value.split('-').map(Number);
-    this.filteredDates = this.activityDetails.available_dates_list.filter((d: any) => {
-      const date = new Date(d.date);
-      return date.getFullYear() === year && date.getMonth() + 1 === month;
-    });
 
-    if (this.filteredDates.length > 0) this.selectBookingDate(this.filteredDates[0]);
+    this.filteredDates = this.activityDetails.available_dates_list.filter(
+      (d: Slot) => {
+        const date = new Date(d.date);
+        return date.getFullYear() === year && date.getMonth() + 1 === month;
+      },
+    );
+
     this.currentYear = year;
     this.currentMonth = month - 1;
     this.generateCalendar();
+    this.autoSelectFirstAvailableDate();
   }
 
   prevMonth() {
-    if (this.currentMonth === 0) {
-      this.currentMonth = 11;
-      this.currentYear--;
-    } else this.currentMonth--;
+    this.currentMonth === 0
+      ? ((this.currentMonth = 11), this.currentYear--)
+      : this.currentMonth--;
+
     this.generateCalendar();
+    this.autoSelectFirstAvailableDate();
   }
 
   nextMonth() {
-    if (this.currentMonth === 11) {
-      this.currentMonth = 0;
-      this.currentYear++;
-    } else this.currentMonth++;
+    this.currentMonth === 11
+      ? ((this.currentMonth = 0), this.currentYear++)
+      : this.currentMonth++;
+
     this.generateCalendar();
+    this.autoSelectFirstAvailableDate();
   }
 
   submitBooking() {
     if (this.bookingForm.invalid) return;
 
     if (!this.operatorId) {
-      this.alertController.create({
-        header: 'Booking Error',
-        message: 'Operator information is missing. Please try again later.',
-        buttons: ['OK']
-      }).then(alert => alert.present());
+      this.alertController
+        .create({
+          header: 'Booking Error',
+          message: 'Operator information is missing.',
+          buttons: ['OK'],
+        })
+        .then((a) => a.present());
       return;
     }
 
-    const bookingData = {
-      activity_id: this.activityId,
-      operator_activity_id: this.operatorActivityId,
-      operator_id: this.operatorId,
-      tourist_user_id: this.touristUserId,
-      no_of_pax: this.bookingForm.value.no_of_pax,
-      date: this.bookingForm.value.date,
-      time: this.bookingForm.value.time,
-      contact_name: this.bookingForm.value.contact_name,
-      contact_phone: this.bookingForm.value.contact_phone,
-      nationality: this.bookingForm.value.nationality,
-      total_price: this.totalPrice,
-      available_dates_list: this.filteredDates,
-      status: 'pending',
-
-      activity_name: this.activityDetails?.activity_name || '',
-      operator_name: this.activityDetails?.rt_user_name || '',
-      operator_image: this.activityDetails?.image || '',
-      location: this.activityDetails?.location || ''
-    };
-
-    this.navCtrl.navigateForward('/tourist/confirm-booking-details', { state: bookingData });
+    this.navCtrl.navigateForward('/tourist/confirm-booking-details', {
+      state: {
+        activity_id: this.activityId,
+        operator_activity_id: this.operatorActivityId,
+        operator_id: this.operatorId,
+        tourist_user_id: this.touristUserId,
+        ...this.bookingForm.value,
+        total_price: this.totalPrice,
+        available_dates_list: this.filteredDates,
+        status: 'Booked',
+        activity_name: this.activityDetails?.activity_name || '',
+        operator_name: this.activityDetails?.rt_user_name || '',
+        operator_image: this.activityDetails?.image || '',
+        location: this.activityDetails?.location || '',
+      },
+    });
   }
 }

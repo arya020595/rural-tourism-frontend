@@ -19,6 +19,9 @@ export class LoginPage implements OnInit {
   password = '';
   submitted = false;
 
+  // ✅ NEW: password visibility toggle
+  showPassword = false;
+
   constructor(
     private apiService: ApiService,
     private navCtrl: NavController,
@@ -26,12 +29,16 @@ export class LoginPage implements OnInit {
     private router: Router,
     private alertCtrl: AlertController,
     private toastController: ToastController,
-    private route: ActivatedRoute, // For redirect query params
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {}
 
-  // ✅ Error Toast
+  // ✅ Toggle password visibility
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
   async errorToast(msg: string) {
     const toast = await this.toastController.create({
       message: msg || 'Invalid username or password',
@@ -43,7 +50,6 @@ export class LoginPage implements OnInit {
     await toast.present();
   }
 
-  // ✅ Success Toast
   async successToast(msg: string) {
     const toast = await this.toastController.create({
       message: msg || 'Login successful!',
@@ -63,7 +69,7 @@ export class LoginPage implements OnInit {
 
     this.apiService.loginTourist(credentials).subscribe(
       async (res: any) => {
-        // ✅ Check if user is suspended/inactive
+        // ⬇️ YOUR EXISTING LOGIC (UNCHANGED)
         if (res.user && res.user.is_active === false) {
           if (res.user.suspended_at) {
             const now = new Date();
@@ -73,7 +79,6 @@ export class LoginPage implements OnInit {
             );
 
             if (diffDays >= 3) {
-              // Auto-reactivate after 3 days
               res.user.is_active = true;
               res.user.suspended_at = null;
               localStorage.setItem('user', JSON.stringify(res.user));
@@ -98,15 +103,12 @@ export class LoginPage implements OnInit {
           }
         }
 
-        // ✅ If login success
         if (res.success) {
-          // Save user info
           localStorage.setItem('user', JSON.stringify(res.user));
           localStorage.setItem('tourist_user_id', res.user.tourist_user_id);
 
           await this.successToast('Login successful!');
 
-          // Handle pending booking if exists
           const pendingBooking = localStorage.getItem('pendingBooking');
           if (pendingBooking) {
             const booking = JSON.parse(pendingBooking);
@@ -126,8 +128,8 @@ export class LoginPage implements OnInit {
             return;
           }
 
-          // Redirect query param handling
           const redirectUrl = this.route.snapshot.queryParamMap.get('redirect');
+
           if (redirectUrl) {
             const activity_id =
               this.route.snapshot.queryParamMap.get('activity_id');
@@ -151,20 +153,17 @@ export class LoginPage implements OnInit {
             return;
           }
 
-          // Default landing page
           this.navCtrl.navigateRoot('/tourist/home');
         } else {
           await this.errorToast(res.message || 'Login failed');
         }
       },
       async (err) => {
-        // Only show general login failed toast, do not show backend inactive message
         await this.errorToast(err.error?.message || 'Login failed');
       },
     );
   }
 
-  // ✅ Navigate back to role selection page
   backRole() {
     this.navCtrl.navigateBack('/role', {
       animated: true,
