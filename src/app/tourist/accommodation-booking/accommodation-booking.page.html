@@ -87,7 +87,13 @@
           [class.check-out]="day.isCheckOut"
           [class.in-range]="day.inRange"
           [class.empty]="!day.date"
+          [attr.tabindex]="day.date ? 0 : -1"
+          [attr.role]="day.date ? 'button' : null"
+          [attr.aria-label]="getAriaLabel(day)"
+          [attr.aria-pressed]="day.isCheckIn || day.isCheckOut"
+          [attr.aria-disabled]="!day.available"
           (click)="selectDate(day)"
+          (keydown)="handleKeyPress($event, day)"
         >
           <span class="day-number" *ngIf="day.day">{{ day.day }}</span>
           <span class="day-price" *ngIf="day.available && day.price"

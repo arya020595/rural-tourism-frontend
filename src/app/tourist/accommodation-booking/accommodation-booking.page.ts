@@ -86,9 +86,15 @@ export class AccommodationBookingPage implements OnInit {
             this.accommodationDetails = acc;
             this.loadBookedDates();
           },
-          error: (err) =>
-            console.error('Failed to load accommodation details:', err),
+          error: (err) => {
+            console.error('Failed to load accommodation details:', err);
+            // Initialize calendar even if accommodation details fail to load
+            this.generateCalendar();
+          },
         });
+      } else {
+        // Initialize calendar even if no accommodationId is provided
+        this.generateCalendar();
       }
 
       // Autofill user info
@@ -213,6 +219,7 @@ export class AccommodationBookingPage implements OnInit {
     // If clicking on the same check-in date, unselect it
     if (day.date === this.checkInDate && !this.checkOutDate) {
       this.checkInDate = '';
+      this.calculateTotalPrice();
       this.generateCalendar();
       return;
     }
@@ -244,6 +251,23 @@ export class AccommodationBookingPage implements OnInit {
             .then((alert) => alert.present());
           return;
         }
+      } else if (day.date < this.checkInDate) {
+        // Check if there are any booked dates between this date and check-in
+        const hasBlockedDates = this.bookedDates.some(
+          (bookedDate) =>
+            bookedDate > day.date && bookedDate < this.checkInDate,
+        );
+        if (hasBlockedDates) {
+          this.alertController
+            .create({
+              header: 'Invalid Date Range',
+              message:
+                'The selected date range includes already booked dates. Please select a different date.',
+              buttons: ['OK'],
+            })
+            .then((alert) => alert.present());
+          return;
+        }
       }
     }
 
@@ -267,6 +291,47 @@ export class AccommodationBookingPage implements OnInit {
     }
 
     this.generateCalendar();
+  }
+
+  handleKeyPress(
+    event: KeyboardEvent,
+    day: { date: string; available: boolean },
+  ) {
+    // Handle Enter or Space key to select date
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.selectDate(day);
+    }
+  }
+
+  getAriaLabel(day: any): string {
+    if (!day.date) return '';
+
+    const date = new Date(day.date);
+    const dateStr = date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    let status = '';
+    if (day.isPast) {
+      status = 'Past date, not available';
+    } else if (day.isBooked) {
+      status = 'Already booked, not available';
+    } else if (day.isCheckIn) {
+      status = 'Selected as check-in date';
+    } else if (day.isCheckOut) {
+      status = 'Selected as check-out date';
+    } else if (day.inRange) {
+      status = 'In selected range';
+    } else if (day.available) {
+      status = `Available, RM ${day.price} per night`;
+    } else {
+      status = 'Not available';
+    }
+
+    return `${dateStr}, ${status}`;
   }
 
   calculateTotalPrice() {
