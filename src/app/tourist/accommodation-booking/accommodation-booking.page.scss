@@ -35,8 +35,8 @@
   padding: 8px 0;
 
   ion-label {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 800;
     color: #024e25;
     margin-bottom: 8px;
   }
@@ -119,16 +119,20 @@
     gap: 4px;
 
     .calendar-day {
-      aspect-ratio: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      padding: 4px;
-      min-height: 45px;
-      transition: all 0.2s ease;
+      padding: 5px 0;
+      min-height: 50px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-align: center;
+      transition:
+        background-color 0.2s,
+        color 0.2s;
 
       .day-number {
         font-size: 14px;
@@ -136,8 +140,9 @@
       }
 
       .day-price {
-        font-size: 9px;
-        color: #666;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: inherit;
         margin-top: 2px;
       }
 
@@ -146,43 +151,40 @@
       }
 
       &.available {
-        background-color: #e8f5e9;
+        background-color: #e0f7fa;
         color: #024e25;
 
         &:hover {
-          background-color: #c8e6c9;
+          background-color: #b2ebf2;
         }
 
         .day-price {
-          color: #388e3c;
+          color: #024e25;
         }
       }
 
-      // Past dates - grey background
+      // Past dates - grey background, no line-through
       &.past {
         background-color: #f5f5f5;
         color: #bdbdbd;
         cursor: not-allowed;
-
-        .day-number {
-          text-decoration: line-through;
-        }
       }
 
-      // Booked dates - light green with indicator
+      // Booked dates - gray with line-through
       &.booked {
-        background-color: #c8e6c9;
-        color: #2e7d32;
+        background-color: #e0e0e0;
+        color: #757575;
         cursor: not-allowed;
         position: relative;
 
         .day-number {
           font-weight: 700;
+          text-decoration: line-through;
         }
 
         .booked-label {
           font-size: 7px;
-          color: #1b5e20;
+          color: #616161;
           font-weight: 600;
           text-transform: uppercase;
         }
@@ -236,8 +238,8 @@
         border-radius: 4px;
 
         &.available {
-          background-color: #e8f5e9;
-          border: 1px solid #4caf50;
+          background-color: #e0f7fa;
+          border: 1px solid #00acc1;
         }
 
         &.past {
@@ -246,8 +248,8 @@
         }
 
         &.booked {
-          background-color: #c8e6c9;
-          border: 1px solid #2e7d32;
+          background-color: #e0e0e0;
+          border: 1px solid #757575;
         }
 
         &.selected {
