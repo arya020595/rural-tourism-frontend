@@ -62,11 +62,11 @@
     <!-- Calendar -->
     <div class="calendar-container">
       <div class="calendar-header">
-        <ion-button fill="clear" (click)="prevMonth()">
+        <ion-button fill="clear" aria-label="Previous month" (click)="prevMonth()">
           <ion-icon name="chevron-back"></ion-icon>
         </ion-button>
         <span class="month-label">{{ currentMonthLabel }}</span>
-        <ion-button fill="clear" (click)="nextMonth()">
+        <ion-button fill="clear" aria-label="Next month" (click)="nextMonth()">
           <ion-icon name="chevron-forward"></ion-icon>
         </ion-button>
       </div>
