@@ -68,7 +68,7 @@ export class AccoFormPage implements OnInit {
     if (userDataString) {
       try {
         const userData = JSON.parse(userDataString);
-        this.form.issuer = userData.username || userData.full_name || '';
+        this.form.issuer = userData.full_name || userData.username || '';
       } catch (error) {
         console.error('Failed to parse user data from localStorage:', error);
       }

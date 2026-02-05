@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, AlertController } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertController, NavController } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
 import { ApiService } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-confirm-booking-accommodation-details',
@@ -11,7 +11,6 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./confirm-booking-accommodation-details.page.scss'],
 })
 export class ConfirmBookingAccommodationDetailsPage implements OnInit {
-
   bookingData: any = {};
   operatorId: string | null = null;
   operatorData: any = null;
@@ -24,7 +23,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private api: ApiService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit() {
@@ -40,15 +39,21 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
       try {
         const user = JSON.parse(userData);
         this.bookingData.tourist_name =
-          this.bookingData.contact_name || user.full_name || user.name || user.username || 'A tourist';
+          this.bookingData.contact_name ||
+          user.full_name ||
+          user.name ||
+          user.username ||
+          'A tourist';
       } catch {
-        this.bookingData.tourist_name = this.bookingData.contact_name || 'A tourist';
+        this.bookingData.tourist_name =
+          this.bookingData.contact_name || 'A tourist';
       }
     } else {
-      this.bookingData.tourist_name = this.bookingData.contact_name || 'A tourist';
+      this.bookingData.tourist_name =
+        this.bookingData.contact_name || 'A tourist';
     }
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (!this.bookingData || Object.keys(this.bookingData).length === 0) {
         this.bookingData = { ...params };
       }
@@ -74,7 +79,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
   private async fetchAccommodationAndOperator(accommodationId: string) {
     try {
       const res: any = await firstValueFrom(
-        this.api.getAccommodationById(accommodationId)
+        this.api.getAccommodationById(accommodationId),
       );
 
       const accommodation =
@@ -93,8 +98,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
         accommodation.address ||
         'Location not available';
 
-      this.operatorId =
-        this.bookingData.operator_id || accommodation.user_id;
+      this.operatorId = this.bookingData.operator_id || accommodation.user_id;
 
       const nights = this.bookingData.number_of_nights || 1;
       if (this.bookingData.total_price) {
@@ -104,7 +108,6 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
       if (this.operatorId) {
         await this.fetchOperator(this.operatorId);
       }
-
     } catch (err) {
       console.error('Failed to fetch accommodation', err);
       this.navCtrl.navigateBack('/tourist/home');
@@ -117,20 +120,17 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
   private async fetchOperator(operatorId: string) {
     try {
       const res: any = await firstValueFrom(
-        this.api.getAccommodationOperatorById(operatorId)
+        this.api.getAccommodationOperatorById(operatorId),
       );
 
       this.operatorData = res;
 
-      this.bookingData.operator_name =
-        res?.business_name || 'N/A';
+      this.bookingData.operator_name = res?.business_name || 'N/A';
 
       this.bookingData.operator_image =
         res?.image || 'assets/images/default-operator.jpg';
 
-      this.bookingData.operator_location =
-        res?.address || 'N/A';
-
+      this.bookingData.operator_location = res?.address || 'N/A';
     } catch (err) {
       console.error('Failed to fetch operator', err);
     }
@@ -154,7 +154,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'OK',
-          handler: data => {
+          handler: (data) => {
             const pax = parseInt(data.pax, 10);
             if (pax >= 1) {
               this.bookingData.no_of_pax = pax;
@@ -188,7 +188,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
         { text: 'Cancel', role: 'cancel' },
         {
           text: 'OK',
-          handler: data => {
+          handler: (data) => {
             if (data.start_date && data.end_date) {
               const start = new Date(data.start_date);
               const end = new Date(data.end_date);
@@ -200,14 +200,13 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
                 const nights = Math.max(
                   1,
                   Math.ceil(
-                    (end.getTime() - start.getTime()) /
-                    (1000 * 60 * 60 * 24)
-                  )
+                    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+                  ),
                 );
 
                 this.bookingData.number_of_nights = nights;
                 this.bookingData.total_price = parseFloat(
-                  (this.perNightPrice * nights).toFixed(2)
+                  (this.perNightPrice * nights).toFixed(2),
                 );
               }
             }
@@ -281,15 +280,24 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
 
     try {
       const res: any = await firstValueFrom(
-        this.api.createAccommodationBooking(payload)
+        this.api.createAccommodationBooking(payload),
       );
 
       const bookingId = res?.data?.id;
       if (!bookingId) throw new Error('Booking ID missing');
 
       // Format dates for notification
-      const startDate = new Date(this.bookingData.start_date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-      const endDate = new Date(this.bookingData.end_date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+      const startDate = new Date(
+        this.bookingData.start_date,
+      ).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+      const endDate = new Date(this.bookingData.end_date).toLocaleDateString(
+        'en-GB',
+        { day: '2-digit', month: 'short', year: 'numeric' },
+      );
 
       // ✅ Operator notification with full tourist name
       if (this.operatorId) {
@@ -300,18 +308,23 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
             message: `${this.bookingData.tourist_name} booked "${this.bookingData.accommodation_name}" from ${startDate} to ${endDate}`,
             type: 'booking',
             related_id: bookingId,
-          })
+          }),
         );
       }
 
       const success = await this.alertController.create({
         header: 'Booking Successful!',
-        message: 'Your booking has been confirmed! You will be contacted soon for more inquiries. Thank you!',
-        buttons: [{ text: 'Return to Home Page', handler: () => this.navCtrl.navigateRoot('/tourist/home') }],
+        message:
+          'Your booking has been confirmed! You will be contacted soon for more inquiries. Thank you!',
+        buttons: [
+          {
+            text: 'Return to Home Page',
+            handler: () => this.navCtrl.navigateRoot('/tourist/home'),
+          },
+        ],
       });
 
       await success.present();
-
     } catch (err: any) {
       const alert = await this.alertController.create({
         header: 'Booking Failed',

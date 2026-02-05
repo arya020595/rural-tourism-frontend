@@ -1,5 +1,4 @@
 <ion-content class="ion-padding booking-content" fullscreen>
-
   <!-- Back / Close Button -->
   <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
     <ion-icon slot="icon-only" name="close"></ion-icon>
@@ -8,84 +7,179 @@
   <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
 
   <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
-
     <!-- Number of Pax -->
     <ion-item>
-      <ion-label position="stacked">Number of Pax</ion-label>
-      <ion-input 
-        type="number" 
-        formControlName="no_of_pax" 
-        placeholder="Enter number of pax">
+      <ion-label position="stacked">No. of Pax</ion-label>
+      <ion-input
+        type="number"
+        formControlName="no_of_pax"
+        placeholder="Enter number of pax"
+      >
       </ion-input>
     </ion-item>
 
-    <!-- Start Date -->
-    <ion-item>
-      <ion-label position="stacked">Start Date</ion-label>
-      <ion-datetime-button datetime="startDate"></ion-datetime-button>
-      <ion-modal [keepContentsMounted]="true">
-        <ng-template>
-          <ion-datetime
-            id="startDate"
-            formControlName="start_date"
-            presentation="date"
-            display-format="DD/MM/YYYY"
-            picker-format="DD/MM/YYYY"
-            (ionChange)="onStartDateSelected($event)">
-          </ion-datetime>
-        </ng-template>
-      </ion-modal>
+    <!-- Check-In Date Display -->
+    <ion-item lines="full">
+      <div class="date-item-content">
+        <ion-label position="stacked">Check - In Date</ion-label>
+        <div class="date-value-display">
+          {{ checkInDate ? formatDateForDisplay(checkInDate) : 'Select from
+          calendar' }}
+        </div>
+      </div>
+      <ion-icon
+        name="calendar-outline"
+        slot="end"
+        class="calendar-icon"
+      ></ion-icon>
     </ion-item>
 
-    <!-- End Date -->
-    <ion-item>
-      <ion-label position="stacked">End Date</ion-label>
-      <ion-datetime-button datetime="endDate"></ion-datetime-button>
-      <ion-modal [keepContentsMounted]="true">
-        <ng-template>
-          <ion-datetime
-            id="endDate"
-            formControlName="end_date"
-            [min]="bookingForm.get('start_date')?.value"
-            presentation="date"
-            display-format="DD/MM/YYYY"
-            picker-format="DD/MM/YYYY"
-            (ionChange)="onEndDateSelected($event)">
-          </ion-datetime>
-        </ng-template>
-      </ion-modal>
+    <!-- Check-Out Date Display -->
+    <ion-item lines="full">
+      <div class="date-item-content">
+        <ion-label position="stacked">Check - Out Date</ion-label>
+        <div class="date-value-display">
+          {{ checkOutDate ? formatDateForDisplay(checkOutDate) : 'Select from
+          calendar' }}
+        </div>
+      </div>
+      <ion-icon
+        name="calendar-outline"
+        slot="end"
+        class="calendar-icon"
+      ></ion-icon>
     </ion-item>
+
+    <!-- Date Selection Instruction -->
+    <div class="date-instruction" *ngIf="!checkInDate || !checkOutDate">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span *ngIf="!checkInDate">Click a date to select check-in</span>
+      <span *ngIf="checkInDate && !checkOutDate"
+        >Now select check-out date</span
+      >
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <ion-button fill="clear" aria-label="Previous month" (click)="prevMonth()">
+          <ion-icon name="chevron-back"></ion-icon>
+        </ion-button>
+        <span class="month-label">{{ currentMonthLabel }}</span>
+        <ion-button fill="clear" aria-label="Next month" (click)="nextMonth()">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="calendar-weekdays">
+        <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
+      </div>
+
+      <div class="calendar-grid">
+        <div
+          *ngFor="let day of calendarDays"
+          class="calendar-day"
+          [class.available]="day.available && day.date"
+          [class.past]="day.isPast && day.date"
+          [class.booked]="day.isBooked && !day.isPast && day.date"
+          [class.selected]="day.isCheckIn || day.isCheckOut"
+          [class.check-in]="day.isCheckIn"
+          [class.check-out]="day.isCheckOut"
+          [class.in-range]="day.inRange"
+          [class.empty]="!day.date"
+          [attr.tabindex]="day.date ? 0 : -1"
+          [attr.role]="day.date ? 'button' : null"
+          [attr.aria-label]="getAriaLabel(day)"
+          [attr.aria-pressed]="day.isCheckIn || day.isCheckOut"
+          [attr.aria-disabled]="!day.available"
+          (click)="selectDate(day)"
+          (keydown)="handleKeyPress($event, day)"
+        >
+          <span class="day-number" *ngIf="day.day">{{ day.day }}</span>
+          <span class="day-price" *ngIf="day.available && day.price"
+            >RM {{ day.price }}</span
+          >
+          <span class="booked-label" *ngIf="day.isBooked && !day.isPast"
+            >Booked</span
+          >
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="calendar-legend">
+        <div class="legend-item">
+          <span class="legend-box available"></span>
+          <span>Available</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-box past"></span>
+          <span>Past</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-box booked"></span>
+          <span>Booked</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-box selected"></span>
+          <span>Selected</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Number of Nights -->
-    <ion-item lines="none">
-      <ion-label>Number of Nights: {{ numberOfNights }}</ion-label>
-    </ion-item>
+    <div class="nights-display" *ngIf="numberOfNights > 0">
+      <ion-icon name="moon-outline"></ion-icon>
+      <span>{{ numberOfNights }} Night(s)</span>
+    </div>
 
-    <!-- Contact Info -->
-    <ion-item>
-      <ion-label position="stacked">Contact Name</ion-label>
-      <ion-input type="text" formControlName="contact_name" placeholder="Enter your name"></ion-input>
-    </ion-item>
+    <!-- Your Details Section -->
+    <div class="details-section">
+      <h3>Your Details</h3>
 
-    <ion-item>
-      <ion-label position="stacked">Contact Phone</ion-label>
-      <ion-input type="tel" formControlName="contact_phone" placeholder="Enter phone number"></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Contact Name</ion-label>
+        <ion-input
+          type="text"
+          formControlName="contact_name"
+          placeholder="Enter your name"
+        ></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Nationality</ion-label>
-      <ion-input type="text" formControlName="nationality" placeholder="Enter nationality"></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Contact Email</ion-label>
+        <ion-input
+          type="email"
+          formControlName="contact_email"
+          placeholder="Enter your email"
+        ></ion-input>
+      </ion-item>
 
+      <ion-item>
+        <ion-label position="stacked">Contact Phone</ion-label>
+        <ion-input
+          type="tel"
+          formControlName="contact_phone"
+          placeholder="Enter phone number"
+        ></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Nationality</ion-label>
+        <ion-input
+          type="text"
+          formControlName="nationality"
+          placeholder="Enter nationality"
+        ></ion-input>
+      </ion-item>
+    </div>
   </form>
-
 </ion-content>
 
 <ion-footer>
   <ion-toolbar>
     <div class="bottom-bar">
       <div class="total-price">
-        <span> RM {{ totalPrice | number:'1.2-2' }} </span>
+        <span>RM {{ totalPrice | number:'1.2-2' }}</span>
         <small>for {{ numberOfNights }} night(s)</small>
       </div>
       <ion-button expand="block" (click)="submitBooking()">Book Now</ion-button>
