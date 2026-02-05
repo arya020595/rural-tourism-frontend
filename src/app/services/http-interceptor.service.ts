@@ -8,7 +8,7 @@ import {
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
-import { Observable, throwError, from } from 'rxjs';
+import { from, Observable, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { LoadingService } from './loading.service';
 import { StorageService } from './storage.service';
@@ -21,12 +21,12 @@ export class HttpInterceptorService implements HttpInterceptor {
     private router: Router,
     private toastController: ToastController,
     private loadingService: LoadingService,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   intercept(
     request: HttpRequest<any>,
-    next: HttpHandler
+    next: HttpHandler,
   ): Observable<HttpEvent<any>> {
     // Show loading for non-GET requests or specific endpoints
     const showLoading = request.method !== 'GET';
@@ -55,7 +55,7 @@ export class HttpInterceptorService implements HttpInterceptor {
         if (!isUserFetch404) {
           // Convert async handleError to Observable to satisfy TypeScript
           return from(this.handleError(error, request)).pipe(
-            switchMap(() => throwError(() => error))
+            switchMap(() => throwError(() => error)),
           );
         }
 
@@ -65,14 +65,14 @@ export class HttpInterceptorService implements HttpInterceptor {
         if (showLoading) {
           this.loadingService.hide();
         }
-      })
+      }),
     );
   }
 
   // Added request parameter to detect login requests
   private async handleError(
     error: HttpErrorResponse,
-    request?: HttpRequest<any>
+    request?: HttpRequest<any>,
   ): Promise<void> {
     let message = 'An unexpected error occurred';
 
@@ -85,27 +85,41 @@ export class HttpInterceptorService implements HttpInterceptor {
         message =
           error.error?.message || 'Bad request. Please check your input.';
         break;
-        case 401:
-            // List all login URLs
-            const loginUrls = ['/login', '/tourist/login'];
+      case 401:
+        // List all login URLs
+        const loginUrls = ['/login', '/tourist/login'];
 
-            // Check if current request is a login request
-            const isLoginRequest = loginUrls.some(url => request?.url.endsWith(url));
+        // Check if current request is a login request
+        const isLoginRequest = loginUrls.some((url) =>
+          request?.url.endsWith(url),
+        );
 
-            if (!isLoginRequest) {
-              // For protected APIs, clear auth and redirect
-              message = 'Session expired. Please login again.';
-              this.storageService.clearAuth();
-              this.router.navigate(['/role']);
-            } else {
-              // For login attempts with wrong credentials, just show toast
-              return;
-            }
-            break;
+        if (!isLoginRequest) {
+          // For protected APIs, clear auth and redirect
+          message = 'Session expired. Please login again.';
+          this.storageService.clearAuth();
+          this.router.navigate(['/role']);
+        } else {
+          // For login attempts with wrong credentials, just show toast
+          return;
+        }
+        break;
 
-      case 403:
+      case 403: {
+        const loginUrls = ['/login', '/tourist/login'];
+        const isLoginRequest = loginUrls.some((url) =>
+          request?.url.endsWith(url),
+        );
+
+        //Do not show interceptor toast for login
+        if (isLoginRequest) {
+          return;
+        }
+
         message = 'You do not have permission to perform this action.';
         break;
+      }
+
       case 404:
         message = error.error?.message || 'Resource not found.';
         break;

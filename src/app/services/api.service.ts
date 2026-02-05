@@ -58,7 +58,7 @@ export class ApiService {
     username: string,
     question: string,
     securityAnswer: string,
-    newPassword: string
+    newPassword: string,
   ): Observable<any> {
     const payload = { username, question, securityAnswer, newPassword };
     return this.http.post(`${this.apiUrl}/users/reset-pass`, payload);
@@ -88,15 +88,14 @@ export class ApiService {
   uploadPdf(formData: FormData): Observable<any> {
     return this.http.post(
       `${this.apiUrl}/receipts/generate-pdf-from-image`,
-      formData
+      formData,
     );
   }
 
   // load transaction history
-getFormsByUser(user_id: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/form/operator/${user_id}`);
-}
-
+  getFormsByUser(user_id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/form/operator/${user_id}`);
+  }
 
   // voidTransaction(user_id: string): Observable<any> {
   //   return this.http.get(`${this.apiUrl}/form/trans/${user_id}`);
@@ -163,13 +162,13 @@ getFormsByUser(user_id: string): Observable<any> {
 
   getOperatorsByActivityId(activityId: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/operator-activities/activity/${activityId}`
+      `${this.apiUrl}/operator-activities/activity/${activityId}`,
     );
   }
 
   getOperatorsByUser(rt_user_id: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/operator-activities/user/${rt_user_id}`
+      `${this.apiUrl}/operator-activities/user/${rt_user_id}`,
     );
   }
 
@@ -180,7 +179,7 @@ getFormsByUser(user_id: string): Observable<any> {
 
   getOperatorById(operatorId: string): Observable<any> {
     return this.http.get(
-      `${this.apiUrl}/operator-activities/${operatorId}?includeUser=true`
+      `${this.apiUrl}/operator-activities/${operatorId}?includeUser=true`,
     );
   }
 
@@ -199,7 +198,7 @@ getFormsByUser(user_id: string): Observable<any> {
 
   getTouristBookings(touristId: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/activity-booking/user/${touristId}`
+      `${this.apiUrl}/activity-booking/user/${touristId}`,
     );
   }
 
@@ -212,8 +211,6 @@ getFormsByUser(user_id: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/accommodation-booking`, bookingData);
   }
 
-
-
   // Get a booking by ID
   getAccommodationBookingById(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/accommodation-booking/${id}`);
@@ -222,18 +219,15 @@ getFormsByUser(user_id: string): Observable<any> {
   createOperatorNotification(notificationData: any) {
     return this.http.post(
       `${environment.apiUrl}/notifications`,
-      notificationData
+      notificationData,
     );
   }
 
-getBookedDatesByActivity(activityId: string): Observable<any> {
-  return this.http.get<any>(
-    `${this.apiUrl}/activity-booking/booked-dates/${activityId}`
-  );
-}
-
-
-
+  getBookedDatesByActivity(activityId: string): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/activity-booking/booked-dates/${activityId}`,
+    );
+  }
 
   // src/app/services/api.service.ts
 
@@ -250,44 +244,61 @@ getBookedDatesByActivity(activityId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${operatorId}`);
   }
 
-cancelAccommodationBooking(bookingId: string) {
-  return this.http.delete(`${this.apiUrl}/tourist-bookings/accommodation-booking/${bookingId}`);
+  cancelAccommodationBooking(bookingId: string) {
+    return this.http.delete(
+      `${this.apiUrl}/tourist-bookings/accommodation-booking/${bookingId}`,
+    );
+  }
+
+  cancelActivityBooking(bookingId: string) {
+    return this.http.delete(
+      `${this.apiUrl}/tourist-bookings/activity-booking/${bookingId}`,
+    );
+  }
+
+  // Suspend a tourist user
+  suspendTouristUser(touristUserId: string): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/tourists/${touristUserId}/suspend`,
+      {},
+    );
+  }
+
+  // Get all bookings (accommodation + activity) for a tourist
+  getTouristAllBookings(touristUserId: string) {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/tourist-bookings/user/${touristUserId}`,
+    );
+  }
+
+  // Get all booked dates for a specific activity
+  getBookedDates(
+    activityId: string,
+  ): Observable<{ success: boolean; data: string[] }> {
+    return this.http.get<{ success: boolean; data: string[] }>(
+      `${this.apiUrl}/activity-booking/${activityId}/booked-dates`,
+    );
+  }
+
+  getOperatorAllBookings(operatorId: string) {
+    return this.http.get<any>(
+      `${this.apiUrl}/operator-bookings/user/${operatorId}`,
+    );
+  }
+
+  markActivityPaid(bookingId: string) {
+    return this.http.post<any>(
+      `${this.apiUrl}/operator-bookings/activity/${bookingId}/paid`,
+      {},
+    );
+  }
+
+  markAccommodationPaid(bookingId: string) {
+    return this.http.post<any>(
+      `${this.apiUrl}/operator-bookings/accommodation/${bookingId}/paid`,
+      {},
+    );
+  }
+
+  //Apply more methods here...
 }
-
-cancelActivityBooking(bookingId: string) {
-  return this.http.delete(`${this.apiUrl}/tourist-bookings/activity-booking/${bookingId}`);
-}
-
-
-// Get all bookings (accommodation + activity) for a tourist
-getTouristAllBookings(touristUserId: string) {
-  return this.http.get<any[]>(`${this.apiUrl}/tourist-bookings/user/${touristUserId}`);
-}
-
-// Get all booked dates for a specific activity
-getBookedDates(activityId: string): Observable<{ success: boolean; data: string[] }> {
-  return this.http.get<{ success: boolean; data: string[] }>(
-    `${this.apiUrl}/activity-booking/${activityId}/booked-dates`
-  );
-}
-
-getOperatorAllBookings(operatorId: string) {
-  return this.http.get<any>(`${this.apiUrl}/operator-bookings/user/${operatorId}`);
-}
-
-markActivityPaid(bookingId: string) {
-  return this.http.post<any>(`${this.apiUrl}/operator-bookings/activity/${bookingId}/paid`, {});
-}
-
-markAccommodationPaid(bookingId: string) {
-  return this.http.post<any>(`${this.apiUrl}/operator-bookings/accommodation/${bookingId}/paid`, {});
-}
-
-
-//Apply more methods here...
-
-}
-
-
-
-

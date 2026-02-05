@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { NavController, ToastController, AlertController } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { ApiService } from '../../services/api.service';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AlertController,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-login',
@@ -11,7 +15,6 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements OnInit {
-
   username = '';
   password = '';
   submitted = false;
@@ -23,7 +26,7 @@ export class LoginPage implements OnInit {
     private router: Router,
     private alertCtrl: AlertController,
     private toastController: ToastController,
-    private route: ActivatedRoute // For redirect query params
+    private route: ActivatedRoute, // For redirect query params
   ) {}
 
   ngOnInit() {}
@@ -35,7 +38,7 @@ export class LoginPage implements OnInit {
       duration: 1500,
       position: 'bottom',
       cssClass: 'error-toast',
-      icon: 'alert-circle'
+      icon: 'alert-circle',
     });
     await toast.present();
   }
@@ -47,12 +50,11 @@ export class LoginPage implements OnInit {
       duration: 2000,
       position: 'bottom',
       cssClass: 'success-toast',
-      icon: 'checkmark-circle'
+      icon: 'checkmark-circle',
     });
     await toast.present();
   }
 
-  // ✅ Main Login Function
   login(form: NgForm) {
     this.submitted = true;
     if (!form.valid) return;
@@ -61,20 +63,54 @@ export class LoginPage implements OnInit {
 
     this.apiService.loginTourist(credentials).subscribe(
       async (res: any) => {
+        // ✅ Check if user is suspended/inactive
+        if (res.user && res.user.is_active === false) {
+          if (res.user.suspended_at) {
+            const now = new Date();
+            const suspendedAt = new Date(res.user.suspended_at);
+            const diffDays = Math.floor(
+              (now.getTime() - suspendedAt.getTime()) / (1000 * 60 * 60 * 24),
+            );
+
+            if (diffDays >= 3) {
+              // Auto-reactivate after 3 days
+              res.user.is_active = true;
+              res.user.suspended_at = null;
+              localStorage.setItem('user', JSON.stringify(res.user));
+            } else {
+              const daysLeft = 3 - diffDays;
+              const alert = await this.alertCtrl.create({
+                header: 'Account Suspended',
+                message: `Your account is suspended. Please try again in ${daysLeft} day(s).`,
+                buttons: [{ text: 'OK', role: 'cancel' }],
+              });
+              await alert.present();
+              return;
+            }
+          } else {
+            const alert = await this.alertCtrl.create({
+              header: 'Account Suspended',
+              message: 'Your account is suspended. Please contact support.',
+              buttons: [{ text: 'OK', role: 'cancel' }],
+            });
+            await alert.present();
+            return;
+          }
+        }
+
+        // ✅ If login success
         if (res.success) {
-          // ✅ Save user info
+          // Save user info
           localStorage.setItem('user', JSON.stringify(res.user));
           localStorage.setItem('tourist_user_id', res.user.tourist_user_id);
 
           await this.successToast('Login successful!');
 
-          // ----------------------
-          // ✅ Handle pending booking if user clicked "Proceed"
-          // ----------------------
+          // Handle pending booking if exists
           const pendingBooking = localStorage.getItem('pendingBooking');
           if (pendingBooking) {
             const booking = JSON.parse(pendingBooking);
-            localStorage.removeItem('pendingBooking'); // cleanup
+            localStorage.removeItem('pendingBooking');
 
             this.navCtrl.navigateForward(['/tourist/activity-booking'], {
               state: {
@@ -84,22 +120,22 @@ export class LoginPage implements OnInit {
                 price: booking.price,
                 availableDates: booking.availableDates,
                 activityName: booking.activityName,
-                image: booking.image
-              }
+                image: booking.image,
+              },
             });
-            return; // stop further navigation
+            return;
           }
-          // ----------------------
-          // ✅ End pending booking handling
-          // ----------------------
 
-          // --- Optional: Handle redirect query param if set ---
+          // Redirect query param handling
           const redirectUrl = this.route.snapshot.queryParamMap.get('redirect');
           if (redirectUrl) {
-            const activity_id = this.route.snapshot.queryParamMap.get('activity_id');
-            const operator_id = this.route.snapshot.queryParamMap.get('operator_id');
+            const activity_id =
+              this.route.snapshot.queryParamMap.get('activity_id');
+            const operator_id =
+              this.route.snapshot.queryParamMap.get('operator_id');
             const price = this.route.snapshot.queryParamMap.get('price');
-            const availableDates = this.route.snapshot.queryParamMap.get('availableDates');
+            const availableDates =
+              this.route.snapshot.queryParamMap.get('availableDates');
 
             this.navCtrl.navigateForward([redirectUrl], {
               state: {
@@ -107,22 +143,24 @@ export class LoginPage implements OnInit {
                 activity_id,
                 operator_id,
                 price,
-                available_dates_list: availableDates ? JSON.parse(availableDates) : []
-              }
+                available_dates_list: availableDates
+                  ? JSON.parse(availableDates)
+                  : [],
+              },
             });
             return;
           }
 
-          // ✅ Default landing page after login
+          // Default landing page
           this.navCtrl.navigateRoot('/tourist/home');
-
         } else {
           await this.errorToast(res.message || 'Login failed');
         }
       },
       async (err) => {
+        // Only show general login failed toast, do not show backend inactive message
         await this.errorToast(err.error?.message || 'Login failed');
-      }
+      },
     );
   }
 
@@ -130,7 +168,7 @@ export class LoginPage implements OnInit {
   backRole() {
     this.navCtrl.navigateBack('/role', {
       animated: true,
-      animationDirection: 'back'
+      animationDirection: 'back',
     });
   }
 }
