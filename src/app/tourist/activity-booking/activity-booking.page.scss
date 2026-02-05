@@ -7,18 +7,18 @@
   }
 
   ion-label {
-    --color: #024E25;
+    --color: #024e25;
     font-weight: 800;
     margin-bottom: 5px;
     margin-top: 10px;
   }
 
-  ion-datetime{
+  ion-datetime {
     margin-bottom: 10px;
     height: 50%;
   }
 
-  h4{
+  h4 {
     font-weight: 900;
     margin-left: 12px;
     margin-bottom: 30px;
@@ -71,7 +71,7 @@
   background-color: #024e25;
   color: white;
   border-color: #024e25;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .close-btn {
@@ -101,7 +101,7 @@
 .total-price {
   font-size: 24px;
   font-weight: bold;
-  color:#024E25;
+  color: #024e25;
 }
 
 small {
@@ -162,7 +162,9 @@ small {
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   min-height: 50px;
   padding: 5px 0;
   text-align: center;
@@ -211,6 +213,10 @@ small {
   font-weight: 600;
   margin-top: 2px;
   color: inherit;
+}
+
+.red-text-left {
+  color: red !important;
 }
 
 /* Responsive */

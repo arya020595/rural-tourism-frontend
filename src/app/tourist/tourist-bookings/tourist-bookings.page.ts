@@ -221,37 +221,6 @@ export class TouristBookingsPage implements OnInit {
     await alert.present();
   }
 
-  // cancelBooking(
-  //   bookingId: string | number,
-  //   type: 'activity' | 'accommodation',
-  // ) {
-  //   const idStr = bookingId.toString();
-
-  //   if (type === 'activity') {
-  //     this.apiService.cancelActivityBooking(idStr).subscribe({
-  //       next: () => {
-  //         // Update the booking status locally
-  //         const booking = this.activityBookings.find((b) => b.id === bookingId);
-  //         if (booking) booking.status = 'Cancelled';
-  //         this.showToast('Activity booking cancelled');
-  //       },
-  //       error: () => this.showToast('Failed to cancel activity booking'),
-  //     });
-  //   } else {
-  //     this.apiService.cancelAccommodationBooking(idStr).subscribe({
-  //       next: () => {
-  //         // Update the booking status locally
-  //         const booking = this.accommodationBookings.find(
-  //           (b) => b.id === bookingId,
-  //         );
-  //         if (booking) booking.status = 'Cancelled';
-  //         this.showToast('Accommodation booking cancelled');
-  //       },
-  //       error: () => this.showToast('Failed to cancel accommodation booking'),
-  //     });
-  //   }
-  // }
-
   async cancelBooking(
     bookingId: string | number,
     type: 'activity' | 'accommodation',
@@ -305,7 +274,7 @@ export class TouristBookingsPage implements OnInit {
                 text: 'OK',
                 role: 'confirm',
                 handler: () => {
-                  this.navCtrl.navigateRoot('/login');
+                  this.navCtrl.navigateRoot('/tourist/login');
                 },
               },
             ],

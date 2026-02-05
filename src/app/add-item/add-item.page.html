@@ -11,152 +11,214 @@
         </ion-card-header>
 
         <!-- alert cancel -->
-       
+
         <ion-alert
           trigger="cancel"
           header="Adakah anda pasti ingin membatalkan?"
-          subHeader="Are you sure you want to cancel?"         
+          subHeader="Are you sure you want to cancel?"
           [buttons]="cancelButton"
-          
         ></ion-alert>
 
-        
-        <swiper-container #swiper (afterInit)="swiperReady()" (swiperslidechange)="onSlideChange($event)"
-          [spaceBetween]="10" [loop]="false" [simulateTouch]="false"
-          [touchMove]="false">
-
-          
-
-
+        <swiper-container
+          #swiper
+          (afterInit)="swiperReady()"
+          (swiperslidechange)="onSlideChange($event)"
+          [spaceBetween]="10"
+          [loop]="false"
+          [simulateTouch]="false"
+          [touchMove]="false"
+        >
           <!-- *ngIf="currentStep === 2" -->
           <!-- Step 2: Choose between Activity or Accommodation -->
           <swiper-slide>
             <ion-list class="form-container">
-              <ion-item style="margin-bottom: 2%;" class="no-border">
-                <ion-label class="question-label">Pilih Servis Anda /<span style="font-style: italic;">Pick your
-                    service</span></ion-label>
+              <ion-item style="margin-bottom: 2%" class="no-border">
+                <ion-label class="question-label"
+                  >Pilih Servis Anda /<span style="font-style: italic"
+                    >Pick your service</span
+                  ></ion-label
+                >
               </ion-item>
-              <ion-button mode="ios" style="margin-top: 5%;" expand="block"
-                (click)="selectOption('activity')">Aktiviti/Activity</ion-button>
-              <ion-button mode="ios" style="margin-top: 5%;" expand="block"
-                (click)="selectOption('accommodation')">Tempat Penginapan/Accommodation</ion-button>
+              <ion-button
+                mode="ios"
+                style="margin-top: 5%"
+                expand="block"
+                (click)="selectOption('activity')"
+                >Aktiviti/Activity</ion-button
+              >
+              <ion-button
+                mode="ios"
+                style="margin-top: 5%"
+                expand="block"
+                (click)="selectOption('accommodation')"
+                >Tempat Penginapan/Accommodation</ion-button
+              >
             </ion-list>
 
-            <ion-row style="margin-top: 30vh;">
+            <ion-row style="margin-top: 30vh">
+              <ion-col> </ion-col>
               <ion-col>
-              
-              </ion-col>
-              <ion-col>
-                <ion-button *ngIf="selectedOption === 'activity' || selectedOption === 'accommodation'" mode="ios"
-                  style="margin-bottom: 10%;" expand="block" (click)="goNext()">Seterusnya</ion-button>
+                <ion-button
+                  *ngIf="selectedOption === 'activity' || selectedOption === 'accommodation'"
+                  mode="ios"
+                  style="margin-bottom: 10%"
+                  expand="block"
+                  (click)="goNext()"
+                  >Seterusnya</ion-button
+                >
               </ion-col>
             </ion-row>
-
           </swiper-slide>
 
           <!-- step 3 -->
           <swiper-slide>
             <!-- accomodation form -->
 
-            <ion-item *ngIf="selectedOption === 'accommodation'" class="no-border">
-              <ion-label mode="ios" class="question-label">Tempat Penginapan/<span
-                  style="font-style: italic;">Accommodation</span></ion-label>
+            <ion-item
+              *ngIf="selectedOption === 'accommodation'"
+              class="no-border"
+            >
+              <ion-label mode="ios" class="question-label"
+                >Tempat Penginapan/<span style="font-style: italic"
+                  >Accommodation</span
+                ></ion-label
+              >
             </ion-item>
 
-            <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Penginapan/Homestay</ion-label>
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label
+                mode="ios"
+                position="stacked"
+                class="question-label-grey"
+                >Nama Penginapan/Homestay</ion-label
+              >
               <!-- <ion-label position="stacked">Username</ion-label> -->
-              <ion-input 
-                placeholder="e.g., Homestay Hut" 
-                class="form-input" 
+              <ion-input
+                placeholder="e.g., Homestay Hut"
+                class="form-input"
                 [(ngModel)]="accomData.name"
-                name="homest_name" 
+                name="homest_name"
                 [required]="selectedOption === 'accommodation'"
                 #homestName="ngModel"
-                >
+              >
               </ion-input>
 
               <!-- error msg homestay name -->
-              <ion-text *ngIf="homestName?.invalid && (homestName?.touched || form.submitted)">
+              <ion-text
+                *ngIf="homestName?.invalid && (homestName?.touched || form.submitted)"
+              >
                 <ion-text *ngIf="homestName?.errors?.['required']">
-                  <p class="error-message">*Sila isi nama Tempat Penginapan / Homestay name is required</p>
+                  <p class="error-message">
+                    *Sila isi nama Tempat Penginapan / Homestay name is required
+                  </p>
                 </ion-text>
               </ion-text>
-
             </ion-item>
 
-
-              <!-- District -->
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">Penerangan/Description</ion-label>
+            <!-- District -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label
+                mode="ios"
+                position="stacked"
+                class="question-label-grey"
+                >Penerangan/Description</ion-label
+              >
               <!-- <ion-label position="stacked">Username</ion-label> -->
-              <ion-input 
-                placeholder="e.g. Describe your accomodation" 
-                class="form-input" 
+              <ion-input
+                placeholder="e.g. Describe your accomodation"
+                class="form-input"
                 [(ngModel)]="accomData.description"
-                name="descriptionInput" 
+                name="descriptionInput"
                 [required]="selectedOption === 'accommodation'"
                 #description="ngModel"
-                >
+              >
               </ion-input>
 
               <!-- error msg description -->
-              <ion-text *ngIf="description.invalid && (description.touched || form.submitted)">
+              <ion-text
+                *ngIf="description.invalid && (description.touched || form.submitted)"
+              >
                 <ion-text *ngIf="description.errors?.['required']">
-                  <p class="error-message">*Sila isi Penerangan / Description is required</p>
+                  <p class="error-message">
+                    *Sila isi Penerangan / Description is required
+                  </p>
                 </ion-text>
               </ion-text>
-
             </ion-item>
 
-
-              <!-- Price -->
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">Harga/Price(RM)</ion-label>
+            <!-- Price -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label
+                mode="ios"
+                position="stacked"
+                class="question-label-grey"
+                >Harga/Price(RM)</ion-label
+              >
               <!-- <ion-label position="stacked">Username</ion-label> -->
-              <ion-input 
-                placeholder="e.g. RM 20.00" 
+              <ion-input
+                placeholder="e.g. RM 20.00"
                 type="number"
-                class="form-input" 
+                class="form-input"
                 [(ngModel)]="accomData.price"
-                name="price" 
+                name="price"
                 [required]="selectedOption === 'accommodation'"
                 #price="ngModel"
-                >
+              >
               </ion-input>
 
               <!-- error msg description -->
-              <ion-text *ngIf="price.invalid && (price.touched || form.submitted)">
+              <ion-text
+                *ngIf="price.invalid && (price.touched || form.submitted)"
+              >
                 <ion-text *ngIf="price.errors?.['required']">
-                  <p class="error-message">*Sila isi Harga / Price is required</p>
+                  <p class="error-message">
+                    *Sila isi Harga / Price is required
+                  </p>
                 </ion-text>
               </ion-text>
-
             </ion-item>
 
-
-
-             <!-- Address -->
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">Address</ion-label>
+            <!-- Address -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label
+                mode="ios"
+                position="stacked"
+                class="question-label-grey"
+                >Address</ion-label
+              >
               <!-- <ion-label position="stacked">Username</ion-label> -->
-              <ion-input 
-                placeholder="e.g. Full Address for the Accomodation " 
-                class="form-input" 
+              <ion-input
+                placeholder="e.g. Full Address for the Accomodation "
+                class="form-input"
                 [(ngModel)]="accomData.address"
-                name="address" 
+                name="address"
                 [required]="selectedOption === 'accommodation'"
                 #description="ngModel"
-                >
+              >
               </ion-input>
 
               <!-- error msg description -->
-              <ion-text *ngIf="description.invalid && (description.touched || form.submitted)">
+              <ion-text
+                *ngIf="description.invalid && (description.touched || form.submitted)"
+              >
                 <ion-text *ngIf="description.errors?.['required']">
-                  <p class="error-message">*Sila isi Penerangan / Description is required</p>
+                  <p class="error-message">
+                    *Sila isi Penerangan / Description is required
+                  </p>
                 </ion-text>
               </ion-text>
-
             </ion-item>
 
             <!--District-->
@@ -166,72 +228,177 @@
                 [(ngModel)]="accomData.district"
                 name="accomDistrict"
                 placeholder="Select District"
-                required>
+                required
+              >
                 <ion-select-option value="Kiulu">Kiulu</ion-select-option>
-                <ion-select-option value="Kota Belud">Kota Belud</ion-select-option>
+                <ion-select-option value="Kota Belud"
+                  >Kota Belud</ion-select-option
+                >
               </ion-select>
 
               <ion-text *ngIf="!accomData.district && form?.submitted">
-                <p class="error-message">*Sila pilih District / Please select a district</p>
+                <p class="error-message">
+                  *Sila pilih District / Please select a district
+                </p>
               </ion-text>
             </ion-item>
 
+            <!-- Provided (optional field) -->
+            <!-- Add Provided -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label position="stacked">Disediakan/Provided</ion-label>
+              <ion-input
+                [(ngModel)]="newProvidedAccomodation.title"
+                placeholder="Contoh: Keselamatan"
+                name="thing_title"
+              >
+              </ion-input>
+            </ion-item>
 
-
-
-
-            
-              <!-- Provided (optional field) -->
-              <!-- Add Provided -->
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-                <ion-label position="stacked">Disediakan/Provided</ion-label>
-                <ion-input
-                  [(ngModel)]="newProvidedAccomodation.title"
-                  placeholder="Contoh: Keselamatan"
-                  name="thing_title">
-                </ion-input>
-              </ion-item>
-
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-button expand="block" color="primary" (click)="addProvided()">
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-button
+                expand="block"
+                color="primary"
+                (click)="addProvided()"
+              >
                 Tambah Disediakan / Add Provided
               </ion-button>
             </ion-item>
 
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
               <ion-list *ngIf="accomData.provided_accomodation.length > 0">
-                <ion-item *ngFor="let provided_accomodation of accomData.provided_accomodation; let i = index">
+                <ion-item
+                  *ngFor="let provided_accomodation of accomData.provided_accomodation; let i = index"
+                >
                   <ion-label>
                     <h3>{{ provided_accomodation.title }}</h3>
                   </ion-label>
-                  <ion-button fill="clear" color="danger" (click)="removeProvided(i)">
+                  <ion-button
+                    fill="clear"
+                    color="danger"
+                    (click)="removeProvided(i)"
+                  >
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
                 </ion-item>
               </ion-list>
+            </ion-item>
+
+            <!-- Accommodation Start & End Dates -->
+            <ion-item
+              *ngIf="selectedOption === 'accommodation'"
+              class="no-border"
+            >
+              <ion-label position="stacked" class="question-label-grey">
+                Tarikh / Date Range
+              </ion-label>
+              <div class="date-range-inputs" style="display: flex; gap: 10px">
+                <ion-input
+                  type="date"
+                  [(ngModel)]="accomData.startDate"
+                  name="accomStartDate"
+                  placeholder="Dari / From"
+                ></ion-input>
+                <ion-input
+                  type="date"
+                  [(ngModel)]="accomData.endDate"
+                  name="accomEndDate"
+                  placeholder="Hingga / To"
+                ></ion-input>
+              </div>
+            </ion-item>
+
+            <!-- Accommodation Price -->
+            <ion-item
+              *ngIf="selectedOption === 'accommodation'"
+              class="no-border"
+            >
+              <ion-label position="stacked" class="question-label-grey">
+                Harga / Price (RM)
+              </ion-label>
+              <ion-input
+                type="number"
+                [(ngModel)]="accomData.price"
+                (ngModelChange)="accomData.price = +$event"
+                placeholder="Contoh: 250"
+              ></ion-input>
+            </ion-item>
+
+            <!-- Add Date Range Button -->
+            <ion-item *ngIf="selectedOption === 'accommodation'" lines="none">
+              <ion-button
+                expand="block"
+                color="primary"
+                (click)="addAvailableDateRangeForAccommodation()"
+                [disabled]="!accomData.startDate || !accomData.endDate || !accomData.price"
+              >
+                Tambah / Add Date Range
+              </ion-button>
+            </ion-item>
+
+            <!-- Display Generated Dates Table -->
+            <ion-list *ngIf="accomData.available_dates_list.length > 0">
+              <ion-item
+                *ngFor="let date of accomData.available_dates_list; let i = index"
+              >
+                <ion-label>
+                  <h3>{{ date.date }}</h3>
+                  <p>RM {{ date.price }}</p>
+                </ion-label>
+                <ion-button
+                  fill="clear"
+                  color="danger"
+                  (click)="removeAccomAvailableDate(i)"
+                >
+                  <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                </ion-button>
               </ion-item>
+            </ion-list>
 
+            <!-- Image Upload - Activity -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label
+                mode="ios"
+                position="stacked"
+                class="question-label-grey"
+                >Gambar / Image</ion-label
+              >
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onImageSelected($event)"
+                class="form-input"
+              />
+            </ion-item>
 
-              <!-- Image Upload - Activity -->
-              <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Gambar / Image</ion-label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  (change)="onImageSelected($event)" 
-                  class="form-input"
+            <!-- Preview Image for Activity -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-item class="no-border" *ngIf="imagePreview">
+                <img
+                  [src]="imagePreview"
+                  alt="Preview"
+                  style="width: 100%; height: auto; border-radius: 10px"
                 />
               </ion-item>
+            </ion-item>
 
-              <!-- Preview Image for Activity -->
-                <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-item class="no-border" *ngIf="imagePreview">
-                <img [src]="imagePreview" alt="Preview" style="width: 100%; height: auto; border-radius: 10px;" />
-              </ion-item>
-              </ion-item>
-
-              <!-- Show in Availability Checkbox -->
-              <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
+            <!-- Show in Availability Checkbox -->
+            <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
                 <ion-label>Show in Availability?</ion-label>
                 <ion-checkbox
                   [(ngModel)]="accomData.showAvailability"
@@ -240,14 +407,13 @@
                 ></ion-checkbox>
               </ion-item> -->
 
-        
             <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
               <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label> -->
-              <!-- <ion-label position="stacked">Username</ion-label> -->
-              <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
+            <!-- <ion-label position="stacked">Username</ion-label> -->
+            <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
                 name="email" required></ion-input> -->
 
-              <!-- <ion-select 
+            <!-- <ion-select 
                 class="form-input" 
                 aria-label="location" interface="popover"
                 placeholder="Pilih Lokasi/Pick Location" 
@@ -257,11 +423,11 @@
                 #location="ngModel">
                 <ion-select-option value="Kiulu">Kiulu</ion-select-option>
                 <ion-select-option value="Kedamaian">Kedamaian</ion-select-option> -->
-                <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-              <!-- </ion-select> -->
+            <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
+            <!-- </ion-select> -->
 
-              <!-- error msg location -->
-              <!-- <ion-text *ngIf="location?.invalid && (location?.touched || form.submitted)">
+            <!-- error msg location -->
+            <!-- <ion-text *ngIf="location?.invalid && (location?.touched || form.submitted)">
                 <ion-text *ngIf="location?.errors?.['required']">
                   <p class="error-message">*Sila pilih lokasi / Location required</p>
                 </ion-text>
@@ -269,64 +435,81 @@
 
             </ion-item> -->
 
-
             <!------------------------ACTIVTTY FORM ------------------------------------------------------------------------------->
             <!-- activity form -->
 
             <!-- title -->
             <ion-list class="form-container">
-            <h4>Activity Details</h4>
-            <hr *ngIf="selectedOption === 'activity'">
+              <h4>Activity Details</h4>
+              <hr *ngIf="selectedOption === 'activity'" />
 
-            <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">
-                Jenis Aktiviti / Activity Type
-              </ion-label>
+              <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                >
+                  Jenis Aktiviti / Activity Type
+                </ion-label>
 
-              <ion-select
-                class="form-input" 
-                placeholder="Pilih Jenis Aktiviti"
-                [(ngModel)]="activityData.activity_type_id"
-                name="activity_type_id"
-                (ionChange)="selectActivity($event.detail.value)"
-                [required]="selectedOption === 'activity'"
-                #activityType="ngModel">
-                <ion-select-option *ngFor="let type of activityTypes" [value]="type.id">
-                  {{ type.activity_name }}
-                </ion-select-option>
-              </ion-select>
+                <ion-select
+                  class="form-input"
+                  placeholder="Pilih Jenis Aktiviti"
+                  [(ngModel)]="activityData.activity_type_id"
+                  name="activity_type_id"
+                  (ionChange)="selectActivity($event.detail.value)"
+                  [required]="selectedOption === 'activity'"
+                  #activityType="ngModel"
+                >
+                  <ion-select-option
+                    *ngFor="let type of activityTypes"
+                    [value]="type.id"
+                  >
+                    {{ type.activity_name }}
+                  </ion-select-option>
+                </ion-select>
 
-              <!-- error msg -->
-              <ion-text *ngIf="activityType.invalid && (activityType.touched || form.submitted)">
-                <p class="error-message">*Sila pilih Jenis Aktiviti / Activity Type is Required</p>
-              </ion-text>
-            </ion-item>
+                <!-- error msg -->
+                <ion-text
+                  *ngIf="activityType.invalid && (activityType.touched || form.submitted)"
+                >
+                  <p class="error-message">
+                    *Sila pilih Jenis Aktiviti / Activity Type is Required
+                  </p>
+                </ion-text>
+              </ion-item>
 
-
-            <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-            <ion-label mode="ios" position="stacked" class="question-label-grey">Alamat / Address</ion-label>
-            <ion-input
-              type="text"
-              class="form-input" 
-              placeholder="Contoh: Kampung Kiulu, Sabah"
-              [(ngModel)]="activityData.address"
-              name="address"
-              [required]="selectedOption === 'activity'"
-              #address="ngModel">
-            </ion-input>
-            <ion-text *ngIf="address.invalid && (address.touched || form.submitted)">
-              <p class="error-message">*Sila isi Alamat / Address is Required</p>
-            </ion-text>
-          </ion-item>
-
-
-
+              <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Alamat / Address</ion-label
+                >
+                <ion-input
+                  type="text"
+                  class="form-input"
+                  placeholder="Contoh: Kampung Kiulu, Sabah"
+                  [(ngModel)]="activityData.address"
+                  name="address"
+                  [required]="selectedOption === 'activity'"
+                  #address="ngModel"
+                >
+                </ion-input>
+                <ion-text
+                  *ngIf="address.invalid && (address.touched || form.submitted)"
+                >
+                  <p class="error-message">
+                    *Sila isi Alamat / Address is Required
+                  </p>
+                </ion-text>
+              </ion-item>
 
               <!-- activity name field -->
               <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
                 <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Aktiviti/Activity Name</ion-label> -->
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <!-- <ion-input 
+              <!-- <ion-label position="stacked">Username</ion-label> -->
+              <!-- <ion-input 
                   placeholder="e.g., Kayak" 
                   class="form-input" 
                   [(ngModel)]="activityData.activity_name"
@@ -335,7 +518,7 @@
                   #activityName="ngModel">
                 </ion-input> -->
 
-                <!-- error msg activity name -->
+              <!-- error msg activity name -->
               <!-- <ion-text *ngIf="activityName?.invalid && (activityName?.touched || form.submitted)">
                 <ion-text *ngIf="activityName?.errors?.['required']">
                   <p class="error-message">*Sila isi nama Aktiviti / Activity Name is Required</p>
@@ -343,25 +526,30 @@
               </ion-text> -->
 
               <!-- </ion-item> -->
-               <!--District-->
-               <ion-item *ngIf="selectedOption === 'activity'">
-                <ion-label position="stacked" class="question-label-grey">District</ion-label>
-                <ion-select 
-                    class="form-input" 
-                    [(ngModel)]="activityData.district" 
-                    name="district"
-                    placeholder="Select District"
-                    required>
+              <!--District-->
+              <ion-item *ngIf="selectedOption === 'activity'">
+                <ion-label position="stacked" class="question-label-grey"
+                  >District</ion-label
+                >
+                <ion-select
+                  class="form-input"
+                  [(ngModel)]="activityData.district"
+                  name="district"
+                  placeholder="Select District"
+                  required
+                >
                   <ion-select-option value="Kiulu">Kiulu</ion-select-option>
-                  <ion-select-option value="Kota Belud">Kota Belud</ion-select-option>
+                  <ion-select-option value="Kota Belud"
+                    >Kota Belud</ion-select-option
+                  >
                 </ion-select>
 
                 <ion-text *ngIf="!activityData.district && form.submitted">
-                  <p class="error-message">*Sila pilih District / Please select a district</p>
+                  <p class="error-message">
+                    *Sila pilih District / Please select a district
+                  </p>
                 </ion-text>
               </ion-item>
-
-
 
               <!-- activity price per pax -->
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
@@ -378,179 +566,243 @@
                 </ion-input> -->
 
                 <!-- error msg price per pax  -->
-              <!-- <ion-text *ngIf="price.invalid && (price?.touched || form.submitted)">
+                <!-- <ion-text *ngIf="price.invalid && (price?.touched || form.submitted)">
                 <ion-text *ngIf="price?.errors?.['required']">
                   <p class="error-message">*Sila isi Harga / Price is Required</p>
                 </ion-text>
               </ion-text> -->
-
               </ion-item>
 
               <!-- Description Field -->
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Penerangan / Description</ion-label>
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Penerangan / Description</ion-label
+                >
                 <ion-textarea
-                  class="form-input" 
+                  class="form-input"
                   placeholder="Contoh: Aktiviti kayak di sungai Kiulu"
                   [(ngModel)]="activityData.description"
                   name="description"
                   [required]="selectedOption === 'activity'"
-                  #description="ngModel">
+                  #description="ngModel"
+                >
                 </ion-textarea>
-                <ion-text *ngIf="description.invalid && (description.touched || form.submitted)">
-                  <p class="error-message">*Sila isi Penerangan / Description is Required</p>
+                <ion-text
+                  *ngIf="description.invalid && (description.touched || form.submitted)"
+                >
+                  <p class="error-message">
+                    *Sila isi Penerangan / Description is Required
+                  </p>
                 </ion-text>
               </ion-item>
 
-              <hr *ngIf="selectedOption === 'activity'">
-              
+              <hr *ngIf="selectedOption === 'activity'" />
 
               <!-- Services Provided (optional field) -->
               <!-- Add new Service Provided -->
-               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label position="stacked" class="question-label-grey">Servis Disediakan / Services Provided (Title)</ion-label>
+              <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+                <ion-label position="stacked" class="question-label-grey"
+                  >Servis Disediakan / Services Provided (Title)</ion-label
+                >
                 <ion-input
-                  class="form-input" 
+                  class="form-input"
                   [(ngModel)]="newService.title"
                   placeholder="Contoh: Keselamatan"
-                  name="service_title">
+                  name="service_title"
+                >
                 </ion-input>
               </ion-item>
 
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label position="stacked" class="question-label-grey">Services Provided (Description)</ion-label>
+                <ion-label position="stacked" class="question-label-grey"
+                  >Services Provided (Description)</ion-label
+                >
                 <ion-textarea
-                  class="form-input" 
+                  class="form-input"
                   [(ngModel)]="newService.description"
                   placeholder="Contoh: Sila pakai jaket keselamatan"
-                  name="service_description">
+                  name="service_description"
+                >
                 </ion-textarea>
               </ion-item>
 
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-button class="add-services-btn" expand="block" color="primary" (click)="addServiceProvided()">
+                <ion-button
+                  class="add-services-btn"
+                  expand="block"
+                  color="primary"
+                  (click)="addServiceProvided()"
+                >
                   Tambah
                 </ion-button>
               </ion-item>
 
-
-
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-list class="table-services" *ngIf="activityData.services_provided_list.length > 0">
-                  <ion-item *ngFor="let service of activityData.services_provided_list; let i = index">
+                <ion-list
+                  class="table-services"
+                  *ngIf="activityData.services_provided_list.length > 0"
+                >
+                  <ion-item
+                    *ngFor="let service of activityData.services_provided_list; let i = index"
+                  >
                     <ion-label>
                       <h3>{{ service.title }}</h3>
                       <p>{{ service.description }}</p>
                     </ion-label>
-                    <ion-button fill="clear" color="danger" (click)="removeServiceProvided(i)">
-                      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                    <ion-button
+                      fill="clear"
+                      color="danger"
+                      (click)="removeServiceProvided(i)"
+                    >
+                      <ion-icon
+                        slot="icon-only"
+                        name="trash-outline"
+                      ></ion-icon>
                     </ion-button>
                   </ion-item>
                 </ion-list>
               </ion-item>
 
-               <h4>Date & Time</h4>
-              <hr *ngIf="selectedOption === 'activity'">
+              <h4>Date & Time</h4>
+              <hr *ngIf="selectedOption === 'activity'" />
 
               <ion-item *ngIf="selectedOption === 'activity'" lines="none">
-                <ion-label position="stacked" class="question-label-grey">Tarikh / Date Range</ion-label>
+                <ion-label position="stacked" class="question-label-grey"
+                  >Tarikh / Date Range</ion-label
+                >
                 <div class="date-range-inputs">
-                  <ion-input 
+                  <ion-input
                     type="date"
-                    class="form-input" 
+                    class="form-input"
                     [(ngModel)]="availableDateRangeEntry.startDate"
                     name="startDate"
                     placeholder="Dari / From"
-                    clearInput>
+                    clearInput
+                  >
                   </ion-input>
-                  <ion-input 
+                  <ion-input
                     type="date"
-                    class="form-input" 
+                    class="form-input"
                     [(ngModel)]="availableDateRangeEntry.endDate"
                     name="endDate"
                     placeholder="Hingga / To"
-                    clearInput>
+                    clearInput
+                  >
                   </ion-input>
                 </div>
               </ion-item>
-
 
               <ion-item *ngIf="selectedOption === 'activity'" lines="none">
-                <ion-label position="stacked" class="question-label-grey">Masa / Time Slot</ion-label>
+                <ion-label position="stacked" class="question-label-grey"
+                  >Masa / Time Slot</ion-label
+                >
                 <div class="time-slot-inputs">
-                  <ion-input 
-                    type="time" 
-                    class="form-input" 
-                    [(ngModel)]="newTimeSlot.startTime" 
+                  <ion-input
+                    type="time"
+                    class="form-input"
+                    [(ngModel)]="newTimeSlot.startTime"
                     name="timeSlotStart"
-                    placeholder="Mula / Start">
+                    placeholder="Mula / Start"
+                  >
                   </ion-input>
-                  <ion-input 
-                    type="time" 
-                    class="form-input" 
-                    [(ngModel)]="newTimeSlot.endTime" 
+                  <ion-input
+                    type="time"
+                    class="form-input"
+                    [(ngModel)]="newTimeSlot.endTime"
                     name="timeSlotEnd"
-                    placeholder="Tamat / End">
+                    placeholder="Tamat / End"
+                  >
                   </ion-input>
                 </div>
 
-                <ion-button class="add-time-slots-btn" size="small" color="primary" (click)="addTimeSlot()">Tambah Slot / Add Slot</ion-button>
-
+                <ion-button
+                  class="add-time-slots-btn"
+                  size="small"
+                  color="primary"
+                  (click)="addTimeSlot()"
+                  >Tambah Slot / Add Slot</ion-button
+                >
               </ion-item>
 
-<!-- Display current time slots -->
-<ion-list *ngIf="availableDateRangeEntry.timeSlots.length > 0">
-  <ion-item *ngFor="let slot of availableDateRangeEntry.timeSlots; let i = index">
-    <ion-label>{{ slot.startTime }} - {{ slot.endTime }}</ion-label>
-    <ion-button fill="clear" color="danger" (click)="removeTimeSlot(i)">
-      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-    </ion-button>
-  </ion-item>
-</ion-list>
+              <!-- Display current time slots -->
+              <ion-list *ngIf="availableDateRangeEntry.timeSlots.length > 0">
+                <ion-item
+                  *ngFor="let slot of availableDateRangeEntry.timeSlots; let i = index"
+                >
+                  <ion-label
+                    >{{ slot.startTime }} - {{ slot.endTime }}</ion-label
+                  >
+                  <ion-button
+                    fill="clear"
+                    color="danger"
+                    (click)="removeTimeSlot(i)"
+                  >
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              </ion-list>
 
-<!-- Price -->
-<ion-item *ngIf="selectedOption === 'activity'" lines="none">
-  <ion-label position="stacked" class="question-label-grey">Harga / Price</ion-label>
-  <div class="price-per-pax">
-    <ion-input 
-      type="number" 
-      class="form-input" 
-      [(ngModel)]="availableDateRangeEntry.price"
-      name="dateRangePrice"
-      placeholder="RM"
-      (ngModelChange)="availableDateRangeEntry.price = +$event"
-      clearInput>
-    </ion-input>
-    <span class="per-pax-text">per pax</span>
-  </div>
-</ion-item>
+              <!-- Price -->
+              <ion-item *ngIf="selectedOption === 'activity'" lines="none">
+                <ion-label position="stacked" class="question-label-grey"
+                  >Harga / Price</ion-label
+                >
+                <div class="price-per-pax">
+                  <ion-input
+                    type="number"
+                    class="form-input"
+                    [(ngModel)]="availableDateRangeEntry.price"
+                    name="dateRangePrice"
+                    placeholder="RM"
+                    (ngModelChange)="availableDateRangeEntry.price = +$event"
+                    clearInput
+                  >
+                  </ion-input>
+                  <span class="per-pax-text">per pax</span>
+                </div>
+              </ion-item>
 
+              <!-- Add Date Range Button -->
+              <div
+                class="ion-padding-top"
+                *ngIf="selectedOption === 'activity'"
+              >
+                <ion-button
+                  class="add-date-range"
+                  color="primary"
+                  expand="block"
+                  (click)="addAvailableDateRange()"
+                  [disabled]="!isAvailableDateRangeValid"
+                >
+                  Tambah / Add Date Range
+                </ion-button>
+              </div>
 
-<!-- Add Date Range Button -->
-<div class="ion-padding-top" *ngIf="selectedOption === 'activity'">
-  <ion-button class="add-date-range" color="primary" expand="block" (click)="addAvailableDateRange()"
-    [disabled]="!isAvailableDateRangeValid">
-    Tambah / Add Date Range
-  </ion-button>
-</div>
+              <!-- Display Available Dates Table -->
+              <ion-list *ngIf="activityData.available_dates_list.length > 0">
+                <ion-item
+                  *ngFor="let date of activityData.available_dates_list; let i = index"
+                  lines="full"
+                >
+                  <ion-label>
+                    <h3>{{ date.date }} | {{ date.time }}</h3>
+                    <p>RM {{ date.price }} per pax</p>
+                  </ion-label>
+                  <ion-button
+                    fill="clear"
+                    color="danger"
+                    (click)="removeAvailableDate(i)"
+                  >
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                  </ion-button>
+                </ion-item>
+              </ion-list>
 
-<!-- Display Available Dates Table -->
-<ion-list *ngIf="activityData.available_dates_list.length > 0">
-  <ion-item *ngFor="let date of activityData.available_dates_list; let i = index" lines="full">
-    <ion-label>
-      <h3>{{ date.date }} | {{ date.time }}</h3>
-      <p>RM {{ date.price }} per pax</p>
-    </ion-label>
-    <ion-button fill="clear" color="danger" (click)="removeAvailableDate(i)">
-      <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-    </ion-button>
-  </ion-item>
-</ion-list>
-
-
-
-                <!-- Operator Logo Upload -->
-                <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+              <!-- Operator Logo Upload -->
+              <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
                   <ion-label mode="ios" position="stacked" class="question-label-grey">Logo Operator / Operator Logo</ion-label>
                   <input
                     type="file"
@@ -559,31 +811,39 @@
                     class="form-input" />
                 </ion-item> -->
 
-                <!-- Operator Logo Preview -->
-                <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity' && operatorLogoPreview">
+              <!-- Operator Logo Preview -->
+              <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity' && operatorLogoPreview">
                   <img [src]="operatorLogoPreview" alt="Operator Logo Preview" style="width: 100%; height: auto; border-radius: 10px;" />
                 </ion-item> -->
-                            
+
               <h4>Display Image</h4>
-              <hr *ngIf="selectedOption === 'activity'">
+              <hr *ngIf="selectedOption === 'activity'" />
               <!-- Image Upload -->
               <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Gambar / Image</ion-label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  (change)="onImageSelected($event)" 
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Gambar / Image</ion-label
+                >
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onImageSelected($event)"
                   class="form-input"
                 />
               </ion-item>
 
               <!-- Preview Image -->
-                <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-              <ion-item class="no-border" *ngIf="imagePreview">
-                <img [src]="imagePreview" alt="Preview" style="width: 100%; height: auto; border-radius: 10px;" />
+              <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+                <ion-item class="no-border" *ngIf="imagePreview">
+                  <img
+                    [src]="imagePreview"
+                    alt="Preview"
+                    style="width: 100%; height: auto; border-radius: 10px"
+                  />
+                </ion-item>
               </ion-item>
-              </ion-item>
-
 
               <!-- Show in Suggestions Checkbox -->
               <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
@@ -594,7 +854,6 @@
                   (ionChange)="onShowInSuggestionsChange()"
                 ></ion-checkbox>
               </ion-item> -->
-
 
               <!-- activity location field -->
               <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
@@ -612,10 +871,10 @@
 
                   <ion-select-option value="Kiulu">Kiulu</ion-select-option>
                   <ion-select-option value="Kedamaian">Kedamaian</ion-select-option> -->
-                  <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-                <!-- </ion-select> -->
+              <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
+              <!-- </ion-select> -->
 
-                <!-- error msg activity name -->
+              <!-- error msg activity name -->
               <!-- <ion-text *ngIf="activityLocation?.invalid && (activityLocation?.touched || form.submitted)">
                 <ion-text *ngIf="activityLocation?.errors?.['required']">
                   <p class="error-message">*Sila pilih Lokasi / Location required</p>
@@ -624,12 +883,14 @@
 
               </ion-item> -->
 
-
-
-
-              <ion-alert [isOpen]="isAlertOpen" header=" Berjaya Didaftarkan!"
-                subHeader="Created Successfully!" [buttons]="alertButtons"
-                (didDismiss)="setOpen(false)" backdropDismiss="false"></ion-alert>
+              <ion-alert
+                [isOpen]="isAlertOpen"
+                header=" Berjaya Didaftarkan!"
+                subHeader="Created Successfully!"
+                [buttons]="alertButtons"
+                (didDismiss)="setOpen(false)"
+                backdropDismiss="false"
+              ></ion-alert>
 
               <ion-row style="margin-top: 10px; margin-bottom: 10px">
                 <ion-col>
@@ -639,22 +900,21 @@
                   </ion-button>
                 </ion-col>
                 <ion-col>
-                  <ion-button 
+                  <ion-button
                     mode="ios"
-                    expand="block" 
-                    type="submit" 
-                    [disabled]="form.invalid">
-                    Daftar/Register</ion-button>
+                    expand="block"
+                    type="submit"
+                    [disabled]="form.invalid"
+                  >
+                    Daftar/Register</ion-button
+                  >
                   <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
                 </ion-col>
               </ion-row>
             </ion-list>
           </swiper-slide>
-
         </swiper-container>
       </ion-card>
-
-      
     </div>
   </form>
 </ion-content>

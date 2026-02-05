@@ -64,10 +64,12 @@
       class="price"
       *ngIf="operatorData?.minPrice !== null && operatorData?.maxPrice !== null"
     >
-      RM {{ operatorData.minPrice | number:'1.2-2' }}
+      <span> RM {{ operatorData.minPrice | number:'1.2-2' }} </span>
+
       <span *ngIf="operatorData.minPrice !== operatorData.maxPrice">
         - RM {{ operatorData.maxPrice | number:'1.2-2' }}
       </span>
+
       <small>per pax</small>
     </div>
 
