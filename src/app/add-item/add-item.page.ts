@@ -466,10 +466,17 @@ export class AddItemPage implements OnInit {
 
     if (this.selectedOption === 'activity') {
       // --- Activity Submission ---
+      const currentUid = localStorage.getItem('uid');
+      const parsedUid = currentUid ? parseInt(currentUid, 10) : NaN;
+      if (!currentUid || isNaN(parsedUid)) {
+        alert('Error: User not logged in. Please login again.');
+        this.router.navigate(['/login']);
+        return;
+      }
+
       const dataToSend = {
-        id: this.generateActId(),
-        activity_id: parseInt(this.activityData.activity_id),
-        rt_user_id: this.activityData.user_id,
+        activity_id: parseInt(this.activityData.activity_id, 10),
+        rt_user_id: parsedUid,
         description: this.activityData.description || '',
         address: this.activityData.address || '',
         district: this.activityData.district || '',
