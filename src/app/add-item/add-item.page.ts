@@ -20,6 +20,7 @@ export class AddItemPage implements OnInit {
   selectedOption: string = '';
 
   activityTypes: any[] = []; // To hold activity master data
+  isActivityTypesLoaded = false;
   districtList: string[] = [
     'Kiulu',
     'Kota Belud',
@@ -143,14 +144,24 @@ export class AddItemPage implements OnInit {
 
   // ===== Activity Type Methods =====
   loadActivityTypes() {
+    this.isActivityTypesLoaded = false;
     this.apiService.getAllActivityMasterData().subscribe(
       (res: any) => {
-        this.activityTypes = Array.isArray(res) ? res : res.data || [];
-        console.log('Activity types:', this.activityTypes);
+        // API returns { data: [...], pagination: {...} } — extract the array
+        if (Array.isArray(res)) {
+          this.activityTypes = res;
+        } else if (res && Array.isArray(res.data)) {
+          this.activityTypes = res.data;
+        } else {
+          this.activityTypes = [];
+        }
+        this.isActivityTypesLoaded = true;
+        console.log('Activity types loaded:', this.activityTypes);
       },
       (err) => {
         console.error('Error fetching activity master data', err);
         this.activityTypes = [];
+        this.isActivityTypesLoaded = true;
       },
     );
   }
