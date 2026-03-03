@@ -524,6 +524,7 @@ export class AddItemPage implements OnInit {
           this.accomData.location || this.accomData.address || 'Unknown',
         address: this.accomData.address || 'Unknown',
         description: this.accomData.description || '',
+        price: this.accomData.price || 0,
         image: this.accomData.image || null,
         district: this.accomData.district || '',
         rt_user_id: this.accomData.user_id,
