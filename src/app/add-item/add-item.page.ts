@@ -74,7 +74,7 @@ export class AddItemPage implements OnInit {
     name: '',
     location: '',
     description: '',
-    price: 0, // ✅ number
+    price: 0, // ✅ general display price
     image: '',
     address: '',
     district: '',
@@ -86,6 +86,9 @@ export class AddItemPage implements OnInit {
     endDate: '',
     available_dates_list: [] as Array<{ date: string; price: number }>,
   };
+
+  // Separate price field for date range entries (not the general price)
+  accomDateRangePrice: number = 0;
 
   // ===== Alert / Dialog =====
   isAlertOpen = false;
@@ -170,7 +173,7 @@ export class AddItemPage implements OnInit {
     if (
       this.accomData.startDate &&
       this.accomData.endDate &&
-      this.accomData.price
+      this.accomDateRangePrice
     ) {
       const start = new Date(this.accomData.startDate);
       const end = new Date(this.accomData.endDate);
@@ -179,14 +182,14 @@ export class AddItemPage implements OnInit {
         const formattedDate = d.toISOString().split('T')[0];
         this.accomData.available_dates_list.push({
           date: formattedDate,
-          price: this.accomData.price,
+          price: this.accomDateRangePrice,
         });
       }
 
-      // reset input fields
+      // reset only the date range input fields, NOT the general price
       this.accomData.startDate = '';
       this.accomData.endDate = '';
-      this.accomData.price = 0;
+      this.accomDateRangePrice = 0;
     }
   }
 
@@ -287,10 +290,6 @@ export class AddItemPage implements OnInit {
       alert('Please select both start and end dates.');
       return;
     }
-    if (timeSlots.length === 0) {
-      alert('Please add at least one time slot.');
-      return;
-    }
     if (price < 0) {
       alert('Price must be 0 or greater.');
       return;
@@ -307,13 +306,23 @@ export class AddItemPage implements OnInit {
     // Loop through dates
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       const dateStr = this.formatDateYYYYMMDD(d);
-      timeSlots.forEach((slot) => {
+      if (timeSlots.length > 0) {
+        // If time slots were added, create one entry per slot
+        timeSlots.forEach((slot) => {
+          this.activityData.available_dates_list.push({
+            date: dateStr,
+            time: `${slot.startTime} - ${slot.endTime}`,
+            price: price,
+          });
+        });
+      } else {
+        // No time slots - create entry with 'Full Day' as default
         this.activityData.available_dates_list.push({
           date: dateStr,
-          time: `${slot.startTime} - ${slot.endTime}`,
+          time: 'Full Day',
           price: price,
         });
-      });
+      }
     }
 
     console.log('Added date range:', this.availableDateRangeEntry);
@@ -332,9 +341,8 @@ export class AddItemPage implements OnInit {
   }
 
   get isAvailableDateRangeValid() {
-    const { startDate, endDate, timeSlots, price } =
-      this.availableDateRangeEntry;
-    return startDate && endDate && timeSlots.length > 0 && price >= 0;
+    const { startDate, endDate, price } = this.availableDateRangeEntry;
+    return startDate && endDate && price >= 0;
   }
 
   addAvailableDate() {
