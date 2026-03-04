@@ -24,7 +24,7 @@ export class ActivityFormPage implements OnInit {
   form = {
     receipt_id: '',
     user_id: localStorage.getItem('uid')!,
-    citizenship: '',
+    citizenship: 'Warganegara',
     pax: 0,
     pax_domestik: '',
     pax_antarabangsa: '',
@@ -35,10 +35,14 @@ export class ActivityFormPage implements OnInit {
     issuer: '',
     operator_user_id: '',
     date: '',
+    time: '',
+    booking_type: 'guest',
+    manual_tourist_name: '',
   };
 
   activities: any[] = [];
   selectedActivity: any = null;
+  availableTimeSlots: string[] = [];
 
   touristOptions: any[] = [];
   selectedTouristUserId: string = '';
@@ -101,7 +105,21 @@ export class ActivityFormPage implements OnInit {
     return `PE${randomPart.toString().padStart(7, '0')}`;
   }
 
-  // ---------------- Tourist Change ----------------
+  // ---------------- Booking Type Change ----------------
+  onBookingTypeChange(type: string) {
+    // Reset citizenship if 'Mix' was selected but user switches back to guest
+    if (type === 'guest' && this.form.citizenship === 'Mix') {
+      this.form.citizenship = '';
+    }
+    // Reset the opposite input when switching
+    if (type === 'guest') {
+      this.form.manual_tourist_name = '';
+    } else {
+      this.selectedTouristUserId = '';
+      this.selectedBookingId = null;
+    }
+  }
+
   onTouristChange(selectedTouristUserId: string) {
     const booking = this.touristOptions.find(
       (t) => t.user_id === selectedTouristUserId,
@@ -185,11 +203,23 @@ export class ActivityFormPage implements OnInit {
   onActivityChange(selectedActivity: any) {
     if (!selectedActivity) return;
     this.form.activity_name = selectedActivity.activity_name;
-    // ✅ FIX: Use activity_master.id (master table ID), not operator_activities.activity_id field
     this.form.activity_id =
       selectedActivity.activity_master?.id || selectedActivity.activity_id;
     this.form.location =
       selectedActivity.address || selectedActivity.location || '';
+
+    // Extract unique time slots from available_dates
+    const dates = selectedActivity.available_dates || [];
+    const parsed = typeof dates === 'string' ? JSON.parse(dates) : dates;
+    const slots = parsed
+      .map((entry: any) => entry.time)
+      .filter((t: any) => !!t);
+    this.availableTimeSlots = [...new Set<string>(slots)];
+
+    // Reset time if previously selected slot no longer exists
+    if (!this.availableTimeSlots.includes(this.form.time)) {
+      this.form.time = '';
+    }
   }
 
   // ---------------- Submit Form ----------------
@@ -218,7 +248,14 @@ export class ActivityFormPage implements OnInit {
 
       const payload = {
         receipt_id: this.generateReceiptId(),
-        tourist_user_id: this.selectedTouristUserId,
+        tourist_user_id:
+          this.form.booking_type === 'guest'
+            ? this.selectedTouristUserId
+            : null,
+        tourist_name:
+          this.form.booking_type === 'manual'
+            ? this.form.manual_tourist_name
+            : null,
         operator_user_id: operatorUid,
         citizenship: this.form.citizenship,
         pax: totalPax,
@@ -229,8 +266,10 @@ export class ActivityFormPage implements OnInit {
         location: this.form.location || null,
         total_rm: totalPrice.toString(),
         date: this.form.date || null,
+        time: this.form.time || null,
         issuer: this.form.issuer || 'Unknown Operator',
         activity_booking_id: this.selectedBookingId,
+        booking_type: this.form.booking_type || 'guest',
       };
 
       console.debug('Submitting activity form payload:', payload);

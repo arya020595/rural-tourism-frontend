@@ -55,25 +55,114 @@ body {
     font-weight: bold;
     color: #024E25;
   }
+
+  // Booking Type Row - label + radios on same horizontal line
+  .booking-type-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+    margin-bottom: 4px;
+
+    .booking-type-label {
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 15px;
+    }
+
+    ion-radio-group.booking-type-options {
+      display: block;
+    }
+
+    .booking-type-options-inner {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .booking-type-option {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+
+      ion-radio {
+        --color: #024E25;
+        --color-checked: #024E25;
+      }
+
+      span {
+        font-size: 14px;
+        color: #333;
+        font-weight: normal;
+      }
+    }
+  }
   
   .no-border {
     --border-width: 0;
     --border-style: none;
   }
   
+  #form ion-item{
+    margin-bottom: 1%;
+  }
   
-  
-    #form ion-item{
-      margin-bottom: 12%;
+  .highlighted {
+    --background: #024e254e !important;
+    color: #024E25;
+    border: 2px solid #024E25 !important;
+    font-weight: bold;
+  }
+
+  // Citizenship options - side-by-side with boxes
+  .citizenship-options-inner {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .citizenship-option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: #f0f0f0;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 8px 14px;
+    flex: 1;
+    min-width: 100px;
+    transition: background 0.2s, border-color 0.2s;
+
+    ion-radio {
+      --color: #024E25;
+      --color-checked: #024E25;
     }
-  
-    .highlighted {
-      --background: #024e254e !important;
-      // background-color: #7adbe8;  /* Light blue background */
-      color: #024E25;  /* Text color */
-      border: 2px solid #024E25 !important;
-      font-weight: bold;
+
+    span {
+      font-size: 14px;
+      color: #333;
+      font-weight: normal;
     }
+
+    &.highlighted {
+      background: rgba(2, 78, 37, 0.18) !important;
+      border-color: #024E25 !important;
+
+      span {
+        color: #024E25;
+        font-weight: bold;
+      }
+    }
+  }
     #form ion-list{
       padding-right: 5%;
       margin-left: 3%;
@@ -124,3 +213,36 @@ body {
       margin: 0; /* Remove margin */
     }
     
+  .form-title {
+  text-align: left;
+  padding: 0 20px;
+  margin-bottom: 8px;
+  margin-left: 60px;
+  color: black;
+  }
+
+  // 2-column grid layout for Q3–Q8
+  .form-row-2col {
+    display: flex;
+    flex-direction: row;
+    gap: 0px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    .form-col {
+      flex: 1 1 0;
+      min-width: 0;
+
+      .field-label {
+        padding: 12px 16px 4px 16px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #024E25;
+      }
+
+      ion-item {
+        --padding-start: 12px;
+        --inner-padding-end: 8px;
+      }
+    }
+  }
