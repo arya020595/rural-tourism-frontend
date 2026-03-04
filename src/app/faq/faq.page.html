@@ -1,120 +1,73 @@
-<ion-content fullscreen class="faq-background">
+﻿<ion-content fullscreen class="faq-background">
 
-
-  <div class="faq-overlay">
+    <div class="faq-overlay">
     <div class="faq-container">
 
-      
-
-
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/home"></ion-back-button>
+      <!-- Back button inside the card, top-left -->
+      <ion-buttons class="back-btn-wrapper">
+        <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
       </ion-buttons>
 
-      <ion-accordion-group expand="inset">
-        <ion-card-header>
-          <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
-        </ion-card-header>
+      <!-- Logo displayed at the top of the FAQ page -->
+      <ion-card-header>
+        <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+      </ion-card-header>
 
-        <div class="custom-header">
-          Soalan Lazim/Frequently Asked Questions (FAQ)
+      <!-- Page title -->
+      <div class="custom-header">
+        Soalan Lazim/<em>Frequently Asked Questions (FAQ)</em>
+      </div>
+
+      <!-- Search bar - filters FAQ items as the user types -->
+      <div class="search-wrapper">
+        <div class="custom-search">
+          <input
+            type="text"
+            placeholder="Search keyword here..."
+            (input)="onSearch($event)"
+            [value]="searchQuery"
+            class="search-input" />
+          <ion-icon name="search-outline" class="search-icon"></ion-icon>
         </div>
-        
-        <ion-card>
-        <ion-accordion value="question1">
-          <ion-item slot="header">
-            <ion-label>
-              Bolehkah beberapa orang mendaftar akaun di bawah nama perniagaan yang sama?
-            </ion-label>
-          </ion-item>
-          <div class="ion-padding" slot="content">
-            Ya boleh. Beberapa pengguna boleh mendaftar akaun dibawah nama perniagaan yang sama.
-          </div>
-        </ion-accordion>
-        </ion-card>
+      </div>
 
-        <ion-card>
-        <ion-accordion value="question2">
-          <ion-item slot="header">
-            <ion-label>
-              Apa perlu saya buat jika terlupa kata laluan akaun? Bagaimana cara untuk menetapkan semua kata laluan?
-            </ion-label>
-          </ion-item>
-          <div class="ion-padding" slot="content">
-            Jika anda terlupa kata laluan, klik butang "Lupa Kata Laluan" di halaman log masuk dan ikut arahan untuk menetapkan semula.
-            <ion-img class="account_img" src="assets/forgot_password1.png"></ion-img>
-            <ion-img class="account_img" src="assets/forgot_password2.png"></ion-img>
-          </div>
-        </ion-accordion>
-      </ion-card>
+      <!-- Accordion group - shows filtered FAQ items -->
+      <ion-accordion-group expand="inset">
 
-      <ion-card>
-        <ion-accordion value="question3">
-          <ion-item slot="header">
-            <ion-label>
-              Bolehkah kami masukan data lama ke dalam aplikasi?
-            </ion-label>
-          </ion-item>
-          <div class="ion-padding" slot="content">
-            Ya boleh. Anda hanya perlu pilih tarikh yang betul pada ruangan tarikh semasa mengisi borang.
-          </div>
-        </ion-accordion>
-      </ion-card>
+        <!-- Loop through filteredFaqs; each item renders one accordion card -->
+        <ion-card *ngFor="let faq of filteredFaqs">
+          <ion-accordion [value]="faq.value">
 
-
-      <ion-card>
-        <ion-accordion value="question4">
-          <ion-item slot="header">
-            <ion-label>
-              Apa perlu dilakukan jika kami secara tidak sengaja memasukkan data yang sama (duplicate) atau data yang salah?
-            </ion-label>
-          </ion-item>
-          <div class="ion-padding" slot="content">
-            Klik ikon menu dan klik butang Transaction History, cari data yang ingin dibatalkan, swipe ke kiri dan klik “Void” untuk membatalkannya.
-            <ion-img class="account_img" src="assets/cancel_transaction1.png"></ion-img>
-            <ion-img class="account_img" src="assets/cancel_transaction2.png"></ion-img>
-            <ion-img class="account_img" src="assets/cancel_transaction3.png"></ion-img>
-          </div>
-        </ion-accordion>
-      </ion-card>
-
-
-      <ion-card>
-        <ion-accordion value="question5">
-          <ion-item slot="header">
-            <ion-label>
-              Selepas menggunakan aplikasi ini, adakah kami masih perlu menghantar laporan kepada KTA?
-            </ion-label>
-          </ion-item>
-          <div class="ion-padding" slot="content">
-            Tidak perlu. Laporan kepada KTA sudah tidak perlu dihantar kerana sistem kami sudah mempunyai rekod data bisnes untuk dihantar kepada KTA.
-          </div>
-        </ion-accordion>
-        </ion-card>
-
-        <ion-card>
-          <ion-accordion value="question6">
+            <!-- Accordion header: shows the question -->
             <ion-item slot="header">
-              <ion-label>
-                Adakah terdapat cara untuk mengetahui bagaimana menggunakan aplikasi web untuk pemula?
-              </ion-label>
+              <ion-label class="ion-text-wrap">{{ faq.question }}</ion-label>
             </ion-item>
-            <div class="ion-padding" slot="content">
-              Ya, di sini terdapat pautan video yang menunjukkan cara menggunakan aplikasi web untuk pemula.
-            <br>
-            <br>
-            <br>
-                <a href="https://youtu.be/ERY4Ip-5HoE" target="_blank">
-                  Manual Aplikasi Mudah Alih Sabah Rural Tourism 
-                </a>
-              
-              
-            </div>
-          </ion-accordion>
-          </ion-card>
-      
-      </ion-accordion-group>
-    </div>
-  </div>
 
-</ion-content>
+            <!-- Accordion content: shows the answer, optional images, and optional link -->
+            <div class="ion-padding answer-content" slot="content">
+              {{ faq.answer }}
+
+              <!-- Show images only if this FAQ item has images (e.g. forgot password steps) -->
+              <ng-container *ngIf="faq.images && faq.images.length">
+                <ion-img
+                  *ngFor="let img of faq.images"
+                  class="account_img"
+                  [src]="img">
+                </ion-img>
+              </ng-container>
+
+              <!-- Show a link only if this FAQ item has a link (e.g. tutorial video) -->
+              <ng-container *ngIf="faq.link">
+                <br><br>
+                <a [href]="faq.link.url" target="_blank">{{ faq.link.label }}</a>
+              </ng-container>
+            </div>
+
+          </ion-accordion>
+        </ion-card>
+
+        <!-- Message shown when no FAQ matches the search keyword -->
+        <div *ngIf="filteredFaqs.length === 0" class="no-results">
+          No results found for "{{ searchQuery }}"
+        </div>
+

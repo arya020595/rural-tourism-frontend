@@ -1,0 +1,92 @@
+﻿/* Tourist FAQ page uses the same background image as operator FAQ */
+.faq-background {
+  --background: none;
+  --background: url(../../../assets/login.jpg) 0 0/100% 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Keeps background fixed while scrolling */
+}
+
+/* Centers the white card container on the background */
+.faq-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 30px 16px; /* Top and side spacing */
+}
+
+/* White rounded card that holds all FAQ content */
+.faq-container {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  height: auto;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* Logo image at the top of the page */
+.logo {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Page title styling */
+.custom-header {
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: #024e25;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+/* Each FAQ accordion card */
+ion-card {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+  margin-top: -5px;
+}
+
+/* Search bar container - adds spacing around the searchbar */
+.search-wrapper {
+  margin: 0 4px 16px 4px;
+}
+
+/* Style for the Ionic searchbar component */
+.faq-searchbar {
+  --background: #f4f4f4;         /* Light grey input background */
+  --border-radius: 12px;         /* Rounded corners to match card style */
+  --box-shadow: none;            /* Remove default Ionic shadow */
+  --placeholder-color: #999;     /* Grey placeholder text */
+  --icon-color: #024e25;         /* Green icon to match brand color */
+  --color: #333;                 /* Dark text when typing */
+  padding: 0;
+}
+
+/* Shown when search returns no matching FAQ items */
+.no-results {
+  text-align: center;
+  color: #999;
+  padding: 24px 16px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Answer text inside opened accordions */
+.answer-content {
+  font-size: 14px;
+  color: #024e25;
+  line-height: 1.6;
+}
+
+/* Link color inside answers */
+a {
+  color: blue;
+}
