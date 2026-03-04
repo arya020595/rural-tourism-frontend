@@ -61,7 +61,7 @@
               <!-- Show a link only if this FAQ item has a link (e.g. tutorial video) -->
               <ng-container *ngIf="faq.link">
                 <br><br>
-                <a [href]="faq.link.url" target="_blank">{{ faq.link.label }}</a>
+                <a [href]="faq.link.url" target="_blank" rel="noopener noreferrer">{{ faq.link.label }}</a>
               </ng-container>
             </div>
 
