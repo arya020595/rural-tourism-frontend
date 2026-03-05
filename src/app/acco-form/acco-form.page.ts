@@ -140,19 +140,10 @@ export class AccoFormPage implements OnInit {
     this.form.date = booking.check_in || '';
     this.form.check_out = booking.check_out || '';
 
-    // Autofill pax based on citizenship
+    // Autofill pax — fill both fields with the same no_of_pax value
     const noOfPax = booking.no_of_pax ? booking.no_of_pax.toString() : '';
-    if (this.form.citizenship === 'Warganegara') {
-      this.form.pax_domestik = noOfPax;
-      this.form.pax_antarabangsa = '';
-    } else if (this.form.citizenship === 'Bukan Warganegara') {
-      this.form.pax_antarabangsa = noOfPax;
-      this.form.pax_domestik = '';
-    } else {
-      // Mix or unknown — put total in domestik as best guess
-      this.form.pax_domestik = noOfPax;
-      this.form.pax_antarabangsa = '';
-    }
+    this.form.pax_domestik = noOfPax;
+    this.form.pax_antarabangsa = noOfPax;
 
     // Find matching accommodation from accommodations list
     let matchedAccommodation = this.accommodations.find(
