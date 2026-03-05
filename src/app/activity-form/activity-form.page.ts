@@ -107,16 +107,26 @@ export class ActivityFormPage implements OnInit {
 
   // ---------------- Booking Type Change ----------------
   onBookingTypeChange(type: string) {
-    // Reset citizenship if 'Mix' was selected but user switches back to guest
-    if (type === 'guest' && this.form.citizenship === 'Mix') {
-      this.form.citizenship = '';
-    }
-    // Reset the opposite input when switching
-    if (type === 'guest') {
-      this.form.manual_tourist_name = '';
-    } else {
+    if (type === 'manual') {
+      // Clear all autofilled data when switching to manual
+      this.form.citizenship = 'Warganegara';
+      this.form.pax_domestik = '';
+      this.form.pax_antarabangsa = '';
+      this.form.date = '';
+      this.form.time = '';
+      this.form.total_rm = '';
+      this.form.activity_name = '';
+      this.form.activity_id = '';
+      this.form.location = '';
+      this.form.issuer = '';
+      this.selectedActivity = null;
+      this.availableTimeSlots = [];
       this.selectedTouristUserId = '';
       this.selectedBookingId = null;
+      this.autofillOperator();
+    } else {
+      // Switching back to guest — clear the manual name
+      this.form.manual_tourist_name = '';
     }
   }
 
@@ -134,10 +144,16 @@ export class ActivityFormPage implements OnInit {
     // Autofill form fields from booking
     this.form.citizenship = booking.citizenship || '';
     this.form.date = booking.date || '';
+    this.form.time = booking.time || '';
     this.form.total_rm = booking.total_price
       ? booking.total_price.toString()
       : '';
     this.form.issuer = booking.operator_name || '';
+
+    // Autofill pax — fill both fields with the same no_of_pax value
+    const noOfPax = booking.no_of_pax ? booking.no_of_pax.toString() : '';
+    this.form.pax_domestik = noOfPax;
+    this.form.pax_antarabangsa = noOfPax;
 
     // Find matching activity from activities list
     // ✅ FIX: booking.activity_id is activity_master.id, NOT operator_activities.activity_id
@@ -178,6 +194,16 @@ export class ActivityFormPage implements OnInit {
 
     // Set selected activity for dropdown
     this.selectedActivity = matchedActivity || null;
+
+    // Populate time slots from the matched activity so the time dropdown works
+    if (this.selectedActivity) {
+      const dates = this.selectedActivity.available_dates || [];
+      const parsed = typeof dates === 'string' ? JSON.parse(dates) : dates;
+      const slots = parsed
+        .map((entry: any) => entry.time)
+        .filter((t: any) => !!t);
+      this.availableTimeSlots = [...new Set<string>(slots)];
+    }
 
     // Populate form fields if activity found
     if (this.selectedActivity) {
@@ -225,8 +251,15 @@ export class ActivityFormPage implements OnInit {
   // ---------------- Submit Form ----------------
   async submitForm(form: NgForm) {
     try {
-      if (!this.selectedTouristUserId) {
+      if (this.form.booking_type === 'guest' && !this.selectedTouristUserId) {
         alert('Please select a tourist.');
+        return;
+      }
+      if (
+        this.form.booking_type === 'manual' &&
+        !this.form.manual_tourist_name
+      ) {
+        alert('Please enter the tourist name.');
         return;
       }
 
@@ -290,6 +323,7 @@ export class ActivityFormPage implements OnInit {
   clearForm(form: NgForm) {
     form.reset();
     this.selectedActivity = null;
+    this.availableTimeSlots = [];
     this.selectedTouristUserId = '';
     this.selectedBookingId = null;
   }
