@@ -9,7 +9,7 @@ FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
 # Install Ionic CLI globally
-RUN npm install -g @ionic/cli@latest
+RUN npm install -g @ionic/cli@7.2.1
 
 # Copy package files
 COPY package.json package-lock.json* ./
