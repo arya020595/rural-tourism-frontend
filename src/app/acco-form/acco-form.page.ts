@@ -17,7 +17,7 @@ export class AccoFormPage implements OnInit {
   form = {
     receipt_id: '',
     user_id: localStorage.getItem('uid'),
-    citizenship: '',
+    citizenship: 'Warganegara',
     pax: 0,
     pax_domestik: '',
     pax_antarabangsa: '',
@@ -176,8 +176,9 @@ export class AccoFormPage implements OnInit {
 
   // ---------------- Booking Type Change ----------------
   onBookingTypeChange(type: string) {
-    // Clear all autofilled data when switching modes
-    this.form.citizenship = '';
+    if (type === 'manual') {
+    // Clear all autofilled data when switching to manual
+    this.form.citizenship = 'Warganegara';
     this.form.pax_domestik = '';
     this.form.pax_antarabangsa = '';
     this.form.date = '';
@@ -189,11 +190,10 @@ export class AccoFormPage implements OnInit {
     this.form.location = '';
     this.selectedAccommodation = null;
     this.selectedBookingId = null;
-
-    if (type === 'guest') {
-      this.form.manual_tourist_name = '';
+    this.autofillOperator();
     } else {
-      this.selectedTouristUserId = '';
+      // Switching back to guest — clear the manual name
+      this.form.manual_tourist_name = '';
     }
   }
 
