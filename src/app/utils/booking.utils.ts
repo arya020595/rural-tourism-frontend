@@ -71,6 +71,8 @@ export class TouristOptionMapper {
       activity_id: booking.activity_id || '',
       location: booking.location || '',
       date: booking.date || '',
+      time: booking.time || '',
+      no_of_pax: booking.no_of_pax || null,
       citizenship: booking.citizenship || booking.nationality || '',
       total_price: booking.total_price || '',
       operator_name: booking.operatorName || booking.operator_name || '',
