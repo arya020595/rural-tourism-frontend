@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
@@ -24,7 +24,7 @@ register();
     ]),
   ],
 })
-export class RegisterPage implements AfterViewInit {
+export class RegisterPage implements AfterViewInit, OnInit {
   @ViewChild('swiper')
   swiperRef: ElementRef | undefined;
   swiper?: Swiper;
@@ -50,6 +50,7 @@ export class RegisterPage implements AfterViewInit {
     securityQ2: '',
     district: '',
     company_logo: null,
+    associationId: '',
   };
 
   activityData = {
@@ -69,6 +70,8 @@ export class RegisterPage implements AfterViewInit {
     location: '',
     user_id: '',
   };
+
+  associations: {id: number, name: string, image: string}[] = [];
 
   constructor(
     private router: Router,
@@ -109,6 +112,10 @@ export class RegisterPage implements AfterViewInit {
       },
     },
   ];
+
+  ngOnInit() {
+    this.loadAssociations();
+  }
 
   ngAfterViewInit() {
     this.swiperReady();
@@ -292,6 +299,19 @@ export class RegisterPage implements AfterViewInit {
 
   // }
 
+  loadAssociations() {
+    this.apiService
+      .getAssociationList()
+      .subscribe({
+        next: (res) => {
+          this.associations = res;
+        },
+        error: (err) => {
+          console.error('Failed load associations', err);
+        }
+      });
+  }
+
   //registration form step by step check
   submitForm(form: NgForm) {
     if (form.valid) {
@@ -309,6 +329,7 @@ export class RegisterPage implements AfterViewInit {
       payload.append('password', this.formData.password);
       payload.append('securityQ1', this.formData.securityQ1);
       payload.append('securityQ2', this.formData.securityQ2);
+      payload.append('associationId', this.formData.associationId);
 
       // Append logo if it exists
       if (this.formData.company_logo) {
