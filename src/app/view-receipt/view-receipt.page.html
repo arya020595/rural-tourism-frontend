@@ -1,7 +1,6 @@
 <ion-content>
-
   <ion-header>
-    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%;">
+    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%">
       <ion-back-button text=""></ion-back-button>
     </ion-buttons>
   </ion-header>
@@ -9,94 +8,117 @@
   <div id="container">
     <div #receiptContent>
       <ion-card class="main-Container">
-
         <ion-card-header class="card-header">
+          <ion-img
+            class="logo"
+            src="../../assets/icon/Feel-Sabah-North-Borneo.png"
+          ></ion-img>
 
-          <ion-img class="logo" src="../../assets/icon/Feel-Sabah-North-Borneo.png"></ion-img>
-
-          <div class="date-container">{{ receipt?.created_at | date:'dd-MMM-yyyy' }}</div>
+          <div class="date-container">
+            {{ receipt?.created_at | date:'dd-MMM-yyyy' }}
+          </div>
           <div class="right-content"><p>E-Resit/Receipt</p></div>
           <div class="right-content"><p>{{ receipt?.receipt_id }}</p></div>
         </ion-card-header>
 
         <ion-card-content id="form">
-
           <!-- Business Name -->
-          <ion-list class="details">        
+          <ion-list class="details">
             NAMA PERNIAGAAN/BUSINESS NAME
             <p>{{ user?.full_name }}</p>
           </ion-list>
 
           <!-- Tourist Name -->
-          <ion-list class="details">        
-            TURIST / BOOKED BY
+          <ion-list class="details">
+            TOURIST / BOOKED BY
             <p>{{ receipt?.tourist?.full_name || 'N/A' }}</p>
           </ion-list>
 
           <!-- Package -->
-          <ion-list class="details" *ngIf="receipt?.package">        
+          <ion-list class="details" *ngIf="receipt?.package">
             Pakej/Package
-            <p style="font-size: 22px;
-              font-family: 'Roboto';
-              font-weight: bold;
-              text-transform: uppercase;
-              color: black;" 
-              *ngFor="let desc of packageDescArray; let i = index">
+            <p
+              style="
+                font-size: 22px;
+                font-family: &quot;Roboto&quot;;
+                font-weight: bold;
+                text-transform: uppercase;
+                color: black;
+              "
+              *ngFor="let desc of packageDescArray; let i = index"
+            >
               {{ i + 1 }}. {{desc}}
             </p>
           </ion-list>
 
           <!-- Accommodation -->
-          <ion-list class="details" *ngIf="receipt?.homest_name">        
+          <ion-list class="details" *ngIf="receipt?.homest_name">
             PENGINAPAN/ACCOMMODATION
             <p>{{ receipt?.homest_name }}</p>
           </ion-list>
 
           <!-- Activity -->
-          <ion-list class="details" *ngIf="receipt?.activity_name">        
+          <ion-list class="details" *ngIf="receipt?.activity_name">
             AKTIVITI/ACTIVITY
             <p>{{ receipt?.activity_name }}</p>
           </ion-list>
 
           <!-- Total Pax -->
-          <ion-list class="details">        
+          <ion-list class="details">
             BILANGAN ORANG/TOTAL PAX
             <p>{{ receipt?.pax }} Orang/People</p>
           </ion-list>
 
           <!-- Total Night -->
-          <ion-list class="details" *ngIf="receipt?.total_night">        
+          <ion-list class="details" *ngIf="receipt?.total_night">
             JUMLAH MALAM/TOTAL NIGHT
             <p>{{ receipt?.total_night }} Malam/Nights</p>
           </ion-list>
 
           <!-- Total Price -->
-          <ion-list class="details">        
+          <ion-list class="details">
             JUMLAH / TOTAL (RM)
             <p>{{ receipt?.total_rm | number:'1.2-2' }}</p>
           </ion-list>
 
           <!-- Booked Date -->
-          <ion-list class="details">        
+          <ion-list class="details">
             TARIKH TEMPAHAN / BOOKED DATE
             <p>{{ receipt?.created_at | date:'dd-MMM-yyyy' }}</p>
           </ion-list>
 
           <!-- Issued By -->
-          <ion-list class="details" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center">        
-            <p style="font-size: 12px; color: #555; font-weight: lighter;">Dikeluarkan Oleh/Issued by:</p> 
-            <p style="font-size: 14px; font-family: 'Roboto'; font-weight: bold; color: rgb(75, 75, 75);">
+          <ion-list
+            class="details"
+            style="
+              margin-bottom: 0;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              text-align: center;
+            "
+          >
+            <p style="font-size: 12px; color: #555; font-weight: lighter">
+              Dikeluarkan Oleh/Issued by:
+            </p>
+            <p
+              style="
+                font-size: 14px;
+                font-family: &quot;Roboto&quot;;
+                font-weight: bold;
+                color: rgb(75, 75, 75);
+              "
+            >
               {{ receipt?.issuer || user?.username }}
             </p>
           </ion-list>
-
         </ion-card-content>
-
       </ion-card>
     </div>
 
-    <ion-button class="btn-home" mode="ios" expand="block" (click)="back()">Back</ion-button>
-
+    <ion-button class="btn-home" mode="ios" expand="block" (click)="back()"
+      >Back</ion-button
+    >
   </div>
-
 </ion-content>

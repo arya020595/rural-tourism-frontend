@@ -88,20 +88,15 @@
                 </ion-text>
               </ion-item>
 
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Logo Syarikat / Company Logo</ion-label
-                >
-                <input
-                  type="file"
-                  accept="image/*"
+              <!-- <ion-item class="no-border">
+                <ion-label mode="ios" position="stacked" class="question-label-grey">Logo Syarikat / Company Logo</ion-label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
                   (change)="onLogoSelected($event)"
                   class="form-input"
                 />
-              </ion-item>
+              </ion-item> -->
 
               <ion-item class="no-border">
                 <ion-label
@@ -414,14 +409,14 @@
               <!-- </ion-col>
               </ion-row> -->
 
-              <!-- <ion-alert
+              <ion-alert
                 [isOpen]="isAlertOpen"
                 header="Akaun Berjaya Didaftarkan!"
-                subHeader="Account Created Successfully!"
+                subHeader="You have successfully registered! Proceed clicking 'OK' to log in to your registered account."
                 [buttons]="alertButtons"
                 (didDismiss)="setOpen(false)"
                 backdropDismiss="false"
-              ></ion-alert> -->
+              ></ion-alert>
 
               <ion-row style="margin-top: 5vh">
                 <ion-col>

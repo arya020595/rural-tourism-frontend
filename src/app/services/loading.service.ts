@@ -55,7 +55,11 @@ export class LoadingService {
       this.loadingSubject.next(false);
 
       if (this.loading) {
-        await this.loading.dismiss();
+        try {
+          await this.loading.dismiss();
+        } catch {
+          // Loading may already be dismissed during rapid calls
+        }
         this.loading = null;
       }
     }
@@ -69,7 +73,11 @@ export class LoadingService {
     this.loadingSubject.next(false);
 
     if (this.loading) {
-      await this.loading.dismiss();
+      try {
+        await this.loading.dismiss();
+      } catch {
+        // Loading may already be dismissed
+      }
       this.loading = null;
     }
   }
