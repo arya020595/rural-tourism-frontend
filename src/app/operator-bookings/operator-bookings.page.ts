@@ -19,7 +19,7 @@ export class OperatorBookingsPage implements OnInit {
   filterStatus: string = 'all';
 
 
-constructor(private api: ApiService, private alertCtrl: AlertController,     private navCtrl: NavController, ) {}
+  constructor(private api: ApiService, private alertCtrl: AlertController, private navCtrl: NavController) {}
 
 
   ngOnInit() {

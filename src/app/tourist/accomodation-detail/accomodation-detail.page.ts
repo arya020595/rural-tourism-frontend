@@ -60,7 +60,7 @@ export class AccomodationDetailPage implements OnInit {
         };
 
         // Parse amenities
-        const provided = this.accommodation?.provided || [];
+        const provided = this.accommodation?.provided || this.accommodation?.amenities_provided || [];
 
         let amenities: string[] = [];
 

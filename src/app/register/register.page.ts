@@ -74,7 +74,7 @@ export class RegisterPage implements AfterViewInit {
     private router: Router,
     private apiService: ApiService,
     private navCtrl: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
   ) {}
 
   //cancel button
@@ -333,7 +333,7 @@ export class RegisterPage implements AfterViewInit {
             // Check if user was actually created
             if (!userResponse || userResponse.error) {
               throw new Error(
-                'User creation failed: ' + JSON.stringify(userResponse)
+                'User creation failed: ' + JSON.stringify(userResponse),
               );
             }
 
@@ -350,7 +350,7 @@ export class RegisterPage implements AfterViewInit {
                   catchError((error) => {
                     console.log('Failed to create activity:', error);
                     return of(null);
-                  })
+                  }),
                 );
             }
 
@@ -364,12 +364,12 @@ export class RegisterPage implements AfterViewInit {
                   catchError((error) => {
                     console.log('Failed to create accommodation:', error);
                     return of(null);
-                  })
+                  }),
                 );
             }
 
             return forkJoin([createActivity$, createAccommodation$]);
-          })
+          }),
         )
         .subscribe(
           (responses) => {
@@ -393,7 +393,7 @@ export class RegisterPage implements AfterViewInit {
           (error) => {
             console.log('Registration failed:', error.error?.error || error);
             this.errorToast(error.error?.error || 'Registration failed');
-          }
+          },
         );
     } else {
       this.errorToast('Error: Registration failed');
