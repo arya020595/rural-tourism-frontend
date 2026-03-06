@@ -113,7 +113,7 @@ export class ToastService {
     } catch (error) {
       console.error('Error while processing toast queue:', error);
     } finally {
-      // Continue processing remaining toasts even if an error occurs
+      // Process next toast in queue
       await this.processQueue();
     }
   }
