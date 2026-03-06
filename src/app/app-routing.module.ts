@@ -221,10 +221,11 @@ const routes: Routes = [
       import('./operator-bookings/operator-bookings.module').then(
         (m) => m.OperatorBookingsPageModule,
       ),
-  },  {
-    path: 'activity-and-accommodation-management',
-    loadChildren: () => import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then( m => m.ActivityAndAccommodationManagementPageModule)
   },
+  // {
+  //   path: 'activity-and-accommodation-management',
+  //   loadChildren: () => import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then( m => m.ActivityAndAccommodationManagementPageModule)
+  // },
 
 ];
 
