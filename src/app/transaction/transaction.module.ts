@@ -1,11 +1,12 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
+import { IonicModule } from '@ionic/angular';
 import { TransactionPageRoutingModule } from './transaction-routing.module';
 
+import { SharedModule } from '../_shared/shared.module';
 import { TransactionPage } from './transaction.page';
 
 
@@ -17,7 +18,8 @@ import { TransactionPage } from './transaction.page';
     RouterModule.forChild([
       { path: '', component: TransactionPage },
     ]),
-    TransactionPageRoutingModule
+    TransactionPageRoutingModule,
+    SharedModule, 
   ],
   declarations: [TransactionPage],
 })

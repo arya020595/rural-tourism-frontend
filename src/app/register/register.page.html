@@ -88,20 +88,15 @@
                 </ion-text>
               </ion-item>
 
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Logo Syarikat / Company Logo</ion-label
-                >
-                <input
-                  type="file"
-                  accept="image/*"
+              <!-- <ion-item class="no-border">
+                <ion-label mode="ios" position="stacked" class="question-label-grey">Logo Syarikat / Company Logo</ion-label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
                   (change)="onLogoSelected($event)"
                   class="form-input"
                 />
-              </ion-item>
+              </ion-item> -->
 
               <ion-item class="no-border">
                 <ion-label
@@ -241,6 +236,42 @@
                 </ion-text>
               </ion-item>
 
+              
+              <ion-item class="no-border">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                >
+                  Persatuan/Association
+                </ion-label>
+
+                <ion-select
+                  class="form-input"
+                  interface="popover"
+                  placeholder="Pilih Association"
+                  [(ngModel)]="formData.associationId"
+                  name="associationId"
+                  #association="ngModel"
+                  required
+                >
+                  <ion-select-option
+                    *ngFor="let item of associations"
+                    [value]="item.id"
+                  >
+                    {{ item.name }}
+                  </ion-select-option>
+                </ion-select>
+
+                <ion-text
+                  *ngIf="association?.invalid && (association?.touched || form.submitted)"
+                >
+                  <p class="error-message">
+                    *Sila pilih Association / Association required
+                  </p>
+                </ion-text>
+              </ion-item>
+              
               <ion-item class="no-border">
                 <ion-label
                   mode="ios"
@@ -339,7 +370,7 @@
           </swiper-slide>
 
           <swiper-slide>
-            <ion-list class="form-container" *ngIf="this.renderPg == true">
+            <ion-list class="form-container" *ngIf="this.renderPg === true">
               <ion-item style="margin-bottom: 2%" class="no-border">
                 <ion-label mode="ios" class="question-label"
                   >Butiran Sekurity /<span style="font-style: italic"
@@ -414,14 +445,14 @@
               <!-- </ion-col>
               </ion-row> -->
 
-              <!-- <ion-alert
+              <ion-alert
                 [isOpen]="isAlertOpen"
                 header="Akaun Berjaya Didaftarkan!"
-                subHeader="Account Created Successfully!"
+                subHeader="You have successfully registered! Proceed clicking 'OK' to log in to your registered account."
                 [buttons]="alertButtons"
                 (didDismiss)="setOpen(false)"
                 backdropDismiss="false"
-              ></ion-alert> -->
+              ></ion-alert>
 
               <ion-row style="margin-top: 5vh">
                 <ion-col>

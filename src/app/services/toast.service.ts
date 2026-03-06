@@ -100,11 +100,15 @@ export class ToastService {
     const options = this.toastQueue.shift();
 
     if (options) {
-      const toast = await this.toastController.create(options);
-      await toast.present();
+      try {
+        const toast = await this.toastController.create(options);
+        await toast.present();
 
-      // Wait for toast to dismiss before showing next
-      await toast.onDidDismiss();
+        // Wait for toast to dismiss before showing next
+        await toast.onDidDismiss();
+      } catch (error) {
+        console.error('Error showing toast:', error);
+      }
       await this.processQueue();
     }
   }
