@@ -1,11 +1,22 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
 import { ActivityDetailsPage } from './activity-details.page';
 
 describe('ActivityDetailsPage', () => {
   let component: ActivityDetailsPage;
   let fixture: ComponentFixture<ActivityDetailsPage>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ActivityDetailsPage],
+      imports: [IonicModule.forRoot(), HttpClientTestingModule, RouterTestingModule, FormsModule],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(ActivityDetailsPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
