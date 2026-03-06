@@ -1,20 +1,10 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:3000/api',  // Production API URL
-  API:'http://localhost:3000'
+  // Uses relative URLs - nginx reverse proxy handles routing to backend
+  apiUrl: '/api',
+  API: typeof window !== 'undefined' ? window.location.origin : '',
+
+  // Feature flags for production
+  enableDebugMode: false,
+  logApiCalls: false,
 };
-
-
-// If not using cloudfare link, change the apiURL & API to http://localhost:3000/api
-// export const environment = {
-//   production: true,
-//   apiUrl: 'http://192.168.1.7:3000/api',  // Production API URL
-//   API:'http://192.168.1.7:3000'
-// };
-
-
-// export const environment = {
-//   production: true,
-//   apiUrl: 'http://46.202.163.155:3000/api',  // Production API URL
-//   API:'http://46.202.163.155:3000'
-// };

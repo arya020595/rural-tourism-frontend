@@ -1,5 +1,20 @@
 <ion-content [fullscreen]="true">
 
+  <!-- Hero Image / Buttons -->
+  <div class="hero-image-container">
+    <img [src]="getAccommodationImage(accommodation?.image)" alt="{{ accommodation?.name }}" />
+
+    <!-- Back Button -->
+    <ion-button class="back-button" fill="clear" (click)="goBack()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+
+    <!-- Favorite/Like Button -->
+    <ion-button class="favorite-button" fill="clear" (click)="toggleFavorite()" mode="ios">
+      <ion-icon slot="icon-only" [name]="isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
+    </ion-button>
+  </div>
+
   <!-- Loading Spinner -->
   <ion-spinner *ngIf="loading" name="crescent" style="display:block; margin: 20px auto;"></ion-spinner>
 
@@ -11,18 +26,17 @@
   <!-- Accommodation Details -->
   <div *ngIf="!loading && accommodation">
     
-    <!-- Hero Image -->
-    <div class="image-container">
-      <img [src]="getAccommodationImage(accommodation.image)" alt="{{ accommodation.name }}" />
-    </div>
-
-    <!-- Main Content -->
     <div class="accomodation-content">
-      <ion-icon name="home"></ion-icon>
-      <h2>{{ accommodation.name }}</h2>
 
-      <ion-icon name="location"></ion-icon>
-      <h3>{{ accommodation.address }}</h3>
+      <div class="heading-with-icon">
+        <ion-icon name="home"></ion-icon>
+        <h2>{{ accommodation.name }}</h2>
+      </div>
+
+      <div class="heading-with-icon">
+        <ion-icon name="location"></ion-icon>
+        <h3>{{ accommodation.address }}</h3>
+      </div>
 
       <hr/>
 

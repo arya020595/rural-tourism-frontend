@@ -1,6 +1,4 @@
 <ion-content class="ion-padding booking-content" fullscreen>
-
-  <!-- Close button above logo -->
   <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
     <ion-icon slot="icon-only" name="close"></ion-icon>
   </ion-button>
@@ -8,63 +6,139 @@
   <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
 
   <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
+    <h4>Choose Time</h4>
 
     <ion-item>
       <ion-label position="stacked">Number of Pax</ion-label>
-      <ion-input type="number" formControlName="no_of_pax" placeholder="Enter number of pax"></ion-input>
+      <ion-input
+        type="number"
+        formControlName="no_of_pax"
+        placeholder="Enter number of pax"
+      >
+      </ion-input>
     </ion-item>
 
-<ion-item>
-  <ion-label position="stacked">Booking Date</ion-label>
+    <!-- Month-Year Filter -->
+    <ion-item>
+      <ion-label position="stacked">Month - Year</ion-label>
+      <ion-select
+        placeholder="Select Month"
+        [interfaceOptions]="monthYearSelectOptions"
+        interface="alert"
+        (ionChange)="onMonthYearChange($event)"
+      >
+        <ion-select-option
+          *ngFor="let option of monthYearOptions"
+          [value]="option.value"
+        >
+          {{ option.label }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
 
-  <!-- Datetime Button that opens the modal -->
-  <ion-datetime-button datetime="bookingDate"></ion-datetime-button>
+    <!-- Calendar -->
+    <h4>Choose Date</h4>
 
-    <!-- Datetime Modal -->
-    <ion-modal [keepContentsMounted]="true">
-      <ng-template>
-        <ion-datetime
-          id="bookingDate"
-          formControlName="date"
-          presentation="date"
-          display-format="DD/MM/YYYY"
-          picker-format="DD/MM/YYYY"
-          placeholder="Select a date"
-          (ionChange)="onDateSelected($event)">
-        </ion-datetime>
-      </ng-template>
-    </ion-modal>
-  </ion-item>
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <ion-button fill="clear" (click)="prevMonth()">&lt;</ion-button>
+        <span>{{ currentMonthLabel }}</span>
+        <ion-button fill="clear" (click)="nextMonth()">&gt;</ion-button>
+      </div>
 
+      <div class="weekdays">
+        <div *ngFor="let wd of weekdays">{{ wd }}</div>
+      </div>
+
+      <div class="calendar-grid">
+        <div
+          *ngFor="let day of calendarDays"
+          [class.available]="day.available"
+          [class.unavailable]="!day.available"
+          [class.selected]="day.date === selectedDate"
+          (click)="day.available ? selectBookingDate(day) : null"
+        >
+          {{ day.day }}
+          <div *ngIf="day.available && day.price" class="date-price">
+            RM {{ day.price }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ion-text color="medium" *ngIf="filteredDates.length === 0">
+      <p>No available dates for selected month</p>
+    </ion-text>
+
+    <!-- Available Time -->
+    <ion-item *ngIf="availableTimes.length > 0">
+      <ion-label position="stacked">
+        Select Available Scheduled Time
+      </ion-label>
+
+      <ion-select
+        placeholder="Select Time"
+        formControlName="time"
+        [interfaceOptions]="timeSelectOptions"
+        interface="alert"
+      >
+        <ion-select-option *ngFor="let time of availableTimes" [value]="time">
+          {{ time }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-text color="medium" *ngIf="availableTimes.length === 0">
+      <p>No available times for selected date</p>
+    </ion-text>
+
+    <hr />
+    <hr />
+
+    <h4>Your Details</h4>
 
     <ion-item>
       <ion-label position="stacked">Contact Name</ion-label>
-      <ion-input type="text" formControlName="contact_name" placeholder="Enter your name"></ion-input>
+      <ion-input
+        type="text"
+        formControlName="contact_name"
+        placeholder="Enter your name"
+      >
+      </ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="stacked">Contact Phone</ion-label>
-      <ion-input type="tel" formControlName="contact_phone" placeholder="Enter phone number"></ion-input>
+      <ion-input
+        type="tel"
+        formControlName="contact_phone"
+        placeholder="Enter phone number"
+      >
+      </ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label position="stacked">Nationality</ion-label>
-      <ion-input type="text" formControlName="nationality" placeholder="Enter nationality"></ion-input>
+      <ion-input
+        type="text"
+        formControlName="nationality"
+        placeholder="Enter nationality"
+      >
+      </ion-input>
     </ion-item>
-
   </form>
-
 </ion-content>
 
 <ion-footer>
   <ion-toolbar>
     <div class="bottom-bar">
       <div class="total-price">
-        <span> RM {{ totalPrice | number:'1.2-2' }} </span> 
+        <span> RM {{ totalPrice | number:'1.2-2' }} </span>
         <small>per pax</small>
       </div>
-    
-      <ion-button expand="block" (click)="submitBooking()">Book Now</ion-button>
+      <ion-button expand="block" (click)="submitBooking()">
+        Book Now
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

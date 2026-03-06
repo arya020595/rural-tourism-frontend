@@ -1,65 +1,102 @@
-/* Image Container */
-.image-container {
+/* =========================
+   Hero Image Container
+========================= */
+.hero-image-container {
+  position: relative;
   width: 100%;
   height: 250px;
   overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Back Button & Favorite Button */
+  .back-button,
+  .favorite-button {
+    position: absolute;
+    top: 16px;
+    width: 30px;            /* smaller circle */
+    height: 30px;
+    border-radius: 50%;
+    background-color: #024E25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 10;
+
+    ion-icon {
+      color: #fff;
+      font-size: 16px;      /* smaller icon to fit circle */
+      margin-top: 0;
+    }
+  }
+
+  .back-button {
+    left: 16px;
+  }
+
+  .favorite-button {
+    right: 16px;
+  }
 }
 
-.image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Content scrollable above footer */
+/* =========================
+   Content scrollable above footer
+========================= */
 .accomodation-content {
   background: #ffffff;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
   padding: 20px 16px 200px 16px; /* extra bottom padding for footer */
-  margin-top: -30px; /* pull over image */
+  margin-top: -30px; /* pull content over hero image */
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
   position: relative;
   z-index: 5;
 }
 
-/* Headings & icons */
-ion-icon {
-  font-size: 40px;
-  margin-top: 10px;
-  color: #025930;
-}
-
-.accomodation-content h2,
-.accomodation-content h3,
-.accomodation-content h4 {
-  color: #025930;
-  font-size: 18px;
-}
-
-.accomodation-content h2,
-.accomodation-content h3 {
+/* =========================
+   Heading with Icon (Vertical)
+========================= */
+.heading-with-icon {
+  display: flex;
+  flex-direction: column;    /* icon on top, text below */
+  align-items: center;
+  text-align: center;
   margin-bottom: 30px;
-  font-weight: bold;
+  color: #025930;
+
+  ion-icon {
+    font-size: 30px;
+    margin-bottom: 8px;     /* spacing between icon and text */
+  }
+
+  h2, h3 {
+    margin: 0;
+    font-weight: bold;
+    color: #025930;
+    font-size: 20px;
+  }
 }
 
+/* =========================
+   Headings & Paragraphs
+========================= */
 .accomodation-content h4 {
   text-align: left;
   font-weight: bold;
   margin-top: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
+  color: #025930;
 }
 
-.accomodation-content h5 {
-  text-align: left;
-  font-weight: bold;
-  margin-top: 15px;
-  color: #bababa;
-}
-
-/* Paragraphs */
 .accomodation-content p {
   text-align: justify;
   line-height: 1.5;
@@ -74,7 +111,44 @@ ion-icon {
   margin: 25px 0;
 }
 
-/* Fixed Footer */
+/* =========================
+   Amenities List
+========================= */
+.amenities-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.amenities-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.amenities-list li ion-icon {
+  font-size: 20px;
+  color: green;
+}
+
+/* Show Amenities Button */
+.show-amenities {
+  --background: #025930;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: -50px;
+  --color: #ffffff;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 8px;
+  --box-shadow: none;
+}
+
+/* =========================
+   Fixed Footer
+========================= */
 .booking-footer {
   position: fixed;
   bottom: 0;
@@ -109,97 +183,3 @@ ion-icon {
   border-radius: 10px;
   min-width: 120px;
 }
-
-
-/* Hero Image Container */
-.hero-image-container {
-  position: relative;
-  width: 100%;
-  height: 250px;
-  overflow: hidden;
-}
-
-.hero-image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Back Button */
-.back-btn {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-  background: rgba(0,0,0,0.4);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.back-btn ion-icon {
-  color: #fff;
-  font-size: 22px;
-}
-
-/* Favorite Button (optional) */
-.favorite-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 10;
-  background: rgba(0,0,0,0.4);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.favorite-btn ion-icon {
-  color: #fff;
-  font-size: 22px;
-}
-
-
-.amenities-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-
-  li {
-    margin-top: 10px;
-    display: flex;            /* make icon and text flex items */
-    align-items: center;      /* vertically center the icon with text */
-    gap: 10px;                /* space between icon and text */
-    margin-bottom: 8px;       /* spacing between items */
-    font-size: 16px;          /* adjust text size if needed */
-  }
-
-  ion-icon {
-    font-size: 20px;          /* adjust icon size */
-    color: green;             /* optional: change color */
-  }
-
-
-
-}
-
-.show-amenities {
-  --background: #025930;  
-  width: 100%;
-  margin-top: 20px;
-  margin-bottom: -50px;
-  --color: #ffffff;      
-  --padding-start: 16px;  
-  --padding-end: 16px;     
-  --border-radius: 8px;   
-  --box-shadow: none;   
-}
-
-

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '../../services/api.service';
 import { NavController } from '@ionic/angular';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-accomodation-detail',
@@ -9,17 +9,19 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./accomodation-detail.page.scss'],
 })
 export class AccomodationDetailPage implements OnInit {
-
   accommodationId!: string;
   accommodation: any = null;
   loading: boolean = true;
   errorMessage: string = '';
   showAllAmenities: boolean = false;
 
+  // NEW: for favorite button
+  isFavorite: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private navCtrl: NavController
+    private navCtrl: NavController,
   ) {}
 
   ngOnInit() {
@@ -33,8 +35,16 @@ export class AccomodationDetailPage implements OnInit {
     }
   }
 
+  /** Back button */
   goBack() {
     this.navCtrl.back();
+  }
+
+  /** Toggle favorite */
+  toggleFavorite() {
+    this.isFavorite = !this.isFavorite;
+    console.log('Favorite toggled:', this.isFavorite);
+    // Optional: call API to save favorite state
   }
 
   loadAccommodation() {
@@ -42,9 +52,18 @@ export class AccomodationDetailPage implements OnInit {
 
     this.apiService.getAccommodationById(this.accommodationId).subscribe({
       next: (res: any) => {
-        this.accommodation = res;
+        // Normalize ID
+        this.accommodation = {
+          ...res,
+          id: res.id ?? res.accommodation_id,
+        };
 
-        const provided = this.accommodation?.provided_accomodation || [];
+        // Parse amenities
+        const provided =
+          this.accommodation?.provided ||
+          this.accommodation?.amenities_provided ||
+          [];
+
         let amenities: string[] = [];
 
         if (Array.isArray(provided)) {
@@ -63,7 +82,7 @@ export class AccomodationDetailPage implements OnInit {
               if (item?.title) amenities.push(item.title);
             });
           } catch {
-            amenities = provided.split(',').map(a => a.trim());
+            amenities = provided.split(',').map((a) => a.trim());
           }
         }
 
@@ -74,13 +93,14 @@ export class AccomodationDetailPage implements OnInit {
         console.error(err);
         this.errorMessage = 'Accommodation not found.';
         this.loading = false;
-      }
+      },
     });
   }
 
   getAccommodationImage(imageData: string): string {
     if (!imageData) return 'assets/icon/placeholder.png';
-    if (imageData.startsWith('http') || imageData.startsWith('data:image')) return imageData;
+    if (imageData.startsWith('http') || imageData.startsWith('data:image'))
+      return imageData;
     return `http://localhost:3000/uploads/accommodations/${imageData}`;
   }
 
@@ -103,15 +123,14 @@ export class AccomodationDetailPage implements OnInit {
     const user = JSON.parse(userData);
     const touristUserId = user.tourist_user_id;
 
-    // ✅ send "no_of_pax" and keep "no_of_rooms" for compatibility
     this.navCtrl.navigateForward(['/tourist/accommodation-booking'], {
       queryParams: {
         accommodation_id: this.accommodation.id,
         price: this.accommodation.price,
         operator_id: this.accommodation.operator_id,
         tourist_user_id: touristUserId,
-        no_of_pax: 1,      // new key
-        no_of_rooms: 1     // keep this temporarily for backward compatibility
+        no_of_pax: 1,
+        no_of_rooms: 1,
       },
     });
   }

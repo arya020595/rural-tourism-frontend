@@ -1,0 +1,127 @@
+<!-- <ion-header>
+  <ion-toolbar>
+    <ion-title>Operator Bookings</ion-title>
+  </ion-toolbar>
+</ion-header>
+ -->
+
+<ion-content *ngIf="!loading; else loadingTemplate" class="ion-padding">
+  <div class="header-container">
+    <ion-button class="back-button" fill="clear" (click)="goBack()" mode="ios">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+
+    <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+    <h2 class="page-title">Tourist Bookings</h2>
+    <div class="divider"></div>
+    <hr />
+  </div>
+
+  <!-- Status Filter -->
+  <ion-segment
+    [(ngModel)]="filterStatus"
+    color="primary"
+    style="margin: 15px 0"
+  >
+    <ion-segment-button value="all"> All </ion-segment-button>
+    <ion-segment-button value="booked"> Booked </ion-segment-button>
+    <ion-segment-button value="paid"> Paid </ion-segment-button>
+    <ion-segment-button value="cancelled"> Cancelled </ion-segment-button>
+  </ion-segment>
+
+  <!-- Segment buttons -->
+  <ion-segment [(ngModel)]="selectedSegment">
+    <ion-segment-button value="activity" class="segment-with-badge">
+      <div class="label-badge-wrapper">
+        <span class="segment-label">Activity</span>
+        <ion-badge color="danger" class="side-badge"
+          >{{ activityBookings.length }}</ion-badge
+        >
+      </div>
+    </ion-segment-button>
+
+    <ion-segment-button value="accommodation" class="segment-with-badge">
+      <div class="label-badge-wrapper">
+        <span class="segment-label">Accommodation</span>
+        <ion-badge color="danger" class="side-badge"
+          >{{ accommodationBookings.length }}</ion-badge
+        >
+      </div>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Activity Bookings -->
+  <div *ngIf="selectedSegment === 'activity'">
+    <ion-card *ngIf="activityBookings.length > 0; else noActivityBookings">
+      <ion-list>
+        <ion-item *ngFor="let booking of getFilteredActivityBookings()">
+          <ion-label>
+            <h2>{{ booking.activityName || 'Activity' }}</h2>
+            <p>Name: {{ booking.contact_name }}</p>
+            <p>
+              Date: {{ booking.date ? (booking.date | date:'mediumDate') : 'N/A'
+              }}
+            </p>
+            <p>Time: {{ booking.time || 'N/A' }}</p>
+            <p>No. of Pax: {{ booking.no_of_pax || 1 }}</p>
+            <p>Total Price: {{ booking.total_price | currency }}</p>
+            <p>
+              Status:
+              <ion-badge [color]="getStatusColor(booking.status)">
+                {{ booking.status || 'Pending' }}
+              </ion-badge>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <ng-template #noActivityBookings>
+      <p class="ion-padding">No activity bookings found.</p>
+    </ng-template>
+  </div>
+
+  <!-- Accommodation Bookings -->
+  <div *ngIf="selectedSegment === 'accommodation'">
+    <ion-card
+      *ngIf="accommodationBookings.length > 0; else noAccommodationBookings"
+    >
+      <ion-list>
+        <ion-item *ngFor="let booking of getFilteredAccommodationBookings()">
+          <ion-label>
+            <h2>{{ booking.accommodation_name }}</h2>
+            <p>Name: {{ booking.contact_name }}</p>
+            <p>
+              Check-in: {{ booking.check_in ? (booking.check_in |
+              date:'mediumDate') : 'N/A' }}
+            </p>
+            <p>
+              Check-out: {{ booking.check_out ? (booking.check_out |
+              date:'mediumDate') : 'N/A' }}
+            </p>
+            <p>No. of Nights: {{ booking.total_no_of_nights || 1 }}</p>
+            <p>No. of Pax: {{ booking.no_of_pax || 1 }}</p>
+            <p>Total Price: {{ booking.total_price | currency }}</p>
+            <p>
+              Status:
+              <ion-badge [color]="getStatusColor(booking.status)">
+                {{ booking.status || 'Pending' }}
+              </ion-badge>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <ng-template #noAccommodationBookings>
+      <p class="ion-padding">No accommodation bookings found.</p>
+    </ng-template>
+  </div>
+</ion-content>
+
+<ng-template #loadingTemplate>
+  <div class="ion-padding" style="text-align: center">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading bookings...</p>
+  </div>
+</ng-template>

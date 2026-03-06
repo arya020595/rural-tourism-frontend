@@ -5,7 +5,11 @@
 </ion-header> -->
 
 <ion-content>
-  <form #form="ngForm" (ngSubmit)="submitForm(form)" (ngModelChange)="passwordMatchValidator(form)">
+  <form
+    #form="ngForm"
+    (ngSubmit)="submitForm(form)"
+    (ngModelChange)="passwordMatchValidator(form)"
+  >
     <div id="container">
       <ion-card class="main-Container">
         <!-- <ion-button id="cancel" fill="clear" mode="ios"> -->
@@ -13,11 +17,18 @@
         <!-- <span>Cancel</span>
         </ion-button> -->
         <ion-card-header>
-          <ion-img class="logo" src="../../assets/icon/Feel-Sabah-North-Borneo.png"></ion-img>
+          <ion-img
+            class="logo"
+            src="../../assets/icon/Feel-Sabah-North-Borneo.png"
+          ></ion-img>
         </ion-card-header>
 
-        <ion-alert trigger="cancel" header="Adakah anda pasti ingin membatalkan?"
-          subHeader="Are you sure you want to cancel?" [buttons]="cancelButton"></ion-alert>
+        <ion-alert
+          trigger="cancel"
+          header="Adakah anda pasti ingin membatalkan?"
+          subHeader="Are you sure you want to cancel?"
+          [buttons]="cancelButton"
+        ></ion-alert>
 
         <!-- Step navigation indicator -->
         <!-- <div class="step-indicator">
@@ -32,27 +43,48 @@
 
         <!-- <form #form="ngForm"> -->
 
-        <swiper-container #swiper (afterInit)="swiperReady()" (swiperslidechange)="onSlideChange($event)"
-          [spaceBetween]="10" [loop]="false" [simulateTouch]="false" [touchMove]="false">
+        <swiper-container
+          #swiper
+          (afterInit)="swiperReady()"
+          (swiperslidechange)="onSlideChange($event)"
+          [spaceBetween]="10"
+          [loop]="false"
+          [simulateTouch]="false"
+          [touchMove]="false"
+        >
           <!-- step 1 -->
           <swiper-slide>
-
             <ion-list class="form-container">
-              <ion-item style="margin-bottom: 2%;" class="no-border">
-                <ion-label mode="ios" class="question-label">Butiran Akaun /<span style="font-style: italic;">Account
-                    Details</span></ion-label>
+              <ion-item style="margin-bottom: 2%" class="no-border">
+                <ion-label mode="ios" class="question-label"
+                  >Butiran Akaun /<span style="font-style: italic"
+                    >Account Details</span
+                  ></ion-label
+                >
               </ion-item>
 
-              <ion-item class="no-border" style="margin-top: -10px;">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Perniagaan/Business
-                  Name</ion-label>
+              <ion-item class="no-border" style="margin-top: -10px">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Nama Perniagaan/Business Name</ion-label
+                >
                 <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="e.g., Zuki Sdn. Bhd." class="form-input" [(ngModel)]="formData.business_name"
-                  name="business_name" required #businessName="ngModel">
+                <ion-input
+                  placeholder="e.g., Zuki Sdn. Bhd."
+                  class="form-input"
+                  [(ngModel)]="formData.business_name"
+                  name="business_name"
+                  required
+                  #businessName="ngModel"
+                >
                 </ion-input>
                 <!-- error msg -->
                 <ion-text *ngIf="businessName.invalid && businessName.touched">
-                  <p class="error-message">*Sila isi nama business / Business Name is required</p>
+                  <p class="error-message">
+                    *Sila isi nama business / Business Name is required
+                  </p>
                 </ion-text>
               </ion-item>
 
@@ -61,123 +93,211 @@
                 <input 
                   type="file" 
                   accept="image/*" 
-                  (change)="onLogoSelected($event)" 
+                  (change)="onLogoSelected($event)"
                   class="form-input"
                 />
               </ion-item> -->
 
               <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label>
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Lokasi/Location</ion-label
+                >
                 <!-- <ion-label position="stacked">Username</ion-label> -->
                 <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
                   name="email" required></ion-input> -->
 
-                <ion-select class="form-input" aria-label="district" interface="popover"
-                  placeholder="Pilih Lokasi/Pick Location" [(ngModel)]="formData.district" name="district"
-                  #location="ngModel">
+                <ion-select
+                  class="form-input"
+                  aria-label="district"
+                  interface="popover"
+                  placeholder="Pilih Lokasi/Pick Location"
+                  [(ngModel)]="formData.district"
+                  name="district"
+                  #location="ngModel"
+                >
                   <ion-select-option value="Kiulu">Kiulu</ion-select-option>
                   <ion-select-option value="Ranau">Ranau</ion-select-option>
-                  <ion-select-option value="Kota Marudu">Kota Marudu</ion-select-option>
-                  <ion-select-option value="Kota Belud">Kota Belud</ion-select-option>
+                  <ion-select-option value="Kota Marudu"
+                    >Kota Marudu</ion-select-option
+                  >
+                  <ion-select-option value="Kota Belud"
+                    >Kota Belud</ion-select-option
+                  >
                   <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
                 </ion-select>
 
                 <!-- error msg location -->
-                <ion-text *ngIf="location?.invalid && (location?.touched || form.submitted)">
+                <ion-text
+                  *ngIf="location?.invalid && (location?.touched || form.submitted)"
+                >
                   <ion-text *ngIf="location?.errors?.['required']">
-                    <p class="error-message">*Sila pilih Lokasi / Location required</p>
-                  </ion-text>
-                </ion-text>
-
-              </ion-item>
-
-              <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Penuh/Full Name</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Sila isi nama penuh/Enter your full name" class="form-input" [(ngModel)]="formData.full_name" required
-                  name="full_name" #name="ngModel" full_name>
-                </ion-input>
-
-                <!-- Error message for email field -->
-                <ion-text *ngIf="form.controls['full_name']?.invalid && form.controls['full_name']?.touched">
-                  <span class="error-message" *ngIf="form.controls['full_name']?.errors?.['required']">*Sila isi nama penuh /
-                    Full name is required</span>
-                  <span class="error-message" *ngIf="form.controls['full_name']?.errors?.['full_name']">*Sila masukkan
-                    nama penuh / Please enter your full name</span>
-                </ion-text>
-              </ion-item>
-
-              <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Pengguna/Username</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="e.g., zuki_Suki" class="form-input" [(ngModel)]="formData.username" required
-                  name="username" #userName="ngModel"></ion-input>
-                <!-- error msg username -->
-                <ion-text *ngIf="userName.invalid && userName.touched">
-                  <p class="error-message">*Sila isi nama pengguna / Username is required</p>
-                </ion-text>
-
-              </ion-item>
-
-              <ion-item class="no-border">
-  <ion-label mode="ios" position="stacked" class="question-label-grey">
-    Alamat Emel/Email Address
-  </ion-label>
-  <ion-input
-    placeholder="Sila isi alamat emel/Enter your email address"
-    class="form-input"
-    [(ngModel)]="formData.user_email"
-    name="user_email"
-    #email="ngModel"
-    required
-    email>
-  </ion-input>
-
-  <!-- Error messages using template-driven approach -->
-<ion-text *ngIf="email.invalid && email.touched">
-  <span class="error-message" *ngIf="email.errors?.['required']">
-    *Sila isi nama penuh / Email Address is required
-  </span>
-  <span class="error-message" *ngIf="email.errors?.['email']">
-    *Sila masukkan alamat emel / Please enter a valid email address
-  </span>
-</ion-text>
-
-
-</ion-item>
-
-
-
-
-              <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Kata Laluan/Password</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Isi Kata Laluan / Enter Password" class="form-input"
-                  [(ngModel)]="formData.password" required type="password" name="password" minlength="8"
-                  #password="ngModel"> <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-                </ion-input>
-
-                <!-- error msg username -->
-                <ion-text *ngIf="password?.invalid && (password?.touched || form.submitted)">
-                  <ion-text *ngIf="password?.errors?.['minlength']">
-                    <p class="error-message">*Kata Laluan mesti panjang 8 aksara / Password must be 8 characters long
+                    <p class="error-message">
+                      *Sila pilih Lokasi / Location required
                     </p>
                   </ion-text>
                 </ion-text>
-
               </ion-item>
 
-              <ion-item class="no-border" style="margin-top: 5%; margin-bottom: 8%;">
+              <ion-item class="no-border">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Nama Penuh/Full Name</ion-label
+                >
+                <!-- <ion-label position="stacked">Username</ion-label> -->
+                <ion-input
+                  placeholder="Sila isi nama penuh/Enter your full name"
+                  class="form-input"
+                  [(ngModel)]="formData.full_name"
+                  required
+                  name="full_name"
+                  #name="ngModel"
+                  full_name
+                >
+                </ion-input>
 
+                <!-- Error message for email field -->
+                <ion-text
+                  *ngIf="form.controls['full_name']?.invalid && form.controls['full_name']?.touched"
+                >
+                  <span
+                    class="error-message"
+                    *ngIf="form.controls['full_name']?.errors?.['required']"
+                    >*Sila isi nama penuh / Full name is required</span
+                  >
+                  <span
+                    class="error-message"
+                    *ngIf="form.controls['full_name']?.errors?.['full_name']"
+                    >*Sila masukkan nama penuh / Please enter your full
+                    name</span
+                  >
+                </ion-text>
+              </ion-item>
+
+              <ion-item class="no-border">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Nama Pengguna/Username</ion-label
+                >
+                <!-- <ion-label position="stacked">Username</ion-label> -->
+                <ion-input
+                  placeholder="e.g., zuki_Suki"
+                  class="form-input"
+                  [(ngModel)]="formData.username"
+                  required
+                  name="username"
+                  #userName="ngModel"
+                ></ion-input>
+                <!-- error msg username -->
+                <ion-text *ngIf="userName.invalid && userName.touched">
+                  <p class="error-message">
+                    *Sila isi nama pengguna / Username is required
+                  </p>
+                </ion-text>
+              </ion-item>
+
+              <ion-item class="no-border">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                >
+                  Alamat Emel/Email Address
+                </ion-label>
+                <ion-input
+                  placeholder="Sila isi alamat emel/Enter your email address"
+                  class="form-input"
+                  [(ngModel)]="formData.user_email"
+                  name="user_email"
+                  #email="ngModel"
+                  required
+                  email
+                >
+                </ion-input>
+
+                <!-- Error messages using template-driven approach -->
+                <ion-text *ngIf="email.invalid && email.touched">
+                  <span
+                    class="error-message"
+                    *ngIf="email.errors?.['required']"
+                  >
+                    *Sila isi nama penuh / Email Address is required
+                  </span>
+                  <span class="error-message" *ngIf="email.errors?.['email']">
+                    *Sila masukkan alamat emel / Please enter a valid email
+                    address
+                  </span>
+                </ion-text>
+              </ion-item>
+
+              <ion-item class="no-border">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Kata Laluan/Password</ion-label
+                >
+                <!-- <ion-label position="stacked">Username</ion-label> -->
+                <ion-input
+                  placeholder="Isi Kata Laluan / Enter Password"
+                  class="form-input"
+                  [(ngModel)]="formData.password"
+                  required
+                  type="password"
+                  name="password"
+                  minlength="8"
+                  #password="ngModel"
+                >
+                  <ion-input-password-toggle
+                    slot="end"
+                  ></ion-input-password-toggle>
+                </ion-input>
+
+                <!-- error msg username -->
+                <ion-text
+                  *ngIf="password?.invalid && (password?.touched || form.submitted)"
+                >
+                  <ion-text *ngIf="password?.errors?.['minlength']">
+                    <p class="error-message">
+                      *Kata Laluan mesti panjang 8 aksara / Password must be 8
+                      characters long
+                    </p>
+                  </ion-text>
+                </ion-text>
+              </ion-item>
+
+              <ion-item
+                class="no-border"
+                style="margin-top: 5%; margin-bottom: 8%"
+              >
                 <!-- CONFIRM PASSWORD -->
-                <ion-input placeholder="Confirm Password" class="form-input" [(ngModel)]="confirmPass.confPass" required
-                  name="confPass" type="password" (ngModelChange)="passwordMatchValidator(form)"><ion-input-password-toggle slot="end"></ion-input-password-toggle>
+                <ion-input
+                  placeholder="Confirm Password"
+                  class="form-input"
+                  [(ngModel)]="confirmPass.confPass"
+                  required
+                  name="confPass"
+                  type="password"
+                  (ngModelChange)="passwordMatchValidator(form)"
+                  ><ion-input-password-toggle
+                    slot="end"
+                  ></ion-input-password-toggle>
                 </ion-input>
 
                 <!-- Show error message if password mismatch -->
-                <br>
-                <ion-text *ngIf="form.controls['confPass']?.hasError('passwordMismatch')">
-                  <p style="padding-left: 5%;" class="error-message">*Password Mismatch</p>
+                <br />
+                <ion-text
+                  *ngIf="form.controls['confPass']?.hasError('passwordMismatch')"
+                >
+                  <p style="padding-left: 5%" class="error-message">
+                    *Password Mismatch
+                  </p>
                 </ion-text>
 
                 <!-- <ion-text >
@@ -185,59 +305,93 @@
                   </ion-text> -->
               </ion-item>
 
-                         
-
-              <ion-row style="margin-bottom: 5%;">
+              <ion-row style="margin-bottom: 5%">
                 <ion-col>
-                  <ion-button style="text-align: center;" id="cancel" fill="clear" mode="ios">
+                  <ion-button
+                    style="text-align: center"
+                    id="cancel"
+                    fill="clear"
+                    mode="ios"
+                  >
                     <!-- <ion-icon slot="start" name="chevron-back"></ion-icon> -->
                     Cancel
                   </ion-button>
                 </ion-col>
                 <ion-col>
-                  <ion-button mode="ios" expand="block" (click)="goNext()"
-                    [disabled]="form.invalid">Seterusnya</ion-button>
+                  <ion-button
+                    mode="ios"
+                    expand="block"
+                    (click)="goNext()"
+                    [disabled]="form.invalid"
+                    >Seterusnya</ion-button
+                  >
                   <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
                 </ion-col>
               </ion-row>
 
-
-
               <!-- <div class="swiper-button-next">button</div> -->
-
             </ion-list>
           </swiper-slide>
 
           <swiper-slide>
             <ion-list class="form-container" *ngIf="this.renderPg == true">
-              <ion-item style="margin-bottom: 2%;" class="no-border">
-                <ion-label mode="ios" class="question-label">Butiran Sekurity /<span style="font-style: italic;">Security
-                    Details</span></ion-label>
+              <ion-item style="margin-bottom: 2%" class="no-border">
+                <ion-label mode="ios" class="question-label"
+                  >Butiran Sekurity /<span style="font-style: italic"
+                    >Security Details</span
+                  ></ion-label
+                >
               </ion-item>
-               <!-- security questions -->
-               <!-- q1 -->
-               <ion-item class="no-border" style="margin-top: -10px;">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Apakah nama haiwan peliharaan pertama anda?</ion-label>
+              <!-- security questions -->
+              <!-- q1 -->
+              <ion-item class="no-border" style="margin-top: -10px">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Apakah nama haiwan peliharaan pertama anda?</ion-label
+                >
                 <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Jawapan Anda..." class="form-input" [(ngModel)]="formData.securityQ1"
-                  name="securityQ1" required #securityQ1="ngModel">
+                <ion-input
+                  placeholder="Jawapan Anda..."
+                  class="form-input"
+                  [(ngModel)]="formData.securityQ1"
+                  name="securityQ1"
+                  required
+                  #securityQ1="ngModel"
+                >
                 </ion-input>
                 <!-- error msg -->
                 <ion-text *ngIf="securityQ1.invalid && securityQ1.touched">
-                  <p class="error-message">*Sila isi jawapan anda/Please provide an answer.</p>
+                  <p class="error-message">
+                    *Sila isi jawapan anda/Please provide an answer.
+                  </p>
                 </ion-text>
               </ion-item>
 
               <!-- q2 -->
-              <ion-item class="no-border" style="margin-bottom: 10%;">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Apakah Nama Sekolah Rendah Anda?</ion-label>
+              <ion-item class="no-border" style="margin-bottom: 10%">
+                <ion-label
+                  mode="ios"
+                  position="stacked"
+                  class="question-label-grey"
+                  >Apakah Nama Sekolah Rendah Anda?</ion-label
+                >
                 <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Jawapan Anda..." class="form-input" [(ngModel)]="formData.securityQ2"
-                  name="securityQ2" required #securityQ2="ngModel">
+                <ion-input
+                  placeholder="Jawapan Anda..."
+                  class="form-input"
+                  [(ngModel)]="formData.securityQ2"
+                  name="securityQ2"
+                  required
+                  #securityQ2="ngModel"
+                >
                 </ion-input>
                 <!-- error msg -->
                 <ion-text *ngIf="securityQ2.invalid && securityQ2.touched">
-                  <p class="error-message">*Sila isi jawapan anda/Please provide an answer.</p>
+                  <p class="error-message">
+                    *Sila isi jawapan anda/Please provide an answer.
+                  </p>
                 </ion-text>
               </ion-item>
 
@@ -251,15 +405,20 @@
                 <ion-col>
                   <ion-button mode="ios" expand="block" (click)="goNext()"
                     [disabled]="form.invalid">Seterusnya</ion-button> -->
-                  <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-                <!-- </ion-col>
+              <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
+              <!-- </ion-col>
               </ion-row> -->
 
-              <ion-alert [isOpen]="isAlertOpen" header="Akaun Berjaya Didaftarkan!"
-                subHeader="You have successfully registered! Proceed clicking 'OK' to log in to your registered account." [buttons]="alertButtons" (didDismiss)="setOpen(false)"
-                backdropDismiss="false"></ion-alert>
+              <ion-alert
+                [isOpen]="isAlertOpen"
+                header="Akaun Berjaya Didaftarkan!"
+                subHeader="You have successfully registered! Proceed clicking 'OK' to log in to your registered account."
+                [buttons]="alertButtons"
+                (didDismiss)="setOpen(false)"
+                backdropDismiss="false"
+              ></ion-alert>
 
-              <ion-row style="margin-top: 5vh;">
+              <ion-row style="margin-top: 5vh">
                 <ion-col>
                   <ion-button fill="clear" (click)="goPrev()" mode="ios">
                     <ion-icon slot="start" name="chevron-back"></ion-icon>
@@ -267,12 +426,17 @@
                   </ion-button>
                 </ion-col>
                 <ion-col>
-                  <ion-button mode="ios" expand="block" type="submit" [disabled]="form.invalid">
-                    Daftar/Register</ion-button>
+                  <ion-button
+                    mode="ios"
+                    expand="block"
+                    type="submit"
+                    [disabled]="form.invalid"
+                  >
+                    Daftar/Register</ion-button
+                  >
                   <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
                 </ion-col>
               </ion-row>
-
             </ion-list>
           </swiper-slide>
 
@@ -300,53 +464,52 @@
               <ion-col>
                 <ion-button *ngIf="page3Visited == true" mode="ios"
                   style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-              <!-- </ion-col>
+          <!-- </ion-col>
             </ion-row>
 
           </swiper-slide> -->
 
-
           <!-- step 3 -->
           <!-- <swiper-slide> -->
-            <!-- accomodation form -->
+          <!-- accomodation form -->
 
-            <!-- <ion-item *ngIf="selectedOption === 'accommodation'" class="no-border">
+          <!-- <ion-item *ngIf="selectedOption === 'accommodation'" class="no-border">
               <ion-label mode="ios" class="question-label">Tempat Penginapan/<span
                   style="font-style: italic;">Accommodation</span></ion-label>
             </ion-item>
 
             <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
               <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Penginapan/Homestay</ion-label> -->
-              <!-- <ion-label position="stacked">Username</ion-label> -->
-              <!-- <ion-input placeholder="e.g., Homestay Hut" class="form-input" [(ngModel)]="accomData.homest_name"
+          <!-- <ion-label position="stacked">Username</ion-label> -->
+          <!-- <ion-input placeholder="e.g., Homestay Hut" class="form-input" [(ngModel)]="accomData.homest_name"
                 name="homest_name" [required]="selectedOption === 'accommodation'" #homestName="ngModel">
               </ion-input> -->
 
-              <!-- error msg homestay name -->
-              <!-- <ion-text *ngIf="homestName?.invalid && (homestName?.touched || form.submitted)">
+          <!-- error msg homestay name -->
+          <!-- <ion-text *ngIf="homestName?.invalid && (homestName?.touched || form.submitted)">
                 <ion-text *ngIf="homestName?.errors?.['required']">
                   <p class="error-message">*Sila isi nama Tempat Penginapan / Homestay name is required</p>
                 </ion-text>
               </ion-text> -->
 
-            <!-- </ion-item> -->
+          <!-- </ion-item> -->
 
-            <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
+          <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
               <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label> -->
-              <!-- <ion-label position="stacked">Username</ion-label> -->
-              <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
+          <!-- <ion-label position="stacked">Username</ion-label> -->
+          <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
                 name="email" required></ion-input> -->
 
-              <!-- <ion-select class="form-input" aria-label="location" interface="popover"
+          <!-- <ion-select class="form-input" aria-label="location" interface="popover"
                 placeholder="Pilih Lokasi/Pick Location" [(ngModel)]="accomData.location" name="location"
                 [required]="selectedOption === 'accommodation'" #location="ngModel">
                 <ion-select-option value="Kiulu">Kiulu</ion-select-option>
                 <ion-select-option value="Kedamaian">Kedamaian</ion-select-option> -->
-                <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-              <!-- </ion-select> -->
+          <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
+          <!-- </ion-select> -->
 
-              <!-- error msg location -->
-              <!-- <ion-text *ngIf="location?.invalid && (location?.touched || form.submitted)">
+          <!-- error msg location -->
+          <!-- <ion-text *ngIf="location?.invalid && (location?.touched || form.submitted)">
                 <ion-text *ngIf="location?.errors?.['required']">
                   <p class="error-message">*Sila pilih Lokasi / Location required</p>
                 </ion-text>
@@ -355,10 +518,10 @@
             </ion-item>
  -->
 
-            <!-- activity form -->
+          <!-- activity form -->
 
-            <!-- title -->
-            <!-- <ion-list class="form-container">
+          <!-- title -->
+          <!-- <ion-list class="form-container">
               <ion-item *ngIf="selectedOption === 'activity'" class="no-border">
                 <ion-label mode="ios" class="question-label">Aktiviti/<span
                     style="font-style: italic;">Activity</span></ion-label>
@@ -368,25 +531,25 @@
               <br/>
               <br/>
               < activity name field -->
-              <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+          <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
                 <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Aktiviti/Activity
                   Name</ion-label>
                 <ion-label position="stacked">Username</ion-label> -->
-                <!-- <ion-input placeholder="e.g., Kayak" class="form-input" [(ngModel)]="activityData.activity_name"
+          <!-- <ion-input placeholder="e.g., Kayak" class="form-input" [(ngModel)]="activityData.activity_name"
                   name="activity_name" [required]="selectedOption === 'activity'" #activityName="ngModel">
                 </ion-input> -->
 
-                <!-- error msg activity name -->
-                <!-- <ion-text *ngIf="activityName?.invalid && (activityName?.touched || form.submitted)">
+          <!-- error msg activity name -->
+          <!-- <ion-text *ngIf="activityName?.invalid && (activityName?.touched || form.submitted)">
                   <ion-text *ngIf="activityName?.errors?.['required']">
                     <p class="error-message">*Sila isi nama Aktiviti / Activity Name is Required</p>
                   </ion-text>
                 </ion-text> -->
 
-              <!-- </ion-item> -->
-              
-              <!-- activity location field -->
-              <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
+          <!-- </ion-item> -->
+
+          <!-- activity location field -->
+          <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
                 <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label>
 
                 <ion-select class="form-input" aria-label="location" interface="popover"
@@ -395,11 +558,11 @@
 
                   <ion-select-option value="Kiulu">Kiulu</ion-select-option>
                   <ion-select-option value="Kedamaian">Kedamaian</ion-select-option> -->
-                  <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-                <!-- </ion-select> -->
+          <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
+          <!-- </ion-select> -->
 
-                <!-- error msg activity name -->
-                <!-- <ion-text *ngIf="activityLocation?.invalid && (activityLocation?.touched || form.submitted)">
+          <!-- error msg activity name -->
+          <!-- <ion-text *ngIf="activityLocation?.invalid && (activityLocation?.touched || form.submitted)">
                   <ion-text *ngIf="activityLocation?.errors?.['required']">
                     <p class="error-message">*Sila pilih lokasi / Location required</p>
                   </ion-text>
@@ -407,27 +570,38 @@
 
               </ion-item> -->
 
+          <ion-alert
+            [isOpen]="isAlertOpen"
+            header="Akaun Berjaya Didaftarkan!"
+            subHeader="Account Created Successfully!"
+            [buttons]="alertButtons"
+            (didDismiss)="setOpen(false)"
+            backdropDismiss="false"
+          ></ion-alert>
 
-              <ion-row style="margin-top: 5vh;">
-                <ion-col>
-                  <ion-button fill="clear" (click)="goPrev()" mode="ios">
-                    <ion-icon slot="start" name="chevron-back"></ion-icon>
-                    <span>Back</span>
-                  </ion-button>
-                </ion-col>
-                <ion-col>
-                  <ion-button mode="ios" expand="block" type="submit" [disabled]="form.invalid || !isFormComplete()">
-                    Daftar/Register</ion-button>
-                  <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-                </ion-col>
-              </ion-row>
-            <!-- </ion-list> -->
+          <ion-row style="margin-top: 5vh">
+            <ion-col>
+              <ion-button fill="clear" (click)="goPrev()" mode="ios">
+                <ion-icon slot="start" name="chevron-back"></ion-icon>
+                <span>Back</span>
+              </ion-button>
+            </ion-col>
+            <ion-col>
+              <ion-button
+                mode="ios"
+                expand="block"
+                type="submit"
+                [disabled]="form.invalid || !isFormComplete()"
+              >
+                Daftar/Register</ion-button
+              >
+              <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
+            </ion-col>
+          </ion-row>
+          <!-- </ion-list> -->
           <!-- </swiper-slide> -->
-
         </swiper-container>
       </ion-card>
-
-
     </div>
-  </form>
-</ion-content>
+  </form> </ion-content
+>>

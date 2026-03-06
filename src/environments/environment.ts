@@ -2,20 +2,15 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-// If want to login using Local Host, Use this
-// export const environment = {
-//   production: true,
-//   apiUrl: 'http://localhost:3000/api',  // Production API URL
-//   API:'http://localhost:3000'
-// };
-
-// If want to test PWA / Share local progress, Use this
 export const environment = {
-  production: true,
-  apiUrl: 'http://localhost:3000/api',  // Production API URL
-  API:'http://localhost:3000'
-};
+  production: false,
+  apiUrl: 'http://localhost:3000/api',
+  API: 'http://localhost:3000',
 
+  // Feature flags for development
+  enableDebugMode: true,
+  logApiCalls: true,
+};
 
 /*
  * For easier debugging in development mode, you can import the following file
