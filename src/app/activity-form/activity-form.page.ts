@@ -45,7 +45,13 @@ export class ActivityFormPage implements OnInit {
   availableTimeSlots: string[] = [];
 
   touristOptions: any[] = [];
-  selectedTouristUserId: string = '';
+  filteredTouristOptions: any[] = [];
+  touristSearchQuery: string = '';
+  showTouristList: boolean = false;
+  touristSelected: boolean = false; // drives green border — explicit, not string-truthy
+  selectedTouristUserId: string = ''; // actual user_id sent to backend
+  selectedTouristBookingId: string = ''; // unique booking_id used by the dropdown
+  selectedTouristDisplayText: string = ''; // label shown after selection
   selectedBookingId: number | null = null;
 
   numbers: number[] = Array.from({ length: 20 }, (_, i) => i + 1);
@@ -84,6 +90,7 @@ export class ActivityFormPage implements OnInit {
 
         // SOLID: Use TouristOptionMapper (Interface Segregation)
         this.touristOptions = TouristOptionMapper.mapToOptions(unpaidBookings);
+        this.filteredTouristOptions = [...this.touristOptions];
       },
       (err) => {
         console.error('Failed to load tourists:', err);
@@ -105,6 +112,61 @@ export class ActivityFormPage implements OnInit {
     return `PE${randomPart.toString().padStart(7, '0')}`;
   }
 
+  // ---------------- Tourist Search ----------------
+  filterTourists(query: string | null | undefined) {
+    const q = (query || '').toLowerCase().trim();
+    this.filteredTouristOptions = q
+      ? this.touristOptions.filter((t) =>
+          t.displayText.toLowerCase().includes(q),
+        )
+      : [...this.touristOptions];
+  }
+
+  // Called when searchbar loses focus — close dropdown unless operator clicked a list item
+  // (the 150ms delay lets the item's click event fire first)
+  onTouristSearchBlur() {
+    setTimeout(() => {
+      this.showTouristList = false;
+    }, 150);
+  }
+
+  // Called on searchbar focus — clear text so operator can type fresh,
+  // show full list. Dropdown stays open until a name is picked.
+  onTouristSearchFocus() {
+    this.touristSearchQuery = '';
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.showTouristList = true;
+  }
+
+  // Called on ionInput — filter list, keep dropdown open
+  onTouristSearchInput(query: string | null | undefined) {
+    this.filterTourists(query);
+    this.showTouristList = true;
+  }
+
+  // Only called when operator explicitly picks a name
+  selectTouristOption(tourist: any) {
+    this.showTouristList = false;
+    this.touristSearchQuery = tourist.displayText; // show selected name in searchbar
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.selectedTouristBookingId = tourist.booking_id;
+    this.selectedTouristDisplayText = tourist.displayText;
+    this.touristSelected = true;
+    this.onTouristChange(tourist.booking_id);
+  }
+
+  // Called when the X button is tapped — fully resets selection
+  clearTouristSelection() {
+    this.touristSelected = false;
+    this.selectedTouristBookingId = '';
+    this.selectedTouristDisplayText = '';
+    this.selectedTouristUserId = '';
+    this.selectedBookingId = null;
+    this.touristSearchQuery = '';
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.showTouristList = false;
+  }
+
   // ---------------- Booking Type Change ----------------
   onBookingTypeChange(type: string) {
     if (type === 'manual') {
@@ -121,8 +183,14 @@ export class ActivityFormPage implements OnInit {
       this.form.issuer = '';
       this.selectedActivity = null;
       this.availableTimeSlots = [];
+      this.touristSelected = false;
       this.selectedTouristUserId = '';
+      this.selectedTouristBookingId = '';
+      this.selectedTouristDisplayText = '';
       this.selectedBookingId = null;
+      this.touristSearchQuery = '';
+      this.filteredTouristOptions = [...this.touristOptions];
+      this.showTouristList = false;
       this.autofillOperator();
     } else {
       // Switching back to guest — clear the manual name
@@ -130,15 +198,17 @@ export class ActivityFormPage implements OnInit {
     }
   }
 
-  onTouristChange(selectedTouristUserId: string) {
+  onTouristChange(selectedBookingId: string) {
     const booking = this.touristOptions.find(
-      (t) => t.user_id === selectedTouristUserId,
+      // eslint-disable-next-line eqeqeq
+      (t) => t.booking_id == selectedBookingId,
     );
     if (!booking) {
       return;
     }
 
-    // Store booking ID for later use
+    // Store the actual user_id and booking_id for later use
+    this.selectedTouristUserId = booking.user_id || '';
     this.selectedBookingId = booking.booking_id || null;
 
     // Autofill form fields from booking
@@ -324,8 +394,14 @@ export class ActivityFormPage implements OnInit {
     form.reset();
     this.selectedActivity = null;
     this.availableTimeSlots = [];
+    this.touristSelected = false;
     this.selectedTouristUserId = '';
+    this.selectedTouristBookingId = '';
+    this.selectedTouristDisplayText = '';
     this.selectedBookingId = null;
+    this.touristSearchQuery = '';
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.showTouristList = false;
   }
 
   // ---------------- Navigation ----------------

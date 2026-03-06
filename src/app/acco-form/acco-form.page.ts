@@ -42,7 +42,13 @@ export class AccoFormPage implements OnInit {
 
   // Tourist selection properties
   touristOptions: any[] = [];
-  selectedTouristUserId: string = '';
+  filteredTouristOptions: any[] = [];
+  touristSearchQuery: string = '';
+  showTouristList: boolean = false;
+  touristSelected: boolean = false;
+  selectedTouristUserId: string = ''; // actual user_id sent to backend
+  selectedTouristBookingId: string = ''; // unique booking_id used by the dropdown
+  selectedTouristDisplayText: string = '';
   selectedBookingId: number | null = null;
 
   constructor(
@@ -106,6 +112,7 @@ export class AccoFormPage implements OnInit {
         // Map to tourist options for dropdown
         this.touristOptions =
           AccommodationTouristOptionMapper.mapToOptions(unpaidBookings);
+        this.filteredTouristOptions = [...this.touristOptions];
       },
       (err) => {
         console.error('Failed to load tourists:', err);
@@ -114,16 +121,66 @@ export class AccoFormPage implements OnInit {
     );
   }
 
+  // ---------------- Tourist Search ----------------
+  filterTourists(query: string | null | undefined) {
+    const q = (query || '').toLowerCase().trim();
+    this.filteredTouristOptions = q
+      ? this.touristOptions.filter((t) =>
+          t.displayText.toLowerCase().includes(q),
+        )
+      : [...this.touristOptions];
+  }
+
+  onTouristSearchFocus() {
+    this.touristSearchQuery = '';
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.showTouristList = true;
+  }
+
+  onTouristSearchInput(query: string | null | undefined) {
+    this.filterTourists(query);
+    this.showTouristList = true;
+  }
+
+  onTouristSearchBlur() {
+    setTimeout(() => {
+      this.showTouristList = false;
+    }, 150);
+  }
+
+  selectTouristOption(tourist: any) {
+    this.showTouristList = false;
+    this.touristSearchQuery = tourist.displayText;
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.selectedTouristBookingId = tourist.booking_id;
+    this.selectedTouristDisplayText = tourist.displayText;
+    this.touristSelected = true;
+    this.onTouristChange(tourist.booking_id);
+  }
+
+  clearTouristSelection() {
+    this.touristSelected = false;
+    this.selectedTouristBookingId = '';
+    this.selectedTouristDisplayText = '';
+    this.selectedTouristUserId = '';
+    this.selectedBookingId = null;
+    this.touristSearchQuery = '';
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.showTouristList = false;
+  }
+
   // ---------------- Tourist Selection Change ----------------
-  onTouristChange(selectedTouristUserId: string) {
+  onTouristChange(selectedBookingId: string) {
     const booking = this.touristOptions.find(
-      (t) => t.user_id === selectedTouristUserId,
+      // eslint-disable-next-line eqeqeq
+      (t) => t.booking_id == selectedBookingId,
     );
     if (!booking) {
       return;
     }
 
     // Store booking ID for later use
+    this.selectedTouristUserId = booking.user_id || '';
     this.selectedBookingId = booking.booking_id || null;
 
     // Autofill form fields from booking
@@ -177,20 +234,27 @@ export class AccoFormPage implements OnInit {
   // ---------------- Booking Type Change ----------------
   onBookingTypeChange(type: string) {
     if (type === 'manual') {
-    // Clear all autofilled data when switching to manual
-    this.form.citizenship = 'Warganegara';
-    this.form.pax_domestik = '';
-    this.form.pax_antarabangsa = '';
-    this.form.date = '';
-    this.form.check_out = '';
-    this.form.total_night = '';
-    this.form.total_rm = '';
-    this.form.homest_name = '';
-    this.form.homest_id = '';
-    this.form.location = '';
-    this.selectedAccommodation = null;
-    this.selectedBookingId = null;
-    this.autofillOperator();
+      // Clear all autofilled data when switching to manual
+      this.form.citizenship = 'Warganegara';
+      this.form.pax_domestik = '';
+      this.form.pax_antarabangsa = '';
+      this.form.date = '';
+      this.form.check_out = '';
+      this.form.total_night = '';
+      this.form.total_rm = '';
+      this.form.homest_name = '';
+      this.form.homest_id = '';
+      this.form.location = '';
+      this.selectedAccommodation = null;
+      this.selectedBookingId = null;
+      this.touristSelected = false;
+      this.selectedTouristBookingId = '';
+      this.selectedTouristDisplayText = '';
+      this.selectedTouristUserId = '';
+      this.touristSearchQuery = '';
+      this.filteredTouristOptions = [...this.touristOptions];
+      this.showTouristList = false;
+      this.autofillOperator();
     } else {
       // Switching back to guest — clear the manual name
       this.form.manual_tourist_name = '';
@@ -371,8 +435,14 @@ export class AccoFormPage implements OnInit {
   clearForm(form: NgForm) {
     form.reset();
     this.selectedAccommodation = null;
+    this.touristSelected = false;
     this.selectedTouristUserId = '';
+    this.selectedTouristBookingId = '';
+    this.selectedTouristDisplayText = '';
     this.selectedBookingId = null;
+    this.touristSearchQuery = '';
+    this.filteredTouristOptions = [...this.touristOptions];
+    this.showTouristList = false;
   }
 
   compareWithFn(o1: any, o2: any) {
