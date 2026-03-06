@@ -1,0 +1,26 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 100px;
+  height: 100px;
+  flex: 0 0 100px;
+  background-color: #e0e0e0;
+}
+
+.logo::part(image) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.divider {
+  width: 2px;
+  height: 100px;
+  background: #000;
+  border-radius: 2px;
+}
