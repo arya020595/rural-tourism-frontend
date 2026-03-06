@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AlertController, NavController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
-import { AlertController } from '@ionic/angular';
-import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-operator-bookings',
