@@ -72,14 +72,14 @@ export class ToastService {
    * Show a custom toast with full options
    */
   async show(options: ToastOptions): Promise<void> {
-    const defaultOptions: ToastOptions = {
+    const mergedOptions: ToastOptions = {
       position: 'bottom',
       duration: 2000,
       ...options,
     };
 
     // Add to queue
-    this.toastQueue.push(defaultOptions);
+    this.toastQueue.push(mergedOptions);
 
     // Process queue if not already processing
     if (!this.isShowingToast) {
@@ -99,16 +99,21 @@ export class ToastService {
     this.isShowingToast = true;
     const options = this.toastQueue.shift();
 
-    if (options) {
-      try {
-        const toast = await this.toastController.create(options);
-        await toast.present();
+    if (!options) {
+      this.isShowingToast = false;
+      return;
+    }
 
-        // Wait for toast to dismiss before showing next
-        await toast.onDidDismiss();
-      } catch (error) {
-        console.error('Error showing toast:', error);
-      }
+    try {
+      const toast = await this.toastController.create(options);
+      await toast.present();
+
+      // Wait for toast to dismiss before showing next
+      await toast.onDidDismiss();
+    } catch (error) {
+      console.error('Error while processing toast queue:', error);
+    } finally {
+      // Process next toast in queue
       await this.processQueue();
     }
   }

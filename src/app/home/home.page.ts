@@ -80,7 +80,7 @@ export class HomePage implements OnInit {
 
   // Call this whenever you load operator bookings
   updatePendingBookingsCount() {
-    const operatorId = this.user?.id;
+    const operatorId = this.user?.id || this.user?.user_id || this.uid;
     if (!operatorId) return;
 
     this.apiService.getOperatorAllBookings(operatorId).subscribe({

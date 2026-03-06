@@ -136,18 +136,19 @@ export class AuthService {
    * Handle successful operator login
    */
   private handleOperatorLoginSuccess(response: LoginResponse): void {
+    if (!response.user) {
+      return;
+    }
+
+    const user = { ...response.user, role: 'operator' as const };
+    this.storage.setUser(user);
+    this.currentUserSubject.next(user);
+
     if (response.token) {
       this.storage.setToken(response.token);
     }
     if (response.id) {
       this.storage.setUid(response.id);
-    }
-    if (response.user) {
-      this.storage.setUser({ ...response.user, role: 'operator' });
-      this.currentUserSubject.next({ ...response.user, role: 'operator' });
-    } else {
-      // Set authenticated even without user object, using available token/id
-      this.currentUserSubject.next({ username: '', role: 'operator' });
     }
     this.isAuthenticatedSubject.next(true);
   }
@@ -238,8 +239,20 @@ export class AuthService {
    */
   isOperator(): boolean {
     const role = this.currentUser?.role;
-    if (role) return role === 'operator';
-    return !!this.storage.getUid() && !this.storage.getTouristUserId();
+
+    if (role === 'operator') {
+      return true;
+    }
+
+    if (role === 'tourist') {
+      return false;
+    }
+
+    const hasOperatorId = !!this.storage.getUid();
+    const hasTouristId = !!this.storage.getTouristUserId();
+
+    // Only treat as operator if we have an operator ID and no tourist ID
+    return hasOperatorId && !hasTouristId;
   }
 
   /**
@@ -247,7 +260,19 @@ export class AuthService {
    */
   isTourist(): boolean {
     const role = this.currentUser?.role;
-    if (role) return role === 'tourist';
-    return !!this.storage.getTouristUserId();
+
+    if (role === 'tourist') {
+      return true;
+    }
+
+    if (role === 'operator') {
+      return false;
+    }
+
+    const hasOperatorId = !!this.storage.getUid();
+    const hasTouristId = !!this.storage.getTouristUserId();
+
+    // Only treat as tourist if we have a tourist ID and no operator ID
+    return hasTouristId && !hasOperatorId;
   }
 }
