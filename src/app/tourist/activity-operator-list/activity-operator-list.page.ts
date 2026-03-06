@@ -36,7 +36,9 @@ export class ActivityOperatorListPage implements OnInit {
   loadOperators(activityId: string) {
     this.api.getOperatorsByActivityId(activityId).subscribe(
       (res: any[]) => {
-        console.log('Operators API response:', res); // DEBUG
+        if (!environment.production) {
+          console.log('Operators API response:', res);
+        }
 
         this.operators = res.map((op) => {
           // Support multiple possible slot arrays

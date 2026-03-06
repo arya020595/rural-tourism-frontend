@@ -104,7 +104,7 @@ export class RegisterPage implements AfterViewInit {
     {
       text: 'OK',
       handler: () => {
-        // Navigate to the /login route when the button is pressed
+        // Navigate to the /login route when the button is pressed for operators
         this.router.navigate(['/login']);
       },
     },
