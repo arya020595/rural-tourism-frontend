@@ -29,7 +29,7 @@ export class OperatorBookingsPage implements OnInit {
   setOperatorId() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.id) {
-      alert('Operator not logged in.');
+      this.showAlert('Operator not logged in.');
       return;
     }
     this.operatorId = user.id;
@@ -56,13 +56,13 @@ export class OperatorBookingsPage implements OnInit {
           this.bookings = [];
           this.activityBookings = [];
           this.accommodationBookings = [];
-          alert(res.message || 'No bookings found.');
+          this.showAlert(res.message || 'No bookings found.');
         }
       },
       (err) => {
         this.loading = false;
         console.error(err);
-        alert('Server error while loading bookings.');
+        this.showAlert('Server error while loading bookings.');
       },
     );
   }
@@ -158,5 +158,14 @@ export class OperatorBookingsPage implements OnInit {
 
     // Optionally, navigate back to home or previous page
     this.navCtrl.navigateBack('/home');
+  }
+
+  private async showAlert(message: string): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Notice',
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 }

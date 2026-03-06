@@ -69,41 +69,41 @@ export class LoginPage implements OnInit {
 
     this.apiService.loginTourist(credentials).subscribe(
       async (res: any) => {
-        // ⬇️ YOUR EXISTING LOGIC (UNCHANGED)
-        if (res.user && res.user.is_active === false) {
-          if (res.user.suspended_at) {
-            const now = new Date();
-            const suspendedAt = new Date(res.user.suspended_at);
-            const diffDays = Math.floor(
-              (now.getTime() - suspendedAt.getTime()) / (1000 * 60 * 60 * 24),
-            );
+        if (res.success) {
+          // Check suspension status only on successful login
+          if (res.user && res.user.is_active === false) {
+            if (res.user.suspended_at) {
+              const now = new Date();
+              const suspendedAt = new Date(res.user.suspended_at);
+              const diffDays = Math.floor(
+                (now.getTime() - suspendedAt.getTime()) / (1000 * 60 * 60 * 24),
+              );
 
-            if (diffDays >= 3) {
-              res.user.is_active = true;
-              res.user.suspended_at = null;
-              localStorage.setItem('user', JSON.stringify(res.user));
+              if (diffDays >= 3) {
+                res.user.is_active = true;
+                res.user.suspended_at = null;
+                localStorage.setItem('user', JSON.stringify(res.user));
+              } else {
+                const daysLeft = 3 - diffDays;
+                const alert = await this.alertCtrl.create({
+                  header: 'Account Suspended',
+                  message: `Your account is suspended. Please try again in ${daysLeft} day(s).`,
+                  buttons: [{ text: 'OK', role: 'cancel' }],
+                });
+                await alert.present();
+                return;
+              }
             } else {
-              const daysLeft = 3 - diffDays;
               const alert = await this.alertCtrl.create({
                 header: 'Account Suspended',
-                message: `Your account is suspended. Please try again in ${daysLeft} day(s).`,
+                message: 'Your account is suspended. Please contact support.',
                 buttons: [{ text: 'OK', role: 'cancel' }],
               });
               await alert.present();
               return;
             }
-          } else {
-            const alert = await this.alertCtrl.create({
-              header: 'Account Suspended',
-              message: 'Your account is suspended. Please contact support.',
-              buttons: [{ text: 'OK', role: 'cancel' }],
-            });
-            await alert.present();
-            return;
           }
-        }
 
-        if (res.success) {
           localStorage.setItem('user', JSON.stringify(res.user));
           localStorage.setItem('tourist_user_id', res.user.tourist_user_id);
 
@@ -145,9 +145,7 @@ export class LoginPage implements OnInit {
                 activity_id,
                 operator_id,
                 price,
-                available_dates_list: availableDates
-                  ? JSON.parse(availableDates)
-                  : [],
+                available_dates_list: this.safeParseJson(availableDates, []),
               },
             });
             return;
@@ -169,5 +167,14 @@ export class LoginPage implements OnInit {
       animated: true,
       animationDirection: 'back',
     });
+  }
+
+  private safeParseJson(value: string | null, fallback: any): any {
+    if (!value) return fallback;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return fallback;
+    }
   }
 }

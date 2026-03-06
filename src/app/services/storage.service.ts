@@ -154,10 +154,16 @@ export class StorageService {
   }
 
   /**
-   * Check if user is authenticated (has token or user data)
+   * Check if user is authenticated (has a token and associated identity data)
    */
   isAuthenticated(): boolean {
-    return !!(this.getToken() || this.getUid() || this.getUser());
+    const token = this.getToken();
+    const uid = this.getUid();
+    const user = this.getUser();
+
+    // Consider authenticated only when there is a token and at least
+    // one form of identity information (uid or user object).
+    return !!token && (!!uid || !!user);
   }
 
   /**

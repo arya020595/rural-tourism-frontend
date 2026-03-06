@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { ApiService } from '../../services/api.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-accomodation-detail',
@@ -101,7 +102,7 @@ export class AccomodationDetailPage implements OnInit {
     if (!imageData) return 'assets/icon/placeholder.png';
     if (imageData.startsWith('http') || imageData.startsWith('data:image'))
       return imageData;
-    return `http://localhost:3000/uploads/accommodations/${imageData}`;
+    return `${environment.API}/uploads/accommodations/${imageData}`;
   }
 
   toggleAmenities() {

@@ -85,6 +85,7 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
+    // Check if app is running in standalone mode (PWA) and apply appropriate CSS class
     if (window.matchMedia('(display-mode: standalone)').matches) {
       document.body.classList.add('standalone-app');
     } else {

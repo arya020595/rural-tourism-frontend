@@ -41,14 +41,8 @@ export class BookingFilter {
    */
   static getUnpaidBookings(bookings: any[]): any[] {
     const allowedStatuses = ['booked', 'pending'];
-    const excludedStatuses = ['paid', 'cancelled', 'completed'];
 
-    return bookings.filter((booking) => {
-      const status = (booking.status || '').trim().toLowerCase();
-      return (
-        allowedStatuses.includes(status) && !excludedStatuses.includes(status)
-      );
-    });
+    return BookingFilter.filterByStatus(bookings, allowedStatuses);
   }
 }
 
