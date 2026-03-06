@@ -1,11 +1,12 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
 import { FAQPageRoutingModule } from './faq-routing.module';
 
+import { SharedModule } from '../_shared/shared.module';
 import { FAQPage } from './faq.page';
 
 @NgModule({
@@ -13,7 +14,8 @@ import { FAQPage } from './faq.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    FAQPageRoutingModule
+    FAQPageRoutingModule,
+    SharedModule,
   ],
   declarations: [FAQPage]
 })
