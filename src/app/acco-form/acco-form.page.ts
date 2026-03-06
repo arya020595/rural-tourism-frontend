@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import {
   AccommodationTouristOptionMapper,
@@ -50,16 +51,23 @@ export class AccoFormPage implements OnInit {
   selectedTouristBookingId: string = ''; // unique booking_id used by the dropdown
   selectedTouristDisplayText: string = '';
   selectedBookingId: number | null = null;
+  preselectedBookingId: number | null = null;
 
   constructor(
     private apiService: ApiService,
     private navCtrl: NavController,
+    private route: ActivatedRoute,
   ) {}
 
   // Create an array of numbers from 1 to 20
   numbers: number[] = Array.from({ length: 20 }, (_, i) => i + 1);
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      if (params['bookingId']) {
+        this.preselectedBookingId = Number(params['bookingId']);
+      }
+    });
     //load accomodation options
     this.loadAccom();
     this.autofillOperator();
@@ -113,6 +121,22 @@ export class AccoFormPage implements OnInit {
         this.touristOptions =
           AccommodationTouristOptionMapper.mapToOptions(unpaidBookings);
         this.filteredTouristOptions = [...this.touristOptions];
+
+        // Auto-select if navigated from operator-bookings with a bookingId
+        if (this.preselectedBookingId) {
+          const match = this.touristOptions.find(
+            (t) => t.booking_id === this.preselectedBookingId,
+          );
+          if (match) {
+            this.showTouristList = false;
+            this.touristSearchQuery = match.displayText;
+            this.filteredTouristOptions = [...this.touristOptions];
+            this.selectedTouristBookingId = match.booking_id;
+            this.selectedTouristDisplayText = match.displayText;
+            this.touristSelected = true;
+            this.onTouristChange(match.booking_id);
+          }
+        }
       },
       (err) => {
         console.error('Failed to load tourists:', err);
@@ -184,7 +208,13 @@ export class AccoFormPage implements OnInit {
     this.selectedBookingId = booking.booking_id || null;
 
     // Autofill form fields from booking
-    this.form.citizenship = booking.citizenship || '';
+    const nat = (booking.citizenship || '').toLowerCase();
+    this.form.citizenship =
+      nat === 'malaysian'
+        ? 'Warganegara'
+        : nat
+          ? 'Bukan Warganegara'
+          : 'Warganegara';
     this.form.total_rm = booking.total_price
       ? booking.total_price.toString()
       : '';

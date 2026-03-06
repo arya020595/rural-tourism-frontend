@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { BookingFilter, TouristOptionMapper } from '../utils/booking.utils';
 
@@ -10,12 +11,20 @@ import { BookingFilter, TouristOptionMapper } from '../utils/booking.utils';
   styleUrls: ['./activity-form.page.scss'],
 })
 export class ActivityFormPage implements OnInit {
+  preselectedBookingId: number | null = null;
+
   constructor(
     private apiService: ApiService,
     private navCtrl: NavController,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      if (params['bookingId']) {
+        this.preselectedBookingId = Number(params['bookingId']);
+      }
+    });
     this.loadActivities();
     this.autofillOperator();
     this.loadTouristsFromBookings();
@@ -62,6 +71,11 @@ export class ActivityFormPage implements OnInit {
     this.apiService.getAllActByUser(uid).subscribe(
       (data) => {
         this.activities = data;
+        // Re-trigger tourist change if tourist was auto-selected before
+        // activities finished loading (race condition fix)
+        if (this.selectedTouristBookingId) {
+          this.onTouristChange(this.selectedTouristBookingId);
+        }
       },
       (error) => {
         console.error('Failed to load activities:', error);
@@ -91,6 +105,22 @@ export class ActivityFormPage implements OnInit {
         // SOLID: Use TouristOptionMapper (Interface Segregation)
         this.touristOptions = TouristOptionMapper.mapToOptions(unpaidBookings);
         this.filteredTouristOptions = [...this.touristOptions];
+
+        // Auto-select if navigated from operator-bookings with a bookingId
+        if (this.preselectedBookingId) {
+          const match = this.touristOptions.find(
+            (t) => t.booking_id === this.preselectedBookingId,
+          );
+          if (match) {
+            this.showTouristList = false;
+            this.touristSearchQuery = match.displayText;
+            this.filteredTouristOptions = [...this.touristOptions];
+            this.selectedTouristBookingId = match.booking_id;
+            this.selectedTouristDisplayText = match.displayText;
+            this.touristSelected = true;
+            this.onTouristChange(match.booking_id);
+          }
+        }
       },
       (err) => {
         console.error('Failed to load tourists:', err);
@@ -212,7 +242,13 @@ export class ActivityFormPage implements OnInit {
     this.selectedBookingId = booking.booking_id || null;
 
     // Autofill form fields from booking
-    this.form.citizenship = booking.citizenship || '';
+    const nat = (booking.citizenship || '').toLowerCase();
+    this.form.citizenship =
+      nat === 'malaysian'
+        ? 'Warganegara'
+        : nat
+          ? 'Bukan Warganegara'
+          : 'Warganegara';
     this.form.date = booking.date || '';
     this.form.time = booking.time || '';
     this.form.total_rm = booking.total_price
@@ -226,11 +262,17 @@ export class ActivityFormPage implements OnInit {
     this.form.pax_antarabangsa = noOfPax;
 
     // Find matching activity from activities list
-    // ✅ FIX: booking.activity_id is activity_master.id, NOT operator_activities.activity_id
-    // Strategy 1: Match booking.activity_id with activity_master.id (CORRECT!)
-    let matchedActivity = this.activities.find(
-      (a) => a.activity_master?.id === booking.activity_id,
-    );
+    // Strategy 0: Match by operator_activity_id — most precise, handles duplicate activity names
+    let matchedActivity = booking.operator_activity_id
+      ? this.activities.find((a) => a.id === booking.operator_activity_id)
+      : null;
+
+    // Strategy 1: Match booking.activity_id with activity_master.id
+    if (!matchedActivity) {
+      matchedActivity = this.activities.find(
+        (a) => a.activity_master?.id === booking.activity_id,
+      );
+    }
 
     // Fallback: Try matching by activity name if ID match fails
     if (!matchedActivity && booking.activity_name) {
@@ -270,9 +312,20 @@ export class ActivityFormPage implements OnInit {
       const dates = this.selectedActivity.available_dates || [];
       const parsed = typeof dates === 'string' ? JSON.parse(dates) : dates;
       const slots = parsed
-        .map((entry: any) => entry.time)
+        .map(
+          (entry: any) =>
+            entry.time ??
+            (entry.startTime && entry.endTime
+              ? `${entry.startTime} - ${entry.endTime}`
+              : null),
+        )
         .filter((t: any) => !!t);
       this.availableTimeSlots = [...new Set<string>(slots)];
+
+      // If the pre-filled time isn't a valid slot, clear it so operator must pick
+      if (this.form.time && !this.availableTimeSlots.includes(this.form.time)) {
+        this.form.time = '';
+      }
     }
 
     // Populate form fields if activity found
@@ -308,13 +361,42 @@ export class ActivityFormPage implements OnInit {
     const dates = selectedActivity.available_dates || [];
     const parsed = typeof dates === 'string' ? JSON.parse(dates) : dates;
     const slots = parsed
-      .map((entry: any) => entry.time)
+      .map(
+        (entry: any) =>
+          entry.time ??
+          (entry.startTime && entry.endTime
+            ? `${entry.startTime} - ${entry.endTime}`
+            : null),
+      )
       .filter((t: any) => !!t);
     this.availableTimeSlots = [...new Set<string>(slots)];
 
     // Reset time if previously selected slot no longer exists
     if (!this.availableTimeSlots.includes(this.form.time)) {
       this.form.time = '';
+    }
+
+    // For manual bookings, auto-fill date, time, price and operator name
+    if (this.form.booking_type === 'manual') {
+      // Auto-fill earliest available date
+      const firstSlot = parsed.find((entry: any) => !!entry.date);
+      if (firstSlot?.date) {
+        this.form.date = firstSlot.date;
+      }
+
+      // Auto-fill first available time slot
+      if (this.availableTimeSlots.length > 0) {
+        this.form.time = this.availableTimeSlots[0];
+      }
+
+      // Auto-fill price from price_per_pax
+      if (selectedActivity.price_per_pax) {
+        this.form.total_rm = Number(selectedActivity.price_per_pax).toString();
+      }
+
+      // Auto-fill operator name from localStorage
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      this.form.issuer = user.full_name || user.username || '';
     }
   }
 
@@ -413,9 +495,8 @@ export class ActivityFormPage implements OnInit {
   }
 
   compareWithFn(o1: any, o2: any) {
-    // Compare using activity_master.id since that's what we set in form.activity_id
-    return o1 && o2
-      ? (o1.activity_master?.id || o1.id) === (o2.activity_master?.id || o2.id)
-      : o1 === o2;
+    // Compare using the operator activity's own unique id (not activity_master.id)
+    // to correctly distinguish two activities of the same type (e.g. two Island Hopping)
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
   }
 }

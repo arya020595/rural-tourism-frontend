@@ -234,7 +234,8 @@
                       <ion-select-option
                         *ngFor="let activity of activities"
                         [value]="activity"
-                        >{{ activity?.activity_name }}</ion-select-option
+                        >{{ activity?.activity_name }}{{ activity?.address ? '
+                        (' + activity.address + ')' : '' }}</ion-select-option
                       >
                     </ion-select>
                   </ion-item>
@@ -363,7 +364,8 @@
                       <ion-select-option
                         *ngFor="let activity of activities"
                         [value]="activity"
-                        >{{ activity?.activity_name }}</ion-select-option
+                        >{{ activity?.activity_name }}{{ activity?.address ? '
+                        (' + activity.address + ')' : '' }}</ion-select-option
                       >
                     </ion-select>
                   </ion-item>
@@ -518,7 +520,8 @@
                       <ion-select-option
                         *ngFor="let activity of activities"
                         [value]="activity"
-                        >{{ activity?.activity_name }}</ion-select-option
+                        >{{ activity?.activity_name }}{{ activity?.address ? '
+                        (' + activity.address + ')' : '' }}</ion-select-option
                       >
                     </ion-select>
                   </ion-item>
