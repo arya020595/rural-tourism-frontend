@@ -3,20 +3,19 @@
     <form (ngSubmit)="submitForm(myForm)" #myForm="ngForm">
       <ion-card class="main-Container">
         <!-- Back Button -->
-        <ion-button fill="clear" (click)="backHome()" mode="ios">
-          <ion-icon slot="start" name="chevron-back"></ion-icon>
-          <span>Back</span>
-        </ion-button>
+        <ion-buttons class="back-btn-wrapper">
+          <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
+        </ion-buttons>
 
         <app-header-logo></app-header-logo>
 
-        <!-- Form Title -->
-        <div class="form-title">
-          <h2>Tempat Penginapan</h2>
-        </div>
-
         <ion-card-content id="form">
           <ion-list>
+            <!-- Form Title -->
+            <div class="form-title">
+              <h2>Tempat Penginapan</h2>
+            </div>
+
             <!-- Booking Type Row -->
             <div class="booking-type-row">
               <span class="question-label booking-type-label">
@@ -50,14 +49,9 @@
               </ion-radio-group>
             </div>
 
-            <ion-item class="no-border" style="margin-bottom: 1%">
-              <ion-label class="question-label">
-                1. Nama Penuh Pelancong/Tourist Full Name<span
-                  class="error-message"
-                  >*</span
-                >
-              </ion-label>
-            </ion-item>
+            <div class="field-label question-label">
+              1. Nama Penuh Pelancong/Tourist Full Name<span class="error-message">*</span>
+            </div>
 
             <!-- Guest: dropdown to select existing tourist -->
             <ion-item *ngIf="form.booking_type === 'guest'">
@@ -91,11 +85,9 @@
             </ion-item>
 
             <!-- Q2: Citizenship -->
-            <ion-item class="no-border">
-              <ion-label class="question-label">
-                2. Domestik/Antarabangsa <span class="error-message">*</span>
-              </ion-label>
-            </ion-item>
+            <div class="field-label question-label">
+              2. Domestik/Antarabangsa <span class="error-message">*</span>
+            </div>
 
             <ion-radio-group
               mode="md"
@@ -138,6 +130,9 @@
                 </ion-text>
               </ion-item>
             </ion-radio-group>
+
+            <!-- Q3 onwards: locked when guest autofilled -->
+            <div [class.guest-locked]="isGuestAutofilled">
 
             <!-- Domestik only: [Pax | Accommodation], [Date | Nights], [Total RM | Operator] -->
             <ng-container *ngIf="form.citizenship === 'Warganegara'">
@@ -620,6 +615,8 @@
                 </div>
               </div>
             </ng-container>
+
+            </div><!-- /guest-locked -->
 
             <!-- Submit Button -->
             <ion-button
