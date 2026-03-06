@@ -24,7 +24,7 @@ export class ActivityFormPage implements OnInit {
   form = {
     receipt_id: '',
     user_id: localStorage.getItem('uid')!,
-    citizenship: '',
+    citizenship: 'Warganegara',
     pax: 0,
     pax_domestik: '',
     pax_antarabangsa: '',
@@ -35,10 +35,14 @@ export class ActivityFormPage implements OnInit {
     issuer: '',
     operator_user_id: '',
     date: '',
+    time: '',
+    booking_type: 'guest',
+    manual_tourist_name: '',
   };
 
   activities: any[] = [];
   selectedActivity: any = null;
+  availableTimeSlots: string[] = [];
 
   touristOptions: any[] = [];
   selectedTouristUserId: string = '';
@@ -101,7 +105,31 @@ export class ActivityFormPage implements OnInit {
     return `PE${randomPart.toString().padStart(7, '0')}`;
   }
 
-  // ---------------- Tourist Change ----------------
+  // ---------------- Booking Type Change ----------------
+  onBookingTypeChange(type: string) {
+    if (type === 'manual') {
+      // Clear all autofilled data when switching to manual
+      this.form.citizenship = 'Warganegara';
+      this.form.pax_domestik = '';
+      this.form.pax_antarabangsa = '';
+      this.form.date = '';
+      this.form.time = '';
+      this.form.total_rm = '';
+      this.form.activity_name = '';
+      this.form.activity_id = '';
+      this.form.location = '';
+      this.form.issuer = '';
+      this.selectedActivity = null;
+      this.availableTimeSlots = [];
+      this.selectedTouristUserId = '';
+      this.selectedBookingId = null;
+      this.autofillOperator();
+    } else {
+      // Switching back to guest — clear the manual name
+      this.form.manual_tourist_name = '';
+    }
+  }
+
   onTouristChange(selectedTouristUserId: string) {
     const booking = this.touristOptions.find(
       (t) => t.user_id === selectedTouristUserId,
@@ -116,10 +144,16 @@ export class ActivityFormPage implements OnInit {
     // Autofill form fields from booking
     this.form.citizenship = booking.citizenship || '';
     this.form.date = booking.date || '';
+    this.form.time = booking.time || '';
     this.form.total_rm = booking.total_price
       ? booking.total_price.toString()
       : '';
     this.form.issuer = booking.operator_name || '';
+
+    // Autofill pax — fill both fields with the same no_of_pax value
+    const noOfPax = booking.no_of_pax ? booking.no_of_pax.toString() : '';
+    this.form.pax_domestik = noOfPax;
+    this.form.pax_antarabangsa = noOfPax;
 
     // Find matching activity from activities list
     // ✅ FIX: booking.activity_id is activity_master.id, NOT operator_activities.activity_id
@@ -161,6 +195,16 @@ export class ActivityFormPage implements OnInit {
     // Set selected activity for dropdown
     this.selectedActivity = matchedActivity || null;
 
+    // Populate time slots from the matched activity so the time dropdown works
+    if (this.selectedActivity) {
+      const dates = this.selectedActivity.available_dates || [];
+      const parsed = typeof dates === 'string' ? JSON.parse(dates) : dates;
+      const slots = parsed
+        .map((entry: any) => entry.time)
+        .filter((t: any) => !!t);
+      this.availableTimeSlots = [...new Set<string>(slots)];
+    }
+
     // Populate form fields if activity found
     if (this.selectedActivity) {
       this.form.activity_name = this.selectedActivity.activity_name;
@@ -185,18 +229,37 @@ export class ActivityFormPage implements OnInit {
   onActivityChange(selectedActivity: any) {
     if (!selectedActivity) return;
     this.form.activity_name = selectedActivity.activity_name;
-    // ✅ FIX: Use activity_master.id (master table ID), not operator_activities.activity_id field
     this.form.activity_id =
       selectedActivity.activity_master?.id || selectedActivity.activity_id;
     this.form.location =
       selectedActivity.address || selectedActivity.location || '';
+
+    // Extract unique time slots from available_dates
+    const dates = selectedActivity.available_dates || [];
+    const parsed = typeof dates === 'string' ? JSON.parse(dates) : dates;
+    const slots = parsed
+      .map((entry: any) => entry.time)
+      .filter((t: any) => !!t);
+    this.availableTimeSlots = [...new Set<string>(slots)];
+
+    // Reset time if previously selected slot no longer exists
+    if (!this.availableTimeSlots.includes(this.form.time)) {
+      this.form.time = '';
+    }
   }
 
   // ---------------- Submit Form ----------------
   async submitForm(form: NgForm) {
     try {
-      if (!this.selectedTouristUserId) {
+      if (this.form.booking_type === 'guest' && !this.selectedTouristUserId) {
         alert('Please select a tourist.');
+        return;
+      }
+      if (
+        this.form.booking_type === 'manual' &&
+        !this.form.manual_tourist_name
+      ) {
+        alert('Please enter the tourist name.');
         return;
       }
 
@@ -218,7 +281,14 @@ export class ActivityFormPage implements OnInit {
 
       const payload = {
         receipt_id: this.generateReceiptId(),
-        tourist_user_id: this.selectedTouristUserId,
+        tourist_user_id:
+          this.form.booking_type === 'guest'
+            ? this.selectedTouristUserId
+            : null,
+        tourist_name:
+          this.form.booking_type === 'manual'
+            ? this.form.manual_tourist_name
+            : null,
         operator_user_id: operatorUid,
         citizenship: this.form.citizenship,
         pax: totalPax,
@@ -229,8 +299,10 @@ export class ActivityFormPage implements OnInit {
         location: this.form.location || null,
         total_rm: totalPrice.toString(),
         date: this.form.date || null,
+        time: this.form.time || null,
         issuer: this.form.issuer || 'Unknown Operator',
         activity_booking_id: this.selectedBookingId,
+        booking_type: this.form.booking_type || 'guest',
       };
 
       console.debug('Submitting activity form payload:', payload);
@@ -251,6 +323,7 @@ export class ActivityFormPage implements OnInit {
   clearForm(form: NgForm) {
     form.reset();
     this.selectedActivity = null;
+    this.availableTimeSlots = [];
     this.selectedTouristUserId = '';
     this.selectedBookingId = null;
   }

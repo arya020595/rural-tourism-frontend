@@ -222,11 +222,6 @@ const routes: Routes = [
         (m) => m.OperatorBookingsPageModule,
       ),
   },
-  // {
-  //   path: 'activity-and-accommodation-management',
-  //   loadChildren: () => import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then( m => m.ActivityAndAccommodationManagementPageModule)
-  // },
-
 ];
 
 @NgModule({

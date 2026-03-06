@@ -16,7 +16,7 @@ export class ActivityOperatorListPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private api: ApiService
+    private api: ApiService,
   ) {}
 
   ngOnInit() {
@@ -36,7 +36,9 @@ export class ActivityOperatorListPage implements OnInit {
   loadOperators(activityId: string) {
     this.api.getOperatorsByActivityId(activityId).subscribe(
       (res: any[]) => {
-        console.log('Operators API response:', res); // DEBUG
+        if (!environment.production) {
+          console.log('Operators API response:', res);
+        }
 
         this.operators = res.map((op) => {
           // Support multiple possible slot arrays
@@ -44,7 +46,7 @@ export class ActivityOperatorListPage implements OnInit {
 
           // Extract prices safely
           const prices = slots.map((slot: any) =>
-            Number(slot.price ?? slot.price_per_pax ?? 0)
+            Number(slot.price ?? slot.price_per_pax ?? 0),
           );
 
           const minPrice = prices.length > 0 ? Math.min(...prices) : null;
@@ -52,7 +54,10 @@ export class ActivityOperatorListPage implements OnInit {
 
           return {
             ...op,
-            business_name: op.business_name || op.rt_user?.business_name || 'No Business Name',
+            business_name:
+              op.business_name ||
+              op.rt_user?.business_name ||
+              'No Business Name',
             minPrice,
             maxPrice,
           };
@@ -62,7 +67,7 @@ export class ActivityOperatorListPage implements OnInit {
         if (!environment.production) {
           console.error('Error fetching operators:', err);
         }
-      }
+      },
     );
   }
 
@@ -83,6 +88,8 @@ export class ActivityOperatorListPage implements OnInit {
   }
 
   goToOperatorDetail(operatorId: string) {
-    this.navCtrl.navigateForward(`/tourist/activity-operator-detail/${operatorId}`);
+    this.navCtrl.navigateForward(
+      `/tourist/activity-operator-detail/${operatorId}`,
+    );
   }
 }

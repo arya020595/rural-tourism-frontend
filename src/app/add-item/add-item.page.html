@@ -315,18 +315,19 @@
               </div>
             </ion-item>
 
-            <!-- Accommodation Price -->
+            <!-- Accommodation Price for Date Range -->
             <ion-item
               *ngIf="selectedOption === 'accommodation'"
               class="no-border"
             >
               <ion-label position="stacked" class="question-label-grey">
-                Harga / Price (RM)
+                Harga / Price (RM) for Date Range
               </ion-label>
               <ion-input
                 type="number"
-                [(ngModel)]="accomData.price"
-                (ngModelChange)="accomData.price = +$event"
+                [(ngModel)]="accomDateRangePrice"
+                name="accomDateRangePrice"
+                (ngModelChange)="accomDateRangePrice = +$event"
                 placeholder="Contoh: 250"
               ></ion-input>
             </ion-item>
@@ -337,7 +338,7 @@
                 expand="block"
                 color="primary"
                 (click)="addAvailableDateRangeForAccommodation()"
-                [disabled]="!accomData.startDate || !accomData.endDate || !accomData.price"
+                [disabled]="!accomData.startDate || !accomData.endDate || !accomDateRangePrice"
               >
                 Tambah / Add Date Range
               </ion-button>
@@ -396,14 +397,17 @@
             </ion-item>
 
             <!-- Show in Availability Checkbox -->
-            <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-                <ion-label>Show in Availability?</ion-label>
-                <ion-checkbox
-                  [(ngModel)]="accomData.showAvailability"
-                  name="showInAvailability"
-                  (ionChange)="onShowInAvailability()"
-                ></ion-checkbox>
-              </ion-item> -->
+            <ion-item
+              class="no-border"
+              *ngIf="selectedOption === 'accommodation'"
+            >
+              <ion-label>Show in Availability?</ion-label>
+              <ion-checkbox
+                [(ngModel)]="accomData.showAvailability"
+                name="showInAvailability"
+                (ionChange)="onShowInAvailability()"
+              ></ion-checkbox>
+            </ion-item>
 
             <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
               <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label> -->
