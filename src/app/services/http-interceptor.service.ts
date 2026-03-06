@@ -85,7 +85,7 @@ export class HttpInterceptorService implements HttpInterceptor {
         message =
           error.error?.message || 'Bad request. Please check your input.';
         break;
-      case 401:
+      case 401: {
         // List all login URLs
         const loginUrls = ['/login', '/tourist/login'];
 
@@ -104,6 +104,7 @@ export class HttpInterceptorService implements HttpInterceptor {
           return;
         }
         break;
+      }
 
       case 403:
         message = 'You do not have permission to perform this action.';

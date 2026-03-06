@@ -59,7 +59,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private storage: StorageService
+    private storage: StorageService,
   ) {
     // Initialize auth state from storage on service creation
     this.initializeAuthState();
@@ -107,7 +107,7 @@ export class AuthService {
         }),
         catchError((error) => {
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -128,7 +128,7 @@ export class AuthService {
         }),
         catchError((error) => {
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -145,6 +145,9 @@ export class AuthService {
     if (response.user) {
       this.storage.setUser({ ...response.user, role: 'operator' });
       this.currentUserSubject.next({ ...response.user, role: 'operator' });
+    } else {
+      // Set authenticated even without user object, using available token/id
+      this.currentUserSubject.next({ username: '', role: 'operator' });
     }
     this.isAuthenticatedSubject.next(true);
   }
@@ -186,7 +189,7 @@ export class AuthService {
     username: string,
     question: string,
     securityAnswer: string,
-    newPassword: string
+    newPassword: string,
   ): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/reset-pass`, {
       username,
@@ -234,15 +237,17 @@ export class AuthService {
    * Check if current user is an operator
    */
   isOperator(): boolean {
-    return this.currentUser?.role === 'operator' || !!this.storage.getUid();
+    const role = this.currentUser?.role;
+    if (role) return role === 'operator';
+    return !!this.storage.getUid() && !this.storage.getTouristUserId();
   }
 
   /**
    * Check if current user is a tourist
    */
   isTourist(): boolean {
-    return (
-      this.currentUser?.role === 'tourist' || !!this.storage.getTouristUserId()
-    );
+    const role = this.currentUser?.role;
+    if (role) return role === 'tourist';
+    return !!this.storage.getTouristUserId();
   }
 }
