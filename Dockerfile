@@ -28,6 +28,9 @@ RUN ionic build --prod -- --output-path=www
 # ============================================
 FROM nginx:1.27-alpine AS runtime
 
+# Install wget for healthcheck
+RUN apk add --no-cache wget
+
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
