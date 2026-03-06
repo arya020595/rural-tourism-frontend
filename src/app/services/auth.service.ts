@@ -59,7 +59,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private storage: StorageService
+    private storage: StorageService,
   ) {
     // Initialize auth state from storage on service creation
     this.initializeAuthState();
@@ -107,7 +107,7 @@ export class AuthService {
         }),
         catchError((error) => {
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -128,7 +128,7 @@ export class AuthService {
         }),
         catchError((error) => {
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -189,7 +189,7 @@ export class AuthService {
     username: string,
     question: string,
     securityAnswer: string,
-    newPassword: string
+    newPassword: string,
   ): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/reset-pass`, {
       username,

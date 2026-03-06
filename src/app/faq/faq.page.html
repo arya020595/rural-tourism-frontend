@@ -1,11 +1,14 @@
 <ion-content fullscreen class="faq-background">
-
-    <div class="faq-overlay">
+  <div class="faq-overlay">
     <div class="faq-container">
-
       <!-- Back button inside the card, top-left -->
       <ion-buttons class="back-btn-wrapper">
-        <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
+        <ion-back-button
+          defaultHref="/home"
+          icon="arrow-back-outline"
+          text=""
+          class="circle-back-btn"
+        ></ion-back-button>
       </ion-buttons>
 
       <!-- Logo displayed at the top of the FAQ page -->
@@ -27,18 +30,17 @@
             aria-label="Search FAQs"
             (input)="onSearch($event)"
             [value]="searchQuery"
-            class="search-input" />
+            class="search-input"
+          />
           <ion-icon name="search-outline" class="search-icon"></ion-icon>
         </div>
       </div>
 
       <!-- Accordion group - shows filtered FAQ items -->
       <ion-accordion-group expand="inset">
-
         <!-- Loop through filteredFaqs; each item renders one accordion card -->
         <ion-card *ngFor="let faq of filteredFaqs">
           <ion-accordion [value]="faq.value">
-
             <!-- Accordion header: shows the question -->
             <ion-item slot="header">
               <ion-label class="ion-text-wrap">{{ faq.question }}</ion-label>
@@ -54,17 +56,22 @@
                   *ngFor="let img of faq.images"
                   class="account_img"
                   [src]="img"
-                  alt="FAQ related image">
+                  alt="FAQ related image"
+                >
                 </ion-img>
               </ng-container>
 
               <!-- Show a link only if this FAQ item has a link (e.g. tutorial video) -->
               <ng-container *ngIf="faq.link">
-                <br><br>
-                <a [href]="faq.link.url" target="_blank" rel="noopener noreferrer">{{ faq.link.label }}</a>
+                <br /><br />
+                <a
+                  [href]="faq.link.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ faq.link.label }}</a
+                >
               </ng-container>
             </div>
-
           </ion-accordion>
         </ion-card>
 
@@ -72,9 +79,7 @@
         <div *ngIf="filteredFaqs.length === 0" class="no-results">
           No results found for "{{ searchQuery }}"
         </div>
-
       </ion-accordion-group>
     </div>
-    </div>
+  </div>
 </ion-content>
-
