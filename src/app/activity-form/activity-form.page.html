@@ -3,23 +3,22 @@
     <form (ngSubmit)="submitForm(myForm)" #myForm="ngForm">
       <ion-card class="main-Container">
         <!-- Back Button -->
-        <ion-button fill="clear" (click)="backHome()" mode="ios">
-          <ion-icon slot="start" name="chevron-back"></ion-icon>
-          <span>Back</span>
-        </ion-button>
+        <ion-buttons class="back-btn-wrapper">
+          <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
+        </ion-buttons>
 
         <!-- Logo -->
         <ion-card-header>
           <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
         </ion-card-header>
 
-        <!-- Form Title -->
-        <div class="form-title">
-          <h2>Aktiviti Tarikan</h2>
-        </div>
-
         <ion-card-content id="form">
           <ion-list>
+            <!-- Form Title -->
+            <div class="form-title">
+              <h2>Aktiviti Tarikan</h2>
+            </div>
+
             <!--Q1: Booking Type Row -->
             <div class="booking-type-row">
               <span class="question-label booking-type-label">
@@ -53,14 +52,9 @@
               </ion-radio-group>
             </div>
 
-            <ion-item class="no-border" style="margin-bottom: 1%">
-              <ion-label class="question-label">
-                1. Nama Penuh Pelancong/Tourist Full Name<span
-                  class="error-message"
-                  >*</span
-                >
-              </ion-label>
-            </ion-item>
+            <div class="field-label question-label">
+              1. Nama Penuh Pelancong/Tourist Full Name<span class="error-message">*</span>
+            </div>
 
             <!-- Guest: dropdown to select existing tourist -->
             <ion-item *ngIf="form.booking_type === 'guest'">
@@ -94,11 +88,9 @@
             </ion-item>
 
             <!-- Q2: Citizenship -->
-            <ion-item class="no-border">
-              <ion-label class="question-label">
-                2. Domestik/Antarabangsa <span class="error-message">*</span>
-              </ion-label>
-            </ion-item>
+            <div class="field-label question-label">
+              2. Domestik/Antarabangsa <span class="error-message">*</span>
+            </div>
 
             <ion-radio-group
               mode="md"
@@ -145,12 +137,15 @@
               </ion-item>
             </ion-radio-group>
 
+            <!-- Q3 onwards: locked when guest autofilled -->
+            <div [class.guest-locked]="isGuestAutofilled">
+
             <!-- Domestik only: [Q3a | Q4], [Q5 | Q6], [Q7 | Q8] -->
             <ng-container *ngIf="form.citizenship === 'Warganegara'">
               <div class="form-row-2col">
                 <div class="form-col">
                   <div class="field-label question-label">
-                    3(a). Bilangan Orang/No. of Pax (Domestik)
+                    3. Bilangan Orang/No. of Pax (Domestik)
                     <span class="error-message">*</span>
                   </div>
                   <ion-item>
@@ -214,10 +209,17 @@
                     6. Masa/Time <span class="error-message">*</span>
                   </div>
                   <ion-item>
+                    <ion-input
+                      *ngIf="isGuestAutofilled"
+                      [value]="form.time"
+                      readonly
+                      placeholder="No time set"
+                    ></ion-input>
                     <ion-select
+                      *ngIf="!isGuestAutofilled"
                       [(ngModel)]="form.time"
                       name="time"
-                      placeholder="Sila pilih masa/Select a time slot"
+                      placeholder="e.g. 12:00 PM"
                       #time="ngModel"
                       [disabled]="!selectedActivity"
                     >
@@ -279,7 +281,7 @@
               <div class="form-row-2col">
                 <div class="form-col">
                   <div class="field-label question-label">
-                    3(b). Bilangan Orang/No. of Pax (Antarabangsa)
+                    3. Bilangan Orang/No. of Pax (Antarabangsa)
                     <span class="error-message">*</span>
                   </div>
                   <ion-item>
@@ -343,11 +345,17 @@
                     6. Masa/Time <span class="error-message">*</span>
                   </div>
                   <ion-item>
+                    <ion-input
+                      *ngIf="isGuestAutofilled"
+                      [value]="form.time"
+                      readonly
+                      placeholder="No time set"
+                    ></ion-input>
                     <ion-select
+                      *ngIf="!isGuestAutofilled"
                       [(ngModel)]="form.time"
-                      name="time"
-                      placeholder="Sila pilih masa/Select a time slot"
-                      #time="ngModel"
+                      name="time_int"
+                      placeholder="e.g. 12:00 PM"
                       [disabled]="!selectedActivity"
                     >
                       <ion-select-option
@@ -498,11 +506,17 @@
                     6. Masa/Time <span class="error-message">*</span>
                   </div>
                   <ion-item>
+                    <ion-input
+                      *ngIf="isGuestAutofilled"
+                      [value]="form.time"
+                      readonly
+                      placeholder="No time set"
+                    ></ion-input>
                     <ion-select
+                      *ngIf="!isGuestAutofilled"
                       [(ngModel)]="form.time"
-                      name="time"
-                      placeholder="Sila pilih masa/Select a time slot"
-                      #time="ngModel"
+                      name="time_mix"
+                      placeholder="e.g. 12:00 PM"
                       [disabled]="!selectedActivity"
                     >
                       <ion-select-option
@@ -556,6 +570,8 @@
                 ></ion-input>
               </ion-item>
             </ng-container>
+
+            </div><!-- /guest-locked -->
 
             <!-- Submit Button -->
             <ion-button
