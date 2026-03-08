@@ -62,24 +62,70 @@
               </ion-label>
             </ion-item>
 
-            <!-- Guest: dropdown to select existing tourist -->
-            <ion-item *ngIf="form.booking_type === 'guest'">
-              <ion-select
-                [(ngModel)]="selectedTouristUserId"
-                name="tourist_user_id"
-                placeholder="Sila pilih pendaftaran pelancong/Select Tourist Booking"
-                required
-                #touristUserId="ngModel"
-                (ionChange)="onTouristChange($event.detail.value)"
+            <!-- Operator: searchable dropdown to select existing tourist -->
+            <div
+              *ngIf="form.booking_type === 'guest'"
+              class="tourist-search-wrapper"
+            >
+              <!-- Always-visible searchbar.
+                   Focus clears the text so operator can type a new search.
+                   Dropdown only closes when a name is actually picked.
+                   Built-in X button fully clears the selection. -->
+              <div
+                class="tourist-searchbar-border"
+                [class.has-selection]="touristSelected"
               >
-                <ion-select-option
-                  *ngFor="let tourist of touristOptions"
-                  [value]="tourist.user_id"
+                <input
+                  #searchInput
+                  type="text"
+                  [(ngModel)]="touristSearchQuery"
+                  name="tourist_search"
+                  placeholder="Sila pilih pendaftaran pelancong / Select Tourist Booking"
+                  (input)="onTouristSearchInput(searchInput.value)"
+                  (focus)="onTouristSearchFocus()"
+                  (blur)="onTouristSearchBlur()"
+                  class="tourist-search-input"
+                  autocomplete="off"
+                />
+                <ion-icon
+                  *ngIf="touristSearchQuery || touristSelected"
+                  name="close-circle"
+                  class="clear-icon"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="clearTouristSelection()"
+                ></ion-icon>
+                <ion-icon
+                  *ngIf="!touristSearchQuery && !touristSelected"
+                  name="chevron-down-outline"
+                  class="chevron-icon"
+                ></ion-icon>
+              </div>
+
+              <!-- Hidden field to carry booking_id in the NgForm -->
+              <input
+                type="hidden"
+                [(ngModel)]="selectedTouristBookingId"
+                name="tourist_user_id"
+              />
+
+              <!-- Dropdown list — only closes when a name is picked -->
+              <div class="tourist-dropdown" *ngIf="showTouristList">
+                <div
+                  *ngIf="filteredTouristOptions.length === 0"
+                  class="tourist-dropdown-empty"
+                >
+                  Tiada pelancong dijumpai / No tourist found
+                </div>
+                <div
+                  *ngFor="let tourist of filteredTouristOptions"
+                  class="tourist-dropdown-item"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="selectTouristOption(tourist)"
                 >
                   {{ tourist.displayText }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
+                </div>
+              </div>
+            </div>
 
             <!-- Manual: free-text input for tourist name -->
             <ion-item *ngIf="form.booking_type === 'manual'">
@@ -188,7 +234,8 @@
                       <ion-select-option
                         *ngFor="let activity of activities"
                         [value]="activity"
-                        >{{ activity?.activity_name }}</ion-select-option
+                        >{{ activity?.activity_name }}{{ activity?.address ? '
+                        (' + activity.address + ')' : '' }}</ion-select-option
                       >
                     </ion-select>
                   </ion-item>
@@ -317,7 +364,8 @@
                       <ion-select-option
                         *ngFor="let activity of activities"
                         [value]="activity"
-                        >{{ activity?.activity_name }}</ion-select-option
+                        >{{ activity?.activity_name }}{{ activity?.address ? '
+                        (' + activity.address + ')' : '' }}</ion-select-option
                       >
                     </ion-select>
                   </ion-item>
@@ -472,7 +520,8 @@
                       <ion-select-option
                         *ngFor="let activity of activities"
                         [value]="activity"
-                        >{{ activity?.activity_name }}</ion-select-option
+                        >{{ activity?.activity_name }}{{ activity?.address ? '
+                        (' + activity.address + ')' : '' }}</ion-select-option
                       >
                     </ion-select>
                   </ion-item>
