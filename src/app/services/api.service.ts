@@ -319,4 +319,7 @@ export class ApiService {
   }
 
   //Apply more methods here...
+  getAssociationList(): Observable<any>{
+    return this.http.get(`${this.apiUrl}/associations`);
+  }
 }

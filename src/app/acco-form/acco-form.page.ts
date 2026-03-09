@@ -17,7 +17,7 @@ export class AccoFormPage implements OnInit {
   form = {
     receipt_id: '',
     user_id: localStorage.getItem('uid'),
-    citizenship: '',
+    citizenship: 'Warganegara',
     pax: 0,
     pax_domestik: '',
     pax_antarabangsa: '',
@@ -30,7 +30,10 @@ export class AccoFormPage implements OnInit {
     total_night: '',
     issuer: '',
     date: '',
+    check_out: '',
     operator_user_id: '',
+    booking_type: 'guest',
+    manual_tourist_name: '',
   };
 
   accommodations: any[] = [];
@@ -135,6 +138,12 @@ export class AccoFormPage implements OnInit {
       this.form.issuer = booking.operator_name;
     }
     this.form.date = booking.check_in || '';
+    this.form.check_out = booking.check_out || '';
+
+    // Autofill pax — fill both fields with the same no_of_pax value
+    const noOfPax = booking.no_of_pax ? booking.no_of_pax.toString() : '';
+    this.form.pax_domestik = noOfPax;
+    this.form.pax_antarabangsa = noOfPax;
 
     // Find matching accommodation from accommodations list
     let matchedAccommodation = this.accommodations.find(
@@ -162,6 +171,29 @@ export class AccoFormPage implements OnInit {
       this.form.homest_name = booking.accommodation_name || '';
       this.form.homest_id = booking.accommodation_id || '';
       this.form.location = booking.location || '';
+    }
+  }
+
+  // ---------------- Booking Type Change ----------------
+  onBookingTypeChange(type: string) {
+    if (type === 'manual') {
+    // Clear all autofilled data when switching to manual
+    this.form.citizenship = 'Warganegara';
+    this.form.pax_domestik = '';
+    this.form.pax_antarabangsa = '';
+    this.form.date = '';
+    this.form.check_out = '';
+    this.form.total_night = '';
+    this.form.total_rm = '';
+    this.form.homest_name = '';
+    this.form.homest_id = '';
+    this.form.location = '';
+    this.selectedAccommodation = null;
+    this.selectedBookingId = null;
+    this.autofillOperator();
+    } else {
+      // Switching back to guest — clear the manual name
+      this.form.manual_tourist_name = '';
     }
   }
 
@@ -232,8 +264,15 @@ export class AccoFormPage implements OnInit {
   async submitForm(form: NgForm) {
     try {
       // Validate tourist selection
-      if (!this.selectedTouristUserId) {
+      if (this.form.booking_type === 'guest' && !this.selectedTouristUserId) {
         alert('Please select a tourist.');
+        return;
+      }
+      if (
+        this.form.booking_type === 'manual' &&
+        !this.form.manual_tourist_name
+      ) {
+        alert('Please enter the tourist name.');
         return;
       }
 
@@ -258,8 +297,16 @@ export class AccoFormPage implements OnInit {
       // Build payload with accommodation_booking_id
       const payload = {
         receipt_id: this.generateReceiptId(),
-        tourist_user_id: this.selectedTouristUserId,
+        tourist_user_id:
+          this.form.booking_type === 'guest'
+            ? this.selectedTouristUserId
+            : null,
+        tourist_name:
+          this.form.booking_type === 'manual'
+            ? this.form.manual_tourist_name
+            : null,
         operator_user_id: operatorUid,
+        booking_type: this.form.booking_type || 'guest',
         citizenship: this.form.citizenship,
         pax: totalPax,
         pax_domestik: paxDomestik,
@@ -270,6 +317,7 @@ export class AccoFormPage implements OnInit {
         total_rm: totalPrice.toString(),
         total_night: this.form.total_night || null,
         date: this.form.date || null,
+        check_out: this.form.check_out || null,
         issuer: this.form.issuer || 'Unknown Operator',
         // Include accommodation_booking_id to trigger automatic status update
         accommodation_booking_id: this.selectedBookingId,
@@ -325,5 +373,12 @@ export class AccoFormPage implements OnInit {
     this.selectedAccommodation = null;
     this.selectedTouristUserId = '';
     this.selectedBookingId = null;
+  }
+
+  compareWithFn(o1: any, o2: any) {
+    return o1 && o2
+      ? (o1.accommodation_id || o1.homest_id) ===
+          (o2.accommodation_id || o2.homest_id)
+      : o1 === o2;
   }
 }

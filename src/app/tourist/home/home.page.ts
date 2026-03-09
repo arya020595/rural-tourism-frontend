@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  AlertController,
   MenuController,
   ModalController,
   ToastController,
@@ -8,8 +9,6 @@ import {
 import { CalendarModal, CalendarModalOptions } from 'ion7-calendar';
 import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
-import { AlertController } from '@ionic/angular';
-
 
 @Component({
   selector: 'app-home',
@@ -21,7 +20,7 @@ export class HomePage implements OnInit {
   activities: any[] = [];
   accommodations: any[] = [];
   user: any = null;
-  newBookingCount: number = 0; 
+  newBookingCount: number = 0;
 
   // Search and filter
   searchQuery: string = '';
@@ -38,8 +37,7 @@ export class HomePage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private modalCtrl: ModalController,
-    private alertController: AlertController
-    
+    private alertController: AlertController,
   ) {}
 
   ngOnInit() {
@@ -47,7 +45,6 @@ export class HomePage implements OnInit {
     this.loadActivities();
     this.loadAccommodations();
     this.loadNewBookingCount();
-
   }
 
   ionViewWillEnter() {
@@ -58,51 +55,48 @@ export class HomePage implements OnInit {
     this.loadNewBookingCount();
   }
 
-async showUnderDevelopmentAlert() {
-  const alert = await this.alertController.create({
-    header: '⚠️ Under Development',
-    message: 'Rural Tourism is currently still under development. Thank you for your understanding',
-    buttons: ['OK'],
-    backdropDismiss: false,
-  });
+  async showUnderDevelopmentAlert() {
+    const alert = await this.alertController.create({
+      header: '⚠️ Under Development',
+      message:
+        'Rural Tourism is currently still under development. Thank you for your understanding',
+      buttons: ['OK'],
+      backdropDismiss: false,
+    });
 
-  await alert.present();
-}
-
-async showFeatureUnavailableToast() {
-  const toast = await this.toastController.create({
-    message: 'This feature is not available yet.',
-    duration: 2000,
-    position: 'bottom',
-    icon: 'alert-circle-outline',
-    color: 'warning',
-  });
-
-  await toast.present();
-}
-
-
-  
-
-loadUser() {
-  const userData = localStorage.getItem('user');
-  if (!userData) {
-    this.user = null;
-    return;
+    await alert.present();
   }
 
-  try {
-    this.user = JSON.parse(userData);
+  async showFeatureUnavailableToast() {
+    const toast = await this.toastController.create({
+      message: 'This feature is not available yet.',
+      duration: 2000,
+      position: 'bottom',
+      icon: 'alert-circle-outline',
+      color: 'warning',
+    });
 
-    // ✅ Log full details
-    console.log('Logged-in Tourist Details:', this.user);
-    console.table(this.user); // nice tabular view in console
-
-  } catch (error) {
-    console.error('Error parsing user data:', error);
-    this.user = null;
+    await toast.present();
   }
-}
+
+  loadUser() {
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+      this.user = null;
+      return;
+    }
+
+    try {
+      this.user = JSON.parse(userData);
+
+      // ✅ Log full details
+      console.log('Logged-in Tourist Details:', this.user);
+      console.table(this.user); // nice tabular view in console
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      this.user = null;
+    }
+  }
 
   logOut() {
     localStorage.removeItem('user');
@@ -120,13 +114,13 @@ loadUser() {
     this.router.navigate(['/tourist/activity-operator-list', id]);
   }
 
- goToAccommodationDetails(accomId: any) {
-  if (!accomId) {
-    console.error('Accommodation ID is undefined!', accomId);
-    return;
+  goToAccommodationDetails(accomId: any) {
+    if (!accomId) {
+      console.error('Accommodation ID is undefined!', accomId);
+      return;
+    }
+    this.router.navigate(['/tourist/accommodation-detail', accomId]);
   }
-  this.router.navigate(['/tourist/accommodation-detail', accomId]);
-}
 
   /**
    * Get image URL for any resource type
@@ -141,7 +135,7 @@ loadUser() {
     return this.filteredActivities.filter(
       (activity) =>
         [true, 1, '1'].includes(activity.show_in_suggestions) ||
-        [true, 1, '1'].includes(activity.showInSuggestions)
+        [true, 1, '1'].includes(activity.showInSuggestions),
     );
   }
 
@@ -235,7 +229,7 @@ loadUser() {
         this.isAccommodationAvailableInRange(
           accom,
           this.startDate,
-          this.endDate
+          this.endDate,
         );
 
       return matchesSearch && matchesDate;
@@ -245,7 +239,7 @@ loadUser() {
   private isActivityAvailableInRange(
     activity: any,
     startDate: string,
-    endDate: string
+    endDate: string,
   ): boolean {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
@@ -262,8 +256,11 @@ loadUser() {
       filterEnd.setHours(23, 59, 59, 999);
 
       // Check if any of the available dates fall within the selected range
-      return activity.available_dates.some((dateStr: string) => {
+      return activity.available_dates.some((entry: any) => {
         try {
+          // Handle both plain date strings and objects {date, time, price}
+          const dateStr = typeof entry === 'string' ? entry : entry?.date;
+          if (!dateStr) return false;
           const availableDate = new Date(dateStr);
           availableDate.setHours(0, 0, 0, 0);
           return availableDate >= filterStart && availableDate <= filterEnd;
@@ -280,7 +277,7 @@ loadUser() {
   private isAccommodationAvailableInRange(
     accom: any,
     startDate: string,
-    endDate: string
+    endDate: string,
   ): boolean {
     // If no dates provided, show all
     if (!startDate && !endDate) return true;
@@ -296,8 +293,11 @@ loadUser() {
       filterStart.setHours(0, 0, 0, 0);
       filterEnd.setHours(23, 59, 59, 999);
 
-      return accom.available_dates.some((dateStr: string) => {
+      return accom.available_dates.some((entry: any) => {
         try {
+          // Handle both plain date strings and objects {date, price}
+          const dateStr = typeof entry === 'string' ? entry : entry?.date;
+          if (!dateStr) return false;
           const availableDate = new Date(dateStr);
           availableDate.setHours(0, 0, 0, 0);
           return availableDate >= filterStart && availableDate <= filterEnd;
@@ -367,7 +367,7 @@ loadUser() {
     await toast.present();
   }
 
-   // Load new booking count from localStorage
+  // Load new booking count from localStorage
   private loadNewBookingCount() {
     const count = localStorage.getItem('newBookingCount');
     this.newBookingCount = count ? parseInt(count, 10) : 0;

@@ -1,8 +1,8 @@
-# Rural Tourism Sabah
+# Rural Tourism Sabah - Frontend
 
 An Ionic Angular mobile application for rural tourism in Sabah. This project supports both web (PWA) and Android platforms using Capacitor.
 
-## � Quick Start
+## 🚀 Quick Start
 
 ```bash
 # 1. Install dependencies
@@ -19,7 +19,7 @@ npx ng serve --open
 
 > ⚠️ **Note**: Make sure your backend API is running at `http://localhost:3000/api` before starting the application.
 
-## �📋 Table of Contents
+## 📋 Table of Contents
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -40,20 +40,21 @@ Before running this project, ensure you have the following installed:
 
 ### Required Software
 
-| Software    | Version         | Download Link                     |
-| ----------- | --------------- | --------------------------------- |
-| Node.js     | v18.x or higher | [nodejs.org](https://nodejs.org/) |
-| npm         | v9.x or higher  | Comes with Node.js                |
-| Ionic CLI   | v7.x            | Installed globally via npm        |
-| Angular CLI | v18.x           | Installed globally via npm        |
+| Software    | Version | Download Link                     |
+| ----------- | ------- | --------------------------------- |
+| Node.js     | >= 18.x | [nodejs.org](https://nodejs.org/) |
+| npm         | >= 9.x  | Comes with Node.js                |
+| Ionic CLI   | >= 7.2  | Installed globally via npm        |
+| Angular CLI | 18.x    | Installed globally via npm        |
 
 ### For Android Development (Optional)
 
-| Software       | Version      | Download Link                                                 |
-| -------------- | ------------ | ------------------------------------------------------------- |
-| Android Studio | Latest       | [developer.android.com](https://developer.android.com/studio) |
-| Java JDK       | 11 or higher | [adoptium.net](https://adoptium.net/)                         |
-| Android SDK    | API 30+      | Via Android Studio                                            |
+| Software       | Version | Download Link                                                 |
+| -------------- | ------- | ------------------------------------------------------------- |
+| Android Studio | Latest  | [developer.android.com](https://developer.android.com/studio) |
+| Java JDK       | >= 11   | [adoptium.net](https://adoptium.net/)                         |
+| Android SDK    | API 30+ | Via Android Studio                                            |
+| Capacitor CLI  | >= 7.2  | Installed via npm                                             |
 
 ### Install Global Dependencies
 
@@ -73,7 +74,7 @@ npm install -g @angular/cli
 
    ```bash
    git clone <repository-url>
-   cd rural-tourism-sabah-master
+   cd rural-tourism-frontend
    ```
 
 2. **Install project dependencies**:
@@ -221,6 +222,10 @@ export const environment = {
   production: false,
   apiUrl: "http://localhost:3000/api",
   API: "http://localhost:3000",
+
+  // Feature flags for development
+  enableDebugMode: true,
+  logApiCalls: true,
 };
 ```
 
@@ -233,6 +238,10 @@ export const environment = {
   production: true,
   apiUrl: "http://localhost:3000/api",
   API: "http://localhost:3000",
+
+  // Feature flags for production
+  enableDebugMode: false,
+  logApiCalls: false,
 };
 ```
 
@@ -250,7 +259,7 @@ For development, a proxy configuration is available in `proxy.conf.json` to hand
 ```json
 {
   "/api": {
-    "target": "http://your-api-server:3000",
+    "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
@@ -290,11 +299,30 @@ ionic generate service services/service-name
 ## Project Structure
 
 ```
-rural-tourism-sabah-master/
+rural-tourism-frontend/
 ├── android/                 # Android native project (Capacitor)
-├── public/                  # Public static assets
+├── public/                  # Public static assets & icons
 ├── src/
 │   ├── app/                 # Angular application source
+│   │   ├── about/           # About page
+│   │   ├── acco-form/       # Accommodation form
+│   │   ├── activity-details/# Activity details page
+│   │   ├── activity-form/   # Activity form
+│   │   ├── add-item/        # Add activity/accommodation page
+│   │   ├── booking-home/    # Booking home page
+│   │   ├── home/            # Home page
+│   │   ├── login/           # Login page
+│   │   ├── register/        # Registration page
+│   │   ├── notifications/   # Notifications page
+│   │   ├── operator-bookings/ # Operator bookings management
+│   │   ├── receipt/         # Receipt pages
+│   │   ├── services/        # Angular services (API, auth, etc.)
+│   │   ├── tourist/         # Tourist-specific pages
+│   │   ├── transaction/     # Transaction page
+│   │   ├── utils/           # Utility functions
+│   │   ├── app-routing.module.ts
+│   │   ├── app.module.ts
+│   │   └── auth.guard.ts    # Route guard for authentication
 │   ├── assets/              # Static assets (images, icons, etc.)
 │   ├── environments/        # Environment configuration files
 │   ├── theme/               # SCSS theme variables
@@ -302,11 +330,13 @@ rural-tourism-sabah-master/
 │   ├── index.html           # Main HTML file
 │   ├── main.ts              # Application entry point
 │   ├── polyfills.ts         # Browser polyfills
+│   ├── sw.js                # Service worker
 │   └── manifest.webmanifest # PWA manifest
 ├── www/                     # Production build output
 ├── angular.json             # Angular CLI configuration
 ├── capacitor.config.ts      # Capacitor configuration
 ├── ionic.config.json        # Ionic CLI configuration
+├── proxy.conf.json          # Dev proxy configuration
 ├── package.json             # Project dependencies and scripts
 ├── tsconfig.json            # TypeScript configuration
 └── karma.conf.js            # Karma test configuration
@@ -342,7 +372,7 @@ npm install --legacy-peer-deps
 If you encounter TypeScript errors related to SweetAlert2, install compatible versions:
 
 ```bash
-npm install sweetalert2@11.7.32 @sweetalert2/ngx-sweetalert2@12.4.0 --legacy-peer-deps
+npm install sweetalert2@^11.26.17 @sweetalert2/ngx-sweetalert2@^14.1.1 --legacy-peer-deps
 ```
 
 #### 4. Android build fails
@@ -380,13 +410,22 @@ Clear the browser cache and unregister service workers:
 
 ## Technologies Used
 
-- **Framework**: Ionic 8 + Angular 18
-- **Mobile**: Capacitor 7 (Android)
-- **UI Components**: Ionic Components
-- **QR Code**: angularx-qrcode
-- **Alerts**: SweetAlert2
-- **Slider**: Swiper
-- **PWA**: Angular Service Worker
+| Category       | Technology                    |
+| -------------- | ----------------------------- |
+| Framework      | Ionic 8 + Angular 18          |
+| Mobile         | Capacitor 7.2 (Android)       |
+| UI Components  | Ionic Components + Ionicons 7 |
+| QR Code        | angularx-qrcode 18            |
+| Alerts         | SweetAlert2 11.x              |
+| Slider         | Swiper 11.x                   |
+| Calendar       | ion7-calendar                 |
+| Image Compress | compressorjs                  |
+| Screenshot     | html2canvas                   |
+| Date Utility   | Moment.js                     |
+| PWA            | Angular Service Worker        |
+| Testing        | Karma + Jasmine               |
+| Linting        | ESLint + Angular ESLint       |
+| Language       | TypeScript 5.4                |
 
 ---
 

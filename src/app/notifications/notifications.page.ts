@@ -21,11 +21,11 @@ export class NotificationsPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.uid = localStorage.getItem('operator_id');
+    this.uid = localStorage.getItem('uid');
   }
 
   ionViewWillEnter() {
-    this.uid = localStorage.getItem('operator_id');
+    this.uid = localStorage.getItem('uid');
     if (this.uid) {
       this.notifications = []; // reset to avoid duplicates
       this.loadNotifications();

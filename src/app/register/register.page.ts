@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
@@ -24,7 +24,7 @@ register();
     ]),
   ],
 })
-export class RegisterPage implements AfterViewInit {
+export class RegisterPage implements AfterViewInit, OnInit {
   @ViewChild('swiper')
   swiperRef: ElementRef | undefined;
   swiper?: Swiper;
@@ -50,6 +50,7 @@ export class RegisterPage implements AfterViewInit {
     securityQ2: '',
     district: '',
     company_logo: null,
+    associationId: '',
   };
 
   activityData = {
@@ -70,11 +71,13 @@ export class RegisterPage implements AfterViewInit {
     user_id: '',
   };
 
+  associations: {id: number, name: string, image: string}[] = [];
+
   constructor(
     private router: Router,
     private apiService: ApiService,
     private navCtrl: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
   ) {}
 
   //cancel button
@@ -104,11 +107,15 @@ export class RegisterPage implements AfterViewInit {
     {
       text: 'OK',
       handler: () => {
-        // Navigate to the /login route when the button is pressed
+        // Navigate to the /login route when the button is pressed for operators
         this.router.navigate(['/login']);
       },
     },
   ];
+
+  ngOnInit() {
+    this.loadAssociations();
+  }
 
   ngAfterViewInit() {
     this.swiperReady();
@@ -292,6 +299,19 @@ export class RegisterPage implements AfterViewInit {
 
   // }
 
+  loadAssociations() {
+    this.apiService
+      .getAssociationList()
+      .subscribe({
+        next: (res) => {
+          this.associations = res;
+        },
+        error: (err) => {
+          console.error('Failed load associations', err);
+        }
+      });
+  }
+
   //registration form step by step check
   submitForm(form: NgForm) {
     if (form.valid) {
@@ -309,6 +329,7 @@ export class RegisterPage implements AfterViewInit {
       payload.append('password', this.formData.password);
       payload.append('securityQ1', this.formData.securityQ1);
       payload.append('securityQ2', this.formData.securityQ2);
+      payload.append('associationId', this.formData.associationId);
 
       // Append logo if it exists
       if (this.formData.company_logo) {
@@ -333,7 +354,7 @@ export class RegisterPage implements AfterViewInit {
             // Check if user was actually created
             if (!userResponse || userResponse.error) {
               throw new Error(
-                'User creation failed: ' + JSON.stringify(userResponse)
+                'User creation failed: ' + JSON.stringify(userResponse),
               );
             }
 
@@ -350,7 +371,7 @@ export class RegisterPage implements AfterViewInit {
                   catchError((error) => {
                     console.log('Failed to create activity:', error);
                     return of(null);
-                  })
+                  }),
                 );
             }
 
@@ -364,12 +385,12 @@ export class RegisterPage implements AfterViewInit {
                   catchError((error) => {
                     console.log('Failed to create accommodation:', error);
                     return of(null);
-                  })
+                  }),
                 );
             }
 
             return forkJoin([createActivity$, createAccommodation$]);
-          })
+          }),
         )
         .subscribe(
           (responses) => {
@@ -393,7 +414,7 @@ export class RegisterPage implements AfterViewInit {
           (error) => {
             console.log('Registration failed:', error.error?.error || error);
             this.errorToast(error.error?.error || 'Registration failed');
-          }
+          },
         );
     } else {
       this.errorToast('Error: Registration failed');
