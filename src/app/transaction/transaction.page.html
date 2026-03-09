@@ -63,29 +63,21 @@
               <p class="status-line">
                 Status:
                 <ion-badge
-                  [color]="isVoided(transaction.status) ? 'danger' : 'success'"
+                  [color]="getTransactionStatusColor(transaction.status)"
                 >
-                  {{ isVoided(transaction.status) ? 'Voided' :
-                  (transaction.status || 'Active') }}
+                  {{ transaction.status || 'Active' }}
                 </ion-badge>
               </p>
             </div>
             <div class="card-action">
               <ion-button
+                *ngIf="transaction.receipt_id"
                 class="receipt-btn view-receipt-btn"
                 (click)="showReceipt(transaction)"
               >
                 <ion-icon name="receipt-outline" slot="start"></ion-icon>
                 View Receipt
               </ion-button>
-              <!-- <ion-button
-                *ngIf="!isVoided(transaction.status)"
-                class="receipt-btn void-btn"
-                (click)="onTransactionClick(transaction)"
-              >
-                <ion-icon name="trash-outline" slot="start"></ion-icon>
-                Void
-              </ion-button> -->
             </div>
           </div>
         </div>
@@ -127,15 +119,15 @@
               <p class="status-line">
                 Status:
                 <ion-badge
-                  [color]="isVoided(transaction.status) ? 'danger' : 'success'"
+                  [color]="getTransactionStatusColor(transaction.status)"
                 >
-                  {{ isVoided(transaction.status) ? 'Voided' :
-                  (transaction.status || 'Active') }}
+                  {{ transaction.status || 'Active' }}
                 </ion-badge>
               </p>
             </div>
             <div class="card-action">
               <ion-button
+                *ngIf="transaction.receipt_id"
                 class="receipt-btn view-receipt-btn"
                 (click)="showReceipt(transaction)"
               >
@@ -191,15 +183,15 @@
               <p class="status-line">
                 Status:
                 <ion-badge
-                  [color]="isVoided(transaction.status) ? 'danger' : 'success'"
+                  [color]="getTransactionStatusColor(transaction.status)"
                 >
-                  {{ isVoided(transaction.status) ? 'Voided' :
-                  (transaction.status || 'Active') }}
+                  {{ transaction.status || 'Active' }}
                 </ion-badge>
               </p>
             </div>
             <div class="card-action">
               <ion-button
+                *ngIf="transaction.receipt_id"
                 class="receipt-btn view-receipt-btn"
                 (click)="showReceipt(transaction)"
               >

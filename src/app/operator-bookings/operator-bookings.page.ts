@@ -52,11 +52,16 @@ export class OperatorBookingsPage implements OnInit {
         this.loading = false;
         if (res.success && res.data) {
           this.bookings = res.data;
+          const excludedStatuses = ['paid', 'cancelled', 'canceled'];
           this.activityBookings = this.bookings.filter(
-            (b) => b.type === 'activity',
+            (b) =>
+              b.type === 'activity' &&
+              !excludedStatuses.includes((b.status || '').toLowerCase()),
           );
           this.accommodationBookings = this.bookings.filter(
-            (b) => b.type === 'accommodation',
+            (b) =>
+              b.type === 'accommodation' &&
+              !excludedStatuses.includes((b.status || '').toLowerCase()),
           );
         } else {
           this.bookings = [];
