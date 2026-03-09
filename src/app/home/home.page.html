@@ -27,6 +27,19 @@
       detail="false"
       style="--background: white; margin-top: 10%"
       (click)="closeMenu()"
+      [routerLink]="['/operator/dashboard']"
+      routerDirection="root"
+    >
+      <ion-icon name="grid" slot="start"></ion-icon>
+      Dashboard
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
       [routerLink]="['/add-item']"
     >
       <ion-icon name="add-circle" slot="start"></ion-icon>
@@ -160,53 +173,46 @@
 
     <!-- <h2>{{ user.username }}</h2> -->
     <ion-card-content
-      style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
+      style="padding-left: 0%; padding-right: 0%"
     >
       <!-- Activities Card -->
+      <div class="home-card-grid">
+        <ion-card class="custom-card" [routerLink]="['/activity-form']">
+          <ion-row class="cards">
+            <div style="display: flex; flex-direction: row">
+              <ion-card-title class="card-texts"
+                >Aktiviti<br />Tarikan</ion-card-title
+              >
+              <img src="../../assets/icon/tree.png" class="tree" />
+            </div>
+          </ion-row>
+        </ion-card>
 
-      <ion-card class="custom-card" [routerLink]="['/activity-form']">
-        <ion-row class="cards">
-          <div style="display: flex; flex-direction: row">
-            <ion-card-title class="card-texts"
-              >Aktiviti<br />Tarikan</ion-card-title
-            >
-            <img src="../../assets/icon/tree.png" class="tree" />
-          </div>
-        </ion-row>
-      </ion-card>
+        <ion-card class="custom-card2" [routerLink]="['/acco-form']">
+          <ion-row class="cards">
+            <div style="display: flex; flex-direction: row">
+              <ion-card-title class="card-texts"
+                >Tempat <br />Penginapan</ion-card-title
+              >
+              <img src="../../assets/icon/house.png" class="house" />
+            </div>
+          </ion-row>
+        </ion-card>
 
-      <ion-card
-        class="custom-card2"
-        style="margin-top: 5%"
-        [routerLink]="['/acco-form']"
-      >
-        <ion-row class="cards">
-          <div style="display: flex; flex-direction: row">
-            <ion-card-title class="card-texts"
-              >Tempat <br />Penginapan</ion-card-title
-            >
-            <img src="../../assets/icon/house.png" class="house" />
-          </div>
-        </ion-row>
-      </ion-card>
-
-      <ion-card
-        class="custom-card3"
-        style="margin-top: 5%"
-        [routerLink]="['/package-form']"
-      >
-        <ion-row class="cards">
-          <div style="display: flex; flex-direction: row">
-            <ion-card-title class="card-texts"
-              >Pakej <br />Pelancongan</ion-card-title
-            >
-            <img
-              src="../../assets/icon/pakej-removebg-preview.png"
-              class="house"
-            />
-          </div>
-        </ion-row>
-      </ion-card>
+        <ion-card class="custom-card3" [routerLink]="['/package-form']">
+          <ion-row class="cards">
+            <div style="display: flex; flex-direction: row">
+              <ion-card-title class="card-texts"
+                >Pakej <br />Pelancongan</ion-card-title
+              >
+              <img
+                src="../../assets/icon/pakej-removebg-preview.png"
+                class="house"
+              />
+            </div>
+          </ion-row>
+        </ion-card>
+      </div>
     </ion-card-content>
   </ion-card>
 </ion-content>
