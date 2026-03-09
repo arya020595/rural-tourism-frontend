@@ -221,11 +221,26 @@ const routes: Routes = [
       import('./operator-bookings/operator-bookings.module').then(
         (m) => m.OperatorBookingsPageModule,
       ),
-  },  {
-    path: 'activity-and-accommodation-management',
-    loadChildren: () => import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then( m => m.ActivityAndAccommodationManagementPageModule)
   },
-
+  {
+    path: 'activity-and-accommodation-management',
+    loadChildren: () =>
+      import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then(
+        (m) => m.ActivityAndAccommodationManagementPageModule,
+      ),
+  },
+  {
+    path: 'association/dashboard',
+    loadChildren: () =>
+      import('./association/dashboard/dashboard.module').then(
+        (m) => m.DashboardPageModule,
+      ),
+  },
+  {
+    path: 'association/login',
+    loadChildren: () =>
+      import('./association/login/login.module').then((m) => m.LoginPageModule),
+  },
 ];
 
 @NgModule({
