@@ -38,6 +38,25 @@ body {
   .logo{
       height: 100px;
     }
+
+  .back-btn-wrapper {
+    display: block;
+    margin-bottom: 8px;
+    padding: 8px 0 0 8px;
+  }
+
+  .circle-back-btn {
+    --color: #ffffff;
+    --background: #025930;
+    --border-radius: 90px;
+    --padding-start: 4px;
+    --padding-end: 0;
+    --icon-font-size: 22px;
+    --min-height: 40px;
+    --min-width: 40px;
+    width: 40px;
+    height: 40px;
+  }
   
     /* home.page.scss */
   
@@ -54,6 +73,8 @@ body {
     font-size: 16px;
     font-weight: bold;
     color: #024E25;
+    margin-bottom: 0%;
+    padding-left: 5px;
   }
 
   // Booking Type Row - label + radios on same horizontal line
@@ -63,13 +84,14 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 8px 0;
-    margin-bottom: 4px;
+    padding: 12px 0;
+    margin-bottom: 12px;
+    border-bottom: 1.5px solid #e0e0e0;
 
     .booking-type-label {
       white-space: nowrap;
       flex-shrink: 0;
-      margin-left: 15px;
+      margin-left: 0px;
     }
 
     ion-radio-group.booking-type-options {
@@ -108,8 +130,23 @@ body {
     --border-style: none;
   }
   
-  #form ion-item{
-    margin-bottom: 1%;
+  #form ion-item:not(.no-border):not(.error-message){
+    margin-bottom: 12px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 10px;
+    --border-width: 0;
+    --border-style: none;
+    --background: #f9f9f9;
+    --border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #form ion-item.no-border, #form ion-item.error-message {
+    margin-bottom: 4px;
+    border: none;
+    --background: transparent;
+    --border-width: 0;
+    --border-style: none;
   }
   
   .highlighted {
@@ -164,14 +201,16 @@ body {
     }
   }
     #form ion-list{
-      padding-right: 5%;
-      margin-left: 3%;
+      padding: 0 16px;
+      margin: 0;
     }
   
     .main-Container{
       margin-top: 5%;
-      border-radius: 30px;
-      
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
     }
   
     #container {
@@ -215,27 +254,35 @@ body {
     
   .form-title {
   text-align: left;
-  padding: 0 20px;
-  margin-bottom: 8px;
-  margin-left: 60px;
+  padding: 0 0 12px 0;
+  margin-bottom: 16px;
+  margin-left: 0;
   color: black;
+  border-bottom: 1.5px solid #e0e0e0;
+
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: black;
+    margin: 0;
+  }
   }
 
   // 2-column grid layout for Q3–Q8
   .form-row-2col {
     display: flex;
     flex-direction: row;
-    gap: 0px;
+    gap: 12px;
     align-items: flex-start;
     flex-wrap: wrap;
 
     .form-col {
       flex: 1 1 0;
-      min-width: 0;
+      min-width: 140px;
 
       .field-label {
-        padding: 12px 16px 4px 16px;
-        font-size: 16px;
+        padding: 12px 4px 4px 4px;
+        font-size: 15px;
         font-weight: bold;
         color: #024E25;
       }
@@ -247,99 +294,16 @@ body {
     }
   }
 
-// ---- Searchable Tourist Dropdown ----
-.tourist-search-wrapper {
-  position: relative;
-  margin: 0 16px 8px 16px;
-
-  .tourist-searchbar-border {
-    display: flex;
-    align-items: center;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: #ffffff;
-    padding: 10px 12px;
-    gap: 8px;
-    transition: border-color 0.2s, background 0.2s;
-    cursor: pointer;
-
-    &.has-selection {
-      border-color: #4caf50;
-      background: #f1f8f2;
-    }
-
-    .tourist-search-input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      font-size: 14px;
-      color: #1a1a1a;
-      min-width: 0;
-      padding: 0;
-      cursor: pointer;
-
-      &::placeholder {
-        color: #9e9e9e;
-      }
-    }
-
-    .chevron-icon {
-      color: #9e9e9e;
-      font-size: 18px;
-      flex-shrink: 0;
+  // Autofilled (guest booking) — grey out and prevent editing
+  #form .guest-locked {
+    ion-item:not(.no-border):not(.error-message) {
+      --background: #d0d0d0;
       pointer-events: none;
+      opacity: 0.75;
     }
 
-    .clear-icon {
-      color: #9e9e9e;
-      font-size: 20px;
-      cursor: pointer;
-      flex-shrink: 0;
-
-      &:hover {
-        color: #555;
-      }
+    .citizenship-options-inner {
+      pointer-events: none;
+      opacity: 0.78;
     }
   }
-
-  .tourist-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: #fff;
-    border: 1px solid #d1d5db;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 220px;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-
-    .tourist-dropdown-item {
-      padding: 12px 16px;
-      font-size: 14px;
-      color: #1a1a1a;
-      cursor: pointer;
-      border-bottom: 1px solid #f0f0f0;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      &:hover,
-      &:active {
-        background: #e8f5e9;
-        color: #024E25;
-      }
-    }
-
-    .tourist-dropdown-empty {
-      padding: 14px 16px;
-      font-size: 14px;
-      color: #9e9e9e;
-      text-align: center;
-    }
-  }
-}

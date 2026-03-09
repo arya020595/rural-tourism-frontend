@@ -1,291 +1,247 @@
-<!-- <ion-header class="custom-header"  style="--background: transparent; --backdrop-opacity: 0;">
-  
-    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%;">
-      <ion-back-button text="">
-      </ion-back-button>
-    </ion-buttons>
-  
-</ion-header> -->
-
-
-
-<!-- <ion-header collapse="fade">
-  <ion-toolbar>
-    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%;">
-      <ion-back-button text="">
-      </ion-back-button>
-    </ion-buttons>
-  </ion-toolbar>
-  
-</ion-header> -->
-<!-- need fix -->
-<!-- <ion-header  collapse="fade">
-  <ion-toolbar style="--background:transparent">
-    <ion-title>Header</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-
 <ion-content [fullscreen]="true">
-
-
   <div id="container">
     <form (ngSubmit)="submitForm(myForm)" #myForm="ngForm">
       <ion-card class="main-Container">
 
-        <ion-button fill="clear" (click)="backHome()" mode="ios">
-          <ion-icon slot="start" name="chevron-back"></ion-icon>
-          <span>Back</span>
-        </ion-button>
+        <!-- Back Button -->
+        <ion-buttons class="back-btn-wrapper">
+          <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
+        </ion-buttons>
 
         <app-header-logo></app-header-logo>
-
 
         <ion-card-content id="form">
           <ion-list>
 
-            <!-- q1 -->
-            <!-- <ion-item style="margin-bottom: 2%;" class="no-border">
-              <ion-label class="question-label">1. Domestik/Antarabangsa <span class="error-message"> * </span></ion-label>
-            </ion-item>
+            <!-- Form Title -->
+            <div class="form-title">
+              <h2>Pakej Pelancongan</h2>
+            </div>
 
-            <ion-radio-group mode="md" value="Warganegara" style="margin-bottom: 5%;" [(ngModel)]="form.citizenship"
-              name="citizenship" required #citizenship="ngModel">
-              <ion-item class="no-border" style="margin-bottom: 2%; margin-left: 3%; --background: #f0f0f0;"
-                [ngClass]="{'highlighted': form.citizenship === 'Warganegara'}">
-                <ion-radio slot="end" value="Warganegara"></ion-radio>
-                <ion-label>Domestik</ion-label>
-              </ion-item>
-              <ion-item class="no-border" style="margin-left: 3%; --background: #f0f0f0;"
-                [ngClass]="{'highlighted': form.citizenship === 'Bukan Warganegara'}">
-                <ion-radio slot="end" value="Bukan Warganegara"></ion-radio>
-                <ion-label>Antarabangsa</ion-label>
-              </ion-item>
+            <!-- Q1: Citizenship -->
+            <div class="field-label question-label">
+              1. Domestik/Antarabangsa <span class="error-message">*</span>
+            </div>
+
+            <ion-radio-group
+              mode="md"
+              [(ngModel)]="form.citizenship"
+              name="citizenship"
+              required
+              #citizenship="ngModel"
+              style="margin-bottom: 5%"
+            >
+              <div class="citizenship-options-inner">
+                <label
+                  class="citizenship-option"
+                  [class.highlighted]="form.citizenship === 'Warganegara'"
+                >
+                  <ion-radio value="Warganegara"></ion-radio>
+                  <span>Domestik</span>
+                </label>
+                <label
+                  class="citizenship-option"
+                  [class.highlighted]="form.citizenship === 'Bukan Warganegara'"
+                >
+                  <ion-radio value="Bukan Warganegara"></ion-radio>
+                  <span>Antarabangsa</span>
+                </label>
+                <label
+                  class="citizenship-option"
+                  [class.highlighted]="form.citizenship === 'Mix'"
+                >
+                  <ion-radio value="Mix"></ion-radio>
+                  <span>Domestik/Antarabangsa</span>
+                </label>
+              </div>
               <ion-item *ngIf="citizenship.invalid && citizenship.touched" class="error-message no-border">
-                <ion-text class="no-border">
-                  *Sila pilih Warganegara/please choose a Citizenship status
+                <ion-text>
+                  *Sila pilih Warganegara / Please choose a Citizenship status
                 </ion-text>
               </ion-item>
-            </ion-radio-group> -->
-
-
-
-            <!-- q2 -->
-            <!-- <ion-item style="margin-bottom: 5%;">
-              <ion-label position="stacked" class="question-label">2. Bilangan Orang/No. of Pax <span class="error-message"> * </span></ion-label> -->
-              <!-- </ion-item> -->
-              <!-- <ion-select mode="md" class="question-label-custom" interface="popover" [(ngModel)]="form.pax" name="pax"
-                #pax="ngModel">
-
-                <ion-select-option *ngFor="let number of numbers">
-                  {{ number }}
-                </ion-select-option>
-
-              </ion-select> -->
-              <!-- <ion-item> -->
-              <!-- <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-                placeholder="No. Bilangan Orang/Pax*" [(ngModel)]="form.pax" name="pax" required #pax="ngModel"
-                type="number">
-              </ion-input> -->
-              <!-- </ion-item> -->
-              <!-- error msg -->
-
-            <!-- </ion-item>
-            <ion-item style="margin-bottom: 0;" *ngIf="pax.invalid && pax.touched" class="error-message no-border">
-              <ion-text class="no-border">
-                *Sila isi Bilangan Orang/No. of Pax is required
-              </ion-text>
-            </ion-item> -->
-
-            <!-- q1 -->
-          <ion-item style="margin-bottom: 2%;" class="no-border">
-            <ion-label class="question-label">1. Domestik/Antarabangsa <span class="error-message"> * </span></ion-label>
-            </ion-item>
-  
-            <ion-radio-group mode="md" value="Warganegara" style="margin-bottom: 5%;"
-            [(ngModel)]="form.citizenship" 
-            name="citizenship"
-            required
-            #citizenship="ngModel">
-            <ion-item class="no-border" style="margin-bottom: 2%; margin-left: 3%; --background: #f0f0f0;"
-              [ngClass]="{'highlighted': form.citizenship === 'Warganegara'}">
-              <ion-radio slot="end" value="Warganegara"></ion-radio>
-              <ion-label>Domestik</ion-label>
-            </ion-item>
-            <ion-item class="no-border" style="margin-bottom: 2%; margin-left: 3%; --background: #f0f0f0;"
-              [ngClass]="{'highlighted': form.citizenship === 'Bukan Warganegara'}">
-              <ion-radio slot="end" value="Bukan Warganegara"></ion-radio>
-              <ion-label>Antarabangsa</ion-label>
-            </ion-item>
-            <ion-item class="no-border" style="margin-left: 3%; --background: #f0f0f0;"
-              [ngClass]="{'highlighted': form.citizenship === 'Mix'}">
-              <ion-radio slot="end" value="Mix"></ion-radio>
-              <ion-label>Domestik dan Antarabangsa</ion-label>
-            </ion-item>
-            <ion-item *ngIf="citizenship.invalid && citizenship.touched" class="error-message no-border">
-              <ion-text class="no-border">
-                *Sila pilih Warganegara/please choose a Citizenship status
-              </ion-text>
-            </ion-item>
             </ion-radio-group>
-  
-            <!-- q2 -->
-  
+
+            <!-- Q2: Pax -->
             <ng-container *ngIf="form.citizenship === ''">
-            <ion-item style="margin-bottom: 5%;">
-            <ion-label position="stacked" class="question-label">2. Bilangan Orang/No. of Pax <span class="error-message"> * </span></ion-label>
-  
-            <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-              placeholder="Sila pilih Domestik/Antarabangsa" [(ngModel)]="form.pax" name="pax" required #pax="ngModel"
-              type="number" readonly>
-            </ion-input>
-  
-            </ion-item>
+              <div class="field-label question-label">
+                2. Bilangan Orang/No. of Pax <span class="error-message">*</span>
+              </div>
+              <div class="pax-input-wrap">
+                <ion-item>
+                  <ion-input
+                    [clearInput]="true"
+                    placeholder="Sila pilih Domestik/Antarabangsa"
+                    [(ngModel)]="form.pax" name="pax"
+                    type="number" readonly>
+                  </ion-input>
+                </ion-item>
+              </div>
             </ng-container>
-  
+
             <ng-container *ngIf="form.citizenship === 'Warganegara'">
-            <ion-item style="margin-bottom: 5%;">
-            <ion-label position="stacked" class="question-label">2. Bilangan Orang/No. of Pax (Domestik)<span class="error-message"> * </span></ion-label>
-  
-            <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-              placeholder="No. Bilangan Orang/Pax" [(ngModel)]="form.pax_domestik" name="pax_domestik" required #pax_domestik="ngModel"
-              type="number">
-            </ion-input>
-  
-            </ion-item>
-            <ion-item style="margin-bottom: 0;" *ngIf="pax_domestik.invalid && pax_domestik.touched" class="error-message no-border">
-            <ion-text class="no-border">
-              *Sila isi Bilangan Orang/No. of Pax is required
-            </ion-text>
-            </ion-item>
+              <div class="field-label question-label">
+                2. Bilangan Orang/No. of Pax (Domestik) <span class="error-message">*</span>
+              </div>
+              <div class="pax-input-wrap">
+                <ion-item>
+                  <ion-input
+                    [clearInput]="true"
+                    placeholder="No. Bilangan Orang/Pax"
+                    [(ngModel)]="form.pax_domestik" name="pax_domestik"
+                    required #pax_domestik="ngModel" type="number">
+                  </ion-input>
+                </ion-item>
+                <ion-item *ngIf="pax_domestik.invalid && pax_domestik.touched" class="error-message no-border">
+                  <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                </ion-item>
+              </div>
             </ng-container>
-  
+
             <ng-container *ngIf="form.citizenship === 'Bukan Warganegara'">
-            <ion-item style="margin-bottom: 5%;">
-            <ion-label position="stacked" class="question-label">2. Bilangan Orang/No. of Pax (Antarabangsa)<span class="error-message"> * </span></ion-label>
-  
-            <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-              placeholder="No. Bilangan Orang/Pax" [(ngModel)]="form.pax_antarabangsa" name="pax_antarabangsa" required #pax_antarabangsa="ngModel"
-              type="number">
-            </ion-input>
-  
-            </ion-item>
-            <ion-item style="margin-bottom: 0;" *ngIf="pax_antarabangsa.invalid && pax_antarabangsa.touched" class="error-message no-border">
-            <ion-text class="no-border">
-              *Sila isi Bilangan Orang/No. of Pax is required
-            </ion-text>
-            </ion-item>
+              <div class="field-label question-label">
+                2. Bilangan Orang/No. of Pax (Antarabangsa) <span class="error-message">*</span>
+              </div>
+              <div class="pax-input-wrap">
+                <ion-item>
+                  <ion-input
+                    [clearInput]="true"
+                    placeholder="No. Bilangan Orang/Pax"
+                    [(ngModel)]="form.pax_antarabangsa" name="pax_antarabangsa"
+                    required #pax_antarabangsa="ngModel" type="number">
+                  </ion-input>
+                </ion-item>
+                <ion-item *ngIf="pax_antarabangsa.invalid && pax_antarabangsa.touched" class="error-message no-border">
+                  <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                </ion-item>
+              </div>
             </ng-container>
-  
+
             <ng-container *ngIf="form.citizenship === 'Mix'">
-            <ion-item style="margin-bottom: 5%;">
-            <ion-label position="stacked" class="question-label">2.(a) Bilangan Orang/No. of Pax (Domestik)<span class="error-message"> * </span></ion-label>
-  
-            <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-              placeholder="No. Bilangan Orang/Pax" [(ngModel)]="form.pax_domestik" name="pax_domestik" required #pax_domestik="ngModel"
-              type="number">
-            </ion-input>
-  
-            </ion-item>
-            <ion-item style="margin-bottom: 0;" *ngIf="pax_domestik.invalid && pax_domestik.touched" class="error-message no-border">
-            <ion-text class="no-border">
-              *Sila isi Bilangan Orang/No. of Pax is required
-            </ion-text>
-            </ion-item>
-            <ion-item style="margin-bottom: 5%;">
-            <ion-label position="stacked" class="question-label">2.(b) Bilangan Orang/No. of Pax (Antarabangsa)<span class="error-message"> * </span></ion-label>
-  
-            <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-              placeholder="No. Bilangan Orang/Pax" [(ngModel)]="form.pax_antarabangsa" name="pax_antarabangsa" required #pax_antarabangsa="ngModel"
-              type="number">
-            </ion-input>
-  
-            </ion-item>
-            <ion-item style="margin-bottom: 0;" *ngIf="pax_antarabangsa.invalid && pax_antarabangsa.touched" class="error-message no-border">
-            <ion-text class="no-border">
-              *Sila isi Bilangan Orang/No. of Pax is required
-            </ion-text>
-            </ion-item>
+              <div class="form-row-2col">
+                <div class="form-col">
+                  <div class="field-label question-label">
+                    2(a). Bilangan Orang/No. of Pax (Domestik) <span class="error-message">*</span>
+                  </div>
+                  <ion-item>
+                    <ion-input
+                      [clearInput]="true"
+                      placeholder="No. Bilangan Orang/Pax"
+                      [(ngModel)]="form.pax_domestik" name="pax_domestik_mix"
+                      required #pax_domestik_mix="ngModel" type="number">
+                    </ion-input>
+                  </ion-item>
+                  <ion-item *ngIf="pax_domestik_mix.invalid && pax_domestik_mix.touched" class="error-message no-border">
+                    <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                  </ion-item>
+                </div>
+                <div class="form-col">
+                  <div class="field-label question-label">
+                    2(b). Bilangan Orang/No. of Pax (Antarabangsa) <span class="error-message">*</span>
+                  </div>
+                  <ion-item>
+                    <ion-input
+                      [clearInput]="true"
+                      placeholder="No. Bilangan Orang/Pax"
+                      [(ngModel)]="form.pax_antarabangsa" name="pax_antarabangsa_mix"
+                      required #pax_antarabangsa_mix="ngModel" type="number">
+                    </ion-input>
+                  </ion-item>
+                  <ion-item *ngIf="pax_antarabangsa_mix.invalid && pax_antarabangsa_mix.touched" class="error-message no-border">
+                    <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                  </ion-item>
+                </div>
+              </div>
             </ng-container>
 
+            <!-- Q3: Package -->
+            <div class="field-label question-label" style="margin-bottom: 8px;">
+              3. Pakej/Package <span class="error-message">*</span>
+            </div>
 
-            <!-- q3 -->
-            <ion-item style="margin-bottom: 0%;" class="no-border">
-              <ion-label class="question-label">3. Pakej/Package <span class="error-message"> * </span></ion-label>
-             <!-- <ion-icon style="font-size: 25px;" (click)="addInputSet()" name="add-circle-outline"></ion-icon> -->
-            </ion-item>
-            <!-- <ion-item class="no-border" style="margin-bottom: 0; margin-top: 0;"><ion-label class="question-label-grey">Maksimum 5 Pakej/Max. 5 Package</ion-label></ion-item> -->
-            
-            <div class="container">
-              
-              <!-- Container for dynamic input sets -->
-              <div *ngFor="let inputSet of inputSets; let i = index; trackBy: trackByIndex" style="display: flex; margin-right: -12%;">
-                <div class="side-by-side">
-                  <!-- First Input: ion-select -->
-                  <ion-item style="margin-bottom: 5%;">
-                    <ion-select placeholder="Pilih Perniagaan" label="Pilih/Choose 1" labelPlacement="stacked"
-                      [(ngModel)]="inputSet.nameOfBusiness" (ngModelChange)="onActivityChange(inputSet.nameOfBusiness)"
-                      name="full_name_{{inputSet.id}}" required>
+            <div *ngFor="let inputSet of inputSets; let i = index; trackBy: trackByIndex" class="package-row">
+              <div class="package-fields">
+                <div class="package-top-row">
+                  <ion-item>
+                    <ion-select
+                      placeholder="Sila Pilih"
+                      [(ngModel)]="inputSet.nameOfBusiness"
+                      (ngModelChange)="onActivityChange(inputSet.nameOfBusiness)"
+                      name="full_name_{{inputSet.id}}"
+                      required>
                       <ion-select-option *ngFor="let business of businesses" [value]="business.full_name">
                         {{ business?.full_name }}
                       </ion-select-option>
                     </ion-select>
                   </ion-item>
-            
-                  <!-- Second Input: RM -->
                   <ion-item>
-                    <ion-input step="0.01" type="number" labelPlacement="stacked" placeholder="RM"
-                      [(ngModel)]="inputSet.total_rm" name="total_rm_{{inputSet.id}}" required #total="ngModel">
-                    </ion-input>
-                  </ion-item>
-            
-                  <!-- Third Input: Additional Input -->
-                  <ion-item class="full-width-input">
-                    <ion-input labelPlacement="stacked" placeholder="Description"
-                      [(ngModel)]="inputSet.packageDesc" name="package_desc_{{inputSet.id}}" required #packagedesc="ngModel">
+                    <ion-input
+                      step="0.01" type="number"
+                      placeholder="RM"
+                      [(ngModel)]="inputSet.total_rm"
+                      name="total_rm_{{inputSet.id}}"
+                      required>
                     </ion-input>
                   </ion-item>
                 </div>
-                <ion-button (click)="removeInputSet(i)" color="danger" fill="clear" class="delete-btn">
-                  <ion-icon name="trash"></ion-icon> <!-- X icon -->
-                </ion-button>
+                <div class="desc-input-wrap">
+                  <ion-item>
+                    <ion-input
+                      placeholder="Description"
+                      [(ngModel)]="inputSet.packageDesc"
+                      name="package_desc_{{inputSet.id}}"
+                      required>
+                    </ion-input>
+                  </ion-item>
+                </div>
               </div>
-              <ion-button style="font-size: 16px; margin-top: -10%;" fill="clear" (click)="addInputSet()" >
-                <ion-icon slot="start" name="add-circle-outline" >                
-                </ion-icon>
-                 add more
-                </ion-button>
+              <ion-button (click)="removeInputSet(i)" color="danger" fill="clear" class="delete-btn">
+                <ion-icon name="trash"></ion-icon>
+              </ion-button>
             </div>
 
-            <!-- q4 -->
-            <ion-item style="margin-bottom: 5%;">
-              <ion-label position="stacked" class="question-label">4. Tarikh/Date </ion-label>
-              <ion-input type="date" class="question-label-custom" labelPlacement="stacked"
-                [(ngModel)]="form.date" name="date"  #issuer="ngModel">
-              </ion-input>
-              <!-- </ion-item> -->
-              
-            </ion-item>
+            <ion-button fill="clear" (click)="addInputSet()" class="add-more-btn">
+              <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+              Add More
+            </ion-button>
 
-            <!-- q5 -->
-            <ion-item style="margin-bottom: 5%;">
-              <ion-label position="stacked" class="question-label">5. Nama Pengendali/Name of Operator </ion-label>
-              <ion-input class="question-label-custom" labelPlacement="stacked" [clearInput]="true"
-                placeholder="Nama Pengandali/Operator" [(ngModel)]="form.issuer" name="issuer"  #issuer="ngModel">
-              </ion-input>
-              <!-- </ion-item> -->
-              
-            </ion-item>
+            <!-- Q4 + Q5: Date and Operator side by side -->
+            <div class="form-row-2col">
+              <div class="form-col">
+                <div class="field-label question-label">
+                  4. Tarikh/Date
+                </div>
+                <ion-item>
+                  <ion-input
+                    type="date"
+                    [(ngModel)]="form.date" name="date"
+                    #dateInput="ngModel">
+                  </ion-input>
+                </ion-item>
+              </div>
+              <div class="form-col">
+                <div class="field-label question-label">
+                  5. Nama Pengendali/Name of Operator
+                </div>
+                <ion-item>
+                  <ion-input
+                    [clearInput]="true"
+                    placeholder="Nama Pengandali/Operator"
+                    [(ngModel)]="form.issuer" name="issuer"
+                    #issuerInput="ngModel">
+                  </ion-input>
+                </ion-item>
+              </div>
+            </div>
 
-            <!-- error msg -->
-            <!-- <ion-item style="margin-bottom: 0;" *ngIf="issuer.invalid && issuer.touched" class="error-message no-border">
-              <ion-text class="no-border">
-                *Sila isi Bilangan Orang/No. of Pax is required
-              </ion-text>
-            </ion-item> -->
-            
-            <ion-button mode="ios" style="margin-left: 10px; margin-right: 10px; margin-bottom: 10%; margin-top: 5%;"
-              expand="block" type="submit" [disabled]="myForm.invalid">Hantar/Submit</ion-button>
+            <ion-button
+              mode="ios"
+              style="margin: 16px 0 24px 0;"
+              expand="block"
+              type="submit"
+              [disabled]="myForm.invalid">
+              Hantar / Submit
+            </ion-button>
+
           </ion-list>
         </ion-card-content>
 
@@ -293,7 +249,5 @@
 
     </form>
   </div>
-
-
 
 </ion-content>

@@ -62,6 +62,10 @@ export class AccoFormPage implements OnInit {
   // Create an array of numbers from 1 to 20
   numbers: number[] = Array.from({ length: 20 }, (_, i) => i + 1);
 
+  get isGuestAutofilled(): boolean {
+    return this.form.booking_type === 'guest' && !!this.selectedTouristUserId;
+  }
+
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       if (params['bookingId']) {

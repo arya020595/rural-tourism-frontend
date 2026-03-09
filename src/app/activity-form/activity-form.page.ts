@@ -65,6 +65,10 @@ export class ActivityFormPage implements OnInit {
 
   numbers: number[] = Array.from({ length: 20 }, (_, i) => i + 1);
 
+  get isGuestAutofilled(): boolean {
+    return this.form.booking_type === 'guest' && !!this.selectedTouristUserId;
+  }
+
   // ---------------- Load Activities ----------------
   loadActivities() {
     const uid = localStorage.getItem('uid')!;
@@ -250,7 +254,6 @@ export class ActivityFormPage implements OnInit {
           ? 'Bukan Warganegara'
           : 'Warganegara';
     this.form.date = booking.date || '';
-    this.form.time = booking.time || '';
     this.form.total_rm = booking.total_price
       ? booking.total_price.toString()
       : '';
@@ -321,11 +324,13 @@ export class ActivityFormPage implements OnInit {
         )
         .filter((t: any) => !!t);
       this.availableTimeSlots = [...new Set<string>(slots)];
-
-      // If the pre-filled time isn't a valid slot, clear it so operator must pick
-      if (this.form.time && !this.availableTimeSlots.includes(this.form.time)) {
-        this.form.time = '';
-      }
+      // Set time after slots are populated so ion-select can resolve the value
+      setTimeout(() => {
+        this.form.time = booking.time || '';
+      }, 0);
+    } else {
+      // No matched activity — still try to set time from booking
+      this.form.time = booking.time || '';
     }
 
     // Populate form fields if activity found
@@ -345,6 +350,7 @@ export class ActivityFormPage implements OnInit {
       this.form.activity_name = booking.activity_name || '';
       this.form.activity_id = booking.activity_id || '';
       this.form.location = booking.location || '';
+      this.form.time = booking.time || '';
     }
   }
 
