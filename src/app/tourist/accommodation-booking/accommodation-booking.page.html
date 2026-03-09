@@ -7,17 +7,6 @@
   <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
 
   <form [formGroup]="bookingForm" (ngSubmit)="submitBooking()">
-    <!-- Number of Pax -->
-    <ion-item>
-      <ion-label position="stacked">No. of Pax</ion-label>
-      <ion-input
-        type="number"
-        formControlName="no_of_pax"
-        placeholder="Enter number of pax"
-      >
-      </ion-input>
-    </ion-item>
-
     <!-- Check-In Date Display -->
     <ion-item lines="full">
       <div class="date-item-content">
@@ -51,7 +40,15 @@
     </ion-item>
 
     <!-- Date Selection Instruction -->
-    <div class="date-instruction" *ngIf="!checkInDate || !checkOutDate">
+    <div class="date-instruction warning" *ngIf="!hasBookableRange">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span
+        >Minimum stay is 1 night, so at least 2 consecutive dates must be
+        available.</span
+      >
+    </div>
+
+    <div class="date-instruction" *ngIf="hasBookableRange && (!checkInDate || !checkOutDate)">
       <ion-icon name="information-circle-outline"></ion-icon>
       <span *ngIf="!checkInDate">Click a date to select check-in</span>
       <span *ngIf="checkInDate && !checkOutDate"
@@ -132,6 +129,33 @@
       <span>{{ numberOfNights }} Night(s)</span>
     </div>
 
+    <div class="selected-prices" *ngIf="selectedNightBreakdown.length > 0">
+      <div class="selected-prices-title">Selected nightly rates</div>
+      <div class="selected-price-row" *ngFor="let item of selectedNightBreakdown">
+        <span>{{ formatDateForDisplay(item.date) }}</span>
+        <span>RM {{ item.price | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <ion-item class="rooms-select-item">
+      <ion-label position="stacked">Number of Rooms</ion-label>
+      <ion-select
+        formControlName="no_of_rooms"
+        interface="popover"
+        [disabled]="!checkInDate || !checkOutDate"
+      >
+        <ion-select-option *ngFor="let room of roomOptions" [value]="room">
+          {{ room }} Room(s)
+        </ion-select-option>
+      </ion-select>
+      <ion-note color="medium" *ngIf="!checkInDate || !checkOutDate">
+        Select check-in and check-out first
+      </ion-note>
+      <ion-note color="medium" *ngIf="checkInDate && checkOutDate">
+        Max {{ maxRoomsForSelection }} room(s) for selected date range
+      </ion-note>
+    </ion-item>
+
     <!-- Your Details Section -->
     <div class="details-section">
       <h3>Your Details</h3>
@@ -182,7 +206,7 @@
         <span>RM {{ totalPrice | number:'1.2-2' }}</span>
         <small>for {{ numberOfNights }} night(s)</small>
       </div>
-      <ion-button expand="block" (click)="submitBooking()">Book Now</ion-button>
+      <ion-button expand="block" [disabled]="!hasBookableRange" (click)="submitBooking()">Book Now</ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

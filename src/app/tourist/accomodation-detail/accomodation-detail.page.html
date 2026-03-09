@@ -66,11 +66,17 @@
       </ng-template>
     </div>
   </div>
-
   <!-- Fixed Footer -->
   <div class="booking-footer" *ngIf="!loading && accommodation">
-    <div class="price">
-      RM {{ accommodation?.price }} <br/>
+    
+    <div class="price" *ngIf="priceRange.lower === priceRange.higher">
+      <!-- RM {{ accommodation?.price }} <br/> -->
+       RM {{ priceRange.lower }} <br/>
+      <small>per night</small>
+    </div>
+
+    <div class="price" *ngIf="priceRange.lower !== priceRange.higher">
+      RM {{ priceRange.lower }} - {{ priceRange.higher }} <br/>
       <small>per night</small>
     </div>
 

@@ -14,6 +14,10 @@ export class AccomodationDetailPage implements OnInit {
   loading: boolean = true;
   errorMessage: string = '';
   showAllAmenities: boolean = false;
+  priceRange: {lower: number, higher: number} = {
+    lower: 0,
+    higher: 0,
+  }
 
   // NEW: for favorite button
   isFavorite: boolean = false;
@@ -53,11 +57,19 @@ export class AccomodationDetailPage implements OnInit {
     this.apiService.getAccommodationById(this.accommodationId).subscribe({
       next: (res: any) => {
         // Normalize ID
+        
         this.accommodation = {
           ...res,
           id: res.id ?? res.accommodation_id,
         };
+        const prices = this.accommodation?.availabilities?.map((item: { price: number; }) => {
+          return item.price;
+        });
 
+        this.priceRange = {
+          lower: Math.min(...prices),
+          higher: Math.max(...prices)
+        }
         // Parse amenities
         const provided =
           this.accommodation?.provided ||
@@ -126,10 +138,10 @@ export class AccomodationDetailPage implements OnInit {
     this.navCtrl.navigateForward(['/tourist/accommodation-booking'], {
       queryParams: {
         accommodation_id: this.accommodation.id,
-        price: this.accommodation.price,
+        // price: this.accommodation.price,
         operator_id: this.accommodation.operator_id,
-        tourist_user_id: touristUserId,
-        no_of_pax: 1,
+        // tourist_user_id: touristUserId,
+        // no_of_pax: 1,
         no_of_rooms: 1,
       },
     });

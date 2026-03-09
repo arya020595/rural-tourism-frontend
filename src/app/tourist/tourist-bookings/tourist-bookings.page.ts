@@ -16,6 +16,7 @@ interface Booking {
   check_in?: string;
   check_out?: string;
   no_of_pax?: number;
+  no_of_rooms?: number;
   total_no_of_nights?: number;
   total_price?: number | string;
   status?: string;

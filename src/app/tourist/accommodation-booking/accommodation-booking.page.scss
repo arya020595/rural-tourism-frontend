@@ -74,6 +74,11 @@
   }
 }
 
+.date-instruction.warning {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
 // Calendar container
 .calendar-container {
   background-color: #fff;
@@ -275,6 +280,43 @@
 
   ion-icon {
     font-size: 20px;
+  }
+}
+
+.selected-prices {
+  margin-bottom: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+
+.selected-prices-title {
+  font-weight: 700;
+  color: #024e25;
+  margin-bottom: 8px;
+}
+
+.selected-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #333;
+  padding: 4px 0;
+}
+
+.rooms-select-item {
+  margin-bottom: 20px;
+
+  ion-select {
+    width: 100%;
+  }
+
+  ion-note {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
   }
 }
 
