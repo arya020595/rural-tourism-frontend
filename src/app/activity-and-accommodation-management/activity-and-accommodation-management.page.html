@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Management</ion-title>
+  </ion-toolbar>
+  <ion-toolbar color="primary">
+    <ion-segment [(ngModel)]="segment" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="activities">
+        <ion-label>Activities</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="accommodations">
+        <ion-label>Accommodations</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Activities Segment -->
+  <div *ngIf="segment === 'activities'">
+    <ion-card *ngFor="let activity of activities">
+      <ion-card-header>
+        <ion-card-title>{{ activity.activity_name }}</ion-card-title>
+        <ion-card-subtitle>{{ activity.location }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ activity.description }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-text color="medium" *ngIf="activities.length === 0">
+      <p class="ion-text-center">No activities found.</p>
+    </ion-text>
+  </div>
+
+  <!-- Accommodations Segment -->
+  <div *ngIf="segment === 'accommodations'">
+    <ion-card *ngFor="let accom of accommodations">
+      <ion-card-header>
+        <ion-card-title>{{ accom.homest_name }}</ion-card-title>
+        <ion-card-subtitle>{{ accom.location }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ accom.description }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-text color="medium" *ngIf="accommodations.length === 0">
+      <p class="ion-text-center">No accommodations found.</p>
+    </ion-text>
+  </div>
+</ion-content>

@@ -25,8 +25,7 @@
   >
     <ion-segment-button value="all"> All </ion-segment-button>
     <ion-segment-button value="booked"> Booked </ion-segment-button>
-    <ion-segment-button value="paid"> Paid </ion-segment-button>
-    <ion-segment-button value="cancelled"> Cancelled </ion-segment-button>
+    <ion-segment-button value="pending"> Pending </ion-segment-button>
   </ion-segment>
 
   <!-- Segment buttons -->
@@ -52,29 +51,56 @@
 
   <!-- Activity Bookings -->
   <div *ngIf="selectedSegment === 'activity'">
-    <ion-card *ngIf="activityBookings.length > 0; else noActivityBookings">
-      <ion-list>
-        <ion-item *ngFor="let booking of getFilteredActivityBookings()">
-          <ion-label>
-            <h2>{{ booking.activityName || 'Activity' }}</h2>
-            <p>Name: {{ booking.contact_name }}</p>
+    <div
+      class="booking-grid"
+      *ngIf="activityBookings.length > 0; else noActivityBookings"
+    >
+      <div
+        class="booking-card"
+        *ngFor="let booking of getFilteredActivityBookings()"
+      >
+        <h3 class="booking-title">{{ booking.activityName || 'Activity' }}</h3>
+        <div class="card-body">
+          <div class="card-info">
+            <p><strong>Name:</strong> {{ booking.contact_name }}</p>
             <p>
-              Date: {{ booking.date ? (booking.date | date:'mediumDate') : 'N/A'
-              }}
+              <strong>Date:</strong> {{ booking.date ? (booking.date |
+              date:'mediumDate') : 'N/A' }}
             </p>
-            <p>Time: {{ booking.time || 'N/A' }}</p>
-            <p>No. of Pax: {{ booking.no_of_pax || 1 }}</p>
-            <p>Total Price: {{ booking.total_price | currency }}</p>
+            <p><strong>Time:</strong> {{ booking.time || 'N/A' }}</p>
+            <p><strong>No. of Pax:</strong> {{ booking.no_of_pax || 1 }}</p>
             <p>
+              <strong>Total Price:</strong> RM {{ booking.total_price |
+              number:'1.2-2' }}
+            </p>
+            <p class="status-line">
               Status:
-              <ion-badge [color]="getStatusColor(booking.status)">
-                {{ booking.status || 'Pending' }}
-              </ion-badge>
+              <ion-badge [color]="getStatusColor(booking.status)"
+                >{{ booking.status || 'Pending' }}</ion-badge
+              >
             </p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-card>
+          </div>
+          <div class="card-action">
+            <ion-button
+              *ngIf="booking.status?.toLowerCase() === 'paid'"
+              class="receipt-btn view-receipt-btn"
+              (click)="viewReceipt(booking)"
+            >
+              <ion-icon name="receipt-outline" slot="start"></ion-icon>
+              View Receipt
+            </ion-button>
+            <ion-button
+              *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+              class="receipt-btn"
+              (click)="createReceipt(booking)"
+            >
+              <ion-icon name="receipt-outline" slot="start"></ion-icon>
+              Create Receipt
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <ng-template #noActivityBookings>
       <p class="ion-padding">No activity bookings found.</p>
@@ -83,35 +109,63 @@
 
   <!-- Accommodation Bookings -->
   <div *ngIf="selectedSegment === 'accommodation'">
-    <ion-card
+    <div
+      class="booking-grid"
       *ngIf="accommodationBookings.length > 0; else noAccommodationBookings"
     >
-      <ion-list>
-        <ion-item *ngFor="let booking of getFilteredAccommodationBookings()">
-          <ion-label>
-            <h2>{{ booking.accommodation_name }}</h2>
-            <p>Name: {{ booking.contact_name }}</p>
+      <div
+        class="booking-card"
+        *ngFor="let booking of getFilteredAccommodationBookings()"
+      >
+        <h3 class="booking-title">{{ booking.accommodation_name }}</h3>
+        <div class="card-body">
+          <div class="card-info">
+            <p><strong>Name:</strong> {{ booking.contact_name }}</p>
             <p>
-              Check-in: {{ booking.check_in ? (booking.check_in |
-              date:'mediumDate') : 'N/A' }}
+              <strong>Check-in:</strong> {{ booking.check_in ? (booking.check_in
+              | date:'mediumDate') : 'N/A' }}
             </p>
             <p>
-              Check-out: {{ booking.check_out ? (booking.check_out |
-              date:'mediumDate') : 'N/A' }}
+              <strong>Check-out:</strong> {{ booking.check_out ?
+              (booking.check_out | date:'mediumDate') : 'N/A' }}
             </p>
-            <p>No. of Nights: {{ booking.total_no_of_nights || 1 }}</p>
-            <p>No. of Pax: {{ booking.no_of_pax || 1 }}</p>
-            <p>Total Price: {{ booking.total_price | currency }}</p>
             <p>
+              <strong>No. of Nights:</strong> {{ booking.total_no_of_nights || 1
+              }}
+            </p>
+            <p><strong>No. of Pax:</strong> {{ booking.no_of_pax || 1 }}</p>
+            <p>
+              <strong>Total Price:</strong> RM {{ booking.total_price |
+              number:'1.2-2' }}
+            </p>
+            <p class="status-line">
               Status:
-              <ion-badge [color]="getStatusColor(booking.status)">
-                {{ booking.status || 'Pending' }}
-              </ion-badge>
+              <ion-badge [color]="getStatusColor(booking.status)"
+                >{{ booking.status || 'Pending' }}</ion-badge
+              >
             </p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-card>
+          </div>
+          <div class="card-action">
+            <ion-button
+              *ngIf="booking.status?.toLowerCase() === 'paid'"
+              class="receipt-btn view-receipt-btn"
+              (click)="viewReceipt(booking)"
+            >
+              <ion-icon name="receipt-outline" slot="start"></ion-icon>
+              View Receipt
+            </ion-button>
+            <ion-button
+              *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+              class="receipt-btn"
+              (click)="createReceipt(booking)"
+            >
+              <ion-icon name="receipt-outline" slot="start"></ion-icon>
+              Create Receipt
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <ng-template #noAccommodationBookings>
       <p class="ion-padding">No accommodation bookings found.</p>

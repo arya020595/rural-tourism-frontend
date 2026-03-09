@@ -92,9 +92,14 @@ export class ApiService {
     );
   }
 
-  // load transaction history
+  // load transaction history (operator)
   getFormsByUser(user_id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/form/operator/${user_id}`);
+  }
+
+  // load transaction history (tourist)
+  getFormsByTourist(tourist_user_id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/form/tourist/${tourist_user_id}`);
   }
 
   // voidTransaction(user_id: string): Observable<any> {
@@ -319,7 +324,17 @@ export class ApiService {
   }
 
   //Apply more methods here...
-  getAssociationList(): Observable<any>{
+  getAssociationList(): Observable<any> {
     return this.http.get(`${this.apiUrl}/associations`);
+  }
+
+  loginAssociation(credentials: {
+    username: string;
+    password: string;
+  }): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/association-users/login`,
+      credentials,
+    );
   }
 }

@@ -367,7 +367,7 @@ export class ConfirmBookingDetailsPage implements OnInit {
     const finalBooking = {
       ...this.bookingData,
       operator_id: this.operatorId,
-      status: 'Booked',
+      status: 'booked',
       date: this.bookingData.date,
       time: this.bookingData.time || null,
     };

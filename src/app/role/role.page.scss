@@ -3,10 +3,12 @@ ion-content.background{
 }
 
     ion-card {
+      align-items: center;
       margin-left: 5%;
       margin-right: 5%;
       border-radius: 30px;
-      min-height: 50vh; /* Allow cards to shrink for smaller screens */
+      max-width: 645px;
+      min-height: 574px; /* Allow cards to shrink for smaller screens */
 
     .ion-blue-bkg {
         background-color: #ffffff;
@@ -37,3 +39,23 @@ ion-content.background{
         margin-top: 20px;
         margin-bottom: 20px;
     }
+
+@media (min-width: 768px) {
+  ion-content.background::part(scroll) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  ion-header[collapse="condense"] {
+    flex: 1;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  ion-card {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
