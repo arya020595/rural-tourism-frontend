@@ -439,7 +439,7 @@ export class ActivityBookingPage implements OnInit {
         ...this.bookingForm.value,
         total_price: this.totalPrice,
         available_dates_list: this.filteredDates,
-        status: 'Booked',
+        status: 'booked',
         activity_name: this.activityDetails?.activity_name || '',
         operator_name: this.activityDetails?.rt_user_name || '',
         operator_image: this.activityDetails?.image || '',

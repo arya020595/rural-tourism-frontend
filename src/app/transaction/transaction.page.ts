@@ -2,14 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
-import { AlertController, ToastController  } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { ModalController } from '@ionic/angular';
 import { DateModalComponent } from 'src/app/date-modal/date-modal.component';
-import { IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonList } from '@ionic/angular/standalone';
-
+import {
+  IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonList,
+} from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-transaction',
@@ -19,10 +25,27 @@ import { IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonLi
   // imports: [IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonList]
 })
 export class TransactionPage implements OnInit {
-
-  selectedDate?: string;  // bound to ion-datetime
+  selectedDate?: string; // bound to ion-datetime
 
   filteredTransactions: any[] = []; // filtered view
+
+  selectedSegment: string = 'activity';
+
+  get activityTransactions() {
+    return this.filteredTransactions.filter(
+      (t) => t.activity_id && !t.package && t.receipt_id,
+    );
+  }
+
+  get accomTransactions() {
+    return this.filteredTransactions.filter(
+      (t) => t.homest_id && !t.package && t.receipt_id,
+    );
+  }
+
+  get packageTransactions() {
+    return this.filteredTransactions.filter((t) => t.package && t.receipt_id);
+  }
 
   constructor(
     private apiService: ApiService,
@@ -32,8 +55,10 @@ export class TransactionPage implements OnInit {
     private alertController: AlertController,
     private http: HttpClient,
     private toastController: ToastController,
-    private cdRef: ChangeDetectorRef
-  ) { this.filteredTransactions = [...this.transactions];}
+    private cdRef: ChangeDetectorRef,
+  ) {
+    this.filteredTransactions = [...this.transactions];
+  }
 
   ngOnInit() {
     // this.loadTransactions();
@@ -44,8 +69,8 @@ export class TransactionPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: DateModalComponent,
       componentProps: {
-        selectedDate: this.selectedDate // optionally pass the current date
-      }
+        selectedDate: this.selectedDate, // optionally pass the current date
+      },
     });
 
     await modal.present();
@@ -60,8 +85,8 @@ export class TransactionPage implements OnInit {
   async showToast(message: string, duration: number = 2000) {
     const toast = await this.toastController.create({
       message: message,
-      duration: duration,  // Duration in milliseconds
-      position: 'bottom',  // Position of the toast (can be 'top', 'bottom', or 'middle')
+      duration: duration, // Duration in milliseconds
+      position: 'bottom', // Position of the toast (can be 'top', 'bottom', or 'middle')
     });
     toast.present();
   }
@@ -98,26 +123,26 @@ export class TransactionPage implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             // this.navCtrl.navigateForward('/view-receipt/' + transaction.receipt_id);
-          }
-        }, {
+          },
+        },
+        {
           text: 'Yes, Void',
           handler: () => {
             this.voidReceipt(transaction.receipt_id);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
   }
 
   // Show receipt
-showReceipt(transaction: any){
-  this.navCtrl.navigateForward('/view-receipt/' + transaction.receipt_id, {
-    state: { transaction }  // pass the whole transaction object
-  });
-}
-
+  showReceipt(transaction: any) {
+    this.navCtrl.navigateForward('/view-receipt/' + transaction.receipt_id, {
+      state: { transaction }, // pass the whole transaction object
+    });
+  }
 
   // transactions: any[] = [{
   //   receipt_id: '',
@@ -142,78 +167,79 @@ showReceipt(transaction: any){
   packageDescArray: string[] = [];
   totalRM: number = 0;
 
-  backHome(){
+  backHome() {
     this.navCtrl.navigateForward('/home', {
-      animated: true,        // Enable animation
-      animationDirection: 'back'  // Can be 'forward' or 'back' for custom direction
+      animated: true, // Enable animation
+      animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
     });
   }
 
-loadHistory() {
-  const uid = localStorage.getItem('uid') as string;
+  loadHistory() {
+    const uid = localStorage.getItem('uid') as string;
 
-  this.apiService.getFormsByUser(uid).subscribe(
-    (data) => {
-      this.transactions = Array.isArray(data?.data) ? data.data : [];
+    this.apiService.getFormsByUser(uid).subscribe(
+      (data) => {
+        this.transactions = Array.isArray(data?.data) ? data.data : [];
 
-      // Sort transactions by createdAt descending
-      this.transactions.sort((a, b) => {
-        const dateA = new Date(a.createdAt);
-        const dateB = new Date(b.createdAt);
-        return dateB.getTime() - dateA.getTime();
-      });
+        // Sort transactions by createdAt descending
+        this.transactions.sort((a, b) => {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          return dateB.getTime() - dateA.getTime();
+        });
 
-      // Process package data
-      this.transactions.forEach((transaction: any) => {
-        if (transaction.package) {
-          try {
-            const packageArray = typeof transaction.package === 'string'
-              ? JSON.parse(transaction.package)
-              : transaction.package;
+        // Process package data
+        this.transactions.forEach((transaction: any) => {
+          if (transaction.package) {
+            try {
+              const packageArray =
+                typeof transaction.package === 'string'
+                  ? JSON.parse(transaction.package)
+                  : transaction.package;
 
-            if (Array.isArray(packageArray)) {
-              transaction.packageDescArray = packageArray.map((item: any) => ({
-                desc: item.nameOfBusiness,
-                rm: item.total_rm
-              }));
-              transaction.total = packageArray.reduce((sum: number, item: any) => sum + item.total_rm, 0);
+              if (Array.isArray(packageArray)) {
+                transaction.packageDescArray = packageArray.map(
+                  (item: any) => ({
+                    desc: item.nameOfBusiness,
+                    rm: item.total_rm,
+                  }),
+                );
+                transaction.total = packageArray.reduce(
+                  (sum: number, item: any) => sum + item.total_rm,
+                  0,
+                );
+              }
+            } catch (error) {
+              console.error('Error parsing package data', error);
             }
-          } catch (error) {
-            console.error('Error parsing package data', error);
           }
+        });
+
+        // ✅ Initialize filteredTransactions to show all by default
+        this.filteredTransactions = [...this.transactions];
+
+        // Optional: Apply date filter automatically if selectedDate is set
+        if (this.selectedDate) {
+          this.filterTransactions();
         }
-      });
-
-      // ✅ Initialize filteredTransactions to show all by default
-      this.filteredTransactions = [...this.transactions];
-
-      // Optional: Apply date filter automatically if selectedDate is set
-      if (this.selectedDate) {
-        this.filterTransactions();
-      }
-
-    },
-    (error) => {
-      console.error(error);
-    }
-  );
-}
-
+      },
+      (error) => {
+        console.error(error);
+      },
+    );
+  }
 
   filterTransactions() {
     if (!this.selectedDate) {
-      // this.filteredTransactions = [...this.transactions];
       return;
     }
 
-    const selected = new Date(this.selectedDate);
-    // Normalize selected date (remove time part)
-    selected.setHours(0, 0, 0, 0);
+    // Parse only the date portion from the selected value (handles ISO strings with time/timezone)
+    const selectedStr = this.selectedDate.substring(0, 10); // "YYYY-MM-DD"
 
-    this.filteredTransactions = this.transactions.filter(t => {
-      const created = new Date(t.createdAt);
-      created.setHours(0, 0, 0, 0);
-      return created.getTime() === selected.getTime();
+    this.filteredTransactions = this.transactions.filter((t) => {
+      const bookingDate = t.date ? t.date.substring(0, 10) : null;
+      return bookingDate === selectedStr;
     });
   }
 
@@ -275,24 +301,26 @@ loadHistory() {
   // isVoided: Boolean = false;
   private apiUrl = environment.apiUrl;
   voidReceipt(receiptId: string | number): void {
-    this.http.post(`${this.apiUrl}/receipts/void-receipt`, { receipt_id: receiptId })
+    this.http
+      .post(`${this.apiUrl}/receipts/void-receipt`, { receipt_id: receiptId })
       .subscribe(
-        response => {
+        (response) => {
           console.log('Receipt voided successfully', response);
           // this.isVoided = true;
           console.log(this.isVoided);
-          // transaction.status = 'void'; 
+          // transaction.status = 'void';
           this.cdRef.detectChanges();
           window.location.reload();
         },
-        error => {
+        (error) => {
           console.error('Failed to void receipt', error);
-        }
+        },
       );
   }
 
   fetchTransactions(): void {
-    this.http.get('http://localhost:3000/api/receipt')  // Update with your actual endpoint
+    this.http
+      .get('http://localhost:3000/api/receipt') // Update with your actual endpoint
       .subscribe(
         (response: any) => {
           // Assuming 'response' contains the list of transactions
@@ -301,7 +329,7 @@ loadHistory() {
         },
         (error) => {
           console.error('Failed to fetch transactions', error);
-        }
+        },
       );
   }
 

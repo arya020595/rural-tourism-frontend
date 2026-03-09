@@ -216,6 +216,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'tourist/transaction',
+    loadChildren: () =>
+      import('./tourist/tourist-transaction/tourist-transaction.module').then(
+        (m) => m.TouristTransactionPageModule,
+      ),
+  },
+  {
     path: 'operator-bookings',
     loadChildren: () =>
       import('./operator-bookings/operator-bookings.module').then(
