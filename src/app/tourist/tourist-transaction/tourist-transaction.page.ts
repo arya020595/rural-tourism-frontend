@@ -23,18 +23,64 @@ export class TouristTransactionPage implements OnInit {
 
   get activityTransactions() {
     return this.filteredTransactions.filter(
-      (t) => t.activity_id && !t.package && t.receipt_id,
+      (t) =>
+        !t.package &&
+        (t.activity_id || t._bookingType === 'activity') &&
+        (t.receipt_id || this.isCancelled(t.status)),
     );
   }
 
   get accomTransactions() {
     return this.filteredTransactions.filter(
-      (t) => t.homest_id && !t.package && t.receipt_id,
+      (t) =>
+        !t.package &&
+        (t.homest_id || t._bookingType === 'accommodation') &&
+        (t.receipt_id || this.isCancelled(t.status)),
     );
   }
 
   get packageTransactions() {
     return this.filteredTransactions.filter((t) => t.package && t.receipt_id);
+  }
+
+  isCancelled(status: string): boolean {
+    return ['cancelled', 'canceled'].includes((status || '').toLowerCase());
+  }
+
+  getTransactionStatusColor(status: string): string {
+    const s = (status || '').toLowerCase();
+    if (s === 'void') return 'danger';
+    if (s === 'cancelled' || s === 'canceled') return 'danger';
+    return 'success';
+  }
+
+  normalizeCancelledBooking(b: any): any {
+    if (b.type === 'activity') {
+      return {
+        _bookingType: 'activity',
+        activity_id: b.operator_activity_id || b.id,
+        activity_name: b.activityName || b.activity_name,
+        date: b.date,
+        pax: b.no_of_pax,
+        total_rm: b.total_price,
+        status: b.status,
+        receipt_id: null,
+        tourist: { full_name: b.contact_name },
+      };
+    } else {
+      return {
+        _bookingType: 'accommodation',
+        homest_id: b.accommodation_id || b.id,
+        homest_name: b.accommodation_name,
+        date: b.check_in || b.date,
+        pax: b.no_of_pax,
+        total_rm: b.total_price,
+        total_night: b.total_no_of_nights,
+        status: b.status,
+        receipt_id: null,
+        tourist: { full_name: b.contact_name },
+      };
+    }
   }
 
   transactions: any[] = [];
@@ -84,45 +130,58 @@ export class TouristTransactionPage implements OnInit {
 
     this.apiService.getFormsByTourist(uid).subscribe(
       (data) => {
-        this.transactions = Array.isArray(data?.data) ? data.data : [];
+        const paid = Array.isArray(data?.data) ? data.data : [];
 
-        this.transactions.sort((a, b) => {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        });
+        this.apiService.getTouristAllBookings(uid).subscribe(
+          (res: any) => {
+            const allBookings = Array.isArray(res?.data) ? res.data : [];
+            const cancelled = allBookings
+              .filter((b: any) => this.isCancelled(b.status))
+              .map((b: any) => this.normalizeCancelledBooking(b));
 
-        this.transactions.forEach((transaction: any) => {
-          if (transaction.package) {
-            try {
-              const packageArray =
-                typeof transaction.package === 'string'
-                  ? JSON.parse(transaction.package)
-                  : transaction.package;
+            this.transactions = [...paid, ...cancelled];
 
-              if (Array.isArray(packageArray)) {
-                transaction.packageDescArray = packageArray.map(
-                  (item: any) => ({
-                    desc: item.nameOfBusiness,
-                    rm: item.total_rm,
-                  }),
-                );
-                transaction.total = packageArray.reduce(
-                  (sum: number, item: any) => sum + item.total_rm,
-                  0,
-                );
+            this.transactions.sort((a, b) => {
+              return (
+                new Date(b.createdAt || b.date).getTime() -
+                new Date(a.createdAt || a.date).getTime()
+              );
+            });
+
+            this.transactions.forEach((transaction: any) => {
+              if (transaction.package) {
+                try {
+                  const packageArray =
+                    typeof transaction.package === 'string'
+                      ? JSON.parse(transaction.package)
+                      : transaction.package;
+
+                  if (Array.isArray(packageArray)) {
+                    transaction.packageDescArray = packageArray.map(
+                      (item: any) => ({
+                        desc: item.nameOfBusiness,
+                        rm: item.total_rm,
+                      }),
+                    );
+                    transaction.total = packageArray.reduce(
+                      (sum: number, item: any) => sum + item.total_rm,
+                      0,
+                    );
+                  }
+                } catch (error) {
+                  console.error('Error parsing package data', error);
+                }
               }
-            } catch (error) {
-              console.error('Error parsing package data', error);
+            });
+
+            this.filteredTransactions = [...this.transactions];
+
+            if (this.selectedDate) {
+              this.filterTransactions();
             }
-          }
-        });
-
-        this.filteredTransactions = [...this.transactions];
-
-        if (this.selectedDate) {
-          this.filterTransactions();
-        }
+          },
+          (error) => console.error(error),
+        );
       },
       (error) => {
         console.error(error);
