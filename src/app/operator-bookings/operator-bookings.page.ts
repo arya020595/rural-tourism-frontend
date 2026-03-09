@@ -26,6 +26,12 @@ export class OperatorBookingsPage implements OnInit {
     this.setOperatorId();
   }
 
+  ionViewWillEnter() {
+    if (this.operatorId) {
+      this.loadBookings();
+    }
+  }
+
   setOperatorId() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.id) {
@@ -146,7 +152,7 @@ export class OperatorBookingsPage implements OnInit {
       case 'canceled':
         return 'danger';
       case 'paid':
-        return 'primary';
+        return 'success';
       default:
         return 'medium';
     }
@@ -158,5 +164,29 @@ export class OperatorBookingsPage implements OnInit {
 
     // Optionally, navigate back to home or previous page
     this.navCtrl.navigateBack('/home');
+  }
+
+  viewReceipt(booking: any) {
+    if (!booking.receipt_id) {
+      alert('Receipt not found for this booking.');
+      return;
+    }
+    if (booking.type === 'accommodation') {
+      this.navCtrl.navigateForward(`/receipt/${booking.receipt_id}`);
+    } else {
+      this.navCtrl.navigateForward(`/receipt-activity/${booking.receipt_id}`);
+    }
+  }
+
+  createReceipt(booking: any) {
+    if (booking.type === 'accommodation') {
+      this.navCtrl.navigateForward(['/acco-form'], {
+        queryParams: { bookingId: booking.id },
+      });
+    } else {
+      this.navCtrl.navigateForward(['/activity-form'], {
+        queryParams: { bookingId: booking.id },
+      });
+    }
   }
 }
