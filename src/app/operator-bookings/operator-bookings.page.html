@@ -133,7 +133,7 @@
               <strong>No. of Nights:</strong> {{ booking.total_no_of_nights || 1
               }}
             </p>
-            <p><strong>No. of Pax:</strong> {{ booking.no_of_pax || 1 }}</p>
+            <p><strong>No. of Rooms:</strong> {{ booking.no_of_rooms || booking.no_of_pax || 1 }}</p>
             <p>
               <strong>Total Price:</strong> RM {{ booking.total_price |
               number:'1.2-2' }}

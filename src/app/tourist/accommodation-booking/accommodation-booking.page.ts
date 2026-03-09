@@ -15,11 +15,17 @@ export class AccommodationBookingPage implements OnInit {
   totalPrice = 0;
   numberOfNights = 0;
   pricePerNight = 0;
+  selectedNightBreakdown: { date: string; price: number }[] = [];
+  hasBookableRange = true;
+  roomOptions: number[] = [1];
+  maxRoomsForSelection = 1;
 
   accommodationId = '';
   operatorId = '';
   touristUserId = '';
   accommodationDetails: any = null;
+  mappedDatePrice: { [key: string]: number } = {};
+  mappedDateQuota: { [key: string]: number } = {};
 
   // Calendar properties
   weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -52,7 +58,7 @@ export class AccommodationBookingPage implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {
     this.bookingForm = this.fb.group({
-      no_of_pax: [1, [Validators.required, Validators.min(1)]],
+      no_of_rooms: [1, [Validators.required, Validators.min(1)]],
       contact_name: ['', Validators.required],
       contact_email: ['', [Validators.required, Validators.email]],
       contact_phone: [
@@ -72,6 +78,10 @@ export class AccommodationBookingPage implements OnInit {
         localStorage.getItem('tourist_user_id') ||
         '';
       this.pricePerNight = +params['price'] || 0;
+      const initialRoomCount = +(params['no_of_rooms'] || 1);
+      this.bookingForm.patchValue({
+        no_of_rooms: initialRoomCount >= 1 ? initialRoomCount : 1,
+      });
 
       // Load accommodation details from API
       if (this.accommodationId) {
@@ -85,6 +95,20 @@ export class AccommodationBookingPage implements OnInit {
               this.pricePerNight;
             this.accommodationDetails = acc;
             this.loadBookedDates();
+
+            // mapped date to price
+            this.mappedDatePrice = (this.accommodationDetails?.availabilities ?? []).reduce((acc: { [x: string]: any; }, item: { date: string; price: any; }) => {
+              const date = item.date.split('T')[0];
+              acc[date] = item.price;
+              return acc;
+            }, {} as { [key: string]: number });
+
+            // mapped date to room quota (fallback to 1 when field is missing)
+            this.mappedDateQuota = (this.accommodationDetails?.availabilities ?? []).reduce((acc: { [x: string]: any; }, item: any) => {
+              const date = item.date.split('T')[0];
+              acc[date] = this.extractAvailabilityQuota(item);
+              return acc;
+            }, {} as { [key: string]: number });
           },
           error: (err) => {
             console.error('Failed to load accommodation details:', err);
@@ -111,9 +135,9 @@ export class AccommodationBookingPage implements OnInit {
         localStorage.setItem('tourist_user_id', this.touristUserId);
       }
 
-      // Recalculate total price whenever pax changes
+      // Recalculate total price whenever number of rooms changes
       this.bookingForm
-        .get('no_of_pax')
+        .get('no_of_rooms')
         ?.valueChanges.subscribe(() => this.calculateTotalPrice());
     });
   }
@@ -150,7 +174,8 @@ export class AccommodationBookingPage implements OnInit {
     for (let i = 0; i < firstDay; i++) {
       this.calendarDays.push({ date: '', day: 0, available: false });
     }
-
+    
+    
     for (let day = 1; day <= lastDate; day++) {
       const dateObj = new Date(this.currentYear, this.currentMonth, day);
       const dateStr = this.formatDateToYYYYMMDD(dateObj);
@@ -172,10 +197,14 @@ export class AccommodationBookingPage implements OnInit {
       this.calendarDays.push({
         date: dateStr,
         day,
-        available: isAvailable,
+        available:
+          isAvailable &&
+          this.mappedDatePrice[dateStr] !== undefined &&
+          (this.mappedDateQuota[dateStr] ?? 1) >= 1,
         isPast,
         isBooked,
-        price: isAvailable ? this.pricePerNight : undefined,
+        // price: isAvailable ? this.pricePerNight : undefined,
+        price:  this.mappedDatePrice[dateStr] ?? undefined,
         isCheckIn,
         isCheckOut,
         inRange,
@@ -189,11 +218,116 @@ export class AccommodationBookingPage implements OnInit {
       month: 'long',
       year: 'numeric',
     });
+    this.hasBookableRange = this.hasAtLeastOneBookableRange();
+    this.updateRoomOptions();
   }
 
   isDateInRange(dateStr: string): boolean {
     if (!this.checkInDate || !this.checkOutDate) return false;
     return dateStr > this.checkInDate && dateStr < this.checkOutDate;
+  }
+
+  parseLocalDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  addDays(dateStr: string, days: number): string {
+    const date = this.parseLocalDate(dateStr);
+    date.setDate(date.getDate() + days);
+    return this.formatDateToYYYYMMDD(date);
+  }
+
+  isDateBookable(dateStr: string): boolean {
+    if (!dateStr || this.mappedDatePrice[dateStr] === undefined) return false;
+    if (this.bookedDates.includes(dateStr)) return false;
+    if ((this.mappedDateQuota[dateStr] ?? 1) < 1) return false;
+
+    const date = this.parseLocalDate(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    return date >= today;
+  }
+
+  isDateRangeBookable(startDate: string, endDate: string): boolean {
+    if (!startDate || !endDate || endDate <= startDate) return false;
+
+    let cursor = startDate;
+    while (cursor < endDate) {
+      if (!this.isDateBookable(cursor)) return false;
+      cursor = this.addDays(cursor, 1);
+    }
+    return true;
+  }
+
+  hasAtLeastOneBookableRange(): boolean {
+    const availableDates = Object.keys(this.mappedDatePrice).filter((date) =>
+      this.isDateBookable(date),
+    );
+    const availableDateSet = new Set(availableDates);
+
+    return availableDates.some((date) => availableDateSet.has(this.addDays(date, 1)));
+  }
+
+  extractAvailabilityQuota(item: any): number {
+    const quotaCandidates = [
+      item?.quota,
+      item?.room_quota,
+      item?.rooms,
+      item?.no_of_rooms,
+      item?.available_rooms,
+      item?.room_available,
+      item?.max_rooms,
+      item?.capacity,
+    ];
+
+    for (const candidate of quotaCandidates) {
+      const parsed = Number(candidate);
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        return Math.floor(parsed);
+      }
+    }
+
+    return 1;
+  }
+
+  updateRoomOptions() {
+    const hasSelectedRange = !!this.checkInDate && !!this.checkOutDate;
+    let nextMaxRooms = 1;
+
+    if (hasSelectedRange) {
+      const quotas: number[] = [];
+      let dateCursor = this.checkInDate;
+
+      while (dateCursor < this.checkOutDate) {
+        const dailyQuota = this.mappedDateQuota[dateCursor] ?? 1;
+        quotas.push(Math.max(0, dailyQuota));
+        dateCursor = this.addDays(dateCursor, 1);
+      }
+
+      nextMaxRooms = quotas.length ? Math.min(...quotas) : 1;
+    }
+
+    this.maxRoomsForSelection = Math.max(1, nextMaxRooms);
+    this.roomOptions = Array.from(
+      { length: this.maxRoomsForSelection },
+      (_, idx) => idx + 1,
+    );
+
+    const currentRooms = Number(this.bookingForm.get('no_of_rooms')?.value) || 1;
+    const clampedRooms = Math.min(
+      Math.max(1, currentRooms),
+      this.maxRoomsForSelection,
+    );
+
+    if (clampedRooms !== currentRooms) {
+      this.bookingForm.patchValue(
+        { no_of_rooms: clampedRooms },
+        { emitEvent: false },
+      );
+    }
   }
 
   formatDateToYYYYMMDD(date: Date): string {
@@ -213,12 +347,13 @@ export class AccommodationBookingPage implements OnInit {
     });
   }
 
-  selectDate(day: { date: string; available: boolean }) {
+  async selectDate(day: { date: string; available: boolean }) {
     if (!day.available || !day.date) return;
 
     // If clicking on the same check-in date, unselect it
     if (day.date === this.checkInDate && !this.checkOutDate) {
       this.checkInDate = '';
+      this.checkOutDate = '';
       this.calculateTotalPrice();
       this.generateCalendar();
       return;
@@ -232,45 +367,6 @@ export class AccommodationBookingPage implements OnInit {
       return;
     }
 
-    // Check if selecting a date would cross a booked date range
-    if (this.checkInDate && !this.checkOutDate) {
-      // Check if there are any booked dates between check-in and this date
-      if (day.date > this.checkInDate) {
-        const hasBlockedDates = this.bookedDates.some(
-          (bookedDate) =>
-            bookedDate > this.checkInDate && bookedDate < day.date,
-        );
-        if (hasBlockedDates) {
-          this.alertController
-            .create({
-              header: 'Invalid Date Range',
-              message:
-                'The selected date range includes already booked dates. Please select a different check-out date.',
-              buttons: ['OK'],
-            })
-            .then((alert) => alert.present());
-          return;
-        }
-      } else if (day.date < this.checkInDate) {
-        // Check if there are any booked dates between this date and check-in
-        const hasBlockedDates = this.bookedDates.some(
-          (bookedDate) =>
-            bookedDate > day.date && bookedDate < this.checkInDate,
-        );
-        if (hasBlockedDates) {
-          this.alertController
-            .create({
-              header: 'Invalid Date Range',
-              message:
-                'The selected date range includes already booked dates. Please select a different date.',
-              buttons: ['OK'],
-            })
-            .then((alert) => alert.present());
-          return;
-        }
-      }
-    }
-
     if (!this.checkInDate) {
       // First click - set check-in date
       this.checkInDate = day.date;
@@ -281,8 +377,17 @@ export class AccommodationBookingPage implements OnInit {
         this.checkInDate = day.date;
         this.checkOutDate = '';
       } else {
+        if (!this.isDateRangeBookable(this.checkInDate, day.date)) {
+          const alert = await this.alertController.create({
+            header: 'Invalid Date Range',
+            message:
+              'Some nights in this range are unavailable. Please select another check-out date.',
+            buttons: ['OK'],
+          });
+          await alert.present();
+          return;
+        }
         this.checkOutDate = day.date;
-        this.calculateTotalPrice();
       }
     } else {
       // Third click - reset and start over
@@ -291,6 +396,7 @@ export class AccommodationBookingPage implements OnInit {
     }
 
     this.generateCalendar();
+    this.calculateTotalPrice();
   }
 
   handleKeyPress(
@@ -338,6 +444,7 @@ export class AccommodationBookingPage implements OnInit {
     if (!this.checkInDate || !this.checkOutDate) {
       this.totalPrice = 0;
       this.numberOfNights = 0;
+      this.selectedNightBreakdown = [];
       return;
     }
 
@@ -352,8 +459,21 @@ export class AccommodationBookingPage implements OnInit {
     );
     if (nights < 1) nights = 1;
 
+    const selectedNights: { date: string; price: number }[] = [];
+    let runningDate = this.checkInDate;
+    let total = 0;
+    const selectedRooms = Number(this.bookingForm.get('no_of_rooms')?.value) || 1;
+
+    while (runningDate < this.checkOutDate) {
+      const nightlyPrice = this.mappedDatePrice[runningDate] ?? this.pricePerNight;
+      selectedNights.push({ date: runningDate, price: nightlyPrice });
+      total += nightlyPrice;
+      runningDate = this.addDays(runningDate, 1);
+    }
+
     this.numberOfNights = nights;
-    this.totalPrice = this.pricePerNight * nights;
+    this.selectedNightBreakdown = selectedNights;
+    this.totalPrice = total * selectedRooms;
   }
 
   prevMonth() {
@@ -406,6 +526,16 @@ export class AccommodationBookingPage implements OnInit {
   }
 
   async submitBooking() {
+    if (!this.hasBookableRange) {
+      const alert = await this.alertController.create({
+        header: 'No Valid Stay Range',
+        message:
+          'At least two consecutive available dates are required to book 1 night.',
+        buttons: ['OK'],
+      });
+      await alert.present();
+      return;
+    }
     if (!this.touristUserId) {
       const alert = await this.alertController.create({
         header: 'Login Required',
@@ -466,7 +596,8 @@ export class AccommodationBookingPage implements OnInit {
       accommodation_id: this.accommodationId,
       operator_id: this.operatorId,
       tourist_user_id: this.touristUserId,
-      no_of_pax: this.bookingForm.value.no_of_pax,
+      no_of_rooms: this.bookingForm.value.no_of_rooms,
+      no_of_pax: this.bookingForm.value.no_of_rooms,
       start_date: this.checkInDate,
       end_date: this.checkOutDate,
       contact_name: this.bookingForm.value.contact_name,

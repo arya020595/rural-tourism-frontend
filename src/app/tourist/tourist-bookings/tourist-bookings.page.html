@@ -133,7 +133,7 @@
             <p><strong>Check-in:</strong> {{ booking.check_in || booking['checkIn'] ? (booking.check_in || booking['checkIn'] | date:'mediumDate') : 'N/A' }}</p>
             <p><strong>Check-out:</strong> {{ booking.check_out || booking['checkOut'] ? (booking.check_out || booking['checkOut'] | date:'mediumDate') : 'N/A' }}</p>
             <p><strong>No. of nights:</strong> {{ booking.total_no_of_nights || booking['totalNoOfNights'] || 1 }}</p>
-            <p><strong>No. of pax:</strong> {{ booking.no_of_pax || booking['pax'] || 1 }}</p>
+            <p><strong>No. of rooms:</strong> {{ booking.no_of_rooms || booking.no_of_pax || booking['pax'] || 1 }}</p>
             <p><strong>Total Price:</strong> {{ parsePrice(booking.total_price || booking['price']) | currency }}</p>
             <p><strong>Status:</strong>
               <ion-badge [color]="getStatusColor(booking.status)">

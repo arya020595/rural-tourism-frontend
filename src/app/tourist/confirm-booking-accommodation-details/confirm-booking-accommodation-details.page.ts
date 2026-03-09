@@ -58,6 +58,8 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
         this.bookingData = { ...params };
       }
 
+      this.bookingData.no_of_rooms ||= this.bookingData.no_of_pax || 1;
+
       this.bookingData.tourist_user_id ||= params['tourist_user_id'];
       this.bookingData.accommodation_id ||= params['accommodation_id'];
 
@@ -137,17 +139,17 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
   }
 
   // ===============================
-  // Change Pax
+  // Change Number of Rooms
   // ===============================
   async changeRooms() {
     const alert = await this.alertController.create({
-      header: 'Change Number of Pax',
+      header: 'Change Number of Rooms',
       inputs: [
         {
-          name: 'pax',
+          name: 'rooms',
           type: 'number',
           min: 1,
-          value: this.bookingData.no_of_pax || 1,
+          value: this.bookingData.no_of_rooms || this.bookingData.no_of_pax || 1,
         },
       ],
       buttons: [
@@ -155,9 +157,9 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
         {
           text: 'OK',
           handler: (data) => {
-            const pax = parseInt(data.pax, 10);
-            if (pax >= 1) {
-              this.bookingData.no_of_pax = pax;
+            const rooms = parseInt(data.rooms, 10);
+            if (rooms >= 1) {
+              this.bookingData.no_of_rooms = rooms;
             }
           },
         },
@@ -269,7 +271,9 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
       check_in: this.bookingData.start_date,
       check_out: this.bookingData.end_date,
       total_no_of_nights: this.bookingData.number_of_nights || 1,
-      no_of_pax: this.bookingData.no_of_pax || 1,
+      no_of_rooms:
+        this.bookingData.no_of_rooms || this.bookingData.no_of_pax || 1,
+      no_of_pax: this.bookingData.no_of_rooms || this.bookingData.no_of_pax || 1,
       total_price: this.bookingData.total_price,
       status: 'booked',
       contact_name: this.bookingData.contact_name || 'N/A',

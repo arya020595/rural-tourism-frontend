@@ -48,11 +48,11 @@
 
       <hr />
 
-      <!-- Pax Row -->
+      <!-- Rooms Row -->
       <div class="review-row">
         <div>
-          <h2>Number of Pax</h2>
-          <p>{{ bookingData.no_of_pax || 1 }} Pax</p>
+          <h2>Number of Rooms</h2>
+          <p>{{ bookingData.no_of_rooms || bookingData.no_of_pax || 1 }} Room(s)</p>
         </div>
         <ion-button class="mini-btn" fill="solid" (click)="changeRooms()">Change</ion-button>
       </div>

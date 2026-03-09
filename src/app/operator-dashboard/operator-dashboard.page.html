@@ -1,0 +1,191 @@
+<!-- side menu -->
+<ion-menu class="side-menu" menuId="operator-menu" contentId="operator-dashboard-content">
+  <ion-header>
+    <ion-toolbar style="--background: white"></ion-toolbar>
+  </ion-header>
+  <ion-content style="--background: white" class="ion-padding">
+    <app-header-logo></app-header-logo>
+
+    <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b">
+      <ion-avatar>
+        <img
+          alt="User Avatar"
+          src="https://ionicframework.com/docs/img/demos/avatar.svg"
+        />
+      </ion-avatar>
+      <h3>{{ user?.username }}</h3>
+      <p style="margin-top: 2%">{{ user?.user_email}}</p>
+    </div>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 10%"
+      (click)="closeMenu()"
+      [routerLink]="['/home']"
+      routerDirection="root"
+    >
+      <ion-icon name="home" slot="start"></ion-icon>
+      Home
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/operator/dashboard']"
+      routerDirection="root"
+    >
+      <ion-icon name="grid" slot="start"></ion-icon>
+      Dashboard
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/add-item']"
+      routerDirection="root"
+    >
+      <ion-icon name="add-circle" slot="start"></ion-icon>
+      Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/operator-bookings']"
+      routerDirection="root"
+    >
+      <ion-icon name="calendar" slot="start"></ion-icon>
+      Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/activity-and-accommodation-management']"
+      routerDirection="root"
+    >
+      <ion-icon name="business" slot="start"></ion-icon>
+      Accommodation & Activity Management/Pengurusan Penginapan & Aktiviti
+    </ion-item>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 5%"
+      (click)="closeMenu()"
+      [routerLink]="['/transaction']"
+      routerDirection="root"
+    >
+      <ion-icon name="clipboard" slot="start"></ion-icon>
+      Transaksi/Transaction History
+    </ion-item>
+  </ion-content>
+</ion-menu>
+
+<!-- header same as home -->
+<ion-header style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="operator-menu" style="color: white"></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="goToNotifications()" class="notification-button">
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+        <ion-badge
+          *ngIf="unreadCount > 0"
+          color="danger"
+          class="notification-badge"
+        >
+          {{ unreadCount }}
+        </ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="operator-dashboard-content">
+  <ion-card class="main-container ion-no-margin">
+    <ion-card-content>
+      <ion-col class="center">
+        <!-- <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img> -->
+        <app-header-logo></app-header-logo>
+      </ion-col>
+    </ion-card-content>
+    <ion-card-content class="dashboard-content">
+      <div class="dashboard-title-wrap">
+        <h2>My Dashboard</h2>
+        <hr />
+      </div>
+
+      <div class="filter-inline">
+        <div class="filter-group">
+          <span>From</span>
+          <ion-input type="date" [(ngModel)]="fromDate"></ion-input>
+        </div>
+
+        <div class="filter-group">
+          <span>To</span>
+          <ion-input type="date" [(ngModel)]="toDate"></ion-input>
+        </div>
+
+        <ion-button class="btn-filter" (click)="onFilter()">Filter</ion-button>
+        <ion-button class="btn-reset" (click)="onReset()">Reset</ion-button>
+      </div>
+
+      <div class="charts-grid">
+      <ion-card class="chart-card">
+        <ion-card-header>
+          <ion-card-title>Total Revenue RM</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="chart-wrap">
+            <canvas #revenueCanvas></canvas>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="chart-card">
+        <ion-card-header>
+          <ion-card-title>Total No. of Receipts</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="chart-wrap">
+            <canvas #receiptCanvas></canvas>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="chart-card">
+        <ion-card-header>
+          <ion-card-title>Total No. of Tourists</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="chart-wrap">
+            <canvas #touristCanvas></canvas>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
