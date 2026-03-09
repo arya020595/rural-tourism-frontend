@@ -66,6 +66,7 @@ export class TouristOptionMapper {
     return {
       user_id: booking.tourist_user_id,
       booking_id: booking.id,
+      operator_activity_id: booking.operator_activity_id || null,
       name: booking.contact_name || 'Unknown',
       activity_name: booking.activity_name || booking.activityName,
       activity_id: booking.activity_id || '',

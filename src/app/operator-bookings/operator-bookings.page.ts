@@ -26,6 +26,12 @@ export class OperatorBookingsPage implements OnInit {
     this.setOperatorId();
   }
 
+  ionViewWillEnter() {
+    if (this.operatorId) {
+      this.loadBookings();
+    }
+  }
+
   setOperatorId() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.id) {
@@ -46,11 +52,16 @@ export class OperatorBookingsPage implements OnInit {
         this.loading = false;
         if (res.success && res.data) {
           this.bookings = res.data;
+          const excludedStatuses = ['paid', 'cancelled', 'canceled'];
           this.activityBookings = this.bookings.filter(
-            (b) => b.type === 'activity',
+            (b) =>
+              b.type === 'activity' &&
+              !excludedStatuses.includes((b.status || '').toLowerCase()),
           );
           this.accommodationBookings = this.bookings.filter(
-            (b) => b.type === 'accommodation',
+            (b) =>
+              b.type === 'accommodation' &&
+              !excludedStatuses.includes((b.status || '').toLowerCase()),
           );
         } else {
           this.bookings = [];
@@ -146,7 +157,7 @@ export class OperatorBookingsPage implements OnInit {
       case 'canceled':
         return 'danger';
       case 'paid':
-        return 'primary';
+        return 'success';
       default:
         return 'medium';
     }
@@ -158,5 +169,29 @@ export class OperatorBookingsPage implements OnInit {
 
     // Optionally, navigate back to home or previous page
     this.navCtrl.navigateBack('/home');
+  }
+
+  viewReceipt(booking: any) {
+    if (!booking.receipt_id) {
+      alert('Receipt not found for this booking.');
+      return;
+    }
+    if (booking.type === 'accommodation') {
+      this.navCtrl.navigateForward(`/receipt/${booking.receipt_id}`);
+    } else {
+      this.navCtrl.navigateForward(`/receipt-activity/${booking.receipt_id}`);
+    }
+  }
+
+  createReceipt(booking: any) {
+    if (booking.type === 'accommodation') {
+      this.navCtrl.navigateForward(['/acco-form'], {
+        queryParams: { bookingId: booking.id },
+      });
+    } else {
+      this.navCtrl.navigateForward(['/activity-form'], {
+        queryParams: { bookingId: booking.id },
+      });
+    }
   }
 }

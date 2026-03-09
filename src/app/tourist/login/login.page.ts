@@ -164,6 +164,10 @@ export class LoginPage implements OnInit {
     );
   }
 
+  forgotPassword() {
+    this.navCtrl.navigateForward(['/reset-passs']);
+  }
+
   backRole() {
     this.navCtrl.navigateBack('/role', {
       animated: true,

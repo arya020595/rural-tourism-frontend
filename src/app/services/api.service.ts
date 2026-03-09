@@ -92,9 +92,14 @@ export class ApiService {
     );
   }
 
-  // load transaction history
+  // load transaction history (operator)
   getFormsByUser(user_id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/form/operator/${user_id}`);
+  }
+
+  // load transaction history (tourist)
+  getFormsByTourist(tourist_user_id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/form/tourist/${tourist_user_id}`);
   }
 
   // voidTransaction(user_id: string): Observable<any> {

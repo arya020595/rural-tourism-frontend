@@ -271,7 +271,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
       total_no_of_nights: this.bookingData.number_of_nights || 1,
       no_of_pax: this.bookingData.no_of_pax || 1,
       total_price: this.bookingData.total_price,
-      status: 'Booked',
+      status: 'booked',
       contact_name: this.bookingData.contact_name || 'N/A',
       contact_email: this.bookingData.contact_email || '',
       contact_phone: this.bookingData.contact_phone || '',
