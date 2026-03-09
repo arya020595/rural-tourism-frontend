@@ -12,11 +12,12 @@ export class LoginPage implements OnInit {
   username: string = '';
   password: string = '';
   submitted = false;
+  showPassword: boolean = false;
 
   constructor(
     private apiService: ApiService,
     private navCtrl: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
   ) {}
 
   async successToast(msg: string) {
@@ -77,9 +78,9 @@ export class LoginPage implements OnInit {
         (error) => {
           console.error('Login failed:', error);
           this.errorToast(
-            error.error?.message || 'Invalid Username or Password'
+            error.error?.message || 'Invalid Username or Password',
           );
-        }
+        },
       );
     }
   }
@@ -105,5 +106,9 @@ export class LoginPage implements OnInit {
       animated: true,
       animationDirection: 'back',
     });
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }

@@ -8,15 +8,71 @@ ion-content.background {
   font-size: 16px;
 }
 
-ion-item {
-  width: 85%;
-  margin-left: auto;
-  margin-right: auto;
-  border: 1px solid #000000;
-  border-radius: 10px;
-  margin-top: 5px;
-  margin-bottom: 10px;
+.input-login[fill='outline']:focus-within {
+  --border-color: #024e25;
+}
+
+.borneo {
+  display: block;
+  text-align: center;
   align-items: center;
+  height: auto;
+  margin-top: 10px;
+  padding: 20px;
+}
+
+.loginbutton {
+  margin-top: 15px;
+}
+
+.forgot-password-text {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.errorMsg {
+  display: inline-block;
+  text-align: left;
+  margin-top: 2%;
+  padding-left: 2%;
+  left: 0;
+  color: red;
+}
+
+.subtitle {
+  font-size: 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight: lighter;
+  margin-top: 2%;
+  display: block;
+  text-align: center;
+}
+
+.title {
+  display: block;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  color: black;
+}
+
+.inputArea {
+  border: solid 1px rgb(215, 215, 215);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.no-border {
+  --border-width: 0;
+  --border-style: none;
+}
+
+ion-card-header {
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 /* Password eye icon */
@@ -34,37 +90,103 @@ ion-item {
   font-weight: 500;
 }
 
-ion-card {
-  margin-left: 5%;
-  margin-right: 5%;
-  border-radius: 30px;
-  min-height: 50vh;
+.card-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 
-  .ion-blue-bkg {
-    background-color: #ffffff;
+  ion-card {
+    margin-left: 5%;
+    margin-right: 5%;
+    border-radius: 30px;
+    max-width: 637px;
+    min-height: 574px;
+
+    .ion-blue-bkg {
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .welcome {
+      #trigger-icon {
+        float: right;
+        margin-bottom: 16px;
+        margin-left: 1%;
+      }
+    }
+  }
+}
+
+/* Mobile */
+@media screen and (max-width: 576px) {
+  .card-container {
+    ion-card {
+      .ion-blue-bkg {
+        max-height: 100px;
+      }
+      .welcome {
+        min-height: 200px;
+      }
+    }
+  }
+
+  .borneo {
+    width: 90%;
+    max-width: 90%;
+    margin-top: 8px;
+    padding: 10px;
+  }
+
+  .title {
+    font-size: 22px;
+    margin-top: 6px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  .title-col {
+    margin-top: 4%;
+  }
+
+  .input-login {
+    width: 100%;
+  }
+
+  .input-button {
+    width: 100%;
+  }
+}
+
+/* Desktop */
+@media screen and (min-width: 577px) {
+  .borneo {
+    width: 50%;
+    max-width: 50%;
+    padding-bottom: 0px;
+    margin-bottom: 0;
+  }
+
+  .title-col {
+    margin-top: 2%;
+  }
+
+  .welcome {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100%;
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
   }
 
-  h1,
-  p {
-    text-align: center;
-  }
-
-  h1 {
-    font-weight: bold;
-    color: #000000;
-  }
-
-  .custom-label {
-    font-weight: bold;
-    margin-left: 30px;
-    color: #000000;
+  .welcome form {
+    width: 70%;
+    max-width: 500px;
+    margin: 0 auto;
   }
 }

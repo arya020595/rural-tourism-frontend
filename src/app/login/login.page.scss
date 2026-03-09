@@ -17,8 +17,7 @@ ion-content.background{
   text-align: center;
   align-items: center;
   height: auto;
-  width: 800px;
-  margin-top: 20%;
+  margin-top: 10px;
   padding: 20px;
 }
 
@@ -39,6 +38,12 @@ ion-content.background{
   // text-align: right;  /* Aligns the link to the left */
   margin-bottom: 10px; /* Adds some space below the link */
   
+}
+
+.password-toggle {
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
 }
 
 .errorMsg{
@@ -89,6 +94,11 @@ ion-content.background{
   --border-style: none;
 }
 
+ion-card-header {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 .card-container {
     display: flex;
     align-items: center;
@@ -101,7 +111,8 @@ ion-content.background{
       margin-left: 5%;
       margin-right: 5%;
       border-radius: 30px;
-      min-height: 50vh; /* Allow cards to shrink for smaller screens */
+      max-width: 637px;
+      min-height: 574px; /* Allow cards to shrink for smaller screens */
       .ion-blue-bkg {
         background-color: #ffffff;
         display: flex;
@@ -127,19 +138,71 @@ ion-content.background{
   }
 
 
-  @media screen and (max-width: 576px) {
-    .card-container {
-      ion-card {
-       
-        .ion-blue-bkg {
-          max-height: 100px;
-        }
-        .welcome {
-          min-height: 200px;
-        }
+/* Mobile */
+@media screen and (max-width: 576px) {
+  .card-container {
+    ion-card {
+      .ion-blue-bkg {
+        max-height: 100px;
+      }
+      .welcome {
+        min-height: 200px;
       }
     }
   }
 
+  .borneo {
+    width: 90%;
+    max-width: 90%;
+    margin-top: 8px;
+    padding: 10px;
+  }
 
+  .title {
+    font-size: 22px;
+    margin-top: 6px;
+  }
 
+  .subtitle {
+    font-size: 15px;
+    margin-top: 4px;
+  }
+
+  .title-col {
+    margin-top: 4%;
+  }
+
+  .input-login {
+    width: 100%;
+  }
+
+  .input-button {
+    width: 100%;
+  }
+}
+
+/* Desktop */
+@media screen and (min-width: 577px) {
+  .borneo {
+    width: 50%;
+    max-width: 50%;
+    padding-bottom: 0px;
+    margin-bottom: 0;
+  }
+
+  .title-col {
+    margin-top: 2%;
+  }
+
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .welcome form {
+    width: 70%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
