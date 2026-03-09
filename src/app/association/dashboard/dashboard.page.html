@@ -1,0 +1,71 @@
+<!-- Side Menu -->
+<ion-menu menuId="menu" contentId="main-content" class="side-menu">
+  <ion-header>
+    <ion-toolbar style="--background: white"></ion-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding" style="--background: white">
+    <ion-img
+      class="logo-side-panel"
+      src="../../assets/icon/rt logo.png"
+    ></ion-img>
+
+    <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b">
+      <ion-avatar>
+        <img
+          alt="User Avatar"
+          src="https://ionicframework.com/docs/img/demos/avatar.svg"
+        />
+      </ion-avatar>
+      <h3>{{ user?.username }}</h3>
+      <p style="margin-top: 2%">{{ user?.email }}</p>
+    </div>
+
+    <ion-item
+      mode="ios"
+      class="item-nav"
+      detail="false"
+      style="--background: white; margin-top: 10%"
+      [routerLink]="['/association/dashboard']"
+      (click)="closeMenu()"
+    >
+      <ion-icon name="analytics" slot="start"></ion-icon>
+      Dashboard
+    </ion-item>
+
+    <ion-item
+      (click)="logOut()"
+      class="item-nav"
+      detail="false"
+      style="--background: white"
+    >
+      <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
+      <ion-text style="color: red">Log Out</ion-text>
+    </ion-item>
+  </ion-content>
+</ion-menu>
+
+<!-- Main content -->
+<ion-header style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="menu" style="color: white"></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="main-content">
+  <ion-card class="main-Container ion-no-margin">
+    <ion-col class="center">
+      <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+    </ion-col>
+
+    <ion-card-content
+      style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
+    >
+      <h1>My Dashboard</h1>
+      <hr />
+      <p>Unfortunately, the dashboard is not available right now...</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

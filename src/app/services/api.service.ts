@@ -324,7 +324,17 @@ export class ApiService {
   }
 
   //Apply more methods here...
-  getAssociationList(): Observable<any>{
+  getAssociationList(): Observable<any> {
     return this.http.get(`${this.apiUrl}/associations`);
+  }
+
+  loginAssociation(credentials: {
+    username: string;
+    password: string;
+  }): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/association-users/login`,
+      credentials,
+    );
   }
 }

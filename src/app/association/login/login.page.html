@@ -1,0 +1,54 @@
+<ion-content class="background" [fullscreen]="true">
+  <ion-card>
+    <!-- Back Button -->
+    <ion-button fill="clear" (click)="backRole()" mode="ios">
+      <ion-icon slot="start" name="chevron-back"></ion-icon>
+      <span>Back</span>
+    </ion-button>
+
+    <!-- Logo -->
+    <ion-col class="ion-blue-bkg">
+      <img src="../../../assets/icon/rt logo.png" class="logo" />
+    </ion-col>
+
+    <h1>Login Account</h1>
+    <p class="sub-title">FIll in your credentials with the fields provided.</p>
+
+    <form #form="ngForm" (ngSubmit)="login(form)">
+      <!-- Username -->
+      <ion-label class="custom-label">Username</ion-label>
+      <ion-item fill="outline">
+        <ion-input
+          [(ngModel)]="username"
+          name="username"
+          required
+          placeholder="Enter username"
+          clearInput="true"
+        ></ion-input>
+      </ion-item>
+
+      <!-- Password -->
+      <ion-label class="custom-label">Password</ion-label>
+      <ion-item fill="outline">
+        <ion-input
+          [(ngModel)]="password"
+          name="password"
+          required
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Enter password"
+        ></ion-input>
+
+        <ion-icon
+          slot="end"
+          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+          class="password-toggle"
+          (click)="togglePassword()"
+        ></ion-icon>
+      </ion-item>
+
+      <ion-card-content>
+        <ion-button type="submit" expand="block" mode="ios"> Login </ion-button>
+      </ion-card-content>
+    </form>
+  </ion-card>
+</ion-content>
