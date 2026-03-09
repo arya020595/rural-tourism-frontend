@@ -223,6 +223,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'operator/dashboard',
+    loadChildren: () =>
+      import('./operator-dashboard/operator-dashboard.module').then(
+        (m) => m.OperatorDashboardPageModule,
+      ),
+  },
+  {
     path: 'activity-and-accommodation-management',
     loadChildren: () =>
       import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then(
