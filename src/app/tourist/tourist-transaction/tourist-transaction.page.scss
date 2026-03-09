@@ -1,11 +1,11 @@
 .center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.logo{
-    height: 100px;
+.logo {
+  height: 100px;
 }
 
 .title {
@@ -118,21 +118,9 @@
   --border-radius: 8px;
   font-size: 0.8rem;
   height: auto;
-  white-space: normal;
 }
 
 .view-receipt-btn {
   --background: #0058b6;
-  --background-hover: #122840;
+  --background-hover: #004a99;
 }
-
-.void-btn {
-  --background: #c0392b;
-  --background-hover: #922b21;
-  --color: #ffffff;
-  --border-radius: 8px;
-  font-size: 0.8rem;
-  height: auto;
-  white-space: normal;
-}
-
