@@ -1,50 +1,52 @@
 <ion-content class="background" [fullscreen]="true">
-  <ion-card>
-    <ion-button fill="clear" (click)="backHome()" mode="ios">
-      <ion-icon slot="start" name="chevron-back"></ion-icon>
-      <span>Back To Main Page</span>
-    </ion-button>
-
-    <ion-col class="ion-blue-bkg">
-      <img src="../../assets/icon/rt logo.png" class="borneo" />
-    </ion-col>
-
-    <h1>Pilih Peranan/Select Role</h1>
-    <p>Sila pilih peranan untuk anda log masuk</p>
-
-    <ion-card-content>
-      <ion-button
-        mode="ios"
-        type="submit"
-        color="primary"
-        class="input-button"
-        expand="block"
-        [routerLink]="['/login']"
-      >
-        Pengandali/Operator
+  <div class="card-container">
+    <ion-card>
+      <ion-button fill="clear" (click)="backHome()" mode="ios">
+        <ion-icon slot="start" name="chevron-back"></ion-icon>
+        <span>Back To Main Page</span>
       </ion-button>
 
-      <ion-button
-        mode="ios"
-        type="submit"
-        color="primary"
-        class="input-button"
-        expand="block"
-        [routerLink]="['/tourist/login']"
-      >
-        Pelancong/Tourist
-      </ion-button>
+      <ion-col class="ion-blue-bkg">
+        <img src="../../assets/icon/rt logo.png" class="borneo" />
+      </ion-col>
 
-      <ion-button
-        mode="ios"
-        type="submit"
-        color="primary"
-        class="input-button"
-        expand="block"
-        [routerLink]="['/association/login']"
-      >
-        Persatuan/Association
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+      <h1>Pilih Peranan/Select Role</h1>
+      <p>Sila pilih peranan untuk anda log masuk</p>
+
+      <ion-card-content>
+        <ion-button
+          mode="ios"
+          type="submit"
+          color="primary"
+          class="input-button"
+          expand="block"
+          [routerLink]="['/login']"
+        >
+          Pengandali/Operator
+        </ion-button>
+
+        <ion-button
+          mode="ios"
+          type="submit"
+          color="primary"
+          class="input-button"
+          expand="block"
+          [routerLink]="['/tourist/login']"
+        >
+          Pelancong/Tourist
+        </ion-button>
+
+        <ion-button
+          mode="ios"
+          type="submit"
+          color="primary"
+          class="input-button"
+          expand="block"
+          [routerLink]="['/association/login']"
+        >
+          Persatuan/Association
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>

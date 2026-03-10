@@ -1,54 +1,82 @@
-<ion-content class="background" [fullscreen]="true">
-  <ion-card>
-    <!-- Back Button -->
-    <ion-button fill="clear" (click)="backRole()" mode="ios">
-      <ion-icon slot="start" name="chevron-back"></ion-icon>
-      <span>Back</span>
-    </ion-button>
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+  rel="stylesheet"
+/>
+<ion-content [fullscreen]="true" class="background">
+  <ion-header collapse="condense"> </ion-header>
 
-    <!-- Logo -->
-    <ion-col class="ion-blue-bkg">
-      <img src="../../../assets/icon/rt logo.png" class="logo" />
-    </ion-col>
+  <div class="card-container">
+    <ion-card>
+      <ion-button fill="clear" (click)="backRole()" mode="ios">
+        <ion-icon slot="start" name="chevron-back"></ion-icon>
+        <span>Back</span>
+      </ion-button>
 
-    <h1>Login Account</h1>
-    <p class="sub-title">FIll in your credentials with the fields provided.</p>
+      <ion-row>
+        <ion-col class="ion-blue-bkg">
+          <img src="../../../assets/icon/rt logo.png" class="borneo" />
+        </ion-col>
 
-    <form #form="ngForm" (ngSubmit)="login(form)">
-      <!-- Username -->
-      <ion-label class="custom-label">Username</ion-label>
-      <ion-item fill="outline">
-        <ion-input
-          [(ngModel)]="username"
-          name="username"
-          required
-          placeholder="Enter username"
-          clearInput="true"
-        ></ion-input>
-      </ion-item>
+        <ion-col class="title-col" size="12">
+          <p class="title">Log Masuk</p>
+          <p class="subtitle">Ke dalam Akaun Persatuan</p>
+        </ion-col>
 
-      <!-- Password -->
-      <ion-label class="custom-label">Password</ion-label>
-      <ion-item fill="outline">
-        <ion-input
-          [(ngModel)]="password"
-          name="password"
-          required
-          [type]="showPassword ? 'text' : 'password'"
-          placeholder="Enter password"
-        ></ion-input>
+        <ion-col size="12" class="welcome">
+          <form class="no-border" #form="ngForm" (ngSubmit)="login(form)">
+            <ion-card-header>
+              <!-- Username -->
+              <ion-input
+                required
+                class="input-login"
+                mode="md"
+                [(ngModel)]="username"
+                name="username"
+                label="Nama Pengguna/Username"
+                label-placement="floating"
+                fill="outline"
+                placeholder="Enter text"
+                [clearInput]="true"
+              ></ion-input>
 
-        <ion-icon
-          slot="end"
-          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-          class="password-toggle"
-          (click)="togglePassword()"
-        ></ion-icon>
-      </ion-item>
+              <br />
 
-      <ion-card-content>
-        <ion-button type="submit" expand="block" mode="ios"> Login </ion-button>
-      </ion-card-content>
-    </form>
-  </ion-card>
+              <!-- Password -->
+              <ion-input
+                required
+                class="input-login"
+                mode="md"
+                [(ngModel)]="password"
+                name="password"
+                label="Kata Laluan/Password"
+                label-placement="floating"
+                fill="outline"
+                placeholder="Enter text"
+                [type]="showPassword ? 'text' : 'password'"
+                [clearInput]="true"
+              >
+                <ion-icon
+                  slot="end"
+                  [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+                  class="password-toggle"
+                  (click)="togglePassword()"
+                ></ion-icon>
+              </ion-input>
+            </ion-card-header>
+
+            <ion-card-content>
+              <ion-button
+                mode="ios"
+                type="submit"
+                color="primary"
+                class="input-button"
+                expand="block"
+                >Log Masuk</ion-button
+              >
+            </ion-card-content>
+          </form>
+        </ion-col>
+      </ion-row>
+    </ion-card>
+  </div>
 </ion-content>
