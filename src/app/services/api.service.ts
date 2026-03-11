@@ -243,6 +243,17 @@ export class ApiService {
     );
   }
 
+  getBookedDatesByOperatorActivity(
+    operatorActivityId: string,
+  ): Observable<{ success: boolean; data: { date: string; time: string }[] }> {
+    return this.http.get<{
+      success: boolean;
+      data: { date: string; time: string }[];
+    }>(
+      `${this.apiUrl}/activity-booking/booked-dates/operator/${operatorActivityId}`,
+    );
+  }
+
   // src/app/services/api.service.ts
 
   getNotificationsByOperator(operatorId: string) {
@@ -298,6 +309,11 @@ export class ApiService {
     return this.http.get<any>(
       `${this.apiUrl}/operator-bookings/user/${operatorId}`,
     );
+  }
+
+  // Get all active tourist users (for manual booking dropdown)
+  getAllTouristUsers(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/tourists`);
   }
 
   markActivityPaid(bookingId: string) {

@@ -1,9 +1,21 @@
-<ion-content class="ion-padding">
+<ion-content class="ion-padding date-modal-content">
   <ion-datetime
     presentation="date"
     [(ngModel)]="selectedDate"
+    [isDateEnabled]="isDateEnabled"
+    style="margin: 0 auto"
   ></ion-datetime>
 
-  <ion-button expand="block" (click)="confirm()">Select</ion-button>
-  <ion-button expand="block" fill="clear" color="medium" (click)="close()">Cancel</ion-button>
+  <div class="date-modal-footer">
+    <ion-button
+      expand="block"
+      color="success"
+      (click)="confirm()"
+      [disabled]="!selectedDate"
+      >Select</ion-button
+    >
+    <ion-button expand="block" fill="clear" color="medium" (click)="close()"
+      >Cancel</ion-button
+    >
+  </div>
 </ion-content>

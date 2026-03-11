@@ -37,6 +37,27 @@
 // @import "@ionic/angular/css/palettes/dark.system.css"
 
 /* ============================================
+   DATE PICKER MODAL — desktop sizing
+   ============================================ */
+@media (min-width: 768px) {
+  .date-picker-modal {
+    --width: 400px;
+    --height: 620px;
+    --border-radius: 16px;
+    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+    ion-content {
+      --background: #ffffff;
+    }
+
+    ion-datetime {
+      --background: #ffffff;
+      width: 100%;
+    }
+  }
+}
+
+/* ============================================
    TOAST STYLES
    ============================================ */
 
