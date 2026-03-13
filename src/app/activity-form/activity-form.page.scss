@@ -307,3 +307,99 @@ body {
       opacity: 0.78;
     }
   }
+
+  // Tourist searchable dropdown
+  .tourist-search-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .tourist-searchbar-border {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 10px;
+    background: #f9f9f9;
+    padding: 0 12px;
+    height: 48px;
+    transition: border-color 0.2s;
+
+    &:focus-within {
+      border-color: #024E25;
+    }
+
+    &.has-selection {
+      border-color: #024E25;
+      background: #f0faf4;
+    }
+  }
+
+  .tourist-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #333;
+    padding: 0;
+    min-width: 0;
+
+    &::placeholder {
+      color: #aaa;
+    }
+  }
+
+  .chevron-icon,
+  .clear-icon {
+    font-size: 18px;
+    color: #888;
+    flex-shrink: 0;
+    margin-left: 6px;
+    cursor: pointer;
+  }
+
+  .clear-icon {
+    color: #aaa;
+
+    &:hover {
+      color: #024E25;
+    }
+  }
+
+  .tourist-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .tourist-dropdown-empty {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+  }
+
+  .tourist-dropdown-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #f0faf4;
+      color: #024E25;
+    }
+  }

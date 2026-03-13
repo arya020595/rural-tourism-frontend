@@ -28,6 +28,7 @@ export class ActivityFormPage implements OnInit {
     this.loadActivities();
     this.autofillOperator();
     this.loadTouristsFromBookings();
+    this.loadAllTouristUsers();
   }
 
   form = {
@@ -52,6 +53,7 @@ export class ActivityFormPage implements OnInit {
   activities: any[] = [];
   selectedActivity: any = null;
   availableTimeSlots: string[] = [];
+  pricePerPax: number = 0;
 
   touristOptions: any[] = [];
   filteredTouristOptions: any[] = [];
@@ -63,10 +65,95 @@ export class ActivityFormPage implements OnInit {
   selectedTouristDisplayText: string = ''; // label shown after selection
   selectedBookingId: number | null = null;
 
+  // Manual booking — tourist_users dropdown
+  allTouristUsers: any[] = [];
+  filteredManualTouristOptions: any[] = [];
+  showManualTouristList: boolean = false;
+  manualTouristSelected: boolean = false;
+  selectedManualTouristUserId: string = '';
+  selectedManualTouristContactPhone: string = '';
+  selectedManualTouristNationality: string = '';
+
+  // Available (unbooked) dates for the selected activity in manual mode
+  availableManualDates: string[] = [];
+
   numbers: number[] = Array.from({ length: 20 }, (_, i) => i + 1);
 
   get isGuestAutofilled(): boolean {
     return this.form.booking_type === 'guest' && !!this.selectedTouristUserId;
+  }
+
+  // ---------------- Load All Tourist Users (for manual booking) ----------------
+  loadAllTouristUsers() {
+    this.apiService.getAllTouristUsers().subscribe(
+      (res: any) => {
+        const list: any[] = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res)
+            ? res
+            : [];
+        this.allTouristUsers = list.filter((t) => t.is_active !== false);
+        this.filteredManualTouristOptions = [...this.allTouristUsers];
+      },
+      (err) => {
+        console.error('Failed to load tourist users:', err);
+        this.allTouristUsers = [];
+      },
+    );
+  }
+
+  // ---------------- Manual Tourist Search ----------------
+  onManualTouristSearchFocus() {
+    this.filteredManualTouristOptions = this.allTouristUsers.filter((t) =>
+      (t.full_name || t.username || '')
+        .toLowerCase()
+        .includes((this.form.manual_tourist_name || '').toLowerCase().trim()),
+    );
+    this.showManualTouristList = true;
+  }
+
+  onManualTouristSearchInput(query: string) {
+    const q = (query || '').toLowerCase().trim();
+    this.filteredManualTouristOptions = q
+      ? this.allTouristUsers.filter((t) =>
+          (t.full_name || t.username || '').toLowerCase().includes(q),
+        )
+      : [...this.allTouristUsers];
+    this.showManualTouristList = true;
+    this.manualTouristSelected = false;
+  }
+
+  onManualTouristSearchBlur() {
+    setTimeout(() => {
+      this.showManualTouristList = false;
+    }, 150);
+  }
+
+  selectManualTouristOption(tourist: any) {
+    const name = tourist.full_name || tourist.username || '';
+    this.form.manual_tourist_name = name;
+    this.selectedManualTouristUserId = String(tourist.tourist_user_id || '');
+    this.selectedManualTouristContactPhone = tourist.contact_no || '';
+    this.selectedManualTouristNationality = tourist.nationality || '';
+    // Auto-fill citizenship from tourist nationality
+    const nat = (tourist.nationality || '').toLowerCase();
+    if (nat) {
+      this.form.citizenship =
+        nat === 'malaysian' ? 'Warganegara' : 'Bukan Warganegara';
+    }
+    this.manualTouristSelected = true;
+    this.showManualTouristList = false;
+    this.filteredManualTouristOptions = [...this.allTouristUsers];
+  }
+
+  clearManualTouristSelection() {
+    this.form.manual_tourist_name = '';
+    this.selectedManualTouristUserId = '';
+    this.selectedManualTouristContactPhone = '';
+    this.selectedManualTouristNationality = '';
+    this.manualTouristSelected = false;
+    this.filteredManualTouristOptions = [...this.allTouristUsers];
+    this.showManualTouristList = false;
   }
 
   // ---------------- Load Activities ----------------
@@ -217,6 +304,7 @@ export class ActivityFormPage implements OnInit {
       this.form.issuer = '';
       this.selectedActivity = null;
       this.availableTimeSlots = [];
+      this.pricePerPax = 0;
       this.touristSelected = false;
       this.selectedTouristUserId = '';
       this.selectedTouristBookingId = '';
@@ -225,10 +313,20 @@ export class ActivityFormPage implements OnInit {
       this.touristSearchQuery = '';
       this.filteredTouristOptions = [...this.touristOptions];
       this.showTouristList = false;
+      this.form.manual_tourist_name = '';
+      this.selectedManualTouristUserId = '';
+      this.selectedManualTouristContactPhone = '';
+      this.selectedManualTouristNationality = '';
+      this.manualTouristSelected = false;
+      this.filteredManualTouristOptions = [...this.allTouristUsers];
+      this.showManualTouristList = false;
+      this.availableManualDates = [];
       this.autofillOperator();
     } else {
       // Switching back to guest — clear the manual name
       this.form.manual_tourist_name = '';
+      this.manualTouristSelected = false;
+      this.showManualTouristList = false;
     }
   }
 
@@ -384,25 +482,75 @@ export class ActivityFormPage implements OnInit {
 
     // For manual bookings, auto-fill date, time, price and operator name
     if (this.form.booking_type === 'manual') {
-      // Auto-fill earliest available date
-      const firstSlot = parsed.find((entry: any) => !!entry.date);
-      if (firstSlot?.date) {
-        this.form.date = firstSlot.date;
-      }
+      // Compute all dates defined in available_dates
+      const allDates = [
+        ...new Set<string>(
+          parsed.map((e: any) => e.date).filter((d: any) => !!d),
+        ),
+      ];
+
+      // Load already-booked dates from backend and compute the available subset
+      this.apiService
+        .getBookedDatesByOperatorActivity(String(selectedActivity.id))
+        .subscribe(
+          (res: any) => {
+            const booked: any[] = Array.isArray(res.data) ? res.data : [];
+            const bookedDateSet = new Set(
+              booked
+                .map((b: any) => (b.date ? b.date.split('T')[0] : null))
+                .filter(Boolean),
+            );
+            this.availableManualDates = allDates.filter(
+              (d) => !bookedDateSet.has(d),
+            );
+            // Pick first available date, reset if previously picked is gone
+            if (
+              !this.form.date ||
+              !this.availableManualDates.includes(this.form.date)
+            ) {
+              this.form.date = this.availableManualDates[0] || '';
+            }
+          },
+          () => {
+            // On error, fall back to all dates
+            this.availableManualDates = allDates;
+            const firstSlot = parsed.find((entry: any) => !!entry.date);
+            if (!this.form.date && firstSlot?.date) {
+              this.form.date = firstSlot.date;
+            }
+          },
+        );
 
       // Auto-fill first available time slot
       if (this.availableTimeSlots.length > 0) {
         this.form.time = this.availableTimeSlots[0];
       }
 
-      // Auto-fill price from price_per_pax
+      // Auto-fill price from price_per_pax × current pax
       if (selectedActivity.price_per_pax) {
-        this.form.total_rm = Number(selectedActivity.price_per_pax).toString();
+        this.pricePerPax = Number(selectedActivity.price_per_pax);
+        const currentPax =
+          (Number(this.form.pax_domestik) || 0) +
+          (Number(this.form.pax_antarabangsa) || 0);
+        this.form.total_rm = (this.pricePerPax * (currentPax || 1)).toString();
       }
 
       // Auto-fill operator name from localStorage
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       this.form.issuer = user.full_name || user.username || '';
+    } else {
+      this.availableManualDates = [];
+    }
+  }
+
+  // ---------------- Pax Change (recalculate manual total) ----------------
+  onManualPaxChange() {
+    if (this.form.booking_type !== 'manual' || !this.pricePerPax) return;
+    const pax =
+      (Number(this.form.pax_domestik) || 0) +
+      (Number(this.form.pax_antarabangsa) || 0);
+    if (pax > 0) {
+      this.form.total_rm = (this.pricePerPax * pax).toString();
     }
   }
 
@@ -415,9 +563,9 @@ export class ActivityFormPage implements OnInit {
       }
       if (
         this.form.booking_type === 'manual' &&
-        !this.form.manual_tourist_name
+        !this.selectedManualTouristUserId
       ) {
-        alert('Please enter the tourist name.');
+        alert('Please select a tourist from the list.');
         return;
       }
 
@@ -442,11 +590,7 @@ export class ActivityFormPage implements OnInit {
         tourist_user_id:
           this.form.booking_type === 'guest'
             ? this.selectedTouristUserId
-            : null,
-        tourist_name:
-          this.form.booking_type === 'manual'
-            ? this.form.manual_tourist_name
-            : null,
+            : this.selectedManualTouristUserId,
         operator_user_id: operatorUid,
         citizenship: this.form.citizenship,
         pax: totalPax,
@@ -459,7 +603,21 @@ export class ActivityFormPage implements OnInit {
         date: this.form.date || null,
         time: this.form.time || null,
         issuer: this.form.issuer || 'Unknown Operator',
-        activity_booking_id: this.selectedBookingId,
+        operator_activity_id: this.selectedActivity?.id || null,
+        contact_name:
+          this.form.booking_type === 'manual'
+            ? this.form.manual_tourist_name
+            : null,
+        contact_phone:
+          this.form.booking_type === 'manual'
+            ? this.selectedManualTouristContactPhone
+            : null,
+        nationality:
+          this.form.booking_type === 'manual'
+            ? this.selectedManualTouristNationality
+            : null,
+        activity_booking_id:
+          this.form.booking_type === 'guest' ? this.selectedBookingId : null,
         booking_type: this.form.booking_type || 'guest',
       };
 
@@ -482,6 +640,7 @@ export class ActivityFormPage implements OnInit {
     form.reset();
     this.selectedActivity = null;
     this.availableTimeSlots = [];
+    this.availableManualDates = [];
     this.touristSelected = false;
     this.selectedTouristUserId = '';
     this.selectedTouristBookingId = '';
@@ -490,6 +649,12 @@ export class ActivityFormPage implements OnInit {
     this.touristSearchQuery = '';
     this.filteredTouristOptions = [...this.touristOptions];
     this.showTouristList = false;
+    this.manualTouristSelected = false;
+    this.selectedManualTouristUserId = '';
+    this.selectedManualTouristContactPhone = '';
+    this.selectedManualTouristNationality = '';
+    this.filteredManualTouristOptions = [...this.allTouristUsers];
+    this.showManualTouristList = false;
   }
 
   // ---------------- Navigation ----------------

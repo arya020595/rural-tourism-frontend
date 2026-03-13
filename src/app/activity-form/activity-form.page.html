@@ -4,7 +4,12 @@
       <ion-card class="main-Container">
         <!-- Back Button -->
         <ion-buttons class="back-btn-wrapper">
-          <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
+          <ion-back-button
+            defaultHref="/home"
+            icon="arrow-back-outline"
+            text=""
+            class="circle-back-btn"
+          ></ion-back-button>
         </ion-buttons>
 
         <!-- Logo -->
@@ -51,7 +56,10 @@
             </div>
 
             <div class="field-label question-label">
-              1. Nama Penuh Pelancong/Tourist Full Name<span class="error-message">*</span>
+              1. Nama Penuh Pelancong/Tourist Full Name<span
+                class="error-message"
+                >*</span
+              >
             </div>
 
             <!-- Operator: searchable dropdown to select existing tourist -->
@@ -119,17 +127,60 @@
               </div>
             </div>
 
-            <!-- Manual: free-text input for tourist name -->
-            <ion-item *ngIf="form.booking_type === 'manual'">
-              <ion-input
-                [(ngModel)]="form.manual_tourist_name"
-                name="manual_tourist_name"
-                placeholder="Sila isi nama penuh pelancong/Enter full name of the tourist"
-                required
-                #manualTouristName="ngModel"
-                type="text"
-              ></ion-input>
-            </ion-item>
+            <!-- Manual: searchable dropdown from tourist_users, or free-type a new name -->
+            <div
+              *ngIf="form.booking_type === 'manual'"
+              class="tourist-search-wrapper"
+            >
+              <div
+                class="tourist-searchbar-border"
+                [class.has-selection]="manualTouristSelected"
+              >
+                <input
+                  #manualSearchInput
+                  type="text"
+                  [(ngModel)]="form.manual_tourist_name"
+                  name="manual_tourist_name"
+                  placeholder="Taip atau pilih nama pelancong / Type or select tourist name"
+                  required
+                  (input)="onManualTouristSearchInput(manualSearchInput.value)"
+                  (focus)="onManualTouristSearchFocus()"
+                  (blur)="onManualTouristSearchBlur()"
+                  class="tourist-search-input"
+                  autocomplete="off"
+                />
+                <ion-icon
+                  *ngIf="form.manual_tourist_name"
+                  name="close-circle"
+                  class="clear-icon"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="clearManualTouristSelection()"
+                ></ion-icon>
+                <ion-icon
+                  *ngIf="!form.manual_tourist_name"
+                  name="chevron-down-outline"
+                  class="chevron-icon"
+                ></ion-icon>
+              </div>
+
+              <!-- Dropdown list -->
+              <div class="tourist-dropdown" *ngIf="showManualTouristList">
+                <div
+                  *ngIf="filteredManualTouristOptions.length === 0"
+                  class="tourist-dropdown-empty"
+                >
+                  Tiada pelancong dijumpai / No tourist found
+                </div>
+                <div
+                  *ngFor="let tourist of filteredManualTouristOptions"
+                  class="tourist-dropdown-item"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="selectManualTouristOption(tourist)"
+                >
+                  {{ tourist.full_name || tourist.username }}
+                </div>
+              </div>
+            </div>
 
             <!-- Q2: Citizenship -->
             <div class="field-label question-label">
@@ -183,442 +234,497 @@
 
             <!-- Q3 onwards: locked when guest autofilled -->
             <div [class.guest-locked]="isGuestAutofilled">
+              <!-- Domestik only: [Q3a | Q4], [Q5 | Q6], [Q7 | Q8] -->
+              <ng-container *ngIf="form.citizenship === 'Warganegara'">
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      3. Bilangan Orang/No. of Pax (Domestik)
+                      <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        type="number"
+                        placeholder="Sila isi bilangan orang(domestik)/Enter no. of pax(domestic)"
+                        [(ngModel)]="form.pax_domestik"
+                        (ngModelChange)="onManualPaxChange()"
+                        name="pax_domestik"
+                        required
+                        #paxDomestik="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="paxDomestik.invalid && paxDomestik.touched"
+                      class="error-message no-border"
+                    >
+                      <ion-text
+                        >*Sila isi Bilangan Orang/No. of Pax is
+                        required</ion-text
+                      >
+                    </ion-item>
+                  </div>
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      4. Aktiviti/Activity <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-select
+                        placeholder="Sila pilih aktiviti/Select an activity"
+                        [(ngModel)]="selectedActivity"
+                        [compareWith]="compareWithFn"
+                        (ngModelChange)="onActivityChange(selectedActivity)"
+                        name="activity_name"
+                        required
+                      >
+                        <ion-select-option
+                          *ngFor="let activity of activities"
+                          [value]="activity"
+                          >{{ activity?.activity_name }}{{ activity?.address ? '
+                          (' + activity.address + ')' : '' }}</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                </div>
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      5. Tarikh/Date <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <!-- Manual: show only available (unbooked) dates as a dropdown -->
+                      <ion-select
+                        *ngIf="form.booking_type === 'manual'"
+                        [(ngModel)]="form.date"
+                        name="date"
+                        placeholder="Pilih tarikh/Select date"
+                        [disabled]="!selectedActivity || availableManualDates.length === 0"
+                      >
+                        <ion-select-option
+                          *ngFor="let d of availableManualDates"
+                          [value]="d"
+                          >{{ d }}</ion-select-option
+                        >
+                      </ion-select>
+                      <!-- Guest: free date picker (autofilled from booking) -->
+                      <ion-input
+                        *ngIf="form.booking_type !== 'manual'"
+                        type="date"
+                        class="question-label-custom"
+                        [(ngModel)]="form.date"
+                        name="date_guest"
+                        #date="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                  </div>
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      6. Masa/Time <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        *ngIf="isGuestAutofilled"
+                        [value]="form.time"
+                        readonly
+                        placeholder="No time set"
+                      ></ion-input>
+                      <ion-select
+                        *ngIf="!isGuestAutofilled"
+                        [(ngModel)]="form.time"
+                        name="time"
+                        placeholder="e.g. 12:00 PM"
+                        #time="ngModel"
+                        [disabled]="!selectedActivity"
+                      >
+                        <ion-select-option
+                          *ngFor="let slot of availableTimeSlots"
+                          [value]="slot"
+                          >{{ slot }}</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                </div>
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      7. Jumlah/Total (RM) <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        step="0.01"
+                        type="number"
+                        [clearInput]="true"
+                        placeholder="RM"
+                        [(ngModel)]="form.total_rm"
+                        name="total_rm"
+                        required
+                        #totalRM="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="totalRM.invalid && totalRM.touched"
+                      class="error-message no-border"
+                    >
+                      <ion-text
+                        >*Sila isi Jumlah RM/Total RM is required</ion-text
+                      >
+                    </ion-item>
+                  </div>
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      8. Nama Pengandali/Name of Operator
+                    </div>
+                    <ion-item style="margin-bottom: 5%">
+                      <ion-input
+                        class="question-label-custom"
+                        [clearInput]="true"
+                        placeholder="Sila isi nama pengandali/Enter the name of the operator"
+                        [(ngModel)]="form.issuer"
+                        name="issuer"
+                        #issuerInput="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                  </div>
+                </div>
+              </ng-container>
 
-            <!-- Domestik only: [Q3a | Q4], [Q5 | Q6], [Q7 | Q8] -->
-            <ng-container *ngIf="form.citizenship === 'Warganegara'">
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    3. Bilangan Orang/No. of Pax (Domestik)
-                    <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      type="number"
-                      placeholder="Sila isi bilangan orang(domestik)/Enter no. of pax(domestic)"
-                      [(ngModel)]="form.pax_domestik"
-                      name="pax_domestik"
-                      required
-                      #paxDomestik="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="paxDomestik.invalid && paxDomestik.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
+              <!-- Antarabangsa only: [Q3b | Q4], [Q5 | Q6], [Q7 | Q8] -->
+              <ng-container *ngIf="form.citizenship === 'Bukan Warganegara'">
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      3. Bilangan Orang/No. of Pax (Antarabangsa)
+                      <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        type="number"
+                        placeholder="Sila isi bilangan orang(antarabangsa)/Enter no. of pax(antarabangsa)"
+                        [(ngModel)]="form.pax_antarabangsa"
+                        (ngModelChange)="onManualPaxChange()"
+                        name="pax_antarabangsa"
+                        required
+                        #paxAntarabangsa="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="paxAntarabangsa.invalid && paxAntarabangsa.touched"
+                      class="error-message no-border"
                     >
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    4. Aktiviti/Activity <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-select
-                      placeholder="Sila pilih aktiviti/Select an activity"
-                      [(ngModel)]="selectedActivity"
-                      [compareWith]="compareWithFn"
-                      (ngModelChange)="onActivityChange(selectedActivity)"
-                      name="activity_name"
-                      required
-                    >
-                      <ion-select-option
-                        *ngFor="let activity of activities"
-                        [value]="activity"
-                        >{{ activity?.activity_name }}{{ activity?.address ? '
-                        (' + activity.address + ')' : '' }}</ion-select-option
+                      <ion-text
+                        >*Sila isi Bilangan Orang/No. of Pax is
+                        required</ion-text
                       >
-                    </ion-select>
-                  </ion-item>
-                </div>
-              </div>
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    5. Tarikh/Date <span class="error-message">*</span>
+                    </ion-item>
                   </div>
-                  <ion-item>
-                    <ion-input
-                      type="date"
-                      class="question-label-custom"
-                      [(ngModel)]="form.date"
-                      name="date"
-                      #date="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    6. Masa/Time <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      *ngIf="isGuestAutofilled"
-                      [value]="form.time"
-                      readonly
-                      placeholder="No time set"
-                    ></ion-input>
-                    <ion-select
-                      *ngIf="!isGuestAutofilled"
-                      [(ngModel)]="form.time"
-                      name="time"
-                      placeholder="e.g. 12:00 PM"
-                      #time="ngModel"
-                      [disabled]="!selectedActivity"
-                    >
-                      <ion-select-option
-                        *ngFor="let slot of availableTimeSlots"
-                        [value]="slot"
-                        >{{ slot }}</ion-select-option
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      4. Aktiviti/Activity <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-select
+                        placeholder="Sila pilih aktiviti/Select an activity"
+                        [(ngModel)]="selectedActivity"
+                        [compareWith]="compareWithFn"
+                        (ngModelChange)="onActivityChange(selectedActivity)"
+                        name="activity_name"
+                        required
                       >
-                    </ion-select>
-                  </ion-item>
-                </div>
-              </div>
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    7. Jumlah/Total (RM) <span class="error-message">*</span>
+                        <ion-select-option
+                          *ngFor="let activity of activities"
+                          [value]="activity"
+                          >{{ activity?.activity_name }}{{ activity?.address ? '
+                          (' + activity.address + ')' : '' }}</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
                   </div>
-                  <ion-item>
-                    <ion-input
-                      step="0.01"
-                      type="number"
-                      [clearInput]="true"
-                      placeholder="RM"
-                      [(ngModel)]="form.total_rm"
-                      name="total_rm"
-                      required
-                      #totalRM="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="totalRM.invalid && totalRM.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Jumlah RM/Total RM is required</ion-text
+                </div>
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      5. Tarikh/Date <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <!-- Manual: show only available (unbooked) dates as a dropdown -->
+                      <ion-select
+                        *ngIf="form.booking_type === 'manual'"
+                        [(ngModel)]="form.date"
+                        name="date"
+                        placeholder="Pilih tarikh/Select date"
+                        [disabled]="!selectedActivity || availableManualDates.length === 0"
+                      >
+                        <ion-select-option
+                          *ngFor="let d of availableManualDates"
+                          [value]="d"
+                          >{{ d }}</ion-select-option
+                        >
+                      </ion-select>
+                      <!-- Guest: free date picker (autofilled from booking) -->
+                      <ion-input
+                        *ngIf="form.booking_type !== 'manual'"
+                        type="date"
+                        class="question-label-custom"
+                        [(ngModel)]="form.date"
+                        name="date_guest_int"
+                        #date="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                  </div>
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      6. Masa/Time <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        *ngIf="isGuestAutofilled"
+                        [value]="form.time"
+                        readonly
+                        placeholder="No time set"
+                      ></ion-input>
+                      <ion-select
+                        *ngIf="!isGuestAutofilled"
+                        [(ngModel)]="form.time"
+                        name="time_int"
+                        placeholder="e.g. 12:00 PM"
+                        [disabled]="!selectedActivity"
+                      >
+                        <ion-select-option
+                          *ngFor="let slot of availableTimeSlots"
+                          [value]="slot"
+                          >{{ slot }}</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                </div>
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      7. Jumlah/Total (RM) <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        step="0.01"
+                        type="number"
+                        [clearInput]="true"
+                        placeholder="RM"
+                        [(ngModel)]="form.total_rm"
+                        name="total_rm"
+                        required
+                        #totalRM="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="totalRM.invalid && totalRM.touched"
+                      class="error-message no-border"
                     >
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    8. Nama Pengandali/Name of Operator
+                      <ion-text
+                        >*Sila isi Jumlah RM/Total RM is required</ion-text
+                      >
+                    </ion-item>
                   </div>
-                  <ion-item style="margin-bottom: 5%">
-                    <ion-input
-                      class="question-label-custom"
-                      [clearInput]="true"
-                      placeholder="Sila isi nama pengandali/Enter the name of the operator"
-                      [(ngModel)]="form.issuer"
-                      name="issuer"
-                      #issuerInput="ngModel"
-                    ></ion-input>
-                  </ion-item>
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      8. Nama Pengandali/Name of Operator
+                    </div>
+                    <ion-item style="margin-bottom: 5%">
+                      <ion-input
+                        class="question-label-custom"
+                        [clearInput]="true"
+                        placeholder="Sila isi nama pengandali/Enter the name of the operator"
+                        [(ngModel)]="form.issuer"
+                        name="issuer"
+                        #issuerInput="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                  </div>
                 </div>
-              </div>
-            </ng-container>
+              </ng-container>
 
-            <!-- Antarabangsa only: [Q3b | Q4], [Q5 | Q6], [Q7 | Q8] -->
-            <ng-container *ngIf="form.citizenship === 'Bukan Warganegara'">
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    3. Bilangan Orang/No. of Pax (Antarabangsa)
-                    <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      type="number"
-                      placeholder="Sila isi bilangan orang(antarabangsa)/Enter no. of pax(antarabangsa)"
-                      [(ngModel)]="form.pax_antarabangsa"
-                      name="pax_antarabangsa"
-                      required
-                      #paxAntarabangsa="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="paxAntarabangsa.invalid && paxAntarabangsa.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
+              <!-- Mix: [Q3a | Q3b], [Q4 | Q5], [Q6 | Q7], [Q8 full] -->
+              <ng-container *ngIf="form.citizenship === 'Mix'">
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      3(a). Bilangan Orang/No. of Pax (Domestik)
+                      <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        type="number"
+                        placeholder="Sila isi bilangan orang(domestik)/Enter no. of pax(domestic)"
+                        [(ngModel)]="form.pax_domestik"
+                        (ngModelChange)="onManualPaxChange()"
+                        name="pax_domestik"
+                        required
+                        #paxDomestik="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="paxDomestik.invalid && paxDomestik.touched"
+                      class="error-message no-border"
                     >
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    4. Aktiviti/Activity <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-select
-                      placeholder="Sila pilih aktiviti/Select an activity"
-                      [(ngModel)]="selectedActivity"
-                      [compareWith]="compareWithFn"
-                      (ngModelChange)="onActivityChange(selectedActivity)"
-                      name="activity_name"
-                      required
-                    >
-                      <ion-select-option
-                        *ngFor="let activity of activities"
-                        [value]="activity"
-                        >{{ activity?.activity_name }}{{ activity?.address ? '
-                        (' + activity.address + ')' : '' }}</ion-select-option
+                      <ion-text
+                        >*Sila isi Bilangan Orang/No. of Pax is
+                        required</ion-text
                       >
-                    </ion-select>
-                  </ion-item>
-                </div>
-              </div>
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    5. Tarikh/Date <span class="error-message">*</span>
+                    </ion-item>
                   </div>
-                  <ion-item>
-                    <ion-input
-                      type="date"
-                      class="question-label-custom"
-                      [(ngModel)]="form.date"
-                      name="date"
-                      #date="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    6. Masa/Time <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      *ngIf="isGuestAutofilled"
-                      [value]="form.time"
-                      readonly
-                      placeholder="No time set"
-                    ></ion-input>
-                    <ion-select
-                      *ngIf="!isGuestAutofilled"
-                      [(ngModel)]="form.time"
-                      name="time_int"
-                      placeholder="e.g. 12:00 PM"
-                      [disabled]="!selectedActivity"
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      3(b). Bilangan Orang/No. of Pax (Antarabangsa)
+                      <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        type="number"
+                        placeholder="Sila isi bilangan orang(antarabangsa)/Enter no. of pax(antarabangsa)"
+                        [(ngModel)]="form.pax_antarabangsa"
+                        (ngModelChange)="onManualPaxChange()"
+                        name="pax_antarabangsa"
+                        required
+                        #paxAntarabangsa="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="paxAntarabangsa.invalid && paxAntarabangsa.touched"
+                      class="error-message no-border"
                     >
-                      <ion-select-option
-                        *ngFor="let slot of availableTimeSlots"
-                        [value]="slot"
-                        >{{ slot }}</ion-select-option
+                      <ion-text
+                        >*Sila isi Bilangan Orang/No. of Pax is
+                        required</ion-text
                       >
-                    </ion-select>
-                  </ion-item>
-                </div>
-              </div>
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    7. Jumlah/Total (RM) <span class="error-message">*</span>
+                    </ion-item>
                   </div>
-                  <ion-item>
-                    <ion-input
-                      step="0.01"
-                      type="number"
-                      [clearInput]="true"
-                      placeholder="RM"
-                      [(ngModel)]="form.total_rm"
-                      name="total_rm"
-                      required
-                      #totalRM="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="totalRM.invalid && totalRM.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Jumlah RM/Total RM is required</ion-text
-                    >
-                  </ion-item>
                 </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    8. Nama Pengandali/Name of Operator
-                  </div>
-                  <ion-item style="margin-bottom: 5%">
-                    <ion-input
-                      class="question-label-custom"
-                      [clearInput]="true"
-                      placeholder="Sila isi nama pengandali/Enter the name of the operator"
-                      [(ngModel)]="form.issuer"
-                      name="issuer"
-                      #issuerInput="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                </div>
-              </div>
-            </ng-container>
-
-            <!-- Mix: [Q3a | Q3b], [Q4 | Q5], [Q6 | Q7], [Q8 full] -->
-            <ng-container *ngIf="form.citizenship === 'Mix'">
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    3(a). Bilangan Orang/No. of Pax (Domestik)
-                    <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      type="number"
-                      placeholder="Sila isi bilangan orang(domestik)/Enter no. of pax(domestic)"
-                      [(ngModel)]="form.pax_domestik"
-                      name="pax_domestik"
-                      required
-                      #paxDomestik="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="paxDomestik.invalid && paxDomestik.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
-                    >
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    3(b). Bilangan Orang/No. of Pax (Antarabangsa)
-                    <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      type="number"
-                      placeholder="Sila isi bilangan orang(antarabangsa)/Enter no. of pax(antarabangsa)"
-                      [(ngModel)]="form.pax_antarabangsa"
-                      name="pax_antarabangsa"
-                      required
-                      #paxAntarabangsa="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="paxAntarabangsa.invalid && paxAntarabangsa.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
-                    >
-                  </ion-item>
-                </div>
-              </div>
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    4. Aktiviti/Activity <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-select
-                      placeholder="Sila pilih aktiviti/Select an activity"
-                      [(ngModel)]="selectedActivity"
-                      [compareWith]="compareWithFn"
-                      (ngModelChange)="onActivityChange(selectedActivity)"
-                      name="activity_name"
-                      required
-                    >
-                      <ion-select-option
-                        *ngFor="let activity of activities"
-                        [value]="activity"
-                        >{{ activity?.activity_name }}{{ activity?.address ? '
-                        (' + activity.address + ')' : '' }}</ion-select-option
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      4. Aktiviti/Activity <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-select
+                        placeholder="Sila pilih aktiviti/Select an activity"
+                        [(ngModel)]="selectedActivity"
+                        [compareWith]="compareWithFn"
+                        (ngModelChange)="onActivityChange(selectedActivity)"
+                        name="activity_name"
+                        required
                       >
-                    </ion-select>
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    5. Tarikh/Date <span class="error-message">*</span>
+                        <ion-select-option
+                          *ngFor="let activity of activities"
+                          [value]="activity"
+                          >{{ activity?.activity_name }}{{ activity?.address ? '
+                          (' + activity.address + ')' : '' }}</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
                   </div>
-                  <ion-item>
-                    <ion-input
-                      type="date"
-                      class="question-label-custom"
-                      [(ngModel)]="form.date"
-                      name="date"
-                      #date="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                </div>
-              </div>
-              <div class="form-row-2col">
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    6. Masa/Time <span class="error-message">*</span>
-                  </div>
-                  <ion-item>
-                    <ion-input
-                      *ngIf="isGuestAutofilled"
-                      [value]="form.time"
-                      readonly
-                      placeholder="No time set"
-                    ></ion-input>
-                    <ion-select
-                      *ngIf="!isGuestAutofilled"
-                      [(ngModel)]="form.time"
-                      name="time_mix"
-                      placeholder="e.g. 12:00 PM"
-                      [disabled]="!selectedActivity"
-                    >
-                      <ion-select-option
-                        *ngFor="let slot of availableTimeSlots"
-                        [value]="slot"
-                        >{{ slot }}</ion-select-option
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      5. Tarikh/Date <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <!-- Manual: show only available (unbooked) dates as a dropdown -->
+                      <ion-select
+                        *ngIf="form.booking_type === 'manual'"
+                        [(ngModel)]="form.date"
+                        name="date"
+                        placeholder="Pilih tarikh/Select date"
+                        [disabled]="!selectedActivity || availableManualDates.length === 0"
                       >
-                    </ion-select>
-                  </ion-item>
-                </div>
-                <div class="form-col">
-                  <div class="field-label question-label">
-                    7. Jumlah/Total (RM) <span class="error-message">*</span>
+                        <ion-select-option
+                          *ngFor="let d of availableManualDates"
+                          [value]="d"
+                          >{{ d }}</ion-select-option
+                        >
+                      </ion-select>
+                      <!-- Guest: free date picker (autofilled from booking) -->
+                      <ion-input
+                        *ngIf="form.booking_type !== 'manual'"
+                        type="date"
+                        class="question-label-custom"
+                        [(ngModel)]="form.date"
+                        name="date_guest_mix"
+                        #date="ngModel"
+                      ></ion-input>
+                    </ion-item>
                   </div>
-                  <ion-item>
-                    <ion-input
-                      step="0.01"
-                      type="number"
-                      [clearInput]="true"
-                      placeholder="RM"
-                      [(ngModel)]="form.total_rm"
-                      name="total_rm"
-                      required
-                      #totalRM="ngModel"
-                    ></ion-input>
-                  </ion-item>
-                  <ion-item
-                    *ngIf="totalRM.invalid && totalRM.touched"
-                    class="error-message no-border"
-                  >
-                    <ion-text
-                      >*Sila isi Jumlah RM/Total RM is required</ion-text
-                    >
-                  </ion-item>
                 </div>
-              </div>
-              <div
-                class="field-label question-label"
-                style="padding: 0 16px; margin-top: 8px"
-              >
-                8. Nama Pengandali/Name of Operator
-              </div>
-              <ion-item style="margin-bottom: 5%">
-                <ion-input
-                  class="question-label-custom"
-                  [clearInput]="true"
-                  placeholder="Sila isi nama pengandali/Enter the name of the operator"
-                  [(ngModel)]="form.issuer"
-                  name="issuer"
-                  #issuerInput="ngModel"
-                ></ion-input>
-              </ion-item>
-            </ng-container>
-
-            </div><!-- /guest-locked -->
+                <div class="form-row-2col">
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      6. Masa/Time <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        *ngIf="isGuestAutofilled"
+                        [value]="form.time"
+                        readonly
+                        placeholder="No time set"
+                      ></ion-input>
+                      <ion-select
+                        *ngIf="!isGuestAutofilled"
+                        [(ngModel)]="form.time"
+                        name="time_mix"
+                        placeholder="e.g. 12:00 PM"
+                        [disabled]="!selectedActivity"
+                      >
+                        <ion-select-option
+                          *ngFor="let slot of availableTimeSlots"
+                          [value]="slot"
+                          >{{ slot }}</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
+                  </div>
+                  <div class="form-col">
+                    <div class="field-label question-label">
+                      7. Jumlah/Total (RM) <span class="error-message">*</span>
+                    </div>
+                    <ion-item>
+                      <ion-input
+                        step="0.01"
+                        type="number"
+                        [clearInput]="true"
+                        placeholder="RM"
+                        [(ngModel)]="form.total_rm"
+                        name="total_rm"
+                        required
+                        #totalRM="ngModel"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-item
+                      *ngIf="totalRM.invalid && totalRM.touched"
+                      class="error-message no-border"
+                    >
+                      <ion-text
+                        >*Sila isi Jumlah RM/Total RM is required</ion-text
+                      >
+                    </ion-item>
+                  </div>
+                </div>
+                <div
+                  class="field-label question-label"
+                  style="padding: 0 16px; margin-top: 8px"
+                >
+                  8. Nama Pengandali/Name of Operator
+                </div>
+                <ion-item style="margin-bottom: 5%">
+                  <ion-input
+                    class="question-label-custom"
+                    [clearInput]="true"
+                    placeholder="Sila isi nama pengandali/Enter the name of the operator"
+                    [(ngModel)]="form.issuer"
+                    name="issuer"
+                    #issuerInput="ngModel"
+                  ></ion-input>
+                </ion-item>
+              </ng-container>
+            </div>
+            <!-- /guest-locked -->
 
             <!-- Submit Button -->
             <ion-button

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { NavController } from '@ionic/angular';
+import { ModalController, NavController } from '@ionic/angular';
+import { DateModalComponent } from '../date-modal/date-modal.component';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import {
@@ -53,10 +54,26 @@ export class AccoFormPage implements OnInit {
   selectedBookingId: number | null = null;
   preselectedBookingId: number | null = null;
 
+  // Manual booking — tourist_users dropdown
+  allTouristUsers: any[] = [];
+  filteredManualTouristOptions: any[] = [];
+  showManualTouristList: boolean = false;
+  manualTouristSelected: boolean = false;
+  selectedManualTouristUserId: string = '';
+  selectedManualTouristContactPhone: string = '';
+  selectedManualTouristEmail: string = '';
+  selectedManualTouristNationality: string = '';
+
+  // Already-booked dates for the selected accommodation in manual mode
+  bookedAccommodationDates: string[] = [];
+  // available_dates entries (date + price) from the selected accommodation
+  accoAvailableDates: { date: string; price: number }[] = [];
+
   constructor(
     private apiService: ApiService,
     private navCtrl: NavController,
     private route: ActivatedRoute,
+    private modalCtrl: ModalController,
   ) {}
 
   // Create an array of numbers from 1 to 20
@@ -76,6 +93,138 @@ export class AccoFormPage implements OnInit {
     this.loadAccom();
     this.autofillOperator();
     this.loadTouristsFromBookings();
+    this.loadAllTouristUsers();
+  }
+
+  // ---------------- Load All Tourist Users (for manual booking) ----------------
+  loadAllTouristUsers() {
+    this.apiService.getAllTouristUsers().subscribe(
+      (res: any) => {
+        const list: any[] = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res)
+            ? res
+            : [];
+        this.allTouristUsers = list.filter((t) => t.is_active !== false);
+        this.filteredManualTouristOptions = [...this.allTouristUsers];
+      },
+      (err) => {
+        console.error('Failed to load tourist users:', err);
+        this.allTouristUsers = [];
+      },
+    );
+  }
+
+  // ---------------- Manual Tourist Search ----------------
+  onManualTouristSearchFocus() {
+    this.filteredManualTouristOptions = this.allTouristUsers.filter((t) =>
+      (t.full_name || t.username || '')
+        .toLowerCase()
+        .includes((this.form.manual_tourist_name || '').toLowerCase().trim()),
+    );
+    this.showManualTouristList = true;
+  }
+
+  onManualTouristSearchInput(query: string) {
+    const q = (query || '').toLowerCase().trim();
+    this.filteredManualTouristOptions = q
+      ? this.allTouristUsers.filter((t) =>
+          (t.full_name || t.username || '').toLowerCase().includes(q),
+        )
+      : [...this.allTouristUsers];
+    this.showManualTouristList = true;
+    this.manualTouristSelected = false;
+  }
+
+  onManualTouristSearchBlur() {
+    setTimeout(() => {
+      this.showManualTouristList = false;
+    }, 150);
+  }
+
+  selectManualTouristOption(tourist: any) {
+    const name = tourist.full_name || tourist.username || '';
+    this.form.manual_tourist_name = name;
+    this.selectedManualTouristUserId = String(tourist.tourist_user_id || '');
+    this.selectedManualTouristContactPhone = tourist.contact_no || '';
+    this.selectedManualTouristEmail = tourist.email || '';
+    this.selectedManualTouristNationality = tourist.nationality || '';
+    // Auto-fill citizenship from tourist nationality
+    const nat = (tourist.nationality || '').toLowerCase();
+    if (nat) {
+      this.form.citizenship =
+        nat === 'malaysian' ? 'Warganegara' : 'Bukan Warganegara';
+    }
+    this.manualTouristSelected = true;
+    this.showManualTouristList = false;
+    this.filteredManualTouristOptions = [...this.allTouristUsers];
+  }
+
+  clearManualTouristSelection() {
+    this.form.manual_tourist_name = '';
+    this.selectedManualTouristUserId = '';
+    this.selectedManualTouristContactPhone = '';
+    this.selectedManualTouristEmail = '';
+    this.selectedManualTouristNationality = '';
+    this.manualTouristSelected = false;
+    this.filteredManualTouristOptions = [...this.allTouristUsers];
+    this.showManualTouristList = false;
+  }
+
+  // ---------------- Date Modal ----------------
+  async openDateModal(field: 'date' | 'check_out') {
+    const currentValue =
+      field === 'date' ? this.form.date : this.form.check_out;
+    const modal = await this.modalCtrl.create({
+      component: DateModalComponent,
+      cssClass: 'date-picker-modal',
+      componentProps: {
+        selectedDate: currentValue || '',
+        bookedDates: this.bookedAccommodationDates,
+        availableDates: this.accoAvailableDates,
+        minDate: field === 'check_out' ? this.form.date || '' : '',
+      },
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      const dateOnly = (data as string).substring(0, 10);
+      if (field === 'date') {
+        this.form.date = dateOnly;
+        // If check-out is now on or before the new check-in, clear it
+        if (this.form.check_out && this.form.check_out <= dateOnly) {
+          this.form.check_out = '';
+          this.form.total_night = '';
+        }
+      } else {
+        this.form.check_out = dateOnly;
+      }
+      // Auto-calculate total nights whenever both dates are set
+      this.recalcNights();
+    }
+  }
+
+  private recalcNights() {
+    if (this.form.date && this.form.check_out) {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const nights = Math.round(
+        (new Date(this.form.check_out).getTime() -
+          new Date(this.form.date).getTime()) /
+          msPerDay,
+      );
+      this.form.total_night = nights > 0 ? nights.toString() : '';
+    }
+    // Auto-fill price based on updated nights
+    if (this.form.date && this.accoAvailableDates.length > 0) {
+      const entry = this.accoAvailableDates.find(
+        (e) => e.date === this.form.date,
+      );
+      if (entry && Number(this.form.total_night) > 0) {
+        this.form.total_rm = (
+          entry.price * Number(this.form.total_night)
+        ).toString();
+      }
+    }
   }
 
   // ---------------- Autofill Operator ----------------
@@ -288,10 +437,21 @@ export class AccoFormPage implements OnInit {
       this.touristSearchQuery = '';
       this.filteredTouristOptions = [...this.touristOptions];
       this.showTouristList = false;
+      this.form.manual_tourist_name = '';
+      this.selectedManualTouristUserId = '';
+      this.selectedManualTouristContactPhone = '';
+      this.selectedManualTouristNationality = '';
+      this.manualTouristSelected = false;
+      this.filteredManualTouristOptions = [...this.allTouristUsers];
+      this.showManualTouristList = false;
+      this.bookedAccommodationDates = [];
+      this.accoAvailableDates = [];
       this.autofillOperator();
     } else {
       // Switching back to guest — clear the manual name
       this.form.manual_tourist_name = '';
+      this.manualTouristSelected = false;
+      this.showManualTouristList = false;
     }
   }
 
@@ -336,6 +496,18 @@ export class AccoFormPage implements OnInit {
     );
   }
 
+  // Validate selected check-in/check-out range against already-booked dates
+  hasDateConflict(checkIn: string, checkOut: string): boolean {
+    if (!checkIn || !this.bookedAccommodationDates.length) return false;
+    const start = new Date(checkIn);
+    const end = checkOut ? new Date(checkOut) : new Date(checkIn);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      if (this.bookedAccommodationDates.includes(dateStr)) return true;
+    }
+    return false;
+  }
+
   //submit function
   // submitForm(form: NgForm) {
 
@@ -368,9 +540,21 @@ export class AccoFormPage implements OnInit {
       }
       if (
         this.form.booking_type === 'manual' &&
-        !this.form.manual_tourist_name
+        !this.selectedManualTouristUserId
       ) {
-        alert('Please enter the tourist name.');
+        alert('Please select a tourist from the list.');
+        return;
+      }
+
+      // Validate date availability for manual accommodation bookings
+      if (
+        this.form.booking_type === 'manual' &&
+        this.form.date &&
+        this.hasDateConflict(this.form.date, this.form.check_out)
+      ) {
+        alert(
+          'The selected dates conflict with an existing booking. Please choose different dates.',
+        );
         return;
       }
 
@@ -398,11 +582,8 @@ export class AccoFormPage implements OnInit {
         tourist_user_id:
           this.form.booking_type === 'guest'
             ? this.selectedTouristUserId
-            : null,
-        tourist_name:
-          this.form.booking_type === 'manual'
-            ? this.form.manual_tourist_name
-            : null,
+            : this.selectedManualTouristUserId,
+        tourist_name: null,
         operator_user_id: operatorUid,
         booking_type: this.form.booking_type || 'guest',
         citizenship: this.form.citizenship,
@@ -417,8 +598,24 @@ export class AccoFormPage implements OnInit {
         date: this.form.date || null,
         check_out: this.form.check_out || null,
         issuer: this.form.issuer || 'Unknown Operator',
-        // Include accommodation_booking_id to trigger automatic status update
-        accommodation_booking_id: this.selectedBookingId,
+        contact_name:
+          this.form.booking_type === 'manual'
+            ? this.form.manual_tourist_name
+            : null,
+        contact_phone:
+          this.form.booking_type === 'manual'
+            ? this.selectedManualTouristContactPhone
+            : null,
+        contact_email:
+          this.form.booking_type === 'manual'
+            ? this.selectedManualTouristEmail
+            : null,
+        nationality:
+          this.form.booking_type === 'manual'
+            ? this.selectedManualTouristNationality
+            : null,
+        accommodation_booking_id:
+          this.form.booking_type === 'guest' ? this.selectedBookingId : null,
       };
 
       console.debug('Submitting accommodation form payload:', payload);
@@ -453,6 +650,38 @@ export class AccoFormPage implements OnInit {
         selectedAccommodation.accommodation_id ||
         selectedAccommodation.homest_id;
     }
+
+    // In manual mode, load already-booked dates so the operator can avoid conflicts
+    if (this.form.booking_type === 'manual' && selectedAccommodation) {
+      // Store available_dates (date+price entries) from accommodation
+      const rawDates = selectedAccommodation.available_dates || [];
+      this.accoAvailableDates = Array.isArray(rawDates)
+        ? rawDates.filter((e: any) => e.date && (e.price ?? 0) > 0)
+        : [];
+
+      const accommodationId = String(
+        selectedAccommodation.accommodation_id ||
+          selectedAccommodation.homest_id ||
+          '',
+      );
+      if (accommodationId) {
+        this.apiService
+          .getBookedDatesByAccommodation(accommodationId)
+          .subscribe(
+            (res: any) => {
+              this.bookedAccommodationDates = Array.isArray(res.data)
+                ? res.data
+                : [];
+            },
+            () => {
+              this.bookedAccommodationDates = [];
+            },
+          );
+      }
+    } else {
+      this.accoAvailableDates = [];
+      this.bookedAccommodationDates = [];
+    }
   }
 
   //for testing form object
@@ -469,6 +698,7 @@ export class AccoFormPage implements OnInit {
   clearForm(form: NgForm) {
     form.reset();
     this.selectedAccommodation = null;
+    this.bookedAccommodationDates = [];
     this.touristSelected = false;
     this.selectedTouristUserId = '';
     this.selectedTouristBookingId = '';
@@ -477,6 +707,12 @@ export class AccoFormPage implements OnInit {
     this.touristSearchQuery = '';
     this.filteredTouristOptions = [...this.touristOptions];
     this.showTouristList = false;
+    this.manualTouristSelected = false;
+    this.selectedManualTouristUserId = '';
+    this.selectedManualTouristContactPhone = '';
+    this.selectedManualTouristNationality = '';
+    this.filteredManualTouristOptions = [...this.allTouristUsers];
+    this.showManualTouristList = false;
   }
 
   compareWithFn(o1: any, o2: any) {
