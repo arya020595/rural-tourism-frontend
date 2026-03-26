@@ -1,208 +1,55 @@
-ion-content.background{
-    --background: url(../../assets/login.jpg) 0 0/100% 100% ;
-}
-
-.input-login{
-  --border-width: 2px; 
-  --border-radius: 10px; 
-  font-size: 16px;
-}
-.input-login[fill='outline']:focus-within {
-  --border-color: #024E25;  /* Change the border color when focused */
-  
-}
-
-.borneo {
-  display: block;
-  text-align: center;
-  align-items: center;
-  height: auto;
-  margin-top: 10px;
-  padding: 20px;
-}
-
-.ruraltext {
-  margin-right: 40px; 
-}
-
-.loginbutton {
-  margin-top: 15px;
-}
-
-// .registerbutton {
-//   --border
-// }
-
-.forgot-password-text {
-  display: inline-block;
-  // text-align: right;  /* Aligns the link to the left */
-  margin-bottom: 10px; /* Adds some space below the link */
-  
-}
-
-.password-toggle {
-  font-size: 22px;
-  cursor: pointer;
-  color: #555;
-}
-
-.errorMsg{
-  display: inline-block;
-  text-align: left;  
-  margin-top: 2%;
-  padding-left: 2%;
-  left: 0;
-  color: red;
-}
-
-.subtitle{
-  font-size: 20px;
-  font-family: 'Inter', sans-serif;
-  font-weight:lighter;
-  margin-top: 2%;
-  display: block;
-  text-align: center;
-}
-
-.title {
-  // margin-left: 100px; 
-  display: block;
-  text-align: center;
-  font-family: 'Inter', sans-serif; /* Font family for the label */
-  font-size: 30px; /* Font size for the label */
-  font-weight: bold;
-  margin-bottom: 0px;
-  margin-top: 10px;
-  color: black;
-}
-
-.title2 {
-  margin-left: 87px; 
-  font-family: 'Inter', sans-serif; /* Font family for the label */
-  font-size: 15px; /* Font size for the label */
-  margin-bottom: -25px;
-}
-
-.inputArea{
-   border: solid 1px rgb(215, 215, 215);
-   border-radius: 10px;
-   overflow:hidden;
-}
-
-.no-border {
-  --border-width: 0;
-  --border-style: none;
-}
-
-ion-card-header {
-  display: flex !important;
-  flex-direction: column !important;
+ion-content.background {
+  --background: url(../../assets/login.jpg) center/cover no-repeat;
 }
 
 .card-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    
-   
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-    ion-card {
-      margin-left: 5%;
-      margin-right: 5%;
-      border-radius: 30px;
-      max-width: 637px;
-      min-height: 574px; /* Allow cards to shrink for smaller screens */
-      .ion-blue-bkg {
-        background-color: #ffffff;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-      
-      }
+.register-card {
+  width: min(520px, 100%);
+  border-radius: 26px;
+  padding: 36px 26px;
+  text-align: center;
+}
 
-     
-      .logo{
-        height: 100%;
-      }
-      .welcome {
-        #trigger-icon {
-          float: right;
-          margin-bottom: 16px;
-          margin-left: 1%;
-        }
-      }
-    }
-  }
+.borneo {
+  width: min(220px, 72%);
+  margin: 0 auto 20px;
+  display: block;
+}
 
+.title {
+  margin: 0;
+  color: #0d2d1b;
+  font-size: 28px;
+  font-weight: 700;
+}
 
-/* Mobile */
+.subtitle {
+  margin: 8px 0 30px;
+  color: #426552;
+  font-size: 16px;
+}
+
+.register-button {
+  --background: #02542b;
+  --background-hover: #01733c;
+  --border-radius: 10px;
+  font-weight: 600;
+  min-height: 46px;
+}
+
 @media screen and (max-width: 576px) {
-  .card-container {
-    ion-card {
-      .ion-blue-bkg {
-        max-height: 100px;
-      }
-      .welcome {
-        min-height: 200px;
-      }
-    }
-  }
-
-  .borneo {
-    width: 90%;
-    max-width: 90%;
-    margin-top: 8px;
-    padding: 10px;
+  .register-card {
+    padding: 26px 18px;
   }
 
   .title {
-    font-size: 22px;
-    margin-top: 6px;
-  }
-
-  .subtitle {
-    font-size: 15px;
-    margin-top: 4px;
-  }
-
-  .title-col {
-    margin-top: 4%;
-  }
-
-  .input-login {
-    width: 100%;
-  }
-
-  .input-button {
-    width: 100%;
-  }
-}
-
-/* Desktop */
-@media screen and (min-width: 577px) {
-  .borneo {
-    width: 50%;
-    max-width: 50%;
-    padding-bottom: 0px;
-    margin-bottom: 0;
-  }
-
-  .title-col {
-    margin-top: 2%;
-  }
-
-  .welcome {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .welcome form {
-    width: 70%;
-    max-width: 500px;
-    margin: 0 auto;
+    font-size: 23px;
   }
 }
