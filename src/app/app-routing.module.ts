@@ -18,7 +18,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'tourist/home',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
   {

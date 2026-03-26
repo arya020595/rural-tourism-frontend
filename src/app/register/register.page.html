@@ -1,643 +1,343 @@
-<!-- <ion-header>
-  <ion-toolbar style="--background:transparent">
-    <ion-title>Multi-step Registration</ion-title>
-  </ion-toolbar>
-</ion-header> -->
+<ion-content [fullscreen]="true" class="register-background">
+  <div class="register-wrapper">
+    <ion-card class="register-card">
+      <ion-card-header>
+        <img
+          src="../../assets/icon/explore_sabah-without_bg.png"
+          class="logo"
+          alt="Explore Sabah"
+        />
+      </ion-card-header>
 
-<ion-content>
-  <form
-    #form="ngForm"
-    (ngSubmit)="submitForm(form)"
-    (ngModelChange)="passwordMatchValidator(form)"
-  >
-    <div id="container">
-      <ion-card class="main-Container">
-        <!-- <ion-button id="cancel" fill="clear" mode="ios"> -->
-        <!-- <ion-icon slot="start" name="chevron-back"></ion-icon> -->
-        <!-- <span>Cancel</span>
-        </ion-button> -->
-        <ion-card-header>
-          <ion-img
-            class="logo"
-            src="../../assets/icon/Feel-Sabah-North-Borneo.png"
-          ></ion-img>
-        </ion-card-header>
+      <form
+        #registerForm="ngForm"
+        (ngSubmit)="submitRegistration(registerForm)"
+      >
+        <div *ngIf="currentSection === 1">
+          <h3 class="section-title">Butiran Akaun / Account Details</h3>
 
-        <ion-alert
-          trigger="cancel"
-          header="Adakah anda pasti ingin membatalkan?"
-          subHeader="Are you sure you want to cancel?"
-          [buttons]="cancelButton"
-        ></ion-alert>
-
-        <!-- Step navigation indicator -->
-        <!-- <div class="step-indicator">
-        <span [class.active]="currentStep === 1">1</span>
-        <span>---</span>
-        <span [class.active]="currentStep === 2">2</span>
-        <span>---</span>
-        <span [class.active]="currentStep === 3">3</span>
-      </div> -->
-
-        <!-- *ngIf="currentStep === 1"  -->
-
-        <!-- <form #form="ngForm"> -->
-
-        <swiper-container
-          #swiper
-          (afterInit)="swiperReady()"
-          (swiperslidechange)="onSlideChange($event)"
-          [spaceBetween]="10"
-          [loop]="false"
-          [simulateTouch]="false"
-          [touchMove]="false"
-        >
-          <!-- step 1 -->
-          <swiper-slide>
-            <ion-list class="form-container">
-              <ion-item style="margin-bottom: 2%" class="no-border">
-                <ion-label mode="ios" class="question-label"
-                  >Butiran Akaun /<span style="font-style: italic"
-                    >Account Details</span
-                  ></ion-label
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Nama Perniagaan/Business Name<span>*</span></label
                 >
-              </ion-item>
-
-              <ion-item class="no-border" style="margin-top: -10px">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Nama Perniagaan/Business Name</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
                 <ion-input
-                  placeholder="e.g., Zuki Sdn. Bhd."
-                  class="form-input"
+                  class="field-input"
+                  fill="solid"
+                  placeholder="e.g. Zuki Sdn. Bhd."
                   [(ngModel)]="formData.business_name"
                   name="business_name"
                   required
-                  #businessName="ngModel"
-                >
-                </ion-input>
-                <!-- error msg -->
-                <ion-text *ngIf="businessName.invalid && businessName.touched">
-                  <p class="error-message">
-                    *Sila isi nama business / Business Name is required
-                  </p>
-                </ion-text>
-              </ion-item>
-
-              <!-- <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Logo Syarikat / Company Logo</ion-label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  (change)="onLogoSelected($event)"
-                  class="form-input"
-                />
-              </ion-item> -->
-
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Lokasi/Location</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
-                  name="email" required></ion-input> -->
-
-                <ion-select
-                  class="form-input"
-                  aria-label="district"
-                  interface="popover"
-                  placeholder="Pilih Lokasi/Pick Location"
-                  [(ngModel)]="formData.district"
-                  name="district"
-                  #location="ngModel"
-                >
-                  <ion-select-option value="Kiulu">Kiulu</ion-select-option>
-                  <ion-select-option value="Ranau">Ranau</ion-select-option>
-                  <ion-select-option value="Kota Marudu"
-                    >Kota Marudu</ion-select-option
-                  >
-                  <ion-select-option value="Kota Belud"
-                    >Kota Belud</ion-select-option
-                  >
-                  <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-                </ion-select>
-
-                <!-- error msg location -->
-                <ion-text
-                  *ngIf="location?.invalid && (location?.touched || form.submitted)"
-                >
-                  <ion-text *ngIf="location?.errors?.['required']">
-                    <p class="error-message">
-                      *Sila pilih Lokasi / Location required
-                    </p>
-                  </ion-text>
-                </ion-text>
-              </ion-item>
-
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Nama Penuh/Full Name</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input
-                  placeholder="Sila isi nama penuh/Enter your full name"
-                  class="form-input"
-                  [(ngModel)]="formData.full_name"
-                  required
-                  name="full_name"
-                  #name="ngModel"
-                  full_name
-                >
-                </ion-input>
-
-                <!-- Error message for email field -->
-                <ion-text
-                  *ngIf="form.controls['full_name']?.invalid && form.controls['full_name']?.touched"
-                >
-                  <span
-                    class="error-message"
-                    *ngIf="form.controls['full_name']?.errors?.['required']"
-                    >*Sila isi nama penuh / Full name is required</span
-                  >
-                  <span
-                    class="error-message"
-                    *ngIf="form.controls['full_name']?.errors?.['full_name']"
-                    >*Sila masukkan nama penuh / Please enter your full
-                    name</span
-                  >
-                </ion-text>
-              </ion-item>
-
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Nama Pengguna/Username</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input
-                  placeholder="e.g., zuki_Suki"
-                  class="form-input"
-                  [(ngModel)]="formData.username"
-                  required
-                  name="username"
-                  #userName="ngModel"
                 ></ion-input>
-                <!-- error msg username -->
-                <ion-text *ngIf="userName.invalid && userName.touched">
-                  <p class="error-message">
-                    *Sila isi nama pengguna / Username is required
-                  </p>
-                </ion-text>
-              </ion-item>
+              </ion-col>
 
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Persatuan/Association<span>*</span></label
                 >
-                  Alamat Emel/Email Address
-                </ion-label>
-                <ion-input
-                  placeholder="Sila isi alamat emel/Enter your email address"
-                  class="form-input"
-                  [(ngModel)]="formData.user_email"
-                  name="user_email"
-                  #email="ngModel"
-                  required
-                  email
-                >
-                </ion-input>
-
-                <!-- Error messages using template-driven approach -->
-                <ion-text *ngIf="email.invalid && email.touched">
-                  <span
-                    class="error-message"
-                    *ngIf="email.errors?.['required']"
-                  >
-                    *Sila isi nama penuh / Email Address is required
-                  </span>
-                  <span class="error-message" *ngIf="email.errors?.['email']">
-                    *Sila masukkan alamat emel / Please enter a valid email
-                    address
-                  </span>
-                </ion-text>
-              </ion-item>
-
-              
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                >
-                  Persatuan/Association
-                </ion-label>
-
-                <ion-select
-                  class="form-input"
-                  interface="popover"
-                  placeholder="Pilih Association"
+                <select
+                  class="field-input native-select"
                   [(ngModel)]="formData.associationId"
                   name="associationId"
-                  #association="ngModel"
                   required
                 >
-                  <ion-select-option
-                    *ngFor="let item of associations"
-                    [value]="item.id"
-                  >
+                  <option value="" disabled selected hidden>
+                    Sila pilih persatuan
+                  </option>
+                  <option *ngFor="let item of associations" [value]="item.id">
                     {{ item.name }}
-                  </ion-select-option>
-                </ion-select>
-
-                <ion-text
-                  *ngIf="association?.invalid && (association?.touched || form.submitted)"
-                >
-                  <p class="error-message">
-                    *Sila pilih Association / Association required
-                  </p>
-                </ion-text>
-              </ion-item>
-              
-              <ion-item class="no-border">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Kata Laluan/Password</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input
-                  placeholder="Isi Kata Laluan / Enter Password"
-                  class="form-input"
-                  [(ngModel)]="formData.password"
-                  required
-                  type="password"
-                  name="password"
-                  minlength="8"
-                  #password="ngModel"
-                >
-                  <ion-input-password-toggle
-                    slot="end"
-                  ></ion-input-password-toggle>
-                </ion-input>
-
-                <!-- error msg username -->
-                <ion-text
-                  *ngIf="password?.invalid && (password?.touched || form.submitted)"
-                >
-                  <ion-text *ngIf="password?.errors?.['minlength']">
-                    <p class="error-message">
-                      *Kata Laluan mesti panjang 8 aksara / Password must be 8
-                      characters long
-                    </p>
-                  </ion-text>
-                </ion-text>
-              </ion-item>
-
-              <ion-item
-                class="no-border"
-                style="margin-top: 5%; margin-bottom: 8%"
-              >
-                <!-- CONFIRM PASSWORD -->
-                <ion-input
-                  placeholder="Confirm Password"
-                  class="form-input"
-                  [(ngModel)]="confirmPass.confPass"
-                  required
-                  name="confPass"
-                  type="password"
-                  (ngModelChange)="passwordMatchValidator(form)"
-                  ><ion-input-password-toggle
-                    slot="end"
-                  ></ion-input-password-toggle>
-                </ion-input>
-
-                <!-- Show error message if password mismatch -->
-                <br />
-                <ion-text
-                  *ngIf="form.controls['confPass']?.hasError('passwordMismatch')"
-                >
-                  <p style="padding-left: 5%" class="error-message">
-                    *Password Mismatch
-                  </p>
-                </ion-text>
-
-                <!-- <ion-text >
-                    <p  class="error-message">Passwords do not match</p>
-                  </ion-text> -->
-              </ion-item>
-
-              <ion-row style="margin-bottom: 5%">
-                <ion-col>
-                  <ion-button
-                    style="text-align: center"
-                    id="cancel"
-                    fill="clear"
-                    mode="ios"
-                  >
-                    <!-- <ion-icon slot="start" name="chevron-back"></ion-icon> -->
-                    Cancel
-                  </ion-button>
-                </ion-col>
-                <ion-col>
-                  <ion-button
-                    mode="ios"
-                    expand="block"
-                    (click)="goNext()"
-                    [disabled]="form.invalid"
-                    >Seterusnya</ion-button
-                  >
-                  <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-                </ion-col>
-              </ion-row>
-
-              <!-- <div class="swiper-button-next">button</div> -->
-            </ion-list>
-          </swiper-slide>
-
-          <swiper-slide>
-            <ion-list class="form-container" *ngIf="this.renderPg === true">
-              <ion-item style="margin-bottom: 2%" class="no-border">
-                <ion-label mode="ios" class="question-label"
-                  >Butiran Sekurity /<span style="font-style: italic"
-                    >Security Details</span
-                  ></ion-label
-                >
-              </ion-item>
-              <!-- security questions -->
-              <!-- q1 -->
-              <ion-item class="no-border" style="margin-top: -10px">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Apakah nama haiwan peliharaan pertama anda?</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input
-                  placeholder="Jawapan Anda..."
-                  class="form-input"
-                  [(ngModel)]="formData.securityQ1"
-                  name="securityQ1"
-                  required
-                  #securityQ1="ngModel"
-                >
-                </ion-input>
-                <!-- error msg -->
-                <ion-text *ngIf="securityQ1.invalid && securityQ1.touched">
-                  <p class="error-message">
-                    *Sila isi jawapan anda/Please provide an answer.
-                  </p>
-                </ion-text>
-              </ion-item>
-
-              <!-- q2 -->
-              <ion-item class="no-border" style="margin-bottom: 10%">
-                <ion-label
-                  mode="ios"
-                  position="stacked"
-                  class="question-label-grey"
-                  >Apakah Nama Sekolah Rendah Anda?</ion-label
-                >
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input
-                  placeholder="Jawapan Anda..."
-                  class="form-input"
-                  [(ngModel)]="formData.securityQ2"
-                  name="securityQ2"
-                  required
-                  #securityQ2="ngModel"
-                >
-                </ion-input>
-                <!-- error msg -->
-                <ion-text *ngIf="securityQ2.invalid && securityQ2.touched">
-                  <p class="error-message">
-                    *Sila isi jawapan anda/Please provide an answer.
-                  </p>
-                </ion-text>
-              </ion-item>
-
-              <!-- <ion-row style="margin-bottom: 5%; margin-top: -20px;">
-                <ion-col>
-                  <ion-button [disabled]="form.invalid" fill="clear" (click)="goPrevFirst()" mode="ios">
-                    <ion-icon slot="start" name="chevron-back"></ion-icon>
-                    <span>Back</span>
-                  </ion-button>
-                </ion-col>
-                <ion-col>
-                  <ion-button mode="ios" expand="block" (click)="goNext()"
-                    [disabled]="form.invalid">Seterusnya</ion-button> -->
-              <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-              <!-- </ion-col>
-              </ion-row> -->
-
-              <ion-alert
-                [isOpen]="isAlertOpen"
-                header="Akaun Berjaya Didaftarkan!"
-                subHeader="You have successfully registered! Proceed clicking 'OK' to log in to your registered account."
-                [buttons]="alertButtons"
-                (didDismiss)="setOpen(false)"
-                backdropDismiss="false"
-              ></ion-alert>
-
-              <ion-row style="margin-top: 5vh">
-                <ion-col>
-                  <ion-button fill="clear" (click)="goPrev()" mode="ios">
-                    <ion-icon slot="start" name="chevron-back"></ion-icon>
-                    <span>Back</span>
-                  </ion-button>
-                </ion-col>
-                <ion-col>
-                  <ion-button
-                    mode="ios"
-                    expand="block"
-                    type="submit"
-                    [disabled]="form.invalid"
-                  >
-                    Daftar/Register</ion-button
-                  >
-                  <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-                </ion-col>
-              </ion-row>
-            </ion-list>
-          </swiper-slide>
-
-          <!-- *ngIf="currentStep === 2" -->
-          <!-- Step 2: Choose between Activity or Accommodation -->
-          <!-- <swiper-slide>
-            <ion-list class="form-container">
-              <ion-item style="margin-bottom: 2%;" class="no-border">
-                <ion-label class="question-label">Pilih Servis Anda /<span style="font-style: italic;">Pick your
-                    service</span></ion-label>
-              </ion-item>
-              <ion-button mode="ios" style="margin-top: 5%;" expand="block"
-                (click)="selectOption('activity')">Aktiviti/Activity</ion-button>
-              <ion-button mode="ios" style="margin-top: 5%;" expand="block"
-                (click)="selectOption('accommodation')">Tempat Penginapan/Accommodation</ion-button>
-            </ion-list>
-
-            <ion-row style="margin-top: 30vh;">
-              <ion-col>
-                <ion-button fill="clear" (click)="goPrevFirst()" mode="ios">
-                  <ion-icon slot="start" name="chevron-back"></ion-icon>
-                  <span>Back</span>
-                </ion-button>
+                  </option>
+                </select>
               </ion-col>
-              <ion-col>
-                <ion-button *ngIf="page3Visited == true" mode="ios"
-                  style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-          <!-- </ion-col>
             </ion-row>
 
-          </swiper-slide> -->
+            <ion-row>
+              <ion-col size="12">
+                <label class="field-label"
+                  >Alamat Perniagaan/Business Address<span>*</span></label
+                >
+                <ion-textarea
+                  class="field-input"
+                  fill="solid"
+                  autoGrow="true"
+                  rows="3"
+                  placeholder="Sila isi alamat perniagaan penuh"
+                  [(ngModel)]="formData.business_address"
+                  name="business_address"
+                  required
+                ></ion-textarea>
+              </ion-col>
+            </ion-row>
 
-          <!-- step 3 -->
-          <!-- <swiper-slide> -->
-          <!-- accomodation form -->
+            <ion-row>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label">Lokasi/Location<span>*</span></label>
+                <select
+                  class="field-input native-select"
+                  [(ngModel)]="formData.location"
+                  name="location"
+                  required
+                >
+                  <option value="" disabled selected hidden>
+                    Pilih lokasi
+                  </option>
+                  <option value="Kiulu">Kiulu</option>
+                  <option value="Ranau">Ranau</option>
+                  <option value="Kota Marudu">Kota Marudu</option>
+                  <option value="Kota Belud">Kota Belud</option>
+                </select>
+              </ion-col>
 
-          <!-- <ion-item *ngIf="selectedOption === 'accommodation'" class="no-border">
-              <ion-label mode="ios" class="question-label">Tempat Penginapan/<span
-                  style="font-style: italic;">Accommodation</span></ion-label>
-            </ion-item>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Nama Penuh Pemilik/Owner Full Name<span>*</span></label
+                >
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  placeholder="Sila isi nama penuh pemilik"
+                  [(ngModel)]="formData.owner_full_name"
+                  name="owner_full_name"
+                  required
+                ></ion-input>
+              </ion-col>
+            </ion-row>
 
-            <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Penginapan/Homestay</ion-label> -->
-          <!-- <ion-label position="stacked">Username</ion-label> -->
-          <!-- <ion-input placeholder="e.g., Homestay Hut" class="form-input" [(ngModel)]="accomData.homest_name"
-                name="homest_name" [required]="selectedOption === 'accommodation'" #homestName="ngModel">
-              </ion-input> -->
+            <ion-row>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >No. Telefon/Telephone No.<span>*</span></label
+                >
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  type="tel"
+                  placeholder="Sila isi no. telefon"
+                  [(ngModel)]="formData.contact_no"
+                  name="contact_no"
+                  required
+                ></ion-input>
+              </ion-col>
+            </ion-row>
 
-          <!-- error msg homestay name -->
-          <!-- <ion-text *ngIf="homestName?.invalid && (homestName?.touched || form.submitted)">
-                <ion-text *ngIf="homestName?.errors?.['required']">
-                  <p class="error-message">*Sila isi nama Tempat Penginapan / Homestay name is required</p>
-                </ion-text>
-              </ion-text> -->
+            <ion-row>
+              <ion-col size="12">
+                <p class="group-title">
+                  Bilangan Kakitangan/No. of Staff<span>*</span>
+                </p>
+              </ion-col>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label">Full Time/Sepenuh Masa</label>
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  type="number"
+                  min="0"
+                  placeholder="Sila isi bilangan kakitangan"
+                  [(ngModel)]="formData.no_of_full_time_staff"
+                  name="no_of_full_time_staff"
+                  required
+                ></ion-input>
+              </ion-col>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label">Part Time/Sambilan</label>
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  type="number"
+                  min="0"
+                  placeholder="Sila isi bilangan kakitangan"
+                  [(ngModel)]="formData.no_of_part_time_staff"
+                  name="no_of_part_time_staff"
+                  required
+                ></ion-input>
+              </ion-col>
+            </ion-row>
 
-          <!-- </ion-item> -->
+            <ion-row>
+              <ion-col size="12">
+                <p class="group-title">Muat Naik Imej & Dokumen</p>
+              </ion-col>
 
-          <!-- <ion-item class="no-border" *ngIf="selectedOption === 'accommodation'">
-              <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label> -->
-          <!-- <ion-label position="stacked">Username</ion-label> -->
-          <!-- <ion-input placeholder="e.g., Zuki bin Suki" class="form-input" [(ngModel)]="accomData.location"
-                name="email" required></ion-input> -->
+              <ion-col size="12" sizeMd="6" sizeLg="3">
+                <label class="file-label">Pengendali/Operator Logo</label>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  (change)="onFileSelected($event, 'operator_logo_image')"
+                />
+                <p class="file-name">
+                  {{ selectedFileNames.operator_logo_image || 'No file chosen'
+                  }}
+                </p>
+              </ion-col>
 
-          <!-- <ion-select class="form-input" aria-label="location" interface="popover"
-                placeholder="Pilih Lokasi/Pick Location" [(ngModel)]="accomData.location" name="location"
-                [required]="selectedOption === 'accommodation'" #location="ngModel">
-                <ion-select-option value="Kiulu">Kiulu</ion-select-option>
-                <ion-select-option value="Kedamaian">Kedamaian</ion-select-option> -->
-          <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-          <!-- </ion-select> -->
+              <ion-col size="12" sizeMd="6" sizeLg="3">
+                <label class="file-label">Lesen MOTAC/MOTAC License</label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  (change)="onFileSelected($event, 'motac_license_file')"
+                />
+                <p class="file-name">
+                  {{ selectedFileNames.motac_license_file || 'No file chosen' }}
+                </p>
+              </ion-col>
 
-          <!-- error msg location -->
-          <!-- <ion-text *ngIf="location?.invalid && (location?.touched || form.submitted)">
-                <ion-text *ngIf="location?.errors?.['required']">
-                  <p class="error-message">*Sila pilih Lokasi / Location required</p>
-                </ion-text>
-              </ion-text>
+              <ion-col size="12" sizeMd="6" sizeLg="3">
+                <label class="file-label"
+                  >Lesen Perdagangan & Operasi/Trading & Operation License</label
+                >
+                <input
+                  type="file"
+                  accept=".pdf"
+                  (change)="onFileSelected($event, 'trading_operation_license')"
+                />
+                <p class="file-name">
+                  {{ selectedFileNames.trading_operation_license || 'No file chosen' }}
+                </p>
+              </ion-col>
 
-            </ion-item>
- -->
+              <ion-col size="12" sizeMd="6" sizeLg="3">
+                <label class="file-label"
+                  >Sijil Penginapan/Homestay Certificate</label
+                >
+                <input
+                  type="file"
+                  accept=".pdf"
+                  (change)="onFileSelected($event, 'homestay_certificate')"
+                />
+                <p class="file-name">
+                  {{ selectedFileNames.homestay_certificate || 'No file chosen'
+                  }}
+                </p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
 
-          <!-- activity form -->
+          <div class="action-row">
+            <ion-button
+              fill="clear"
+              mode="ios"
+              color="medium"
+              (click)="cancel()"
+              >Batalkan</ion-button
+            >
+            <ion-button
+              mode="ios"
+              (click)="goToSection2()"
+              [disabled]="!isSection1Valid()"
+              >Seterusnya</ion-button
+            >
+          </div>
+        </div>
 
-          <!-- title -->
-          <!-- <ion-list class="form-container">
-              <ion-item *ngIf="selectedOption === 'activity'" class="no-border">
-                <ion-label mode="ios" class="question-label">Aktiviti/<span
-                    style="font-style: italic;">Activity</span></ion-label>
-              </ion-item>
+        <div *ngIf="currentSection === 2">
+          <h3 class="section-title">Butiran Akaun / Account Details</h3>
 
-              <br/>
-              <br/>
-              <br/>
-              < activity name field -->
-          <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Aktiviti/Activity
-                  Name</ion-label>
-                <ion-label position="stacked">Username</ion-label> -->
-          <!-- <ion-input placeholder="e.g., Kayak" class="form-input" [(ngModel)]="activityData.activity_name"
-                  name="activity_name" [required]="selectedOption === 'activity'" #activityName="ngModel">
-                </ion-input> -->
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Nama Pengguna/Username<span>*</span></label
+                >
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  placeholder="Sila isi nama pengguna"
+                  [(ngModel)]="formData.username"
+                  name="username"
+                  required
+                ></ion-input>
+              </ion-col>
 
-          <!-- error msg activity name -->
-          <!-- <ion-text *ngIf="activityName?.invalid && (activityName?.touched || form.submitted)">
-                  <ion-text *ngIf="activityName?.errors?.['required']">
-                    <p class="error-message">*Sila isi nama Aktiviti / Activity Name is Required</p>
-                  </ion-text>
-                </ion-text> -->
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Alamat Emel/Email Address<span>*</span></label
+                >
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  type="email"
+                  placeholder="Sila isi alamat emel"
+                  [(ngModel)]="formData.email_address"
+                  name="email_address"
+                  required
+                ></ion-input>
+              </ion-col>
+            </ion-row>
 
-          <!-- </ion-item> -->
+            <ion-row>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Kata Laluan/Password<span>*</span></label
+                >
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  [type]="showPassword ? 'text' : 'password'"
+                  placeholder="Isi kata laluan"
+                  [(ngModel)]="formData.password"
+                  name="password"
+                  required
+                >
+                  <ion-icon
+                    slot="end"
+                    [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+                    class="password-toggle"
+                    (click)="togglePassword()"
+                  ></ion-icon>
+                </ion-input>
+              </ion-col>
 
-          <!-- activity location field -->
-          <!-- <ion-item class="no-border" *ngIf="selectedOption === 'activity'">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Lokasi/Location</ion-label>
+              <ion-col size="12" sizeMd="6">
+                <label class="field-label"
+                  >Sahkan Kata Laluan/Confirm Password<span>*</span></label
+                >
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="Sahkan kata laluan"
+                  [(ngModel)]="formData.confirmed_password"
+                  name="confirmed_password"
+                  required
+                >
+                  <ion-icon
+                    slot="end"
+                    [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"
+                    class="password-toggle"
+                    (click)="toggleConfirmPassword()"
+                  ></ion-icon>
+                </ion-input>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
 
-                <ion-select class="form-input" aria-label="location" interface="popover"
-                  placeholder="Pilih Lokasi/Pick Location" [(ngModel)]="activityData.location" name="location"
-                  [required]="selectedOption === 'activity'" #activityLocation="ngModel">
+          <p class="error-message" *ngIf="passwordMismatch">
+            Password and confirm password do not match.
+          </p>
 
-                  <ion-select-option value="Kiulu">Kiulu</ion-select-option>
-                  <ion-select-option value="Kedamaian">Kedamaian</ion-select-option> -->
-          <!-- <ion-select-option value="bananas">Bananas</ion-select-option> -->
-          <!-- </ion-select> -->
+          <div class="action-row">
+            <ion-button fill="clear" mode="ios" (click)="goBackToSection1()"
+              >Kembali</ion-button
+            >
+            <ion-button mode="ios" type="submit" [disabled]="!isSection2Valid()"
+              >Daftar</ion-button
+            >
+          </div>
+        </div>
+      </form>
+    </ion-card>
+  </div>
 
-          <!-- error msg activity name -->
-          <!-- <ion-text *ngIf="activityLocation?.invalid && (activityLocation?.touched || form.submitted)">
-                  <ion-text *ngIf="activityLocation?.errors?.['required']">
-                    <p class="error-message">*Sila pilih lokasi / Location required</p>
-                  </ion-text>
-                </ion-text>
-
-              </ion-item> -->
-
-          <ion-alert
-            [isOpen]="isAlertOpen"
-            header="Akaun Berjaya Didaftarkan!"
-            subHeader="Account Created Successfully!"
-            [buttons]="alertButtons"
-            (didDismiss)="setOpen(false)"
-            backdropDismiss="false"
-          ></ion-alert>
-
-          <ion-row style="margin-top: 5vh">
-            <ion-col>
-              <ion-button fill="clear" (click)="goPrev()" mode="ios">
-                <ion-icon slot="start" name="chevron-back"></ion-icon>
-                <span>Back</span>
-              </ion-button>
-            </ion-col>
-            <ion-col>
-              <ion-button
-                mode="ios"
-                expand="block"
-                type="submit"
-                [disabled]="form.invalid || !isFormComplete()"
-              >
-                Daftar/Register</ion-button
-              >
-              <!-- <ion-button mode="ios" style="margin-bottom: 10%;" expand="block" (click)="goNext()">Next</ion-button> -->
-            </ion-col>
-          </ion-row>
-          <!-- </ion-list> -->
-          <!-- </swiper-slide> -->
-        </swiper-container>
-      </ion-card>
-    </div>
-  </form> </ion-content
->>
+  <ion-alert
+    [isOpen]="isSuccessAlertOpen"
+    header="Pendaftaran Berjaya"
+    subHeader="Akaun anda berjaya didaftarkan."
+    [buttons]="successAlertButtons"
+    (didDismiss)="isSuccessAlertOpen = false"
+    backdropDismiss="false"
+  ></ion-alert>
+</ion-content>
