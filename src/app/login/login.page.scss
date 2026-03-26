@@ -44,6 +44,10 @@ ion-content.background {
   min-height: 46px;
 }
 
+.register-label-mobile {
+  display: none;
+}
+
 @media screen and (max-width: 576px) {
   .register-card {
     padding: 26px 18px;
@@ -51,5 +55,14 @@ ion-content.background {
 
   .title {
     font-size: 23px;
+  }
+
+  .register-label-desktop {
+    display: none;
+  }
+
+  .register-label-mobile {
+    display: inline;
+    line-height: 1.2;
   }
 }
