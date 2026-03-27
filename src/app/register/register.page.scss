@@ -61,6 +61,7 @@ ion-card-header {
 
 .field-input {
   --background: #e4e4e4;
+  --color: #000;
   --padding-start: 12px;
   --padding-end: 12px;
   --padding-top: 10px;
@@ -78,10 +79,10 @@ ion-input.field-input {
 
 ion-input.field-input::part(native),
 ion-textarea.field-input::part(native) {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.35;
-  color: #333;
+  color: #000;
 }
 
 ion-input.field-input::part(native) {
@@ -97,7 +98,7 @@ ion-input.field-input::part(native) {
 
 ion-input.field-input::part(native)::placeholder,
 ion-textarea.field-input::part(native)::placeholder {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   color: #7b7b7b;
   opacity: 1;
@@ -107,7 +108,7 @@ ion-textarea.field-input::part(native)::placeholder {
   width: 100%;
   min-height: 44px;
   background: #e4e4e4;
-  color: #333;
+  color: #000;
   padding: 10px 12px;
   font-size: 14px;
   font-family: inherit;
@@ -128,7 +129,8 @@ ion-textarea.field-input::part(native)::placeholder {
 }
 
 .native-select option {
-  font-size: 13px;
+  font-size: 14px;
+  color: #000;
 }
 
 /* Hide browser-native password reveal icons so only Ionic toggle is visible */
@@ -158,6 +160,29 @@ input[type='file'] {
 
 .action-row ion-button:last-child {
   --background: #03592f;
+  --color: #fff;
+  --border-radius: 6px;
+  min-width: 170px;
+}
+
+.action-row .cancel-button {
+  --background: #b42318;
+  --background-hover: #b42318;
+  --background-activated: #b42318;
+  --background-focused: #b42318;
+  --color: #fff;
+  --color-hover: #fff;
+  --border-radius: 6px;
+  min-width: 170px;
+}
+
+.action-row .back-button {
+  --background: #1d4ed8;
+  --background-hover: #1d4ed8;
+  --background-activated: #1d4ed8;
+  --background-focused: #1d4ed8;
+  --color: #fff;
+  --color-hover: #fff;
   --border-radius: 6px;
   min-width: 170px;
 }
@@ -182,6 +207,14 @@ input[type='file'] {
   }
 
   .action-row ion-button:last-child {
+    min-width: 130px;
+  }
+
+  .action-row .cancel-button {
+    min-width: 130px;
+  }
+
+  .action-row .back-button {
     min-width: 130px;
   }
 }

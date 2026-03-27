@@ -107,15 +107,16 @@ export class RegisterPage implements OnInit {
     }
 
     const isLogo = field === 'operator_logo_image';
-    const allowedTypes = isLogo
-      ? ['image/jpeg', 'image/png']
-      : ['application/pdf'];
+    const acceptsImageOrPdf = !isLogo;
+    const allowedTypes = acceptsImageOrPdf
+      ? ['application/pdf', 'image/jpeg', 'image/png']
+      : ['image/jpeg', 'image/png'];
 
     if (!allowedTypes.includes(file.type)) {
       this.showError(
         isLogo
           ? 'Logo only accepts JPG or PNG files.'
-          : 'This document only accepts PDF files.',
+          : 'This document only accepts PDF, JPG, or PNG files.',
       );
       input.value = '';
       return;
@@ -137,8 +138,14 @@ export class RegisterPage implements OnInit {
       this.formData.no_of_part_time_staff,
     ];
 
-    return requiredTextFields.every(
-      (value) => !!value && value.toString().trim().length > 0,
+    const requiredFilesSelected =
+      !!this.selectedFiles.operator_logo_image &&
+      !!this.selectedFiles.motac_license_file;
+
+    return (
+      requiredTextFields.every(
+        (value) => !!value && value.toString().trim().length > 0,
+      ) && requiredFilesSelected
     );
   }
 
@@ -177,6 +184,46 @@ export class RegisterPage implements OnInit {
 
   toggleConfirmPassword() {
     this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  onContactNoInput(event: Event) {
+    const ionEvent = event as CustomEvent<{ value?: string | null }>;
+    const rawValue = (ionEvent.detail?.value || '').toString();
+    this.formData.contact_no = rawValue.replace(/\D+/g, '');
+  }
+
+  onContactNoKeydown(event: KeyboardEvent) {
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'Tab',
+      'Home',
+      'End',
+    ];
+
+    const isShortcut =
+      (event.ctrlKey || event.metaKey) &&
+      ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase());
+
+    if (allowedKeys.includes(event.key) || isShortcut) {
+      return;
+    }
+
+    if (!/^\d$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onContactNoPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData('text') || '';
+
+    if (/\D/.test(pastedText)) {
+      event.preventDefault();
+      const sanitized = pastedText.replace(/\D+/g, '');
+      this.formData.contact_no = `${this.formData.contact_no}${sanitized}`;
+    }
   }
 
   submitRegistration(form: NgForm) {
