@@ -15,6 +15,8 @@ ion-content.background {
   border-radius: 26px;
   padding: 36px 26px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .borneo {
@@ -64,5 +66,53 @@ ion-content.background {
   .register-label-mobile {
     display: inline;
     line-height: 1.2;
+  }
+}
+
+.powered-by-card {
+  margin-top: auto;
+  padding-top: 40px;
+  padding-bottom: 0;
+  border-top: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: -26px;
+  margin-left: -26px;
+  margin-right: -26px;
+  padding-left: 26px;
+  padding-right: 26px;
+}
+
+.powered-by-text {
+  color: #426552;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.powered-by-logo {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
+@media screen and (max-width: 576px) {
+  .powered-by-card {
+    padding-top: 24px;
+    margin-bottom: -18px;
+    margin-left: -18px;
+    margin-right: -18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    gap: 6px;
+  }
+
+  .powered-by-text {
+    font-size: 11px;
+  }
+
+  .powered-by-logo {
+    height: 18px;
   }
 }
