@@ -107,15 +107,16 @@ export class RegisterPage implements OnInit {
     }
 
     const isLogo = field === 'operator_logo_image';
-    const allowedTypes = isLogo
-      ? ['image/jpeg', 'image/png']
-      : ['application/pdf'];
+    const acceptsImageOrPdf = !isLogo;
+    const allowedTypes = acceptsImageOrPdf
+      ? ['application/pdf', 'image/jpeg', 'image/png']
+      : ['image/jpeg', 'image/png'];
 
     if (!allowedTypes.includes(file.type)) {
       this.showError(
         isLogo
           ? 'Logo only accepts JPG or PNG files.'
-          : 'This document only accepts PDF files.',
+          : 'This document only accepts PDF, JPG, or PNG files.',
       );
       input.value = '';
       return;
@@ -137,8 +138,14 @@ export class RegisterPage implements OnInit {
       this.formData.no_of_part_time_staff,
     ];
 
-    return requiredTextFields.every(
-      (value) => !!value && value.toString().trim().length > 0,
+    const requiredFilesSelected =
+      !!this.selectedFiles.operator_logo_image &&
+      !!this.selectedFiles.motac_license_file;
+
+    return (
+      requiredTextFields.every(
+        (value) => !!value && value.toString().trim().length > 0,
+      ) && requiredFilesSelected
     );
   }
 
