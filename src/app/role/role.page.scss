@@ -2,6 +2,13 @@ ion-content.background{
     --background: url(../../assets/login.jpg) 0 0/100% 100% ;
 }
 
+.card-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
     ion-card {
       align-items: center;
       margin-left: 5%;
@@ -41,19 +48,6 @@ ion-content.background{
     }
 
 @media (min-width: 768px) {
-  ion-content.background::part(scroll) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  ion-header[collapse="condense"] {
-    flex: 1;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
   ion-card {
     margin-left: auto !important;
     margin-right: auto !important;

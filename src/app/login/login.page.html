@@ -1,117 +1,68 @@
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
-  rel="stylesheet"
-/>
 <ion-content [fullscreen]="true" class="background">
-  <ion-header collapse="condense"> </ion-header>
+  <!--
+    Legacy operator login UI kept intentionally for quick restore after the meeting session.
+    Uncomment this block and comment the register-only card below to re-enable full login mode.
+
+    <ion-header collapse="condense"></ion-header>
+    <div class="card-container">
+      <ion-card>
+        <ion-button fill="clear" (click)="backRole()" mode="ios">
+          <ion-icon slot="start" name="chevron-back"></ion-icon>
+          <span>Back</span>
+        </ion-button>
+        <ion-row>
+          <ion-col class="ion-blue-bkg">
+            <img src="../../assets/icon/rt logo.png" class="borneo" />
+          </ion-col>
+          <ion-col class="title-col" size="12">
+            <p class="title">Log Masuk</p>
+            <p class="subtitle">Ke dalam Akaun Pengandali</p>
+          </ion-col>
+          <ion-col size="12" class="welcome">
+            <form class="no-border" #form="ngForm" (ngSubmit)="login(form)">
+              ...
+              <ion-button mode="ios" type="submit" color="primary" class="input-button" expand="block">
+                Log Masuk
+              </ion-button>
+              <ion-button fill="clear" mode="ios" (click)="register()" color="primary" class="input-button" expand="block">
+                Daftar / Register
+              </ion-button>
+            </form>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+    </div>
+  -->
 
   <div class="card-container">
-    <ion-card>
-      <ion-button fill="clear" (click)="backRole()" mode="ios">
-        <ion-icon slot="start" name="chevron-back"></ion-icon>
-        <span>Back</span>
+    <ion-card class="register-card">
+      <img
+        src="../../assets/icon/explore_sabah-without_bg.png"
+        class="borneo"
+      />
+      <p class="title">Pendaftaran Pengendali</p>
+      <p class="subtitle">Operator Registration</p>
+      <ion-button
+        mode="ios"
+        (click)="register()"
+        class="register-button"
+        expand="block"
+      >
+        <span class="register-label-desktop"
+          >Daftar Akaun / Register Account</span
+        >
+        <span class="register-label-mobile"
+          >Daftar Akaun<br />/ Register Account</span
+        >
       </ion-button>
-
-      <ion-row>
-        <ion-col class="ion-blue-bkg">
-          <img src="../../assets/icon/rt logo.png" class="borneo" />
-        </ion-col>
-
-        <ion-col class="title-col" size="12">
-          <p class="title">Log Masuk</p>
-          <p class="subtitle">Kedalam Akaun Anda</p>
-        </ion-col>
-
-        <ion-col size="12" class="welcome">
-          <form class="no-border" #form="ngForm" (ngSubmit)="login(form)">
-            <ion-card-header>
-              <!-- username -->
-              <ion-text
-                class="errorMsg"
-                *ngIf="submitted && usernameInput.invalid"
-              >
-                Username is required.
-              </ion-text>
-
-              <ion-input
-                required
-                class="input-login"
-                mode="md"
-                [(ngModel)]="username"
-                name="username"
-                label="Nama Pengguna/Username"
-                label-placement="floating"
-                fill="outline"
-                placeholder="Enter text"
-                [clearInput]="true"
-                #usernameInput="ngModel"
-              ></ion-input>
-
-              <br />
-
-              <!-- password -->
-              <ion-text
-                class="errorMsg"
-                *ngIf="submitted && passwordInput.invalid"
-              >
-                Password is required.
-              </ion-text>
-
-              <ion-input
-                required
-                class="input-login"
-                mode="md"
-                [(ngModel)]="password"
-                name="password"
-                label="Kata Laluan/Password"
-                label-placement="floating"
-                fill="outline"
-                placeholder="Enter text"
-                [type]="showPassword ? 'text' : 'password'"
-                [clearInput]="true"
-                #passwordInput="ngModel"
-              >
-                <ion-icon
-                  slot="end"
-                  [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-                  class="password-toggle"
-                  (click)="togglePassword()"
-                ></ion-icon>
-              </ion-input>
-
-              <ion-text
-                class="forgot-password-text"
-                style="width: 100%; display: flex; justify-content: flex-end"
-              >
-                <a style="text-decoration: none" (click)="forgotPassword()"
-                  >Lupa Kata Laluan?
-                </a>
-              </ion-text>
-            </ion-card-header>
-
-            <ion-card-content>
-              <ion-button
-                mode="ios"
-                type="submit"
-                color="primary"
-                class="input-button"
-                expand="block"
-                >Log Masuk</ion-button
-              >
-
-              <ion-button
-                fill="clear"
-                mode="ios"
-                (click)="register()"
-                color="primary"
-                class="input-button"
-                expand="block"
-                >Daftar / Register
-              </ion-button>
-            </ion-card-content>
-          </form>
-        </ion-col>
-      </ion-row>
+      <div class="powered-by-card" aria-label="Powered by Datablu">
+        <span class="powered-by-text">Powered by:</span>
+        <img
+          src="../../assets/icon/Datablu.png"
+          alt="Datablu"
+          class="powered-by-logo"
+        />
+      </div>
     </ion-card>
   </div>
 </ion-content>
