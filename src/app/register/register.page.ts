@@ -186,6 +186,46 @@ export class RegisterPage implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  onContactNoInput(event: Event) {
+    const ionEvent = event as CustomEvent<{ value?: string | null }>;
+    const rawValue = (ionEvent.detail?.value || '').toString();
+    this.formData.contact_no = rawValue.replace(/\D+/g, '');
+  }
+
+  onContactNoKeydown(event: KeyboardEvent) {
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'Tab',
+      'Home',
+      'End',
+    ];
+
+    const isShortcut =
+      (event.ctrlKey || event.metaKey) &&
+      ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase());
+
+    if (allowedKeys.includes(event.key) || isShortcut) {
+      return;
+    }
+
+    if (!/^\d$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onContactNoPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData('text') || '';
+
+    if (/\D/.test(pastedText)) {
+      event.preventDefault();
+      const sanitized = pastedText.replace(/\D+/g, '');
+      this.formData.contact_no = `${this.formData.contact_no}${sanitized}`;
+    }
+  }
+
   submitRegistration(form: NgForm) {
     if (!form.valid || !this.isSection1Valid() || !this.isSection2Valid()) {
       this.showError('Please complete all required fields before submit.');

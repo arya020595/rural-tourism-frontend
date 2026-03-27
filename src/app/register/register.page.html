@@ -113,6 +113,12 @@
                   class="field-input"
                   fill="solid"
                   type="tel"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  maxlength="15"
+                  (ionInput)="onContactNoInput($event)"
+                  (keydown)="onContactNoKeydown($event)"
+                  (paste)="onContactNoPaste($event)"
                   placeholder="Sila isi no. telefon"
                   [(ngModel)]="formData.contact_no"
                   name="contact_no"
@@ -229,11 +235,7 @@
           </ion-grid>
 
           <div class="action-row">
-            <ion-button
-              fill="clear"
-              mode="ios"
-              color="medium"
-              (click)="cancel()"
+            <ion-button class="cancel-button" mode="ios" (click)="cancel()"
               >Batalkan</ion-button
             >
             <ion-button
@@ -332,7 +334,7 @@
           </p>
 
           <div class="action-row">
-            <ion-button fill="clear" mode="ios" (click)="goBackToSection1()"
+            <ion-button class="back-button" mode="ios" (click)="goBackToSection1()"
               >Kembali</ion-button
             >
             <ion-button mode="ios" type="submit" [disabled]="!isSection2Valid()"
