@@ -32,6 +32,7 @@ export class RegisterPage implements OnInit {
     business_name: string;
     associationId: string;
     business_address: string;
+    poscode: string;
     location: string;
     owner_full_name: string;
     contact_no: string;
@@ -45,6 +46,7 @@ export class RegisterPage implements OnInit {
     business_name: '',
     associationId: '',
     business_address: '',
+    poscode: '',
     location: '',
     owner_full_name: '',
     contact_no: '',
@@ -106,18 +108,10 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    const isLogo = field === 'operator_logo_image';
-    const acceptsImageOrPdf = !isLogo;
-    const allowedTypes = acceptsImageOrPdf
-      ? ['application/pdf', 'image/jpeg', 'image/png']
-      : ['image/jpeg', 'image/png'];
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
     if (!allowedTypes.includes(file.type)) {
-      this.showError(
-        isLogo
-          ? 'Logo only accepts JPG or PNG files.'
-          : 'This document only accepts PDF, JPG, or PNG files.',
-      );
+      this.showError('This document only accepts PDF, JPG, or PNG files.');
       input.value = '';
       return;
     }
@@ -131,6 +125,7 @@ export class RegisterPage implements OnInit {
       this.formData.business_name,
       this.formData.associationId,
       this.formData.business_address,
+      this.formData.poscode,
       this.formData.location,
       this.formData.owner_full_name,
       this.formData.contact_no,
@@ -138,14 +133,12 @@ export class RegisterPage implements OnInit {
       this.formData.no_of_part_time_staff,
     ];
 
-    const requiredFilesSelected =
-      !!this.selectedFiles.operator_logo_image &&
-      !!this.selectedFiles.motac_license_file;
+    const isValidPoscode = /^\d{5}$/.test(this.formData.poscode.trim());
 
     return (
       requiredTextFields.every(
         (value) => !!value && value.toString().trim().length > 0,
-      ) && requiredFilesSelected
+      ) && isValidPoscode
     );
   }
 
@@ -226,6 +219,45 @@ export class RegisterPage implements OnInit {
     }
   }
 
+  onPoscodeInput(event: Event) {
+    const ionEvent = event as CustomEvent<{ value?: string | null }>;
+    const rawValue = (ionEvent.detail?.value || '').toString();
+    this.formData.poscode = rawValue.replace(/\D+/g, '').slice(0, 5);
+  }
+
+  onPoscodeKeydown(event: KeyboardEvent) {
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'ArrowLeft',
+      'ArrowRight',
+      'Tab',
+      'Home',
+      'End',
+    ];
+
+    const isShortcut =
+      (event.ctrlKey || event.metaKey) &&
+      ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase());
+
+    if (allowedKeys.includes(event.key) || isShortcut) {
+      return;
+    }
+
+    if (!/^\d$/.test(event.key) || this.formData.poscode.length >= 5) {
+      event.preventDefault();
+    }
+  }
+
+  onPoscodePaste(event: ClipboardEvent) {
+    event.preventDefault();
+    const pastedText = event.clipboardData?.getData('text') || '';
+    const sanitized = pastedText.replace(/\D+/g, '');
+
+    const nextValue = `${this.formData.poscode}${sanitized}`.slice(0, 5);
+    this.formData.poscode = nextValue;
+  }
+
   submitRegistration(form: NgForm) {
     if (!form.valid || !this.isSection1Valid() || !this.isSection2Valid()) {
       this.showError('Please complete all required fields before submit.');
@@ -236,6 +268,7 @@ export class RegisterPage implements OnInit {
     payload.append('business_name', this.formData.business_name);
     payload.append('associationId', this.formData.associationId);
     payload.append('business_address', this.formData.business_address);
+    payload.append('poscode', this.formData.poscode);
     payload.append('location', this.formData.location);
     payload.append('owner_full_name', this.formData.owner_full_name);
     payload.append('contact_no', this.formData.contact_no);

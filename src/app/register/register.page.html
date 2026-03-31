@@ -72,6 +72,25 @@
 
             <ion-row>
               <ion-col size="12" sizeMd="6">
+                <label class="field-label">Poskod/Poscode<span>*</span></label>
+                <ion-input
+                  class="field-input"
+                  fill="solid"
+                  type="tel"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  maxlength="5"
+                  (ionInput)="onPoscodeInput($event)"
+                  (keydown)="onPoscodeKeydown($event)"
+                  (paste)="onPoscodePaste($event)"
+                  placeholder="e.g. 89207"
+                  [(ngModel)]="formData.poscode"
+                  name="poscode"
+                  required
+                ></ion-input>
+              </ion-col>
+
+              <ion-col size="12" sizeMd="6">
                 <label class="field-label">Lokasi/Location<span>*</span></label>
                 <select
                   class="field-input native-select"
@@ -88,7 +107,9 @@
                   <option value="Kota Belud">Kota Belud</option>
                 </select>
               </ion-col>
+            </ion-row>
 
+            <ion-row>
               <ion-col size="12" sizeMd="6">
                 <label class="field-label"
                   >Nama Penuh Pemilik/Owner Full Name<span>*</span></label
@@ -102,12 +123,10 @@
                   required
                 ></ion-input>
               </ion-col>
-            </ion-row>
 
-            <ion-row>
               <ion-col size="12" sizeMd="6">
                 <label class="field-label"
-                  >No. Telefon/Telephone No.<span>*</span></label
+                  >No. Telefon Pemilik/Owner Telephone No.<span>*</span></label
                 >
                 <ion-input
                   class="field-input"
@@ -119,7 +138,7 @@
                   (ionInput)="onContactNoInput($event)"
                   (keydown)="onContactNoKeydown($event)"
                   (paste)="onContactNoPaste($event)"
-                  placeholder="Sila isi no. telefon"
+                  placeholder="e.g. 0128151432"
                   [(ngModel)]="formData.contact_no"
                   name="contact_no"
                   required
@@ -167,14 +186,11 @@
               </ion-col>
 
               <ion-col size="12" sizeMd="6" sizeLg="3">
-                <label class="file-label"
-                  >Pengendali/Operator Logo<span>*</span></label
-                >
+                <label class="file-label">Pengendali/Operator Logo</label>
                 <input
                   type="file"
-                  accept=".jpg,.jpeg,.png"
+                  accept=".pdf,.jpg,.jpeg,.png"
                   name="operator_logo_image"
-                  required
                   (change)="onFileSelected($event, 'operator_logo_image')"
                 />
                 <p class="file-name">
@@ -184,14 +200,11 @@
               </ion-col>
 
               <ion-col size="12" sizeMd="6" sizeLg="3">
-                <label class="file-label"
-                  >Lesen MOTAC/MOTAC License<span>*</span></label
-                >
+                <label class="file-label">Lesen MOTAC/MOTAC License</label>
                 <input
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   name="motac_license_file"
-                  required
                   (change)="onFileSelected($event, 'motac_license_file')"
                 />
                 <p class="file-name">
@@ -334,7 +347,10 @@
           </p>
 
           <div class="action-row">
-            <ion-button class="back-button" mode="ios" (click)="goBackToSection1()"
+            <ion-button
+              class="back-button"
+              mode="ios"
+              (click)="goBackToSection1()"
               >Kembali</ion-button
             >
             <ion-button mode="ios" type="submit" [disabled]="!isSection2Valid()"
