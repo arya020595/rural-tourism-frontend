@@ -12,6 +12,9 @@ on:
     types: [completed]
     branches: [main]
 
+permissions:
+  packages: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -67,7 +70,7 @@ jobs:
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1
         env:
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -75,6 +78,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           envs: GHCR_TOKEN,GITHUB_ACTOR
           script: |
+            set -e
             cd ~/st_rural_tourism
 
             # Login to GHCR
