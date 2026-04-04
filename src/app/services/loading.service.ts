@@ -39,6 +39,20 @@ export class LoadingService {
         cssClass: 'custom-loading',
         backdropDismiss: false,
       });
+
+      // If hide() already balanced the counter while create() was pending,
+      // skip presenting to avoid a stuck overlay.
+      if (this.loadingCount <= 0) {
+        try {
+          await this.loading.dismiss();
+        } catch {
+          // Loading may not be fully presented yet.
+        }
+        this.loading = null;
+        this.loadingSubject.next(false);
+        return;
+      }
+
       await this.loading.present();
     }
   }
