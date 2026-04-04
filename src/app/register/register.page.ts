@@ -21,6 +21,9 @@ type UploadField =
   styleUrls: ['./register.page.scss'],
 })
 export class RegisterPage implements OnInit {
+  private readonly maxFileSizeBytes = 1 * 1024 * 1024;
+  private readonly maxTotalUploadSizeBytes = 10 * 1024 * 1024;
+
   currentSection = 1;
   isSuccessAlertOpen = false;
   showPassword = false;
@@ -89,6 +92,10 @@ export class RegisterPage implements OnInit {
     );
   }
 
+  get hasConfirmedPassword(): boolean {
+    return this.formData.confirmed_password.trim().length > 0;
+  }
+
   loadAssociations() {
     this.apiService.getAssociationList().subscribe({
       next: (res) => {
@@ -116,6 +123,12 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    if (file.size > this.maxFileSizeBytes) {
+      this.showError('Each file must be 1MB or smaller.');
+      input.value = '';
+      return;
+    }
+
     this.selectedFiles[field] = file;
     this.selectedFileNames[field] = file.name;
   }
@@ -129,30 +142,55 @@ export class RegisterPage implements OnInit {
       this.formData.location,
       this.formData.owner_full_name,
       this.formData.contact_no,
-      this.formData.no_of_full_time_staff,
-      this.formData.no_of_part_time_staff,
     ];
 
     const isValidPoscode = /^\d{5}$/.test(this.formData.poscode.trim());
+    const hasValidFullTimeStaff = this.isValidStaffCount(
+      this.formData.no_of_full_time_staff,
+    );
+    const hasValidPartTimeStaff = this.isValidStaffCount(
+      this.formData.no_of_part_time_staff,
+    );
 
     return (
       requiredTextFields.every(
-        (value) => !!value && value.toString().trim().length > 0,
-      ) && isValidPoscode
+        (value) =>
+          value !== null &&
+          value !== undefined &&
+          value.toString().trim().length > 0,
+      ) &&
+      isValidPoscode &&
+      hasValidFullTimeStaff &&
+      hasValidPartTimeStaff
     );
   }
 
   isSection2Valid(): boolean {
-    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-      this.formData.email_address,
-    );
+    const normalizedUsername = this.normalizeInput(this.formData.username);
+    const normalizedEmail = this.normalizeInput(this.formData.email_address);
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
 
     return (
-      !!this.formData.username.trim() &&
+      normalizedUsername.length > 0 &&
       validEmail &&
       this.formData.password.length >= 8 &&
+      this.hasConfirmedPassword &&
       !this.passwordMismatch
     );
+  }
+
+  private normalizeInput(value: unknown): string {
+    return `${value ?? ''}`.trim();
+  }
+
+  private isValidStaffCount(value: string | number): boolean {
+    const normalized = `${value ?? ''}`.trim();
+
+    if (normalized.length === 0) {
+      return false;
+    }
+
+    return /^\d+$/.test(normalized);
   }
 
   goToSection2() {
@@ -264,6 +302,18 @@ export class RegisterPage implements OnInit {
       return;
     }
 
+    const totalUploadSize = Object.values(this.selectedFiles).reduce(
+      (sum, file) => sum + (file?.size || 0),
+      0,
+    );
+
+    if (totalUploadSize > this.maxTotalUploadSizeBytes) {
+      this.showError(
+        'Total upload size is too large. Please keep it under 10MB.',
+      );
+      return;
+    }
+
     const payload = new FormData();
     payload.append('business_name', this.formData.business_name);
     payload.append('associationId', this.formData.associationId);
@@ -315,6 +365,13 @@ export class RegisterPage implements OnInit {
         this.isSuccessAlertOpen = true;
       },
       error: (error) => {
+        if (error?.status === 413) {
+          this.showError(
+            'Upload too large. Please keep each file under 1MB and total uploads under 10MB.',
+          );
+          return;
+        }
+
         this.showError(error?.error?.error || 'Registration failed.');
       },
     });
