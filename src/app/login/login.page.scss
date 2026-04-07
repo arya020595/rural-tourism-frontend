@@ -1,88 +1,128 @@
 ion-content.background {
-  --background: url(../../assets/login.jpg) center/cover no-repeat;
+  --background: url(../../assets/login.jpg) 0 0 / 100% 100%;
 }
 
-.card-container {
-  min-height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.register-card {
-  width: min(520px, 100%);
-  border-radius: 26px;
-  padding: 36px 26px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-}
-
-.borneo {
-  width: min(220px, 72%);
-  margin: 0 auto 20px;
-  display: block;
-}
-
-.title {
-  margin: 0;
-  color: #0d2d1b;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.subtitle {
-  margin: 8px 0 30px;
-  color: #426552;
+.input-login {
+  --border-width: 2px;
+  --border-radius: 10px;
   font-size: 16px;
 }
 
-.register-button {
-  --background: #02542b;
-  --background-hover: #01733c;
-  --border-radius: 10px;
-  font-weight: 600;
-  min-height: 46px;
+.input-login[fill='outline']:focus-within {
+  --border-color: #024e25;
 }
 
-.register-label-mobile {
-  display: none;
+.borneo {
+  display: block;
+  text-align: center;
+  align-items: center;
+  height: auto;
+  width: min(290px, 62%);
+  margin: 10px auto 18px;
+  padding: 0;
 }
 
-@media screen and (max-width: 576px) {
-  .register-card {
-    padding: 26px 18px;
-  }
+.errorMsg {
+  display: block;
+  text-align: left;
+  margin: 4px 0 10px;
+  padding-left: 2px;
+  line-height: 1.2;
+  color: red;
+  font-size: 13px;
+}
 
-  .title {
-    font-size: 23px;
-  }
+.subtitle {
+  font-size: 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight: lighter;
+  margin-top: 2%;
+  display: block;
+  text-align: center;
+}
 
-  .register-label-desktop {
-    display: none;
-  }
+.title {
+  display: block;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  margin: 0 0 6px;
+  color: black;
+}
 
-  .register-label-mobile {
-    display: inline;
-    line-height: 1.2;
+.title-col {
+  margin-top: 0;
+}
+
+.no-border {
+  --border-width: 0;
+  --border-style: none;
+}
+
+ion-card-header {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0;
+}
+
+.field-group {
+  margin-bottom: 12px;
+}
+
+.field-group:last-child {
+  margin-bottom: 0;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+  z-index: 2;
+}
+
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap .input-login {
+  --padding-end: 40px;
+}
+
+.card-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 16px;
+
+  ion-card {
+    width: min(637px, 100%);
+    margin: 0;
+    border-radius: 30px;
+    min-height: 574px;
+
+    .ion-blue-bkg {
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
   }
 }
 
 .powered-by-card {
-  margin-top: auto;
-  padding-top: 40px;
-  padding-bottom: 0;
-  border-top: none;
+  margin-top: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-bottom: -26px;
-  margin-left: -26px;
-  margin-right: -26px;
-  padding-left: 26px;
-  padding-right: 26px;
 }
 
 .powered-by-text {
@@ -98,21 +138,121 @@ ion-content.background {
 }
 
 @media screen and (max-width: 576px) {
-  .powered-by-card {
-    padding-top: 24px;
-    margin-bottom: -18px;
-    margin-left: -18px;
-    margin-right: -18px;
-    padding-left: 18px;
-    padding-right: 18px;
-    gap: 6px;
+  .card-container {
+    padding: 10px;
+
+    ion-card {
+      border-radius: 24px;
+      min-height: auto;
+      padding-bottom: 8px;
+
+      .ion-blue-bkg {
+        max-height: none;
+      }
+
+      .welcome {
+        min-height: auto;
+      }
+    }
   }
 
-  .powered-by-text {
-    font-size: 11px;
+  .welcome form {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .card-container {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .borneo {
+    width: min(220px, 66%);
+    max-width: 66%;
+    margin: 6px auto 14px;
+    padding: 0;
+  }
+
+  .title {
+    font-size: 22px;
+    margin-top: 4px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    margin-top: 2px;
+  }
+
+  .title-col {
+    margin-top: 0;
+  }
+
+  .input-login {
+    width: 100%;
+    font-size: 15px;
+  }
+
+  .input-button {
+    width: 100%;
+  }
+
+  .powered-by-card {
+    margin-top: 14px;
+    gap: 6px;
   }
 
   .powered-by-logo {
     height: 18px;
+  }
+}
+
+@media screen and (min-width: 577px) and (max-width: 1023px) {
+  .card-container {
+    padding: 18px;
+  }
+
+  .welcome form {
+    width: 82%;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .borneo {
+    width: min(260px, 58%);
+    max-width: 58%;
+    margin: 8px auto 16px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .borneo {
+    width: min(300px, 52%);
+    max-width: 52%;
+    padding: 0;
+    margin: 8px auto 18px;
+  }
+
+  .title-col {
+    margin-top: 0;
+  }
+
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .welcome form {
+    width: 70%;
+    max-width: 500px;
+    margin: 0 auto;
   }
 }
