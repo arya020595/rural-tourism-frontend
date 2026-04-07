@@ -189,6 +189,6 @@ export class HomePage implements OnInit {
     this.menuCtrl.enable(false, 'mainMenu');
     this.menuCtrl.close();
     this.logoutToast();
-    this.router.navigate(['/tourist/home']);
+    this.router.navigate(['/login']);
   }
 }
