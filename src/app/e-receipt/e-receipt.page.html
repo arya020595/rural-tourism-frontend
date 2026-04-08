@@ -1,5 +1,5 @@
 <!-- side menu -->
-<ion-menu class="side-menu" menuId="home-menu" contentId="home-main-content">
+<ion-menu class="side-menu" menuId="e-receipt-menu" contentId="e-receipt-main-content">
   <ion-header>
     <ion-toolbar style="--background: white">
       <!-- <ion-title>First Menu</ion-title> -->
@@ -18,8 +18,6 @@
       <h3>{{ user?.username }}</h3>
       <p style="margin-top: 2%">{{ user?.user_email}}</p>
     </div>
-
-    <!-- <ion-list class="item-nav" style="--background:white; margin-top: 10%;"> -->
 
     <ion-item
       mode="ios"
@@ -142,8 +140,6 @@
       <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
       <ion-text style="color: red">Log Keluar/Log-Out</ion-text>
     </ion-item>
-
-    <!-- </ion-list> -->
   </ion-content>
 </ion-menu>
 
@@ -152,7 +148,7 @@
 <ion-header style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="home-menu" style="color: white"></ion-menu-button>
+      <ion-menu-button menu="e-receipt-menu" style="color: white"></ion-menu-button>
     </ion-buttons>
 
     <ion-buttons slot="end">
@@ -174,38 +170,59 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" id="home-main-content">
+<ion-content [fullscreen]="true" id="e-receipt-main-content">
   <ion-card class="main-Container ion-no-margin">
-    <!-- <ion-button expand="block" (click)="openFirstMenu()">Open First Menu</ion-button> -->
-
-    <!-- <ion-card-header style="position: relative; right: 0; left: 0;"> -->
-    <!-- <ion-col size-md="3" size="6" class="ion-padding ion-blue-bkg"> -->
     <ion-card-content>
       <ion-col class="center">
-        <!-- <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img> -->
         <app-header-logo></app-header-logo>
       </ion-col>
     </ion-card-content>
 
-    <!-- </ion-col> -->
-
-    <!-- <div id="container"> -->
-    <!-- </div> -->
-
-    <!-- </ion-card-header> -->
-
-    <!-- <h2>{{ user.username }}</h2> -->
     <ion-card-content
       style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
     >
-      <ion-card class="dashboard-placeholder-card">
-        <ion-card-content class="dashboard-placeholder-content">
-          <ion-icon name="grid-outline" class="dashboard-placeholder-icon"></ion-icon>
-          <ion-card-title class="dashboard-placeholder-title">Dashboard</ion-card-title>
-          <ion-text class="dashboard-placeholder-text">
-            Dashboard is not finished yet.
-          </ion-text>
-        </ion-card-content>
+      <ion-card class="custom-card" [routerLink]="['/activity-form']">
+        <ion-row class="cards">
+          <div style="display: flex; flex-direction: row">
+            <ion-card-title class="card-texts"
+              >Aktiviti<br />Tarikan</ion-card-title
+            >
+            <img src="../../assets/icon/tree.png" class="tree" />
+          </div>
+        </ion-row>
+      </ion-card>
+
+      <ion-card
+        class="custom-card2"
+        style="margin-top: 5%"
+        [routerLink]="['/acco-form']"
+      >
+        <ion-row class="cards">
+          <div style="display: flex; flex-direction: row">
+            <ion-card-title class="card-texts"
+              >Tempat <br />Penginapan</ion-card-title
+            >
+            <img src="../../assets/icon/house.png" class="house" />
+          </div>
+        </ion-row>
+      </ion-card>
+
+      <ion-card
+        class="custom-card3"
+        style="margin-top: 5%"
+        [routerLink]="['/package-form']"
+      >
+        <ion-row class="cards">
+          <div style="display: flex; flex-direction: row">
+            <ion-card-title class="card-texts"
+              >Pakej <br />Pelancongan</ion-card-title
+            >
+            <img
+              src="../../assets/icon/pakej-removebg-preview.png"
+              class="house"
+            />
+          </div>
+        </ion-row>
       </ion-card>
     </ion-card-content>
   </ion-card>

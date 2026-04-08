@@ -9,16 +9,16 @@ import {
 } from '../services/notification.service';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  selector: 'app-e-receipt',
+  templateUrl: './e-receipt.page.html',
+  styleUrls: ['./e-receipt.page.scss'],
 })
-export class HomePage implements OnInit {
+export class EReceiptPage implements OnInit {
   uid: string | null = null;
   user: any = null;
   unreadCount: number = 0;
   notifications: Notification[] = [];
-  pendingBookingsCount: number = 0; // new property
+  pendingBookingsCount: number = 0;
 
   constructor(
     private apiService: ApiService,
@@ -31,7 +31,6 @@ export class HomePage implements OnInit {
   ngOnInit(): void {
     this.loadUserData();
 
-    // Subscribe to reactive unread count
     this.notificationService.unreadCount$.subscribe((count) => {
       this.unreadCount = count;
     });
@@ -41,7 +40,6 @@ export class HomePage implements OnInit {
     this.loadUserData();
   }
 
-  /** Load user and notifications */
   private loadUserData(): void {
     this.uid = localStorage.getItem('uid');
     const storedUser = localStorage.getItem('user');
@@ -66,7 +64,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  /** Load notifications via service (reactive) */
   private loadNotifications(): void {
     if (!this.uid) return;
 
@@ -78,7 +75,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Call this whenever you load operator bookings
   updatePendingBookingsCount() {
     const operatorId = this.user?.id;
     if (!operatorId) return;
@@ -86,7 +82,6 @@ export class HomePage implements OnInit {
     this.apiService.getOperatorAllBookings(operatorId).subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
-          // Count only bookings that are not yet Paid or Cancelled
           this.pendingBookingsCount = res.data.filter(
             (b: any) => b.status?.toLowerCase() === 'booked',
           ).length;
@@ -101,34 +96,30 @@ export class HomePage implements OnInit {
     });
   }
 
-  /** Mark a single notification as read */
   markNotificationAsRead(notification: Notification): void {
     if (notification.read) return;
 
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        notification.read = true; // update locally for UI
+        notification.read = true;
       },
       error: (err) => console.error('Error marking notification as read:', err),
     });
   }
 
-  /** Go to notifications page and mark all as read */
   goToNotifications(): void {
     if (!this.uid) return;
 
     this.router.navigate(['/notifications']);
     this.notificationService.markAllAsRead(this.uid).subscribe({
       next: () => {
-        // notifications marked read, badge auto-updates via BehaviorSubject
-        this.notifications.forEach((n) => (n.read = true)); // optional local update
+        this.notifications.forEach((n) => (n.read = true));
       },
       error: (err) =>
         console.error('Error marking all notifications as read:', err),
     });
   }
 
-  /** Send a test notification */
   async sendTestNotification(): Promise<void> {
     if (!this.uid) return;
 
@@ -156,7 +147,7 @@ export class HomePage implements OnInit {
   }
 
   openFirstMenu(): void {
-    this.menuCtrl.open('home-menu');
+    this.menuCtrl.open('e-receipt-menu');
   }
 
   async logoutToast(): Promise<void> {

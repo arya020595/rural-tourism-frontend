@@ -1,5 +1,20 @@
 <ion-card-header>
   <div class="logo-container">
+    <div class="logo operator-logo">
+      <ion-img
+        *ngIf="companyLogoSrc"
+        [src]="companyLogoSrc"
+        alt="Company or operator logo"
+      ></ion-img>
+      <ion-icon
+        *ngIf="!companyLogoSrc"
+        name="business-outline"
+        class="placeholder-icon"
+      ></ion-icon>
+    </div>
+
+    <div class="divider"></div>
+
     <ion-img
       class="logo explore-logo"
       src="/assets/icon/explore_sabah-without_bg.png"
