@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-register',
@@ -354,7 +355,7 @@ export class RegisterPage implements OnInit {
   constructor(
     private navCtrl: NavController,
     private router: Router,
-    private http: HttpClient,
+    private apiService: ApiService,
     private alertController: AlertController,
   ) {}
 
@@ -370,7 +371,7 @@ export class RegisterPage implements OnInit {
       text: 'Yes',
       role: 'confirm',
       handler: () => {
-        this.navCtrl.navigateForward('/role', {
+        this.navCtrl.navigateForward('/login', {
           animated: true,
           animationDirection: 'back',
         });
@@ -431,26 +432,17 @@ export class RegisterPage implements OnInit {
     };
 
     try {
-      const response: any = await this.http
-        .post('http://localhost:3000/api/tourists/register', data)
-        .toPromise();
+      const response: any = await firstValueFrom(
+        this.apiService.registerTourist(data),
+      );
 
-      if (response && response.message) {
-        if (response.user) {
-          localStorage.setItem('user', JSON.stringify(response.user));
-          if (response.user.tourist_user_id) {
-            localStorage.setItem(
-              'tourist_user_id',
-              response.user.tourist_user_id,
-            );
-          }
-        }
-        await this.showAlert('Success', response.message);
-        this.navCtrl.navigateForward('/tourist/login');
+      if (response?.success) {
+        await this.showAlert('Success', response.message || 'Registration successful.');
+        this.navCtrl.navigateForward('/login');
       }
     } catch (error: any) {
       console.error(error);
-      const errMsg = error.error?.error || 'Registration failed.';
+      const errMsg = error.error?.message || error.error?.error || 'Registration failed.';
       this.showAlert('Error', errMsg);
     }
   }

@@ -1,0 +1,30 @@
+.unauthorized-page {
+  --background: radial-gradient(circle at top, #f4fff6 0%, #ffffff 45%, #f8f8f8 100%);
+}
+
+.unauthorized-card {
+  min-height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.unauthorized-icon {
+  font-size: 56px;
+  color: #0f7a3d;
+}
+
+h1 {
+  margin: 4px 0;
+  font-size: 28px;
+}
+
+p {
+  margin: 0 0 12px;
+  color: #426552;
+  max-width: 320px;
+}

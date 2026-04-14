@@ -86,19 +86,14 @@ export class HttpInterceptorService implements HttpInterceptor {
           error.error?.message || 'Bad request. Please check your input.';
         break;
       case 401: {
-        // List all login URLs
-        const loginUrls = ['/login', '/tourist/login'];
-
-        // Check if current request is a login request
-        const isLoginRequest = loginUrls.some((url) =>
-          request?.url.endsWith(url),
-        );
+        // Check if current request is the canonical auth login endpoint
+        const isLoginRequest = request?.url.includes('/auth/login');
 
         if (!isLoginRequest) {
           // For protected APIs, clear auth and redirect
           message = 'Session expired. Please login again.';
           this.storageService.clearAuth();
-          this.router.navigate(['/role']);
+          this.router.navigate(['/login']);
         } else {
           // For login attempts with wrong credentials, just show toast
           return;

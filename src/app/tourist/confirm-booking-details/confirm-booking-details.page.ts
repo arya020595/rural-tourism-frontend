@@ -137,7 +137,8 @@ export class ConfirmBookingDetailsPage implements OnInit {
         res.image || 'assets/images/default-operator.jpg';
       this.bookingData.location = res.address || 'N/A';
 
-      this.operatorId = res.rt_user_id?.toString() || this.operatorId;
+      this.operatorId =
+        res.user_id?.toString() || this.operatorId;
       if (!this.operatorId) {
         console.warn('Operator user ID missing! Notifications may not work.');
       }

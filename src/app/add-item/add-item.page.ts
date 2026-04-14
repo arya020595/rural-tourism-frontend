@@ -484,7 +484,7 @@ export class AddItemPage implements OnInit {
 
       const dataToSend = {
         activity_id: parseInt(this.activityData.activity_id, 10),
-        rt_user_id: parsedUid,
+        user_id: parsedUid,
         description: this.activityData.description || '',
         address: this.activityData.address || '',
         district: this.activityData.district || '',
@@ -535,7 +535,7 @@ export class AddItemPage implements OnInit {
         price: this.accomData.price || 0,
         image: this.accomData.image || null,
         district: this.accomData.district || '',
-        rt_user_id: this.accomData.user_id,
+        user_id: this.accomData.user_id,
         show_availability: this.accomData.showAvailability ? 1 : 0,
         provided: JSON.stringify(providedArr),
         available_dates: this.accomData.available_dates_list,

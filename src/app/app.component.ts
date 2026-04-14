@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { ApiService } from './services/api.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,8 @@ export class AppComponent implements OnInit {
   constructor(
     private platform: Platform,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
@@ -55,8 +57,8 @@ export class AppComponent implements OnInit {
 
     this.apiService.getUserByID(this.uid).subscribe({
       next: (data: any) => {
-        this.user = data;
-        localStorage.setItem('user', JSON.stringify(data));
+        this.authService.syncUserProfile(data);
+        this.user = this.authService.currentUser || data;
       },
       error: (err: any) => console.error('Error loading user:', err)
     });

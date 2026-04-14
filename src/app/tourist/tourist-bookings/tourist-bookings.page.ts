@@ -274,7 +274,9 @@ export class TouristBookingsPage implements OnInit {
                 text: 'OK',
                 role: 'confirm',
                 handler: () => {
-                  this.navCtrl.navigateRoot('/tourist/login');
+                  this.navCtrl.navigateRoot('/login', {
+                    queryParams: { role: 'tourist' },
+                  });
                 },
               },
             ],

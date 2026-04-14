@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { CalendarModule } from 'ion7-calendar';
 
 import { HomePageRoutingModule } from './home-routing.module';
+import { SharedModule } from '../../_shared/shared.module';
 
 import { HomePage } from './home.page';
 
@@ -16,6 +17,7 @@ import { HomePage } from './home.page';
     IonicModule,
     HomePageRoutingModule,
     CalendarModule,
+    SharedModule,
   ],
   declarations: [HomePage],
 })

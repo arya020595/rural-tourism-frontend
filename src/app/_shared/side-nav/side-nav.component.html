@@ -1,0 +1,86 @@
+<ion-menu
+  class="side-menu"
+  [menuId]="menuId"
+  [contentId]="contentId"
+  [side]="menuSide"
+  [type]="menuType"
+>
+  <ion-content class="ion-padding" style="--background: white">
+    <ng-container *ngIf="showHeaderLogo; else staticLogoTemplate">
+      <app-header-logo></app-header-logo>
+    </ng-container>
+
+    <ng-template #staticLogoTemplate>
+      <ion-img class="logo-side-panel" [src]="logoSrc"></ion-img>
+    </ng-template>
+
+    <ng-container *ngIf="showGuestPanel; else authMenuTemplate">
+      <div class="guest-details">
+        <h2>{{ guestTitle }}</h2>
+
+        <p *ngFor="let line of guestMessageLines">{{ line }}</p>
+
+        <hr />
+
+        <ion-button
+          expand="block"
+          style="border-radius: 10px"
+          [routerLink]="[guestLoginRoute]"
+        >
+          {{ guestLoginLabel }}
+        </ion-button>
+
+        <br />
+        <br />
+        <br />
+
+        <p>
+          Don't have an account?
+          <a [routerLink]="[guestRegisterRoute]">{{ guestRegisterLabel }}</a>
+        </p>
+      </div>
+    </ng-container>
+
+    <ng-template #authMenuTemplate>
+      <div class="user-summary" *ngIf="user">
+        <ion-avatar>
+          <img
+            alt="User Avatar"
+            src="https://ionicframework.com/docs/img/demos/avatar.svg"
+          />
+        </ion-avatar>
+        <h3>{{ displayName }}</h3>
+        <p style="margin-top: 2%">{{ displayEmail }}</p>
+      </div>
+
+      <ion-item
+        class="item-nav"
+        detail="false"
+        lines="none"
+        mode="ios"
+        menuClose
+        *ngFor="let item of menuItems; trackBy: trackMenuItem"
+        [routerLink]="item.route || null"
+        (click)="onMenuItemTap(item)"
+      >
+        <ion-icon [name]="item.icon" slot="start"></ion-icon>
+        <ion-text>{{ item.label }}</ion-text>
+
+        <ion-badge *ngIf="getBadgeCount(item.id) > 0" color="danger" slot="end">
+          {{ getBadgeCount(item.id) }}
+        </ion-badge>
+      </ion-item>
+
+      <ion-item
+        (click)="onLogoutTap()"
+        class="item-nav"
+        detail="false"
+        lines="none"
+        menuClose
+      >
+        <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
+        <ion-text style="color: red">{{ logoutLabel }}</ion-text>
+      </ion-item>
+    </ng-template>
+  </ion-content>
+</ion-menu>
