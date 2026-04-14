@@ -3,17 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { ConfirmBookingAccommodationDetailsPage } from './confirm-booking-accommodation-details.page';
-import { RouterModule, Routes } from '@angular/router';
-
-const routes: Routes = [
-  {
-    path: '',
-    component: ConfirmBookingAccommodationDetailsPage,
-  },
-];
+import { ConfirmBookingAccommodationDetailsPageRoutingModule } from './confirm-booking-accommodation-details-routing.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    ConfirmBookingAccommodationDetailsPageRoutingModule,
+  ],
   declarations: [ConfirmBookingAccommodationDetailsPage],
 })
 export class ConfirmBookingAccommodationDetailsPageModule {}

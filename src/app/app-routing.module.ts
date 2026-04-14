@@ -122,6 +122,12 @@ const routes: Routes = [
       import('./home/home.module').then((m) => m.HomePageModule),
   },
   {
+    path: 'e-receipt',
+    loadChildren: () =>
+      import('./e-receipt/e-receipt.module').then((m) => m.EReceiptPageModule),
+    canActivate: [authGuard],
+  },
+  {
     path: 'faq',
     loadChildren: () =>
       import('./tourist/faq/faq.module').then((m) => m.FaqPageModule),

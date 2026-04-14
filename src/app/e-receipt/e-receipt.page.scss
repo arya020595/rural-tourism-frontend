@@ -1,0 +1,193 @@
+ion-content{
+  --ion-background-color:#282c28;
+}
+
+ion-toolbar {
+  --background: #282c28;
+  --box-shadow: none !important;
+  --border-width: 0px !important;
+  color: inherit;
+  padding: 0;
+}
+
+ion-menu.side-menu {
+  --background: #f0f0f0;
+}
+
+.item-nav{
+  --padding-start: 0;
+  --border-width: 0;
+  --border-style: none !important;
+  margin-left: 5%;
+}
+
+.side-menu{
+  --ion-background-color: white !important;
+}
+
+.logo-side-panel {
+  width: 200px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1px;
+  text-align: center;
+  padding: 5%;
+}
+
+#container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.notification-button {
+  position: relative;
+}
+
+.notification-bell {
+  font-size: 24px;
+  color: #FFC107;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  z-index: 10;
+  transform: translate(25%, -25%);
+}
+
+.main-Container{
+  --ion-background-color:tranparent;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+  margin-top: 5vh;
+  border-radius: 30px;
+  height: 125vh;
+  background-color: white;
+}
+
+#container img{
+  height: 60px;
+}
+
+.tree{
+  width: 70px;
+  height: auto;
+}
+
+.house{
+  width: 70px;
+  height: auto;
+}
+
+.text1{
+  bottom: -60%;
+}
+
+.center{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo{
+  width: 300px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  padding: 5%;
+}
+
+.logo-side-panel {
+  width: 200px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1px;
+  text-align: center;
+  padding: 5%;
+}
+
+.custom-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 30vh;
+  border-radius: 30px;
+  position: relative;
+  background-image: url(../../assets/mountain.jpg);
+  background-size: 50vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center -60px;
+  margin-top: -100px;
+}
+
+.custom-card2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 30vh;
+  border-radius: 30px;
+  position: relative;
+  background-image: url(../../assets/accom.jpg);
+  background-size: 50vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-top: -100px;
+}
+
+.custom-card3 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 30vh;
+  border-radius: 30px;
+  position: relative;
+  background-image: url(../../assets/package.jpg);
+  background-size: 50vh;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-top: -100px;
+}
+
+.card-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.card-content {
+  margin-top: auto;
+  height: 100%;
+}
+
+.card-texts{
+  color: white;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cards{
+  color: white;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: absolute;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+  bottom: 10px;
+  left: 5%;
+}
+
+.text-title{
+  color: white;
+}

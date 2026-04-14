@@ -1,7 +1,4 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { ConfirmBookingAccommodationDetailsPage } from './confirm-booking-accommodation-details.page';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -13,7 +10,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, RouterModule.forChild(routes)],
-  declarations: [ConfirmBookingAccommodationDetailsPage],
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
 })
-export class ConfirmBookingAccommodationDetailsPageModule {}
+export class ConfirmBookingAccommodationDetailsPageRoutingModule {}
