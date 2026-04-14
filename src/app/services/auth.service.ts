@@ -225,14 +225,16 @@ export class AuthService {
       payload.user_type = userType;
     }
 
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, payload).pipe(
-      tap((response) => {
-        if (response.success && response.data?.token && response.data?.user) {
-          this.persistSession(response.data.token, response.data.user);
-        }
-      }),
-      catchError((error) => throwError(() => error)),
-    );
+    return this.http
+      .post<LoginResponse>(`${this.apiUrl}/auth/login`, payload)
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data?.token && response.data?.user) {
+            this.persistSession(response.data.token, response.data.user);
+          }
+        }),
+        catchError((error) => throwError(() => error)),
+      );
   }
 
   /**
@@ -280,7 +282,8 @@ export class AuthService {
       return;
     }
 
-    const currentUser = this.currentUser || this.storage.getUser<User>() || null;
+    const currentUser =
+      this.currentUser || this.storage.getUser<User>() || null;
 
     const mergedUser = {
       ...(currentUser || {}),
@@ -413,7 +416,12 @@ export class AuthService {
     const roleName = this.getRoleName(user) || user?.user_type || null;
 
     if (roleName === 'operator') {
-      return user?.id || user?.unified_user_id || user?.user_id || this.storage.getUid();
+      return (
+        user?.id ||
+        user?.unified_user_id ||
+        user?.user_id ||
+        this.storage.getUid()
+      );
     }
 
     return (
@@ -440,7 +448,12 @@ export class AuthService {
   getCurrentRole(): UserRoleName | null {
     const role = this.getRoleName(this.currentUser);
 
-    if (role === 'admin' || role === 'operator' || role === 'tourist' || role === 'association') {
+    if (
+      role === 'admin' ||
+      role === 'operator' ||
+      role === 'tourist' ||
+      role === 'association'
+    ) {
       return role;
     }
 

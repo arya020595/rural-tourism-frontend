@@ -376,14 +376,11 @@ export class ApiService {
     username: string;
     password: string;
   }): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/auth/login`,
-      {
-        identifier: credentials.username,
-        username: credentials.username,
-        password: credentials.password,
-        user_type: 'association',
-      },
-    );
+    return this.http.post(`${this.apiUrl}/auth/login`, {
+      identifier: credentials.username,
+      username: credentials.username,
+      password: credentials.password,
+      user_type: 'association',
+    });
   }
 }

@@ -8,20 +8,8 @@ import { HasPermissionDirective } from './has-permission.directive';
 import { SideNavComponent } from './side-nav/side-nav.component';
 
 @NgModule({
-  declarations: [
-    HeaderLogoComponent,
-    HasPermissionDirective,
-    SideNavComponent,
-  ],
-  imports: [
-    CommonModule,
-    RouterModule,
-    IonicModule,
-  ],
-  exports: [
-    HeaderLogoComponent,
-    HasPermissionDirective,
-    SideNavComponent,
-  ],
+  declarations: [HeaderLogoComponent, HasPermissionDirective, SideNavComponent],
+  imports: [CommonModule, RouterModule, IonicModule],
+  exports: [HeaderLogoComponent, HasPermissionDirective, SideNavComponent],
 })
 export class SharedModule {}

@@ -91,10 +91,7 @@ export class LoginPage implements OnInit {
 
   private resolveAuthenticatedRole(authUser: any): LoginRole {
     const explicitRole =
-      authUser?.user_type ||
-      authUser?.role?.name ||
-      authUser?.role ||
-      null;
+      authUser?.user_type || authUser?.role?.name || authUser?.role || null;
 
     if (
       explicitRole === 'admin' ||
@@ -114,7 +111,10 @@ export class LoginPage implements OnInit {
 
     if (role === 'tourist') {
       const touristUserId = String(
-        authUser.tourist_user_id || authUser.legacy_user_id || authUser.id || '',
+        authUser.tourist_user_id ||
+          authUser.legacy_user_id ||
+          authUser.id ||
+          '',
       );
 
       if (!touristUserId) {
@@ -173,9 +173,8 @@ export class LoginPage implements OnInit {
 
     if (redirectUrl) {
       const activity_id = this.route.snapshot.queryParamMap.get('activity_id');
-      const accommodation_id = this.route.snapshot.queryParamMap.get(
-        'accommodation_id',
-      );
+      const accommodation_id =
+        this.route.snapshot.queryParamMap.get('accommodation_id');
       const operator_id = this.route.snapshot.queryParamMap.get('operator_id');
       const price = this.route.snapshot.queryParamMap.get('price');
       const no_of_pax = this.route.snapshot.queryParamMap.get('no_of_pax');

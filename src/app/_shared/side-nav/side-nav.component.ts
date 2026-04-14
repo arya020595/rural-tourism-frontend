@@ -41,10 +41,7 @@ export class SideNavComponent {
 
   get displayName(): string {
     return (
-      this.user?.full_name ||
-      this.user?.name ||
-      this.user?.username ||
-      'User'
+      this.user?.full_name || this.user?.name || this.user?.username || 'User'
     );
   }
 

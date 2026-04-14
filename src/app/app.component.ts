@@ -10,7 +10,6 @@ import { AuthService } from './services/auth.service';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent implements OnInit {
-
   uid: string | null = null;
   user: any = null;
 
@@ -23,24 +22,27 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.platform.ready().then(() => {
-
       this.loadUserData();
       this.applyStandaloneClass();
 
-      this.router.events.subscribe(event => {
+      this.router.events.subscribe((event) => {
         if (event instanceof NavigationEnd) {
           this.applyStandaloneClass();
         }
       });
 
-      console.log('Standalone?', window.matchMedia('(display-mode: standalone)').matches);
-      console.log('navigator.standalone?', (window.navigator as any).standalone);
-
+      console.log(
+        'Standalone?',
+        window.matchMedia('(display-mode: standalone)').matches,
+      );
+      console.log(
+        'navigator.standalone?',
+        (window.navigator as any).standalone,
+      );
     });
   }
 
   private loadUserData(): void {
-
     this.uid = localStorage.getItem('uid');
 
     const storedUser = localStorage.getItem('user');
@@ -52,7 +54,6 @@ export class AppComponent implements OnInit {
   }
 
   private loadUser(): void {
-
     if (!this.uid) return;
 
     this.apiService.getUserByID(this.uid).subscribe({
@@ -60,12 +61,11 @@ export class AppComponent implements OnInit {
         this.authService.syncUserProfile(data);
         this.user = this.authService.currentUser || data;
       },
-      error: (err: any) => console.error('Error loading user:', err)
+      error: (err: any) => console.error('Error loading user:', err),
     });
   }
 
   applyStandaloneClass() {
-
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;

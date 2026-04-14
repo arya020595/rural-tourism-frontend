@@ -27,21 +27,24 @@ export class MenuService {
       },
       {
         id: 'add-item',
-        label: 'Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation',
+        label:
+          'Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation',
         icon: 'add-circle',
         route: '/add-item',
         permission: ['activity:create', 'accommodation:create'],
       },
       {
         id: 'operator-bookings',
-        label: 'Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation',
+        label:
+          'Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation',
         icon: 'calendar',
         route: '/operator-bookings',
         permission: 'booking:read',
       },
       {
         id: 'activity-and-accommodation-management',
-        label: 'Accommodation & Activity Management/Pengurusan Penginapan & Aktiviti',
+        label:
+          'Accommodation & Activity Management/Pengurusan Penginapan & Aktiviti',
         icon: 'calendar',
         route: '/activity-and-accommodation-management',
         permission: ['activity:read', 'accommodation:read'],

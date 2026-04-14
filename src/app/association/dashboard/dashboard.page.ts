@@ -32,9 +32,8 @@ export class AssociationDashboardPage implements OnInit {
   loadUser() {
     const storedUser = localStorage.getItem('association_user');
     this.user = storedUser ? JSON.parse(storedUser) : null;
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext(
-      'association',
-    );
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('association');
 
     if (!this.user) {
       this.router.navigate(['/login']);
