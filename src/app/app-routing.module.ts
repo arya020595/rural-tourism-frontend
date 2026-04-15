@@ -73,6 +73,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'forgot-password',
+    loadChildren: () =>
+      import('./reset-passs/reset-passs.module').then(
+        (m) => m.ResetPasssPageModule,
+      ),
+  },
+  {
     path: 'package-form',
     loadChildren: () =>
       import('./package-form/package-form.module').then(
