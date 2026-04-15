@@ -21,6 +21,7 @@
           class="input-button"
           expand="block"
           [routerLink]="['/login']"
+          [queryParams]="{ role: 'operator' }"
         >
           Pengandali/Operator
         </ion-button>
@@ -31,7 +32,8 @@
           color="primary"
           class="input-button"
           expand="block"
-          [routerLink]="['/tourist/login']"
+          [routerLink]="['/login']"
+          [queryParams]="{ role: 'tourist' }"
         >
           Pelancong/Tourist
         </ion-button>
@@ -42,7 +44,8 @@
           color="primary"
           class="input-button"
           expand="block"
-          [routerLink]="['/association/login']"
+          [routerLink]="['/login']"
+          [queryParams]="{ role: 'association' }"
         >
           Persatuan/Association
         </ion-button>

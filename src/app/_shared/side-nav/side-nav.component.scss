@@ -1,0 +1,46 @@
+.side-menu {
+  --ion-background-color: white !important;
+}
+
+.item-nav {
+  --padding-start: 0;
+  --border-width: 0;
+  --border-style: none !important;
+  margin-left: 5%;
+  margin-top: 10px;
+}
+
+.logo-side-panel {
+  width: 200px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1px;
+  text-align: center;
+  padding: 5%;
+}
+
+.user-summary {
+  margin-left: 5%;
+  border-bottom: 2px solid #6b6b6b;
+  padding-bottom: 10px;
+}
+
+.guest-details {
+  margin-top: 10px;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.guest-details hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 16px 0;
+}
+
+.guest-details a {
+  font-weight: bold;
+  color: #025930;
+}

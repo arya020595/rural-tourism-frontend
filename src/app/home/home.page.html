@@ -1,138 +1,29 @@
 <!-- side menu -->
-<ion-menu class="side-menu" menuId="menu" contentId="main-content">
-  <ion-header>
-    <ion-toolbar style="--background: white">
-      <!-- <ion-title>First Menu</ion-title> -->
-    </ion-toolbar>
-  </ion-header>
-  <ion-content style="--background: white" class="ion-padding">
-    <app-header-logo></app-header-logo>
-
-    <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b">
-      <ion-avatar>
-        <img
-          alt="User Avatar"
-          src="https://ionicframework.com/docs/img/demos/avatar.svg"
-        />
-      </ion-avatar>
-      <h3>{{ user?.username }}</h3>
-      <p style="margin-top: 2%">{{ user?.user_email}}</p>
-    </div>
-
-    <!-- <ion-list class="item-nav" style="--background:white; margin-top: 10%;"> -->
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 10%"
-      (click)="closeMenu()"
-      [routerLink]="['/add-item']"
-      *ngIf="false"
-    >
-      <ion-icon name="add-circle" slot="start"></ion-icon>
-      Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 10%"
-      (click)="showFeatureUnavailableToast();"
-      *ngIf="false"
-    >
-      <ion-icon name="chatbubbles" slot="start"></ion-icon>
-      Mesej/Message
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/operator-bookings']"
-      *ngIf="false"
-    >
-      <ion-icon name="calendar" slot="start"></ion-icon>
-      Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/activity-and-accommodation-management']"
-      *ngIf="false"
-    >
-      <ion-icon name="calendar" slot="start"></ion-icon>
-      Accommodation & Activity Management/Pengurusan Penginapan & Aktiviti
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/transaction']"
-      *ngIf="false"
-    >
-      <ion-icon name="clipboard" slot="start"></ion-icon>
-      Transaksi/Transaction History
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/faq']"
-    >
-      <ion-icon name="help-outline" slot="start"></ion-icon>
-      Soalan Lazim/Frequently Asked Questions (FAQ)
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/company-profile']"
-    >
-      <ion-icon name="business" slot="start"></ion-icon>
-      Company Profile
-    </ion-item>
-
-    <ion-item
-      (click)="logOut()"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-    >
-      <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
-      <ion-text style="color: red">Log Keluar/Log-Out</ion-text>
-    </ion-item>
-
-    <!-- </ion-list> -->
-  </ion-content>
-</ion-menu>
+<app-side-nav
+  [menuId]="'home-menu'"
+  [contentId]="'home-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
 
 <!-- main content -->
 
 <ion-header style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="menu" style="color: white"></ion-menu-button>
+      <ion-menu-button menu="home-menu" style="color: white"></ion-menu-button>
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button (click)="goToNotifications()" class="notification-button">
+      <ion-button
+        (click)="goToNotifications()"
+        class="notification-button"
+        *hasPermission="'booking:read'"
+      >
         <ion-icon
           class="notification-bell"
           slot="icon-only"
@@ -150,7 +41,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" id="main-content">
+<ion-content [fullscreen]="true" id="home-main-content">
   <ion-card class="main-Container ion-no-margin">
     <!-- <ion-button expand="block" (click)="openFirstMenu()">Open First Menu</ion-button> -->
 
@@ -172,38 +63,21 @@
 
     <!-- <h2>{{ user.username }}</h2> -->
     <ion-card-content
-      style="margin-top: 1%; padding-left: 0%; padding-right: 0%"
+      style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
     >
-      <!-- Dashboard Placeholder Card -->
-      <ion-card
-        class="dashboard-card"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 400px;
-          background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-          border-radius: 16px;
-          margin-top: 5%;
-        "
-      >
-        <div
-          style="
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-          "
-        >
+      <ion-card class="dashboard-placeholder-card">
+        <ion-card-content class="dashboard-placeholder-content">
           <ion-icon
-            name="construct"
-            style="font-size: 64px; color: #ccc"
+            name="grid-outline"
+            class="dashboard-placeholder-icon"
           ></ion-icon>
-          <p style="font-size: 18px; color: #666; font-weight: 600; margin: 0">
-            Dashboard is not finished yet
-          </p>
-        </div>
+          <ion-card-title class="dashboard-placeholder-title"
+            >Dashboard</ion-card-title
+          >
+          <ion-text class="dashboard-placeholder-text">
+            Dashboard is not finished yet.
+          </ion-text>
+        </ion-card-content>
       </ion-card>
     </ion-card-content>
   </ion-card>

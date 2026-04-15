@@ -55,6 +55,51 @@ ion-content.background {
   margin-top: 0;
 }
 
+.back-button {
+  margin: 8px 0 0 8px;
+}
+
+.role-switcher {
+  width: min(420px, 92%);
+  margin: 12px auto 0;
+}
+
+.role-switcher ion-segment {
+  --background: #f4f6f4;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.role-switcher ion-segment-button {
+  --indicator-color: #0f7a3d;
+  --color: #426552;
+  --color-checked: #ffffff;
+  min-height: 34px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.forgot-password-text {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.forgot-password-text a {
+  color: #426552;
+  cursor: pointer;
+}
+
+.association-note {
+  display: block;
+  margin-top: 10px;
+  text-align: center;
+  color: #426552;
+  font-size: 13px;
+}
+
 .no-border {
   --border-width: 0;
   --border-style: none;
@@ -201,6 +246,11 @@ ion-card-header {
 
   .title-col {
     margin-top: 0;
+  }
+
+  .role-switcher {
+    width: min(360px, 100%);
+    margin-top: 8px;
   }
 
   .input-login {

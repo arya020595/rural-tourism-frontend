@@ -120,7 +120,7 @@ export class ActivityBookingPage implements OnInit {
 
     this.operatorId =
       state.operatorId ||
-      state.rt_user_id ||
+      state.user_id ||
       this.route.snapshot.queryParamMap.get('operator_id') ||
       '';
 

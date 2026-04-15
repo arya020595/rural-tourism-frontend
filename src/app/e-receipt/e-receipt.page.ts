@@ -3,25 +3,25 @@ import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
-import { MenuItem, MenuService } from '../services/menu.service';
 import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
+import { MenuItem, MenuService } from '../services/menu.service';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  selector: 'app-e-receipt',
+  templateUrl: './e-receipt.page.html',
+  styleUrls: ['./e-receipt.page.scss'],
 })
-export class HomePage implements OnInit {
+export class EReceiptPage implements OnInit {
   uid: string | null = null;
   user: any = null;
   menuItems: MenuItem[] = [];
   unreadCount: number = 0;
   notifications: Notification[] = [];
-  pendingBookingsCount: number = 0; // new property
+  pendingBookingsCount: number = 0;
 
   constructor(
     private apiService: ApiService,
@@ -36,18 +36,16 @@ export class HomePage implements OnInit {
   ngOnInit(): void {
     this.loadUserData();
 
-    // Subscribe to reactive unread count
     this.notificationService.unreadCount$.subscribe((count) => {
       this.unreadCount = count;
     });
   }
 
   ionViewWillEnter(): void {
-    this.menuCtrl.enable(true, 'home-menu');
+    this.menuCtrl.enable(true, 'e-receipt-menu');
     this.loadUserData();
   }
 
-  /** Load user and notifications */
   private loadUserData(): void {
     this.uid = localStorage.getItem('uid');
     const storedUser = localStorage.getItem('user');
@@ -64,21 +62,6 @@ export class HomePage implements OnInit {
     this.updatePendingBookingsCount();
   }
 
-  private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
-  }
-
-  onMenuItemTap(item: MenuItem): void {
-    this.closeMenu();
-    if (item.action === 'feature-unavailable') {
-      this.showFeatureUnavailableToast();
-    }
-  }
-
-  trackMenuItem(_index: number, item: MenuItem): string {
-    return item.id;
-  }
-
   private loadUser(): void {
     if (!this.uid) return;
 
@@ -92,7 +75,16 @@ export class HomePage implements OnInit {
     });
   }
 
-  /** Load notifications via service (reactive) */
+  private refreshMenuItems(): void {
+    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+  }
+
+  onMenuItemTap(item: MenuItem): void {
+    if (item.action === 'feature-unavailable') {
+      this.showFeatureUnavailableToast();
+    }
+  }
+
   private loadNotifications(): void {
     if (!this.uid) return;
 
@@ -104,7 +96,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Call this whenever you load operator bookings
   updatePendingBookingsCount() {
     const operatorId = this.user?.id;
     if (!operatorId) return;
@@ -112,7 +103,6 @@ export class HomePage implements OnInit {
     this.apiService.getOperatorAllBookings(operatorId).subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
-          // Count only bookings that are not yet Paid or Cancelled
           this.pendingBookingsCount = res.data.filter(
             (b: any) => b.status?.toLowerCase() === 'booked',
           ).length;
@@ -127,34 +117,30 @@ export class HomePage implements OnInit {
     });
   }
 
-  /** Mark a single notification as read */
   markNotificationAsRead(notification: Notification): void {
     if (notification.read) return;
 
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        notification.read = true; // update locally for UI
+        notification.read = true;
       },
       error: (err) => console.error('Error marking notification as read:', err),
     });
   }
 
-  /** Go to notifications page and mark all as read */
   goToNotifications(): void {
     if (!this.uid) return;
 
     this.router.navigate(['/notifications']);
     this.notificationService.markAllAsRead(this.uid).subscribe({
       next: () => {
-        // notifications marked read, badge auto-updates via BehaviorSubject
-        this.notifications.forEach((n) => (n.read = true)); // optional local update
+        this.notifications.forEach((n) => (n.read = true));
       },
       error: (err) =>
         console.error('Error marking all notifications as read:', err),
     });
   }
 
-  /** Send a test notification */
   async sendTestNotification(): Promise<void> {
     if (!this.uid) return;
 
@@ -182,7 +168,7 @@ export class HomePage implements OnInit {
   }
 
   openFirstMenu(): void {
-    this.menuCtrl.open('home-menu');
+    this.menuCtrl.open('e-receipt-menu');
   }
 
   async logoutToast(): Promise<void> {
@@ -212,7 +198,8 @@ export class HomePage implements OnInit {
     this.authService.logout('/login');
     this.uid = null;
     this.user = null;
-    this.menuCtrl.enable(false, 'home-menu');
+    this.menuItems = [];
+    this.menuCtrl.enable(false, 'e-receipt-menu');
     this.menuCtrl.close();
     this.logoutToast();
   }
