@@ -1,154 +1,24 @@
 <!-- side menu -->
-<ion-menu class="side-menu" menuId="e-receipt-menu" contentId="e-receipt-main-content">
-  <ion-header>
-    <ion-toolbar style="--background: white">
-      <!-- <ion-title>First Menu</ion-title> -->
-    </ion-toolbar>
-  </ion-header>
-  <ion-content style="--background: white" class="ion-padding">
-    <app-header-logo></app-header-logo>
-
-    <div style="margin-left: 5%; border-bottom: 2px solid #6b6b6b">
-      <ion-avatar>
-        <img
-          alt="User Avatar"
-          src="https://ionicframework.com/docs/img/demos/avatar.svg"
-        />
-      </ion-avatar>
-      <h3>{{ user?.username }}</h3>
-      <p style="margin-top: 2%">{{ user?.user_email}}</p>
-    </div>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 10%"
-      (click)="closeMenu()"
-      [routerLink]="['/add-item']"
-      *ngIf="false"
-    >
-      <ion-icon name="add-circle" slot="start"></ion-icon>
-      Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 10%"
-      (click)="showFeatureUnavailableToast();"
-      *ngIf="false"
-    >
-      <ion-icon name="chatbubbles" slot="start"></ion-icon>
-      Mesej/Message
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/operator-bookings']"
-      *ngIf="false"
-    >
-      <ion-icon name="calendar" slot="start"></ion-icon>
-      Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/activity-and-accommodation-management']"
-      *ngIf="false"
-    >
-      <ion-icon name="calendar" slot="start"></ion-icon>
-      Accommodation & Activity Management/Pengurusan Penginapan & Aktiviti
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/transaction']"
-      *ngIf="false"
-    >
-      <ion-icon name="clipboard" slot="start"></ion-icon>
-      Transaksi/Transaction History
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/home']"
-    >
-      <ion-icon name="home-outline" slot="start"></ion-icon>
-      Dashboard
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/e-receipt']"
-    >
-      <ion-icon name="receipt-outline" slot="start"></ion-icon>
-      E-Receipt
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/faq']"
-    >
-      <ion-icon name="help-outline" slot="start"></ion-icon>
-      Soalan Lazim/Frequently Asked Questions (FAQ)
-    </ion-item>
-
-    <ion-item
-      mode="ios"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-      (click)="closeMenu()"
-      [routerLink]="['/company-profile']"
-    >
-      <ion-icon name="business" slot="start"></ion-icon>
-      Company Profile
-    </ion-item>
-
-    <ion-item
-      (click)="logOut()"
-      class="item-nav"
-      detail="false"
-      style="--background: white; margin-top: 5%"
-    >
-      <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
-      <ion-text style="color: red">Log Keluar/Log-Out</ion-text>
-    </ion-item>
-  </ion-content>
-</ion-menu>
+<app-side-nav
+  [menuId]="'e-receipt-menu'"
+  [contentId]="'e-receipt-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
 
 <!-- main content -->
 
 <ion-header style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="e-receipt-menu" style="color: white"></ion-menu-button>
+      <ion-menu-button
+        menu="e-receipt-menu"
+        style="color: white"
+      ></ion-menu-button>
     </ion-buttons>
 
     <ion-buttons slot="end">

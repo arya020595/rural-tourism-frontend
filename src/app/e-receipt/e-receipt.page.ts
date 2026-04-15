@@ -7,6 +7,8 @@ import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
+import { MenuItem, MenuService } from '../services/menu.service';
 
 @Component({
   selector: 'app-e-receipt',
@@ -16,6 +18,7 @@ import {
 export class EReceiptPage implements OnInit {
   uid: string | null = null;
   user: any = null;
+  menuItems: MenuItem[] = [];
   unreadCount: number = 0;
   notifications: Notification[] = [];
   pendingBookingsCount: number = 0;
@@ -26,6 +29,8 @@ export class EReceiptPage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private notificationService: NotificationService,
+    private menuService: MenuService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +42,7 @@ export class EReceiptPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.menuCtrl.enable(true, 'e-receipt-menu');
     this.loadUserData();
   }
 
@@ -44,6 +50,7 @@ export class EReceiptPage implements OnInit {
     this.uid = localStorage.getItem('uid');
     const storedUser = localStorage.getItem('user');
     this.user = storedUser ? JSON.parse(storedUser) : null;
+    this.refreshMenuItems();
 
     if (!this.uid) {
       this.router.navigate(['/login']);
@@ -59,9 +66,23 @@ export class EReceiptPage implements OnInit {
     if (!this.uid) return;
 
     this.apiService.getUserByID(this.uid).subscribe({
-      next: (data: any) => (this.user = data),
+      next: (data: any) => {
+        this.authService.syncUserProfile(data);
+        this.user = this.authService.currentUser || data;
+        this.refreshMenuItems();
+      },
       error: (err: any) => console.error('Error loading user:', err),
     });
+  }
+
+  private refreshMenuItems(): void {
+    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+  }
+
+  onMenuItemTap(item: MenuItem): void {
+    if (item.action === 'feature-unavailable') {
+      this.showFeatureUnavailableToast();
+    }
   }
 
   private loadNotifications(): void {
@@ -174,12 +195,12 @@ export class EReceiptPage implements OnInit {
   }
 
   logOut(): void {
-    localStorage.clear();
+    this.authService.logout('/login');
     this.uid = null;
     this.user = null;
-    this.menuCtrl.enable(false, 'mainMenu');
+    this.menuItems = [];
+    this.menuCtrl.enable(false, 'e-receipt-menu');
     this.menuCtrl.close();
     this.logoutToast();
-    this.router.navigate(['/login']);
   }
 }

@@ -1,0 +1,12 @@
+<ion-content [fullscreen]="true" class="unauthorized-page">
+  <div class="unauthorized-card">
+    <ion-icon name="shield-outline" class="unauthorized-icon"></ion-icon>
+    <h1>Access Denied</h1>
+    <p>You do not have permission to access this page.</p>
+
+    <ion-button expand="block" (click)="goToHome()">Go To Dashboard</ion-button>
+    <ion-button expand="block" fill="clear" color="medium" (click)="switchAccount()">
+      Login as Different Account
+    </ion-button>
+  </div>
+</ion-content>

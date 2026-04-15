@@ -85,8 +85,9 @@ export class ActivityOperatorDetailPage implements OnInit {
         };
 
         // Fetch operator logo if exists
-        if (res.rt_user_id) {
-          this.api.getAccommodationOperatorById(res.rt_user_id).subscribe(
+        const operatorUserId = res.user_id;
+        if (operatorUserId) {
+          this.api.getAccommodationOperatorById(operatorUserId).subscribe(
             (userRes: any) => {
               if (userRes?.company_logo) {
                 this.operatorData.operator_logo =
@@ -130,7 +131,9 @@ export class ActivityOperatorDetailPage implements OnInit {
           {
             text: 'Login',
             handler: () => {
-              this.navCtrl.navigateForward(['/tourist/login']);
+              this.navCtrl.navigateForward(['/login'], {
+                queryParams: { role: 'tourist' },
+              });
             },
           },
         ],

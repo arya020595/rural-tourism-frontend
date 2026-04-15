@@ -81,22 +81,26 @@
             </p>
           </div>
           <div class="card-action">
-            <ion-button
-              *ngIf="booking.status?.toLowerCase() === 'paid'"
-              class="receipt-btn view-receipt-btn"
-              (click)="viewReceipt(booking)"
-            >
-              <ion-icon name="receipt-outline" slot="start"></ion-icon>
-              View Receipt
-            </ion-button>
-            <ion-button
-              *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
-              class="receipt-btn"
-              (click)="createReceipt(booking)"
-            >
-              <ion-icon name="receipt-outline" slot="start"></ion-icon>
-              Create Receipt
-            </ion-button>
+            <ng-container *hasPermission="'receipt:read'">
+              <ion-button
+                *ngIf="booking.status?.toLowerCase() === 'paid'"
+                class="receipt-btn view-receipt-btn"
+                (click)="viewReceipt(booking)"
+              >
+                <ion-icon name="receipt-outline" slot="start"></ion-icon>
+                View Receipt
+              </ion-button>
+            </ng-container>
+            <ng-container *hasPermission="'receipt:create'">
+              <ion-button
+                *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+                class="receipt-btn"
+                (click)="createReceipt(booking)"
+              >
+                <ion-icon name="receipt-outline" slot="start"></ion-icon>
+                Create Receipt
+              </ion-button>
+            </ng-container>
           </div>
         </div>
       </div>
@@ -146,22 +150,26 @@
             </p>
           </div>
           <div class="card-action">
-            <ion-button
-              *ngIf="booking.status?.toLowerCase() === 'paid'"
-              class="receipt-btn view-receipt-btn"
-              (click)="viewReceipt(booking)"
-            >
-              <ion-icon name="receipt-outline" slot="start"></ion-icon>
-              View Receipt
-            </ion-button>
-            <ion-button
-              *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
-              class="receipt-btn"
-              (click)="createReceipt(booking)"
-            >
-              <ion-icon name="receipt-outline" slot="start"></ion-icon>
-              Create Receipt
-            </ion-button>
+            <ng-container *hasPermission="'receipt:read'">
+              <ion-button
+                *ngIf="booking.status?.toLowerCase() === 'paid'"
+                class="receipt-btn view-receipt-btn"
+                (click)="viewReceipt(booking)"
+              >
+                <ion-icon name="receipt-outline" slot="start"></ion-icon>
+                View Receipt
+              </ion-button>
+            </ng-container>
+            <ng-container *hasPermission="'receipt:create'">
+              <ion-button
+                *ngIf="booking.status?.toLowerCase() !== 'paid' && booking.status?.toLowerCase() !== 'cancelled' && booking.status?.toLowerCase() !== 'canceled'"
+                class="receipt-btn"
+                (click)="createReceipt(booking)"
+              >
+                <ion-icon name="receipt-outline" slot="start"></ion-icon>
+                Create Receipt
+              </ion-button>
+            </ng-container>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { ActivityAndAccommodationManagementPageRoutingModule } from './activity-and-accommodation-management-routing.module';
+import { SharedModule } from '../_shared/shared.module';
 
 import { ActivityAndAccommodationManagementPage } from './activity-and-accommodation-management.page';
 
@@ -14,6 +15,7 @@ import { ActivityAndAccommodationManagementPage } from './activity-and-accommoda
     FormsModule,
     IonicModule,
     ActivityAndAccommodationManagementPageRoutingModule,
+    SharedModule,
   ],
   declarations: [ActivityAndAccommodationManagementPage],
 })

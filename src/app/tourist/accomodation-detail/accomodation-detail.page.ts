@@ -144,8 +144,9 @@ export class AccomodationDetailPage implements OnInit {
       {
         text: 'Login',
         handler: () => {
-          this.navCtrl.navigateForward(['/tourist/login'], {
+          this.navCtrl.navigateForward(['/login'], {
             queryParams: {
+              role: 'tourist',
               redirect: '/tourist/accommodation-booking',
               accommodation_id: this.accommodation.id,
               operator_id: this.accommodation.operator_id,

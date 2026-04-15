@@ -372,7 +372,9 @@ export class RegisterPage implements OnInit {
           return;
         }
 
-        this.showError(error?.error?.error || 'Registration failed.');
+        this.showError(
+          error?.error?.message || error?.error?.error || 'Registration failed.',
+        );
       },
     });
   }
