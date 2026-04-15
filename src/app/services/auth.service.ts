@@ -95,7 +95,7 @@ export class AuthService {
     const token = this.storage.getToken();
     const user = this.storage.getUser<User>();
 
-    if (user) {
+    if (token && user) {
       this.currentUserSubject.next(user);
       this.isAuthenticatedSubject.next(true);
     }
@@ -106,7 +106,12 @@ export class AuthService {
           this.clearSessionState();
         },
       });
-    } else if (!user) {
+    } else {
+      if (user) {
+        this.clearSessionState();
+        return;
+      }
+
       this.isAuthenticatedSubject.next(false);
     }
   }

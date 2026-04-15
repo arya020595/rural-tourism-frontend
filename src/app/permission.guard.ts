@@ -18,13 +18,12 @@ export const permissionGuard: CanActivateFn = (route, state) => {
   const loginRole = (route.data?.['loginRole'] as string) || 'operator';
 
   if (!authService.isAuthenticated) {
-    router.navigate(['/login'], {
+    return router.createUrlTree(['/login'], {
       queryParams: {
         role: loginRole,
         redirect: state.url,
       },
     });
-    return false;
   }
 
   if (!requiredPermissions.length) {
@@ -35,10 +34,9 @@ export const permissionGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/unauthorized'], {
+  return router.createUrlTree(['/unauthorized'], {
     queryParams: {
       required: requiredPermissions.join(','),
     },
   });
-  return false;
 };

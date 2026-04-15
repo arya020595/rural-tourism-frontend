@@ -13,14 +13,13 @@ export const authGuard: CanActivateFn = (route, state) => {
    // Check centralized auth state (token + restored user session)
    if (authService.isAuthenticated) {
      return true;
-   } else {
-     router.navigate(['/login'], {
-       queryParams: {
-         role: loginRole,
-         redirect: state.url,
-       },
-     });  // Redirect to the login page
-     return false;  // Prevent route activation
    }
+
+   return router.createUrlTree(['/login'], {
+     queryParams: {
+       role: loginRole,
+       redirect: state.url,
+     },
+   });
   
 };

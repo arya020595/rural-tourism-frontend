@@ -218,7 +218,12 @@ const routes: Routes = [
     path: 'e-receipt',
     loadChildren: () =>
       import('./e-receipt/e-receipt.module').then((m) => m.EReceiptPageModule),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard, permissionGuard],
+    data: {
+      roles: ['operator'],
+      loginRole: 'operator',
+      permissions: ['booking:read'],
+    },
   },
   {
     path: 'tourist/faq',
