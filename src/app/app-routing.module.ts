@@ -215,6 +215,19 @@ const routes: Routes = [
     },
   },
   {
+    path: 'company-profile',
+    loadChildren: () =>
+      import('./company-profile/company-profile.module').then(
+        (m) => m.CompanyProfilePageModule,
+      ),
+    canActivate: [authGuard, roleGuard, permissionGuard],
+    data: {
+      roles: ['operator'],
+      loginRole: 'operator',
+      permissions: ['profile:read'],
+    },
+  },
+  {
     path: 'e-receipt',
     loadChildren: () =>
       import('./e-receipt/e-receipt.module').then((m) => m.EReceiptPageModule),

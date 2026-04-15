@@ -45,6 +45,13 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/${user_id}`);
   }
 
+  updateUserByID(
+    user_id: string,
+    payload: FormData | Record<string, any>,
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${user_id}`, payload);
+  }
+
   getAllUser(): Observable<any> {
     return this.http.get(`${this.apiUrl}/users`);
   }

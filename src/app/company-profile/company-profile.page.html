@@ -1,0 +1,351 @@
+<app-side-nav
+  [menuId]="'company-profile-menu'"
+  [contentId]="'company-profile-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="profile-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button
+        menu="company-profile-menu"
+        class="menu-toggle"
+      ></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button
+        (click)="goToNotifications()"
+        class="notification-button"
+        *hasPermission="'booking:read'"
+      >
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+        <ion-badge
+          *ngIf="unreadCount > 0"
+          color="danger"
+          class="notification-badge"
+        >
+          {{ unreadCount }}
+        </ion-badge>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="company-profile-main-content">
+  <div class="surface-card">
+    <ng-container *ngIf="!isLoading; else loadingTemplate">
+      <div class="profile-container">
+        <div class="edit-back-row" *ngIf="isEditing">
+          <button type="button" class="back-link-button" (click)="cancelEdit()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+            <span>Kembali/Back</span>
+          </button>
+        </div>
+
+        <div class="title-row">
+          <h1>Profil Anda/My Profile</h1>
+          <button
+            *ngIf="!isEditing"
+            type="button"
+            class="edit-toggle-button"
+            (click)="startEdit()"
+          >
+            <ion-icon name="create-outline"></ion-icon>
+            <span>Kemaskini/Update</span>
+          </button>
+        </div>
+
+        <div class="avatar-block">
+          <div class="avatar-shell">
+            <img
+              *ngIf="companyLogoSrc; else fallbackAvatar"
+              [src]="companyLogoSrc"
+              alt="Company logo"
+            />
+            <ng-template #fallbackAvatar>
+              <ion-icon name="business-outline"></ion-icon>
+            </ng-template>
+          </div>
+
+          <label *ngIf="isEditing" class="avatar-upload-action">
+            <ion-icon name="image-outline"></ion-icon>
+            <span>Upload Logo</span>
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              (change)="onLogoSelected($event)"
+            />
+          </label>
+
+          <p
+            class="selected-logo-file-name"
+            *ngIf="isEditing && selectedLogoFileName"
+          >
+            {{ selectedLogoFileName }}
+          </p>
+
+          <p>{{ displayOrDash(formData.business_name) }}</p>
+        </div>
+
+        <form>
+          <div class="section-panel">
+            <div class="section-heading">
+              Butiran Perniagaan/Business Details
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Nama Perniagaan/Business Name</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.business_name) }}
+              </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                [(ngModel)]="formData.business_name"
+                [ngModelOptions]="{ standalone: true }"
+              ></ion-input>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Persatuan/Association</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(selectedAssociationName) }}
+              </div>
+              <select
+                *ngIf="isEditing"
+                class="field-input native-select"
+                [(ngModel)]="formData.association_id"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <option value="" disabled hidden>Sila pilih persatuan</option>
+                <option *ngFor="let item of associations" [value]="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Nama Pemilik/Owner Name</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.owner_full_name) }}
+              </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                [(ngModel)]="formData.owner_full_name"
+                [ngModelOptions]="{ standalone: true }"
+              ></ion-input>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">No. Perhubungan/Contact No.</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.contact_no) }}
+              </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                type="tel"
+                inputmode="numeric"
+                maxlength="15"
+                [(ngModel)]="formData.contact_no"
+                [ngModelOptions]="{ standalone: true }"
+                (ionInput)="onContactNoInput($event)"
+                (keydown)="onContactNoKeydown($event)"
+                (paste)="onContactNoPaste($event)"
+              ></ion-input>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Alamat Perniagaan/Business Address</div>
+              <div class="value address-value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.business_address) }}
+              </div>
+              <ion-textarea
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                autoGrow="true"
+                rows="3"
+                [(ngModel)]="formData.business_address"
+                [ngModelOptions]="{ standalone: true }"
+              ></ion-textarea>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Lokasi/Location</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.location) }}
+              </div>
+              <select
+                *ngIf="isEditing"
+                class="field-input native-select"
+                [(ngModel)]="formData.location"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                <option value="" disabled hidden>Pilih lokasi</option>
+                <option
+                  *ngFor="let location of locationDropdownOptions"
+                  [value]="location"
+                >
+                  {{ location }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-panel">
+            <div class="section-heading">Bilangan Kakitangan/No. of Staff</div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Full Time/Masa Penuh</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.no_of_full_time_staff) }}
+              </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                type="number"
+                min="0"
+                [(ngModel)]="formData.no_of_full_time_staff"
+                [ngModelOptions]="{ standalone: true }"
+              ></ion-input>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">Part Time/Sambilan</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.no_of_part_time_staff) }}
+              </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                type="number"
+                min="0"
+                [(ngModel)]="formData.no_of_part_time_staff"
+                [ngModelOptions]="{ standalone: true }"
+              ></ion-input>
+            </div>
+          </div>
+
+          <div class="section-panel">
+            <div class="section-heading">Melihat Dokumen/View Documents</div>
+
+            <div class="document-row" *ngFor="let field of documentFields">
+              <div class="document-label">
+                {{ getDocumentFieldLabel(field) }}
+              </div>
+              <div class="document-actions">
+                <button
+                  type="button"
+                  class="doc-action view"
+                  (click)="viewDocument(field)"
+                >
+                  <ion-icon name="eye-outline"></ion-icon>
+                  <span>View/Lihat</span>
+                </button>
+
+                <label *ngIf="isEditing" class="doc-action upload">
+                  <ion-icon name="cloud-upload-outline"></ion-icon>
+                  <span>Upload</span>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    (change)="onFileSelected($event, field)"
+                  />
+                </label>
+              </div>
+
+              <p
+                class="selected-file-name"
+                *ngIf="isEditing && selectedFileNames[field]"
+              >
+                {{ selectedFileNames[field] }}
+              </p>
+            </div>
+          </div>
+
+          <div class="footer-actions" *ngIf="isEditing">
+            <button
+              type="button"
+              class="save-profile-button"
+              (click)="saveProfile()"
+              [disabled]="isSaving"
+            >
+              <ion-spinner *ngIf="isSaving" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!isSaving" name="refresh-outline"></ion-icon>
+              <span>
+                {{ isSaving ? 'Updating Profile...' : 'Kemaskini Profile
+                Anda/Update My Profile' }}
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </ng-container>
+
+    <ng-template #loadingTemplate>
+      <div class="loading-wrapper">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading company profile...</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="logo-cropper-overlay" *ngIf="isLogoCropperOpen">
+    <div class="logo-cropper-modal">
+      <div class="logo-cropper-header">
+        <h3>Crop Logo</h3>
+        <p>Adjust the image frame, then apply.</p>
+      </div>
+
+      <div class="logo-cropper-body">
+        <image-cropper
+          [imageFile]="logoCropFile"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="1 / 1"
+          [roundCropper]="true"
+          [resizeToWidth]="512"
+          [onlyScaleDown]="true"
+          [output]="'base64'"
+          [format]="logoCropOutputFormat"
+          (imageCropped)="onLogoCropped($event)"
+          (loadImageFailed)="onLogoCropLoadFailed()"
+        ></image-cropper>
+      </div>
+
+      <div class="logo-cropper-actions">
+        <button
+          type="button"
+          class="cropper-action save-profile-button cropper-cancel"
+          (click)="cancelLogoCrop()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="cropper-action save-profile-button"
+          [disabled]="!logoCropResultBase64"
+          (click)="applyLogoCrop()"
+        >
+          Apply Crop
+        </button>
+      </div>
+    </div>
+  </div>
+</ion-content>

@@ -26,6 +26,13 @@ export class MenuService {
         route: '/home',
       },
       {
+        id: 'company-profile',
+        label: 'Profil Syarikat/Company Profile',
+        icon: 'business-outline',
+        route: '/company-profile',
+        permission: 'profile:read',
+      },
+      {
         id: 'add-item',
         label:
           'Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation',
