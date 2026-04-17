@@ -139,12 +139,17 @@ export class LoginPage implements OnInit {
       return;
     }
 
+    if (role === 'operator') {
+      this.navCtrl.navigateRoot('/company-profile');
+      return;
+    }
+
     if (redirectUrl) {
       this.navCtrl.navigateRoot(redirectUrl);
       return;
     }
 
-    this.navCtrl.navigateRoot('/home');
+    this.navCtrl.navigateRoot('/company-profile');
   }
 
   private redirectTouristAfterLogin(touristUserId: string): void {

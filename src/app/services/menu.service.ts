@@ -20,68 +20,11 @@ export class MenuService {
     admin: [],
     operator: [
       {
-        id: 'dashboard',
-        label: 'Dashboard',
-        icon: 'home-outline',
-        route: '/home',
-      },
-      {
         id: 'company-profile',
         label: 'Profil Syarikat/Company Profile',
         icon: 'business-outline',
         route: '/company-profile',
         permission: 'profile:read',
-      },
-      {
-        id: 'add-item',
-        label:
-          'Tambah Aktiviti & Tempat Penginapan/Add New Activity & Accommodation',
-        icon: 'add-circle',
-        route: '/add-item',
-        permission: ['activity:create', 'accommodation:create'],
-      },
-      {
-        id: 'operator-bookings',
-        label:
-          'Aktiviti & Penginapan Ditempah / Booked Activity & Accommodation',
-        icon: 'calendar',
-        route: '/operator-bookings',
-        permission: 'booking:read',
-      },
-      {
-        id: 'activity-and-accommodation-management',
-        label:
-          'Accommodation & Activity Management/Pengurusan Penginapan & Aktiviti',
-        icon: 'calendar',
-        route: '/activity-and-accommodation-management',
-        permission: ['activity:read', 'accommodation:read'],
-      },
-      {
-        id: 'transaction',
-        label: 'Transaksi/Transaction History',
-        icon: 'clipboard',
-        route: '/transaction',
-        permission: 'receipt:read',
-      },
-      {
-        id: 'e-receipt',
-        label: 'E-Receipt',
-        icon: 'receipt-outline',
-        route: '/e-receipt',
-        permission: 'receipt:read',
-      },
-      {
-        id: 'faq',
-        label: 'Soalan Lazim/Frequently Asked Questions (FAQ)',
-        icon: 'help-outline',
-        route: '/faq',
-      },
-      {
-        id: 'notifications',
-        label: 'Notifications',
-        icon: 'notifications-outline',
-        route: '/notifications',
-        permission: 'booking:read',
       },
     ],
     tourist: [
