@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
@@ -43,17 +44,22 @@ export class ResetPasssPage implements OnInit {
     private toastController: ToastController,
   ) {}
 
+  private readonly destroyRef = inject(DestroyRef);
+
   ngOnInit() {
-    const queryParams = this.route.snapshot.queryParamMap;
-    this.email = queryParams.get('email') ?? '';
-    this.resetToken = queryParams.get('token') ?? '';
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.email = params['email'] ?? '';
+        this.resetToken = params['token'] ?? '';
 
-    if (queryParams.get('step') === 'reset' && !this.resetToken) {
-      this.router.navigate(['/login'], { replaceUrl: true });
-      return;
-    }
+        if (params['step'] === 'reset' && !this.resetToken) {
+          this.router.navigate(['/login'], { replaceUrl: true });
+          return;
+        }
 
-    this.viewMode = this.resetToken ? 'reset' : 'request';
+        this.viewMode = this.resetToken ? 'reset' : 'request';
+      });
   }
 
   async errorToast(message = 'Sila semak semula maklumat yang anda masukkan.') {

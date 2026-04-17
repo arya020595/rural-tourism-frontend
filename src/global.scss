@@ -262,3 +262,39 @@ ion-popover.rt-register-select-popover ion-item.item-radio-checked {
   --color: #0d4e2c;
   font-weight: 600;
 }
+
+/* ============================================
+   EMAIL SENT ALERT (forgot-password flow)
+   ============================================ */
+
+.email-sent-alert .alert-wrapper {
+  max-width: 320px;
+  border-radius: 8px;
+}
+
+.email-sent-alert .alert-head {
+  padding-bottom: 6px;
+}
+
+.email-sent-alert .alert-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+.email-sent-alert .alert-message {
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #202020;
+  white-space: pre-line;
+}
+
+.email-sent-alert .alert-button-group {
+  justify-content: center;
+}
+
+.email-sent-alert .alert-button {
+  color: #0b4f28;
+  font-weight: 700;
+}

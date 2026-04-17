@@ -141,38 +141,6 @@ ion-content.background {
   margin-top: -2px;
 }
 
-:host ::ng-deep .email-sent-alert .alert-wrapper {
-  max-width: 320px;
-  border-radius: 8px;
-}
-
-:host ::ng-deep .email-sent-alert .alert-head {
-  padding-bottom: 6px;
-}
-
-:host ::ng-deep .email-sent-alert .alert-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #111;
-}
-
-:host ::ng-deep .email-sent-alert .alert-message {
-  text-align: left;
-  font-size: 14px;
-  line-height: 1.4;
-  color: #202020;
-  white-space: pre-line;
-}
-
-:host ::ng-deep .email-sent-alert .alert-button-group {
-  justify-content: center;
-}
-
-:host ::ng-deep .email-sent-alert .alert-button {
-  color: #0b4f28;
-  font-weight: 700;
-}
-
 /* Mobile layout to match the tall rounded card design */
 @media screen and (max-width: 767px) {
   .card-container {
