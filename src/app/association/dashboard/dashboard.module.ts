@@ -5,9 +5,16 @@ import { IonicModule } from '@ionic/angular';
 
 import { DashboardPageRoutingModule } from './dashboard-routing.module';
 import { AssociationDashboardPage } from './dashboard.page';
+import { SharedModule } from '../../_shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, DashboardPageRoutingModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    DashboardPageRoutingModule,
+    SharedModule,
+  ],
   declarations: [AssociationDashboardPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA], // This allows Ionic components like ion-row, ion-card-title
 })

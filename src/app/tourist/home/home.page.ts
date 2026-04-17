@@ -9,6 +9,8 @@ import {
 import { CalendarModal, CalendarModalOptions } from 'ion7-calendar';
 import { environment } from '../../../environments/environment';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { MenuItem, MenuService } from '../../services/menu.service';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +22,7 @@ export class HomePage implements OnInit {
   activities: any[] = [];
   accommodations: any[] = [];
   user: any = null;
+  menuItems: MenuItem[] = [];
   newBookingCount: number = 0;
 
   // Search and filter
@@ -38,6 +41,8 @@ export class HomePage implements OnInit {
     private toastController: ToastController,
     private modalCtrl: ModalController,
     private alertController: AlertController,
+    private menuService: MenuService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
@@ -83,11 +88,13 @@ export class HomePage implements OnInit {
     const userData = localStorage.getItem('user');
     if (!userData) {
       this.user = null;
+      this.menuItems = [];
       return;
     }
 
     try {
       this.user = JSON.parse(userData);
+      this.refreshMenuItems();
 
       // ✅ Log full details
       console.log('Logged-in Tourist Details:', this.user);
@@ -95,15 +102,35 @@ export class HomePage implements OnInit {
     } catch (error) {
       console.error('Error parsing user data:', error);
       this.user = null;
+      this.menuItems = [];
     }
   }
 
   logOut() {
-    localStorage.removeItem('user');
+    this.authService.logout('/login');
     this.user = null;
+    this.menuItems = [];
     this.showLogoutToast();
     this.menu.close('mainMenu');
-    this.router.navigate(['/tourist/home']);
+  }
+
+  private refreshMenuItems() {
+    this.menuItems = this.menuService.getVisibleMenuItemsForContext('tourist');
+  }
+
+  onMenuItemTap(item: MenuItem) {
+    if (item.action === 'feature-unavailable') {
+      this.showFeatureUnavailableToast();
+      return;
+    }
+
+    if (item.id === 'tourist-bookings') {
+      this.resetNewBookingCount();
+    }
+  }
+
+  trackMenuItem(_index: number, item: MenuItem): string {
+    return item.id;
   }
 
   closeMenu() {

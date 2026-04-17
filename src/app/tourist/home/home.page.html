@@ -1,122 +1,18 @@
 <!-- Side Menu -->
-<ion-menu
-  menuId="mainMenu"
-  side="start"
-  contentId="main-content"
-  type="overlay"
->
-  <ion-content class="side-menu ion-padding">
-    <!-- Logo -->
-    <ion-img
-      class="logo-side-panel"
-      src="../../assets/icon/rt logo.png"
-    ></ion-img>
-
-    <!-- Show if NOT logged in -->
-    <div *ngIf="!user; else loggedInTemplate" class="guest-details">
-      <h2>Profile</h2>
-      <p>Want to make a booking for your next trip?</p>
-      <p>You need to log in or register your account first</p>
-      <hr />
-      <ion-button
-        expand="block"
-        style="border-radius: 10px"
-        [routerLink]="['/role']"
-      >
-        Log In Account
-      </ion-button>
-      <br /><br /><br />
-      <p>
-        Don't have an account?
-        <a [routerLink]="['/tourist/register']">Register Here</a>
-      </p>
-    </div>
-
-    <!-- Logged-in Template -->
-    <ng-template #loggedInTemplate>
-      <div
-        style="
-          margin-left: 5%;
-          border-bottom: 2px solid #6b6b6b;
-          padding-bottom: 10px;
-        "
-      >
-        <ion-avatar>
-          <img
-            alt="User Avatar"
-            src="https://ionicframework.com/docs/img/demos/avatar.svg"
-          />
-        </ion-avatar>
-        <h3>{{ user?.name || user?.username || 'No name' }}</h3>
-        <p style="margin-top: 2%">
-          {{ user?.email || user?.user_email || 'No email' }}
-        </p>
-      </div>
-
-      <!-- <ion-item
-        mode="ios"
-        class="item-nav"
-        detail="false"
-        style="--background: white; margin: 10px 0"
-        (click)="showFeatureUnavailableToast();"
-        [routerLink]="['/booking-home']"
-      >
-        <ion-icon name="clipboard" slot="start"></ion-icon>
-        Booking/Transaction History
-      </ion-item> -->
-
-      <!-- <ion-item
-        mode="ios"
-        class="item-nav"
-        detail="false"
-        style="--background: white; margin: 10px 0"
-        (click)="showFeatureUnavailableToast();"
-      >
-        <ion-icon name="chatbubbles-outline" slot="start"></ion-icon>
-        Messages
-      </ion-item> -->
-      <ion-item
-        [routerLink]="['/tourist/tourist-bookings']"
-        class="item-nav"
-        detail="false"
-        lines="none"
-      >
-        <ion-icon name="clipboard" slot="start"></ion-icon>
-        <ion-text>List of Bookings</ion-text>
-
-        <!-- Notification Badge -->
-        <ion-badge *ngIf="newBookingCount > 0" color="danger" slot="end">
-          {{ newBookingCount }}
-        </ion-badge>
-      </ion-item>
-
-      <ion-item
-        [routerLink]="['/tourist/transaction']"
-        class="item-nav"
-        detail="false"
-        lines="none"
-      >
-        <ion-icon name="clipboard" slot="start"></ion-icon>
-        <ion-text>Transaction History</ion-text>
-      </ion-item>
-
-      <ion-item
-        (click)="showFeatureUnavailableToast();"
-        class="item-nav"
-        detail="false"
-        lines="none"
-      >
-        <ion-icon name="chatbubbles" slot="start"></ion-icon>
-        <ion-text>Messages</ion-text>
-      </ion-item>
-
-      <ion-item (click)="logOut()" class="item-nav" detail="false" lines="none">
-        <ion-icon style="color: red" name="log-out" slot="start"></ion-icon>
-        <ion-text style="color: red">Log-Out Account</ion-text>
-      </ion-item>
-    </ng-template>
-  </ion-content>
-</ion-menu>
+<app-side-nav
+  [menuId]="'mainMenu'"
+  [contentId]="'main-content'"
+  [menuType]="'overlay'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [badgeCounts]="{ 'tourist-bookings': newBookingCount }"
+  [showHeaderLogo]="false"
+  [logoSrc]="'../../assets/icon/rt logo.png'"
+  [guestMode]="true"
+  [logoutLabel]="'Log-Out Account'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
 
 <ion-header>
   <ion-toolbar color="dark">

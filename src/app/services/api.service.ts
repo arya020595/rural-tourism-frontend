@@ -32,12 +32,24 @@ export class ApiService {
 
   //login
   login(credentials: { username: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/login`, credentials);
+    return this.http.post(`${this.apiUrl}/auth/login`, {
+      identifier: credentials.username,
+      username: credentials.username,
+      password: credentials.password,
+      user_type: 'operator',
+    });
   }
 
   //get specific user by id
   getUserByID(user_id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${user_id}`);
+  }
+
+  updateUserByID(
+    user_id: string,
+    payload: FormData | Record<string, any>,
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${user_id}`, payload);
   }
 
   getAllUser(): Observable<any> {
@@ -50,7 +62,25 @@ export class ApiService {
 
   //create user (register)
   createUser(form: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users`, form);
+    return this.register(form, 'operator');
+  }
+
+  register(payload: any, userType: 'operator' | 'tourist'): Observable<any> {
+    if (payload instanceof FormData) {
+      if (!payload.has('user_type')) {
+        payload.append('user_type', userType);
+      }
+      return this.http.post(`${this.apiUrl}/auth/register`, payload);
+    }
+
+    return this.http.post(`${this.apiUrl}/auth/register`, {
+      ...(payload || {}),
+      user_type: userType,
+    });
+  }
+
+  registerTourist(payload: any): Observable<any> {
+    return this.register(payload, 'tourist');
   }
 
   //reset password
@@ -62,6 +92,21 @@ export class ApiService {
   ): Observable<any> {
     const payload = { username, question, securityAnswer, newPassword };
     return this.http.post(`${this.apiUrl}/users/reset-pass`, payload);
+  }
+
+  // forgot password
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password/forgot-password`, {
+      email,
+    });
+  }
+
+  // reset password with emailed token
+  resetPasswordWithToken(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password/reset-password`, {
+      token,
+      password,
+    });
   }
 
   //FORM API
@@ -144,7 +189,12 @@ export class ApiService {
     username: string;
     password: string;
   }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/tourists/login`, credentials);
+    return this.http.post(`${this.apiUrl}/auth/login`, {
+      identifier: credentials.username,
+      username: credentials.username,
+      password: credentials.password,
+      user_type: 'tourist',
+    });
   }
 
   getAllActivityMasterData(): Observable<any[]> {
@@ -171,9 +221,9 @@ export class ApiService {
     );
   }
 
-  getOperatorsByUser(rt_user_id: string): Observable<any[]> {
+  getOperatorsByUser(user_id: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/operator-activities/user/${rt_user_id}`,
+      `${this.apiUrl}/operator-activities/user/${user_id}`,
     );
   }
 
@@ -262,8 +312,8 @@ export class ApiService {
 
   /**
    * Fetch operator info for accommodation bookings.
-   * Operators are stored in rt_users table, so we use the /api/users endpoint.
-   * @param operatorId - The user_id of the operator (same as rt_user_id)
+   * Operators are stored in users table and exposed through /api/users.
+   * @param operatorId - The user_id of the operator
    */
   getAccommodationOperatorById(operatorId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${operatorId}`);
@@ -341,16 +391,18 @@ export class ApiService {
 
   //Apply more methods here...
   getAssociationList(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/associations`);
+    return this.http.get(`${this.apiUrl}/associations/public`);
   }
 
   loginAssociation(credentials: {
     username: string;
     password: string;
   }): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/association-users/login`,
-      credentials,
-    );
+    return this.http.post(`${this.apiUrl}/auth/login`, {
+      identifier: credentials.username,
+      username: credentials.username,
+      password: credentials.password,
+      user_type: 'association',
+    });
   }
 }

@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
+import { MenuItem, MenuService } from '../services/menu.service';
 import {
   Notification,
   NotificationService,
@@ -16,6 +18,7 @@ import {
 export class HomePage implements OnInit {
   uid: string | null = null;
   user: any = null;
+  menuItems: MenuItem[] = [];
   unreadCount: number = 0;
   notifications: Notification[] = [];
   pendingBookingsCount: number = 0; // new property
@@ -26,6 +29,8 @@ export class HomePage implements OnInit {
     private router: Router,
     private toastController: ToastController,
     private notificationService: NotificationService,
+    private menuService: MenuService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -38,6 +43,7 @@ export class HomePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.menuCtrl.enable(true, 'home-menu');
     this.loadUserData();
   }
 
@@ -46,6 +52,7 @@ export class HomePage implements OnInit {
     this.uid = localStorage.getItem('uid');
     const storedUser = localStorage.getItem('user');
     this.user = storedUser ? JSON.parse(storedUser) : null;
+    this.refreshMenuItems();
 
     if (!this.uid) {
       this.router.navigate(['/login']);
@@ -57,11 +64,30 @@ export class HomePage implements OnInit {
     this.updatePendingBookingsCount();
   }
 
+  private refreshMenuItems(): void {
+    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+  }
+
+  onMenuItemTap(item: MenuItem): void {
+    this.closeMenu();
+    if (item.action === 'feature-unavailable') {
+      this.showFeatureUnavailableToast();
+    }
+  }
+
+  trackMenuItem(_index: number, item: MenuItem): string {
+    return item.id;
+  }
+
   private loadUser(): void {
     if (!this.uid) return;
 
     this.apiService.getUserByID(this.uid).subscribe({
-      next: (data: any) => (this.user = data),
+      next: (data: any) => {
+        this.authService.syncUserProfile(data);
+        this.user = this.authService.currentUser || data;
+        this.refreshMenuItems();
+      },
       error: (err: any) => console.error('Error loading user:', err),
     });
   }
@@ -156,7 +182,7 @@ export class HomePage implements OnInit {
   }
 
   openFirstMenu(): void {
-    this.menuCtrl.open('menu');
+    this.menuCtrl.open('home-menu');
   }
 
   async logoutToast(): Promise<void> {
@@ -183,12 +209,11 @@ export class HomePage implements OnInit {
   }
 
   logOut(): void {
-    localStorage.clear();
+    this.authService.logout('/login');
     this.uid = null;
     this.user = null;
-    this.menuCtrl.enable(false, 'mainMenu');
+    this.menuCtrl.enable(false, 'home-menu');
     this.menuCtrl.close();
     this.logoutToast();
-    this.router.navigate(['/tourist/home']);
   }
 }
