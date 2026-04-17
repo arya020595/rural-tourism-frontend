@@ -138,6 +138,22 @@ ion-card-header {
   --padding-end: 40px;
 }
 
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -2px 0 8px;
+}
+
+.forgot-password-btn {
+  --padding-start: 0;
+  --padding-end: 0;
+  --color: #024e25;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+  min-height: 24px;
+}
+
 .card-container {
   display: flex;
   align-items: center;

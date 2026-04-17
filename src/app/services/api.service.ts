@@ -94,6 +94,21 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/users/reset-pass`, payload);
   }
 
+  // forgot password
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password/forgot-password`, {
+      email,
+    });
+  }
+
+  // reset password with emailed token
+  resetPasswordWithToken(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password/reset-password`, {
+      token,
+      password,
+    });
+  }
+
   //FORM API
 
   //create form

@@ -1,145 +1,201 @@
-<!-- <ion-header>
-  <ion-toolbar style="--background:transparent">
-    <ion-title>Multi-step Registration</ion-title>
-  </ion-toolbar>
-</ion-header> -->
 
-<ion-content>
-  <form #form="ngForm" (ngSubmit)="submitForm(form)" (ngModelChange)="passwordMatchValidator(form)">
-    <div id="container">
-      <ion-card class="main-Container" style="margin-top: 10%;">
-        <ion-button id="cancel" fill="clear" mode="ios">
-          <!-- <ion-icon slot="start" name="chevron-back"></ion-icon> -->
-          <span>Cancel</span>
-        </ion-button>
-        <ion-card-header>
-          <ion-img class="logo" src="../../assets/icon/Feel-Sabah-North-Borneo.png"></ion-img>
-        </ion-card-header>
+<ion-content [fullscreen]="true" class="background">
+  <ion-header collapse="condense"> </ion-header>
 
-        <ion-alert
-        trigger="cancel"
-        header="Adakah anda pasti ingin membatalkan?"
-        subHeader="Are you sure you want to cancel?"
-        [buttons]="cancelButton"
-        
-      ></ion-alert>
+  <div class="card-container">
+    <ion-card class="reset-card">
+      <ion-card-content class="reset-card-content">
+        <div class="brand-lockup">
+          <img
+            src="../../assets/icon/explore_sabah-without_bg.png"
+            class="brand-logo"
+            alt="Explore Sabah"
+          />
+        </div>
 
-      
-          <!-- step 1 -->
-          <div>
+        <ng-container *ngIf="viewMode === 'request'; else resetStep">
+          <ion-text class="page-title">
+            Lupa Kata Laluan/<span class="title-italic">Forgot Password</span>
+          </ion-text>
 
-            <ion-list class="form-container">
-              <ion-item style="margin-bottom: 2%;" class="no-border">
-                <ion-label mode="ios" class="question-label">Set Semula Kata Laluan /<span style="font-style: italic;">Reset Password</span></ion-label>
-              </ion-item>
+          <div class="divider"></div>
 
-              
-              <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Nama Pengguna/Username</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="e.g., zuki_Suki" class="form-input" [(ngModel)]="resetUser.username"
-                  required
-                  name="username"
-                  #userName="ngModel"
-                  ></ion-input>
-                  <!-- error msg username -->
-                <ion-text *ngIf="userName.invalid && userName.touched">
-                  <p class="error-message">*Sila isi nama pengguna/Username is required</p>
-                </ion-text>
-             
-              </ion-item>
-
-              <ion-item *ngIf="this.question == 'q1'" class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Apakah nama haiwan peliharaan pertama anda?</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Jawapan Anda..." class="form-input" [(ngModel)]="resetUser.answer"
-                  required
-                  name="answer"
-                  #answer="ngModel"
-                  ></ion-input>
-                  <!-- error msg username -->
-                <ion-text *ngIf="answer.invalid && answer.touched">
-                  <p class="error-message">*Sila isi jawapan anda/Please provide an answer.</p>
-                </ion-text>
-             
-              </ion-item>
-
-              <ion-item *ngIf="this.question == 'q2'" class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Apakan Nama Sekolah Rendah Anda?</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Jawapan Anda..." class="form-input" [(ngModel)]="resetUser.answer"
-                  required
-                  name="answer"
-                  #answer="ngModel"
-                  ></ion-input>
-                  <!-- error msg username -->
-                <ion-text *ngIf="answer.invalid && answer.touched">
-                  <p class="error-message">*Sila isi jawapan anda/Please provide an answer.</p>
-                </ion-text>
-             
-              </ion-item>
-
-              <ion-item class="no-border">
-                <ion-button (click)="toggleQuestion()">Tukar Soalan</ion-button>
-              </ion-item>
-
-              <ion-item class="no-border">
-                <ion-label mode="ios" position="stacked" class="question-label-grey">Kata Laluan Baru/New Password</ion-label>
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Masukkan Kata Laluan Baru" class="form-input" [(ngModel)]="resetUser.newPassword" required
-                  type="password"
-                  name="password"
-                  minlength="8"
-                  #password="ngModel"
-                  >
-                </ion-input>
-
-                <!-- error msg username -->
-                <ion-text *ngIf="password?.invalid && (password?.touched || form.submitted)">
-                  <ion-text *ngIf="password?.errors?.['minlength']">
-                    <p class="error-message">*Password must be 8 characters long</p>
-                  </ion-text>
-                </ion-text>
-
-              </ion-item>
-
-              <ion-item class="no-border" style="margin-top: 5%; margin-bottom: 10%;">
-
-                <!-- <ion-label position="stacked">Username</ion-label> -->
-                <ion-input placeholder="Sahkan Kata Laluan" class="form-input" [(ngModel)]="confPass"
-                  required
-                  name="confPass"
-                  type="password"
-                  (ngModelChange)="passwordMatchValidator(form)">
-                </ion-input>
-                  
-                  <!-- Show error message if password mismatch -->
-                  <br>
-                  <ion-text *ngIf="form.controls['confPass']?.hasError('passwordMismatch')">
-                    <p style="padding-left: 5%;" class="error-message">*Password Mismatch</p>
-                  </ion-text>
-
-                  <!-- <ion-text >
-                    <p  class="error-message">Passwords do not match</p>
-                  </ion-text> -->
-                  
-
-              </ion-item>
-
-
-              <ion-button mode="ios" style="margin-left: 10px; margin-right: 10px; margin-bottom: 10%;" expand="block"
-                type="submit"  [disabled]="form.invalid">Tetapkan Kata Laluan</ion-button>
-
-
-            </ion-list>
+          <div class="copy-block">
+            <p>
+              Untuk menetapkan semula kata laluan anda, masukkan alamat e-mel
+              yang dikaitkan dengan akaun anda.
+            </p>
+            <p class="copy-italic">
+              To reset your password, enter the email address associated with
+              your existing account.
+            </p>
           </div>
 
-     
+          <form
+            #requestForm="ngForm"
+            (ngSubmit)="sendResetLink(requestForm)"
+            class="reset-form"
+          >
+            <ion-item class="field-item">
+              <ion-label mode="ios" position="stacked" class="field-label">
+                Alamat E-mel/Email Address<span class="required-mark">*</span>
+              </ion-label>
+              <ion-input
+                [(ngModel)]="email"
+                name="email"
+                required
+                email
+                type="email"
+                inputmode="email"
+                autocomplete="email"
+                placeholder="e.g. zuki_suki@gmail.com"
+                class="form-input"
+                #emailInput="ngModel"
+              ></ion-input>
+            </ion-item>
 
-        
-      </ion-card>
+            <div class="divider"></div>
 
-      
-    </div>
-  </form>
+            <ion-text
+              *ngIf="requestForm.submitted && emailInput.invalid"
+              class="error-message"
+            >
+              *Sila isi alamat e-mel yang sah / Please enter a valid email
+              address
+            </ion-text>
+
+            <div class="button-row">
+              <ion-button
+                mode="ios"
+                class="action-button cancel-button"
+                fill="solid"
+                type="button"
+                (click)="backToLogin()"
+              >
+                Cancel
+              </ion-button>
+              <ion-button
+                mode="ios"
+                class="action-button continue-button"
+                fill="solid"
+                type="submit"
+                [disabled]="requestForm.invalid || isSendingResetLink"
+              >
+                Seterusnya
+              </ion-button>
+            </div>
+          </form>
+        </ng-container>
+
+        <ng-template #resetStep>
+          <ion-text class="page-title">
+            Set Semula Kata Laluan/<span class="title-italic">Reset Password</span>
+          </ion-text>
+
+          <div class="divider"></div>
+
+          <form
+            #resetForm="ngForm"
+            (ngSubmit)="submitNewPassword(resetForm)"
+            class="reset-form"
+          >
+            <ion-item class="field-item">
+              <ion-label mode="ios" position="stacked" class="field-label">
+                Kata Laluan Baru/New Password<span class="required-mark">*</span>
+              </ion-label>
+              <ion-input
+                [(ngModel)]="newPassword"
+                name="newPassword"
+                required
+                minlength="8"
+                type="password"
+                placeholder="Sila isikan semula kata laluan baru/Re-enter your password"
+                class="form-input"
+                #newPasswordInput="ngModel"
+              ></ion-input>
+            </ion-item>
+
+            <ion-text
+              *ngIf="resetForm.submitted && newPasswordInput.invalid"
+              class="error-message"
+            >
+              <span *ngIf="newPasswordInput.errors?.['required']">
+                *Sila isi kata laluan baharu / Password is required
+              </span>
+              <span *ngIf="newPasswordInput.errors?.['minlength']">
+                *Kata laluan mesti sekurang-kurangnya 8 aksara / Password must
+                be at least 8 characters
+              </span>
+            </ion-text>
+
+            <ion-item class="field-item">
+              <ion-label mode="ios" position="stacked" class="field-label">
+                Sahkan kata laluan/Confirm Password
+              </ion-label>
+              <ion-input
+                [(ngModel)]="confirmPassword"
+                name="confirmPassword"
+                required
+                type="password"
+                placeholder="Sahkan kata laluan/Confirm Password"
+                class="form-input"
+                #confirmPasswordInput="ngModel"
+              ></ion-input>
+            </ion-item>
+
+            <div class="divider"></div>
+
+            <ion-text
+              *ngIf="resetForm.submitted && confirmPasswordInput.invalid"
+              class="error-message"
+            >
+              *Sila sahkan kata laluan / Please confirm your password
+            </ion-text>
+
+            <ion-text
+              *ngIf="confirmPassword && newPassword && newPassword !== confirmPassword"
+              class="error-message"
+            >
+              *Password Mismatch
+            </ion-text>
+
+            <div class="button-row">
+              <ion-button
+                mode="ios"
+                class="action-button cancel-button"
+                fill="solid"
+                type="button"
+                (click)="backToLogin()"
+              >
+                Cancel
+              </ion-button>
+              <ion-button
+                mode="ios"
+                class="action-button continue-button"
+                fill="solid"
+                type="submit"
+                [disabled]="
+                  resetForm.invalid ||
+                  newPassword !== confirmPassword ||
+                  !resetToken ||
+                  isResettingPassword
+                "
+              >
+                Hantar
+              </ion-button>
+            </div>
+          </form>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <ion-alert
+    [isOpen]="emailSentAlertOpen"
+    [header]="emailSentHeader"
+    [message]="emailSentMessage"
+    [buttons]="emailSentButtons"
+    cssClass="email-sent-alert"
+    (didDismiss)="emailSentAlertOpen = false"
+  ></ion-alert>
 </ion-content>
