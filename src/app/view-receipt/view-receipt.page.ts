@@ -1,10 +1,16 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '../services/api.service';
+import { NavController } from '@ionic/angular';
 import html2canvas from 'html2canvas'; // Import html2canvas
 import { environment } from '../../environments/environment';
-import { NavController } from '@ionic/angular';
+import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-view-receipt',
@@ -30,10 +36,11 @@ export class ViewReceiptPage implements OnInit {
     private apiService: ApiService,
     private cdr: ChangeDetectorRef,
     private navCtrl: NavController,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
-    this.uid = localStorage.getItem('uid');
+    this.uid = this.authService.getUserId();
 
     this.activatedRoute.params.subscribe((params) => {
       this.receiptId = params['receipt_id'];
@@ -49,7 +56,7 @@ export class ViewReceiptPage implements OnInit {
   }
 
   back() {
-    const isTourist = !!localStorage.getItem('tourist_user_id');
+    const isTourist = this.authService.getCurrentRole() === 'tourist';
     this.navCtrl.navigateBack(
       isTourist ? '/tourist/transaction' : '/transaction',
     );

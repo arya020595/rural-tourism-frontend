@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-reset-passs',
@@ -40,7 +40,7 @@ export class ResetPasssPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: ApiService,
+    private authService: AuthService,
     private toastController: ToastController,
   ) {}
 
@@ -91,16 +91,18 @@ export class ResetPasssPage implements OnInit {
     }
 
     this.isSendingResetLink = true;
-    this.apiService.requestPasswordReset(this.email.trim().toLowerCase()).subscribe({
-      next: () => {
-        this.isSendingResetLink = false;
-        this.emailSentAlertOpen = true;
-      },
-      error: () => {
-        this.isSendingResetLink = false;
-        this.errorToast('Gagal menghantar pautan reset. Sila cuba lagi.');
-      },
-    });
+    this.authService
+      .requestPasswordReset(this.email.trim().toLowerCase())
+      .subscribe({
+        next: () => {
+          this.isSendingResetLink = false;
+          this.emailSentAlertOpen = true;
+        },
+        error: () => {
+          this.isSendingResetLink = false;
+          this.errorToast('Gagal menghantar pautan reset. Sila cuba lagi.');
+        },
+      });
   }
 
   backToLogin() {
@@ -124,18 +126,20 @@ export class ResetPasssPage implements OnInit {
     }
 
     this.isResettingPassword = true;
-    this.apiService.resetPasswordWithToken(this.resetToken, this.newPassword).subscribe({
-      next: async () => {
-        this.isResettingPassword = false;
-        await this.successToast();
-        this.router.navigate(['/login'], { replaceUrl: true });
-      },
-      error: () => {
-        this.isResettingPassword = false;
-        this.errorToast(
-          'Pautan reset telah tamat tempoh atau tidak sah. Sila minta pautan baharu.',
-        );
-      },
-    });
+    this.authService
+      .resetPasswordWithToken(this.resetToken, this.newPassword)
+      .subscribe({
+        next: async () => {
+          this.isResettingPassword = false;
+          await this.successToast();
+          this.router.navigate(['/login'], { replaceUrl: true });
+        },
+        error: () => {
+          this.isResettingPassword = false;
+          this.errorToast(
+            'Pautan reset telah tamat tempoh atau tidak sah. Sila minta pautan baharu.',
+          );
+        },
+      });
   }
 }

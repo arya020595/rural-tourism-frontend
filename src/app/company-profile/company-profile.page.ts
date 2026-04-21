@@ -1,15 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { environment } from '../../environments/environment';
+import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
+import { CompanyService } from '../services/company.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
-import { environment } from '../../environments/environment';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { UserService } from '../services/user.service';
 
 type DocumentField =
   | 'motac_license_file'
@@ -87,7 +89,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   private initialFormData: CompanyProfileFormData = this.createEmptyFormData();
 
   constructor(
-    private apiService: ApiService,
+    private userService: UserService,
+    private companyService: CompanyService,
+    private associationService: AssociationService,
     private authService: AuthService,
     private menuCtrl: MenuController,
     private menuService: MenuService,
@@ -191,7 +195,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   }
 
   private loadAssociations(): void {
-    this.apiService.getAssociationList().subscribe({
+    this.associationService.getAssociationList().subscribe({
       next: (res: AssociationItem[]) => {
         this.associations = res || [];
       },
@@ -204,8 +208,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   private loadProfile(userId: string): void {
     this.isLoading = true;
 
-    this.apiService.getUserByID(userId).subscribe({
-      next: (data: any) => {
+    this.userService.getUserByID(userId).subscribe({
+      next: (response: any) => {
+        const data = response?.data ?? response;
         this.authService.syncUserProfile(data);
         this.user = this.authService.currentUser || data;
 
@@ -254,9 +259,16 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       company_logo: toString(
         data?.company_logo ?? data?.company?.operator_logo_image,
       ),
-      motac_license_file: toString(data?.motac_license_file),
-      trading_operation_license: toString(data?.trading_operation_license),
-      homestay_certificate: toString(data?.homestay_certificate),
+      motac_license_file: toString(
+        data?.motac_license_file ?? data?.company?.motac_license_file,
+      ),
+      trading_operation_license: toString(
+        data?.trading_operation_license ??
+          data?.company?.trading_operation_license,
+      ),
+      homestay_certificate: toString(
+        data?.homestay_certificate ?? data?.company?.homestay_certificate,
+      ),
     };
   }
 
@@ -397,41 +409,39 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.uid) {
-      this.showError('Unable to update profile. Please login again.');
+    const companyId = this.user?.company?.id;
+    if (!companyId) {
+      this.showError('Unable to update profile. Company record not found.');
       return;
     }
 
-    const businessName = this.normalizeString(this.formData.business_name);
-    const associationId = this.normalizeString(this.formData.association_id);
-    const ownerFullName = this.normalizeString(this.formData.owner_full_name);
-    const contactNo = this.normalizeString(this.formData.contact_no);
-    const businessAddress = this.normalizeString(
-      this.formData.business_address,
-    );
-    const location = this.normalizeString(this.formData.location);
-    const fullTimeStaff = this.normalizeString(
-      this.formData.no_of_full_time_staff,
-    );
-    const partTimeStaff = this.normalizeString(
-      this.formData.no_of_part_time_staff,
-    );
-    const poscode = this.normalizeString(this.formData.poscode);
-
+    // Map frontend form field names to company table column names
     const payload = new FormData();
-    payload.append('business_name', businessName);
-    if (associationId.length > 0) {
-      payload.append('associationId', associationId);
-    }
-    payload.append('owner_full_name', ownerFullName);
-    payload.append('contact_no', contactNo);
-    payload.append('business_address', businessAddress);
-    payload.append('location', location);
-    payload.append('no_of_full_time_staff', fullTimeStaff);
-    payload.append('no_of_part_time_staff', partTimeStaff);
+    payload.append(
+      'company_name',
+      this.normalizeString(this.formData.business_name),
+    );
+    payload.append(
+      'contact_no',
+      this.normalizeString(this.formData.contact_no),
+    );
+    payload.append(
+      'address',
+      this.normalizeString(this.formData.business_address),
+    );
+    payload.append('location', this.normalizeString(this.formData.location));
+    payload.append(
+      'total_fulltime_staff',
+      this.normalizeString(this.formData.no_of_full_time_staff),
+    );
+    payload.append(
+      'total_partime_staff',
+      this.normalizeString(this.formData.no_of_part_time_staff),
+    );
 
+    const poscode = this.normalizeString(this.formData.poscode);
     if (poscode.length > 0) {
-      payload.append('poscode', poscode);
+      payload.append('postcode', poscode);
     }
 
     this.documentFields.forEach((field) => {
@@ -447,14 +457,10 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
     this.isSaving = true;
 
-    this.apiService.updateUserByID(this.uid, payload).subscribe({
-      next: (updated: any) => {
-        this.authService.syncUserProfile(updated);
-        this.user = this.authService.currentUser || updated;
-
-        const mapped = this.mapUserToFormData(updated);
-        this.formData = mapped;
-        this.initialFormData = this.cloneFormData(mapped);
+    this.companyService.updateCompanyById(companyId, payload).subscribe({
+      next: (_response: any) => {
+        // Reload the full user profile to get the latest merged data
+        this.loadProfile(this.uid!);
 
         this.selectedFiles = {};
         this.selectedFileNames = {};
