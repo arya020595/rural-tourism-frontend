@@ -38,6 +38,7 @@ export interface User {
   full_name?: string;
   email?: string;
   association_id?: string | number;
+  company_id?: string | number;
   contact_no?: string;
   nationality?: string;
   role?: Role | UserRoleName | string;
