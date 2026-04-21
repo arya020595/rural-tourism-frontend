@@ -52,13 +52,6 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/users/${user_id}`, payload);
   }
 
-  updateCompanyById(
-    company_id: string | number,
-    payload: FormData,
-  ): Observable<any> {
-    return this.http.put(`${this.apiUrl}/companies/${company_id}`, payload);
-  }
-
   getAllUser(): Observable<any> {
     return this.http.get(`${this.apiUrl}/users`);
   }
