@@ -26,6 +26,13 @@ export class MenuService {
         route: '/company-profile',
         permission: 'profile:read',
       },
+      {
+        id: 'users',
+        label: 'Users / Pengguna',
+        icon: 'people-outline',
+        route: '/users',
+        permission: 'user:read',
+      },
     ],
     tourist: [
       {

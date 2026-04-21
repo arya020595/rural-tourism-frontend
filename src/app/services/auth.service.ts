@@ -5,7 +5,20 @@ import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StorageService } from './storage.service';
 
-export type UserRoleName = 'admin' | 'operator' | 'tourist' | 'association';
+export type UserRoleName =
+  | 'superadmin'
+  | 'operator_admin'
+  | 'operator_staff'
+  | 'tourist'
+  | 'association';
+
+export const VALID_ROLES: readonly UserRoleName[] = [
+  'superadmin',
+  'operator_admin',
+  'operator_staff',
+  'tourist',
+  'association',
+] as const;
 
 export interface Role {
   id?: number | string;
@@ -58,8 +71,6 @@ export interface RegisterData {
   contact_no?: string;
   nationality?: string;
 }
-
-type RegisterUserType = 'operator' | 'tourist';
 
 /**
  * AuthService - Centralized authentication management
@@ -124,7 +135,10 @@ export class AuthService {
 
   private normalizeUser(user: User): User {
     const roleName = this.getRoleName(user);
-    const isOperator = roleName === 'operator';
+    const isOperator =
+      roleName === 'superadmin' ||
+      roleName === 'operator_admin' ||
+      roleName === 'operator_staff';
     const roleObj: Role | undefined = roleName
       ? {
           id: typeof user.role === 'object' ? user.role.id : undefined,
@@ -158,7 +172,7 @@ export class AuthService {
       permissions: Array.isArray(user.permissions) ? user.permissions : [],
     };
 
-    if (roleName === 'operator' && normalizedId) {
+    if (isOperator && normalizedId) {
       normalized.user_id = normalizedId;
     }
 
@@ -179,6 +193,11 @@ export class AuthService {
     const legacyId = normalizedUser.legacy_user_id;
     const unifiedId = normalizedUser.id || normalizedUser.unified_user_id;
 
+    const isOperator =
+      roleName === 'superadmin' ||
+      roleName === 'operator_admin' ||
+      roleName === 'operator_staff';
+
     this.storage.setToken(token);
     this.storage.setUser(normalizedUser);
     this.storage.remove('association_user');
@@ -186,7 +205,7 @@ export class AuthService {
     this.storage.remove('uid');
     this.storage.remove('tourist_user_id');
 
-    if (roleName === 'operator' && unifiedId) {
+    if (isOperator && unifiedId) {
       this.storage.setUid(unifiedId);
     }
 
@@ -211,27 +230,16 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
-  private loginRequest(
-    credentials: { username: string; password: string },
-    userType?: UserRoleName,
-  ): Observable<LoginResponse> {
-    const payload: {
-      identifier: string;
-      username: string;
-      password: string;
-      user_type?: UserRoleName;
-    } = {
-      identifier: credentials.username,
-      username: credentials.username,
-      password: credentials.password,
-    };
-
-    if (userType) {
-      payload.user_type = userType;
-    }
-
+  login(credentials: {
+    username: string;
+    password: string;
+  }): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${this.apiUrl}/auth/login`, payload)
+      .post<LoginResponse>(`${this.apiUrl}/auth/login`, {
+        identifier: credentials.username,
+        username: credentials.username,
+        password: credentials.password,
+      })
       .pipe(
         tap((response) => {
           if (response.success && response.data?.token && response.data?.user) {
@@ -240,16 +248,6 @@ export class AuthService {
         }),
         catchError((error) => throwError(() => error)),
       );
-  }
-
-  /**
-   * Login without explicit role. Backend resolves user type from credentials.
-   */
-  login(credentials: {
-    username: string;
-    password: string;
-  }): Observable<LoginResponse> {
-    return this.loginRequest(credentials);
   }
 
   refreshSession(): Observable<MeResponse> {
@@ -302,15 +300,11 @@ export class AuthService {
     } as User;
 
     const token = this.storage.getToken();
-    if (token) {
-      this.persistSession(token, mergedUser);
+    if (!token) {
       return;
     }
 
-    const normalizedUser = this.normalizeUser(mergedUser);
-    this.storage.setUser(normalizedUser);
-    this.currentUserSubject.next(normalizedUser);
-    this.isAuthenticatedSubject.next(true);
+    this.persistSession(token, mergedUser);
   }
 
   /**
@@ -328,81 +322,6 @@ export class AuthService {
   }
 
   /**
-   * Login as operator
-   */
-  loginOperator(credentials: {
-    username: string;
-    password: string;
-  }): Observable<LoginResponse> {
-    return this.loginRequest(credentials, 'operator');
-  }
-
-  /**
-   * Login as tourist
-   */
-  loginTourist(credentials: {
-    username: string;
-    password: string;
-  }): Observable<LoginResponse> {
-    return this.loginRequest(credentials, 'tourist');
-  }
-
-  loginAssociation(credentials: {
-    username: string;
-    password: string;
-  }): Observable<LoginResponse> {
-    return this.loginRequest(credentials, 'association');
-  }
-
-  private registerByUserType(
-    userData: RegisterData | FormData,
-    userType: RegisterUserType,
-  ): Observable<any> {
-    if (userData instanceof FormData) {
-      if (!userData.has('user_type')) {
-        userData.append('user_type', userType);
-      }
-      return this.http.post(`${this.apiUrl}/auth/register`, userData);
-    }
-
-    return this.http.post(`${this.apiUrl}/auth/register`, {
-      ...userData,
-      user_type: userType,
-    });
-  }
-
-  /**
-   * Register new operator
-   */
-  registerOperator(userData: RegisterData | FormData): Observable<any> {
-    return this.registerByUserType(userData, 'operator');
-  }
-
-  /**
-   * Register new tourist
-   */
-  registerTourist(userData: RegisterData | FormData): Observable<any> {
-    return this.registerByUserType(userData, 'tourist');
-  }
-
-  /**
-   * Reset password
-   */
-  resetPassword(
-    username: string,
-    question: string,
-    securityAnswer: string,
-    newPassword: string,
-  ): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/reset-pass`, {
-      username,
-      question,
-      securityAnswer,
-      newPassword,
-    });
-  }
-
-  /**
    * Logout and clear all auth data
    */
   logout(redirectTo = '/login'): void {
@@ -414,29 +333,11 @@ export class AuthService {
   }
 
   /**
-   * Get user ID (works for both operator and tourist)
+   * Get current user's canonical ID.
    */
   getUserId(): string | null {
     const user = this.currentUser;
-    const roleName = this.getRoleName(user) || user?.user_type || null;
-
-    if (roleName === 'operator') {
-      return (
-        user?.id ||
-        user?.unified_user_id ||
-        user?.user_id ||
-        this.storage.getUid()
-      );
-    }
-
-    return (
-      user?.id ||
-      user?.legacy_user_id ||
-      user?.user_id ||
-      user?.tourist_user_id ||
-      user?.association_user_id ||
-      this.storage.getUid()
-    );
+    return user?.id || user?.unified_user_id || this.storage.getUid();
   }
 
   /**
@@ -452,54 +353,8 @@ export class AuthService {
    */
   getCurrentRole(): UserRoleName | null {
     const role = this.getRoleName(this.currentUser);
-
-    if (
-      role === 'admin' ||
-      role === 'operator' ||
-      role === 'tourist' ||
-      role === 'association'
-    ) {
-      return role;
-    }
-
-    if (this.storage.getTouristUserId()) {
-      return 'tourist';
-    }
-
-    if (this.storage.get<string>('association_user_id')) {
-      return 'association';
-    }
-
-    if (this.storage.getUid()) {
-      return 'operator';
-    }
-
-    return null;
-  }
-
-  /**
-   * Check if current user is an operator
-   */
-  isOperator(): boolean {
-    const role = this.getCurrentRole();
-    if (role) return role === 'operator';
-    return !!this.storage.getUid() && !this.storage.getTouristUserId();
-  }
-
-  /**
-   * Check if current user is a tourist
-   */
-  isTourist(): boolean {
-    const role = this.getCurrentRole();
-    if (role) return role === 'tourist';
-    return !!this.storage.getTouristUserId();
-  }
-
-  /**
-   * Check if current user is an association user.
-   */
-  isAssociation(): boolean {
-    const role = this.getCurrentRole();
-    return role === 'association';
+    return VALID_ROLES.includes(role as UserRoleName)
+      ? (role as UserRoleName)
+      : null;
   }
 }
