@@ -438,6 +438,14 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       'total_partime_staff',
       this.normalizeString(this.formData.no_of_part_time_staff),
     );
+    payload.append(
+      'association_id',
+      this.normalizeString(this.formData.association_id),
+    );
+    payload.append(
+      'owner_full_name',
+      this.normalizeString(this.formData.owner_full_name),
+    );
 
     const poscode = this.normalizeString(this.formData.poscode);
     if (poscode.length > 0) {
