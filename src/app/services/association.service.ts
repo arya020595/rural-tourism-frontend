@@ -9,7 +9,16 @@ export class AssociationService {
 
   constructor(private http: HttpClient) {}
 
-  getAssociationList(): Observable<any> {
+  getPublicAssociationList(): Observable<any> {
     return this.http.get(`${this.apiUrl}/associations/public`);
+  }
+
+  /**
+   * @deprecated Use `getPublicAssociationList()` instead.
+   * Kept as a backward-compatible alias while callers are migrated away
+   * from the duplicated API surface.
+   */
+  getAssociationList(): Observable<any> {
+    return this.getPublicAssociationList();
   }
 }
