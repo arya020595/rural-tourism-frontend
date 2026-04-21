@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '../services/api.service';
+import { NavController } from '@ionic/angular';
+import { ActivityService } from '../services/activity.service';
+import { BookingService } from '../services/booking.service';
+import { FormService } from '../services/form.service';
 import { BookingFilter, TouristOptionMapper } from '../utils/booking.utils';
 
 @Component({
@@ -14,7 +16,9 @@ export class ActivityFormPage implements OnInit {
   preselectedBookingId: number | null = null;
 
   constructor(
-    private apiService: ApiService,
+    private activityService: ActivityService,
+    private bookingService: BookingService,
+    private formService: FormService,
     private navCtrl: NavController,
     private route: ActivatedRoute,
   ) {}
@@ -85,7 +89,7 @@ export class ActivityFormPage implements OnInit {
 
   // ---------------- Load All Tourist Users (for manual booking) ----------------
   loadAllTouristUsers() {
-    this.apiService.getAllTouristUsers().subscribe(
+    this.bookingService.getAllTouristUsers().subscribe(
       (res: any) => {
         const list: any[] = Array.isArray(res.data)
           ? res.data
@@ -159,7 +163,7 @@ export class ActivityFormPage implements OnInit {
   // ---------------- Load Activities ----------------
   loadActivities() {
     const uid = localStorage.getItem('uid')!;
-    this.apiService.getAllActByUser(uid).subscribe(
+    this.activityService.getAllActByUser(uid).subscribe(
       (data) => {
         this.activities = data;
         // Re-trigger tourist change if tourist was auto-selected before
@@ -178,7 +182,7 @@ export class ActivityFormPage implements OnInit {
   // ---------------- Load Tourists ----------------
   loadTouristsFromBookings() {
     const operatorUid = localStorage.getItem('uid')!;
-    this.apiService.getOperatorAllBookings(operatorUid).subscribe(
+    this.bookingService.getOperatorAllBookings(operatorUid).subscribe(
       (res: any) => {
         const bookings: any[] = Array.isArray(res.data)
           ? res.data
@@ -490,7 +494,7 @@ export class ActivityFormPage implements OnInit {
       ];
 
       // Load already-booked dates from backend and compute the available subset
-      this.apiService
+      this.bookingService
         .getBookedDatesByOperatorActivity(String(selectedActivity.id))
         .subscribe(
           (res: any) => {
@@ -622,7 +626,7 @@ export class ActivityFormPage implements OnInit {
       };
 
       console.debug('Submitting activity form payload:', payload);
-      const response: any = await this.apiService
+      const response: any = await this.formService
         .createForm(payload)
         .toPromise();
       const receiptId = response?.data?.receipt_id || payload.receipt_id;

@@ -4,7 +4,7 @@ import {
   NavController,
   ToastController,
 } from '@ionic/angular';
-import { ApiService } from '../../services/api.service';
+import { BookingService } from '../../services/booking.service';
 
 interface Booking {
   id: string | number;
@@ -38,7 +38,7 @@ export class TouristBookingsPage implements OnInit {
   selectedSegment: 'activity' | 'accommodation' = 'activity';
 
   constructor(
-    private apiService: ApiService,
+    private bookingService: BookingService,
     private toastController: ToastController,
     private navCtrl: NavController,
     private alertController: AlertController,
@@ -82,7 +82,7 @@ export class TouristBookingsPage implements OnInit {
 
     this.loading = true;
 
-    this.apiService.getTouristAllBookings(this.touristId).subscribe({
+    this.bookingService.getTouristAllBookings(this.touristId).subscribe({
       next: (response: any) => {
         this.loading = false;
         const bookings: Booking[] = Array.isArray(response.data)
@@ -255,7 +255,9 @@ export class TouristBookingsPage implements OnInit {
       if (totalCancelled === 7) {
         try {
           // Call backend to suspend user
-          await this.apiService.suspendTouristUser(this.touristId).toPromise();
+          await this.bookingService
+            .suspendTouristUser(this.touristId)
+            .toPromise();
 
           // Update local state
           this.userIsActive = false;
@@ -291,12 +293,12 @@ export class TouristBookingsPage implements OnInit {
 
     // Call appropriate API
     if (type === 'activity') {
-      this.apiService.cancelActivityBooking(idStr).subscribe({
+      this.bookingService.cancelActivityBooking(idStr).subscribe({
         next: handleCancelSuccess,
         error: () => this.showToast('Failed to cancel activity booking'),
       });
     } else {
-      this.apiService.cancelAccommodationBooking(idStr).subscribe({
+      this.bookingService.cancelAccommodationBooking(idStr).subscribe({
         next: handleCancelSuccess,
         error: () => this.showToast('Failed to cancel accommodation booking'),
       });

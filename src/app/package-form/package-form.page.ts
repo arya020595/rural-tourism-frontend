@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, input, OnInit } from '@angular/core';
-import { ApiService } from '../services/api.service';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NavController } from '@ionic/angular';
+import { FormService } from '../services/form.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-package-form',
@@ -9,12 +10,12 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['./package-form.page.scss'],
 })
 export class PackageFormPage implements OnInit {
-
   constructor(
-    private apiService: ApiService,
+    private userService: UserService,
+    private formService: FormService,
     private navCtrl: NavController,
-    private cdRef: ChangeDetectorRef
-  ) { }
+    private cdRef: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
     this.loadActivity();
@@ -22,11 +23,11 @@ export class PackageFormPage implements OnInit {
 
   // This will hold the dynamically added input sets
   inputSets = [
-    { id: Date.now(), nameOfBusiness: null, total_rm: null, packageDesc: null }
+    { id: Date.now(), nameOfBusiness: null, total_rm: null, packageDesc: null },
   ];
 
-   //initialize
-   form = {
+  //initialize
+  form = {
     receipt_id: '',
     user_id: localStorage.getItem('uid'),
     citizenship: '',
@@ -35,13 +36,13 @@ export class PackageFormPage implements OnInit {
     pax_antarabangsa: '',
     activity_name: '',
     homest_name: '',
-    location: '',//get location based on input
+    location: '', //get location based on input
     activity_id: '',
     homest_id: '',
     total_rm: '',
     package: this.inputSets,
-    issuer:'',
-    date:''
+    issuer: '',
+    date: '',
   };
 
   // Create an array of numbers from 1 to 20
@@ -50,12 +51,12 @@ export class PackageFormPage implements OnInit {
   activities: any[] = [];
   businesses: any[] = [];
 
-  selectedActivity: any = null; 
+  selectedActivity: any = null;
 
-  backHome(){
+  backHome() {
     this.navCtrl.navigateForward('/home', {
-      animated: true,        // Enable animation
-      animationDirection: 'back'  // Can be 'forward' or 'back' for custom direction
+      animated: true, // Enable animation
+      animationDirection: 'back', // Can be 'forward' or 'back' for custom direction
     });
   }
 
@@ -67,63 +68,49 @@ export class PackageFormPage implements OnInit {
     return `PE${formattedRandomPart}`; // Concatenate 'RE' with the 7-digit random number
   }
 
-  
-max: boolean = false;
+  max: boolean = false;
   // Add a new input set
   addInputSet() {
     if (this.inputSets.length < 5) {
       // console.log(this.max);
       const newInputSet = {
-        id: Date.now(),  // Unique ID for each input set (timestamp-based)
+        id: Date.now(), // Unique ID for each input set (timestamp-based)
         nameOfBusiness: null,
         total_rm: null,
-        packageDesc: null
+        packageDesc: null,
       };
-    
+
       // Manually updating the inputSets array
-    // this.inputSets = [...this.inputSets, newInputSet];
-    this.inputSets.push(newInputSet);
-  
-    // console.log('inputSets after adding:', this.inputSets);
-    }else{
-     
+      // this.inputSets = [...this.inputSets, newInputSet];
+      this.inputSets.push(newInputSet);
+
+      // console.log('inputSets after adding:', this.inputSets);
+    } else {
       this.max = true;
-      
-      
     }
-
-   
   }
-
-  
 
   // Remove an input set at the specified index
   removeInputSet(index: number) {
     this.max = false;
     this.inputSets.splice(index, 1);
-    
   }
-
 
   trackByIndex(index: number): number {
-    return index;  // Use index to track each item uniquely
+    return index; // Use index to track each item uniquely
   }
 
-  
   //load accomodation options
   loadActivity() {
-
-    this.apiService.getAllUser().subscribe(
-      (data)=>{
+    this.userService.getAllUser().subscribe(
+      (data) => {
         this.businesses = data;
-        
-        
       },
-      (error)=>{
+      (error) => {
         console.log(error);
-      }
-    )
-   
+      },
+    );
+
     // const uid = localStorage.getItem('uid') as string;
     // //get all accommodations by user
     // this.apiService.getAllActByUser(uid).subscribe(
@@ -136,7 +123,6 @@ max: boolean = false;
     //     console.log(error);
     //   }
     // )
-
   }
 
   //submit function
@@ -166,20 +152,20 @@ max: boolean = false;
   //   try {
   //     // Generate a new unique receipt_id each time the form is submitted
   //     this.form.receipt_id = this.generateReceiptId();
-      
+
   //     // Wait for the backend response using async/await
   //     const response = await this.apiService.createForm(this.form).toPromise();
   //     console.log('Form created successfully:', response);
-  
+
   //     // Ensure receipt_id is generated before navigating
   //     this.form.receipt_id = response.receipt_id || this.form.receipt_id;
-      
+
   //     // Clear the form only after successful backend creation
   //     this.clearForm(form);
-  
+
   //     // Navigate to the receipt page after the data is saved
   //     this.navCtrl.navigateForward('/receipt-activity/' + this.form.receipt_id);
-  
+
   //   } catch (error) {
   //     // Handle error gracefully
   //     alert('Server Connection Error');
@@ -193,19 +179,20 @@ max: boolean = false;
       // this.isLoading = true;
 
       // Calculate total_pax by adding paxA and paxD
-      this.form.pax = (parseInt(this.form.pax_antarabangsa) || 0) + (parseInt(this.form.pax_domestik) || 0);
-      
+      this.form.pax =
+        (parseInt(this.form.pax_antarabangsa) || 0) +
+        (parseInt(this.form.pax_domestik) || 0);
+
       // Generate a new unique receipt_id for the form
       this.form.receipt_id = this.generateReceiptId();
-      
+
       // Wait for the backend response using async/await
-      const response = await this.apiService.createForm(this.form).toPromise();
+      const response = await this.formService.createForm(this.form).toPromise();
 
       // Check if the response contains a receipt_id
       if (response && response.receipt_id) {
-        this.form.receipt_id = response.receipt_id;  // Update the form with the response's receipt_id
+        this.form.receipt_id = response.receipt_id; // Update the form with the response's receipt_id
         // console.log();
-        
       } else {
         // If the response is invalid or doesn't contain a receipt_id, show an error
         alert('Error: No receipt ID returned.');
@@ -222,51 +209,44 @@ max: boolean = false;
       // Ensure the backend processing and form clearing is fully done before navigating
       setTimeout(() => {
         // Navigate to the receipt page after everything is done
-        this.navCtrl.navigateForward('/receipt-package/' + this.form.receipt_id);
-      }, 300);  // Adding a slight delay to ensure everything is fully settled
-
+        this.navCtrl.navigateForward(
+          '/receipt-package/' + this.form.receipt_id,
+        );
+      }, 300); // Adding a slight delay to ensure everything is fully settled
     } catch (error) {
       // Handle any errors (e.g., network failure)
       // this.isLoading = false;  // Hide loading indicator
       alert('Server Connection Error');
-      console.log("Failed:", error);
+      console.log('Failed:', error);
     }
   }
 
-
   //for testing
-  trysubmit(form: NgForm){
-      // Generate a new unique receipt_id for the form
-      this.form.receipt_id = this.generateReceiptId();
-      // console.log(this.form.package[0].nameOfBusiness);
+  trysubmit(form: NgForm) {
+    // Generate a new unique receipt_id for the form
+    this.form.receipt_id = this.generateReceiptId();
+    // console.log(this.form.package[0].nameOfBusiness);
 
-      //loop through items
-      this.form.package.forEach((item, index) => {
-        console.log(item.packageDesc);
-        console.log(this.form);
-        
-      });
-      // console.log
-      
+    //loop through items
+    this.form.package.forEach((item, index) => {
+      console.log(item.packageDesc);
+      console.log(this.form);
+    });
+    // console.log
   }
-
-
-  
-  
 
   onActivityChange(selectedActivity: any) {
     if (selectedActivity.activity_name) {
-      this.inputSets
+      this.inputSets;
       // this.form.activity_name = selectedActivity.activity_name;  // Set homest_name
       // this.form.location = selectedActivity.location;  // Set location
-      // this.form.activity_id = selectedActivity.activity_id; 
+      // this.form.activity_id = selectedActivity.activity_id;
       // console.log(selectedActivity.location)
       // console.log(selectedActivity.homest_id)
     }
-    
   }
 
-  //for testing form object 
+  //for testing form object
   // submitForm(form: NgForm){
 
   //   // Generate a new unique receipt_id each time the form is submitted
@@ -280,5 +260,4 @@ max: boolean = false;
   clearForm(form: NgForm) {
     form.reset();
   }
-
 }

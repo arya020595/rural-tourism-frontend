@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
+import { AccommodationService } from '../services/accommodation.service';
+import { ActivityService } from '../services/activity.service';
 
 @Component({
   selector: 'app-activity-and-accommodation-management',
@@ -14,7 +15,8 @@ export class ActivityAndAccommodationManagementPage implements OnInit {
   userId = localStorage.getItem('uid') || '';
 
   constructor(
-    private apiService: ApiService,
+    private activityService: ActivityService,
+    private accommodationService: AccommodationService,
     private navCtrl: NavController,
   ) {}
 
@@ -24,7 +26,7 @@ export class ActivityAndAccommodationManagementPage implements OnInit {
   }
 
   loadActivities() {
-    this.apiService.getAllActByUser(this.userId).subscribe(
+    this.activityService.getAllActByUser(this.userId).subscribe(
       (res: any) => {
         this.activities = res.data || res || [];
       },
@@ -35,7 +37,7 @@ export class ActivityAndAccommodationManagementPage implements OnInit {
   }
 
   loadAccommodations() {
-    this.apiService.getAllAccomByUser(this.userId).subscribe(
+    this.accommodationService.getAllAccomByUser(this.userId).subscribe(
       (res: any) => {
         this.accommodations = res.data || res || [];
       },

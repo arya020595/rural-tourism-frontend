@@ -9,8 +9,9 @@ import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import html2canvas from 'html2canvas'; // Import html2canvas
 import { environment } from '../../environments/environment';
-import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
+import { FormService } from '../services/form.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-view-receipt',
@@ -33,7 +34,8 @@ export class ViewReceiptPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private apiService: ApiService,
+    private userService: UserService,
+    private formService: FormService,
     private cdr: ChangeDetectorRef,
     private navCtrl: NavController,
     private authService: AuthService,
@@ -64,7 +66,7 @@ export class ViewReceiptPage implements OnInit {
 
   loadUser() {
     if (this.uid) {
-      this.apiService.getUserByID(this.uid).subscribe(
+      this.userService.getUserByID(this.uid).subscribe(
         (data) => (this.user = data),
         (error) => console.log(error),
       );
@@ -81,7 +83,7 @@ export class ViewReceiptPage implements OnInit {
   loadForm() {
     if (!this.receiptId) return;
 
-    this.apiService.getFormByID(this.receiptId).subscribe(
+    this.formService.getFormByID(this.receiptId).subscribe(
       async (response) => {
         const data = response?.data;
         if (!data) {
@@ -158,7 +160,7 @@ export class ViewReceiptPage implements OnInit {
         // ----------------------------
         if (this.receipt.operator_user_id) {
           try {
-            const operatorData: any = await this.apiService
+            const operatorData: any = await this.userService
               .getUserByID(this.receipt.operator_user_id)
               .toPromise();
             this.receipt.issuer =
@@ -205,7 +207,7 @@ export class ViewReceiptPage implements OnInit {
             formData.append('receiptImage', blob, 'receipt.png');
             formData.append('receiptId', this.receiptId);
 
-            this.apiService.generatePdfFromImage(formData).subscribe(
+            this.formService.generatePdfFromImage(formData).subscribe(
               (response: any) => {
                 if (response.success) {
                   this.pdfUrl = response.fileUrl;

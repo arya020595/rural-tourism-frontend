@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
-import { ApiService } from 'src/app/services/api.service';
+import { AccommodationService } from 'src/app/services/accommodation.service';
+import { BookingService } from 'src/app/services/booking.service';
 
 @Component({
   selector: 'app-accommodation-booking',
@@ -46,7 +47,8 @@ export class AccommodationBookingPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private api: ApiService,
+    private api: AccommodationService,
+    private bookingService: BookingService,
     private navCtrl: NavController,
     private alertController: AlertController,
     private cdr: ChangeDetectorRef,
@@ -121,18 +123,20 @@ export class AccommodationBookingPage implements OnInit {
   loadBookedDates() {
     if (!this.accommodationId) return;
 
-    this.api.getBookedDatesByAccommodation(this.accommodationId).subscribe({
-      next: (res) => {
-        this.bookedDates = res?.data || [];
-        this.generateCalendar();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load booked dates:', err);
-        this.bookedDates = [];
-        this.generateCalendar();
-      },
-    });
+    this.bookingService
+      .getBookedDatesByAccommodation(this.accommodationId)
+      .subscribe({
+        next: (res) => {
+          this.bookedDates = res?.data || [];
+          this.generateCalendar();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Failed to load booked dates:', err);
+          this.bookedDates = [];
+          this.generateCalendar();
+        },
+      });
   }
 
   generateCalendar() {

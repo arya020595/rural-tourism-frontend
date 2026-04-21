@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
-import { ApiService } from 'src/app/services/api.service';
+import { AccommodationService } from 'src/app/services/accommodation.service';
+import { ActivityService } from 'src/app/services/activity.service';
 
 interface AvailableDate {
   date: string;
@@ -24,7 +25,8 @@ export class ActivityOperatorDetailPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private api: ApiService,
+    private api: ActivityService,
+    private accommodationService: AccommodationService,
     private alertController: AlertController,
   ) {}
 
@@ -87,17 +89,19 @@ export class ActivityOperatorDetailPage implements OnInit {
         // Fetch operator logo if exists
         const operatorUserId = res.user_id;
         if (operatorUserId) {
-          this.api.getAccommodationOperatorById(operatorUserId).subscribe(
-            (userRes: any) => {
-              if (userRes?.company_logo) {
-                this.operatorData.operator_logo =
-                  userRes.company_logo.startsWith('data:')
-                    ? userRes.company_logo
-                    : 'data:image/png;base64,' + userRes.company_logo;
-              }
-            },
-            (err) => console.error('Error loading operator logo:', err),
-          );
+          this.accommodationService
+            .getAccommodationOperatorById(operatorUserId)
+            .subscribe(
+              (userRes: any) => {
+                if (userRes?.company_logo) {
+                  this.operatorData.operator_logo =
+                    userRes.company_logo.startsWith('data:')
+                      ? userRes.company_logo
+                      : 'data:image/png;base64,' + userRes.company_logo;
+                }
+              },
+              (err) => console.error('Error loading operator logo:', err),
+            );
         }
       },
       (err) => console.error('Error loading operator details:', err),
