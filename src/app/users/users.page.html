@@ -1,0 +1,65 @@
+<app-side-nav
+  [menuId]="'users-menu'"
+  [contentId]="'users-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="users-menu" style="color: white"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Users</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logOut()" fill="clear">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="users-main-content" class="ion-padding">
+  <!-- Search bar -->
+  <ion-searchbar
+    placeholder="Search by name, username or email"
+    (ionInput)="onSearch($event)"
+    debounce="300"
+  ></ion-searchbar>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <!-- User list -->
+  <ion-list *ngIf="!isLoading">
+    <ion-item *ngFor="let u of filteredUsers" lines="full">
+      <ion-avatar slot="start">
+        <ion-icon
+          name="person-circle-outline"
+          style="font-size: 40px; color: var(--ion-color-primary)"
+        ></ion-icon>
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ getDisplayName(u) }}</h2>
+        <p>{{ u.email }}</p>
+        <p *ngIf="u.company?.business_name">{{ u.company.business_name }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="getRoleBadgeColor(u.role?.name)">
+        {{ u.role?.name ?? 'unknown' }}
+      </ion-badge>
+    </ion-item>
+
+    <!-- Empty state -->
+    <ion-item *ngIf="filteredUsers.length === 0" lines="none">
+      <ion-label class="ion-text-center" color="medium">
+        <p>No users found.</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

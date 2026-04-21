@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from './auth.service';
+import { AuthService, UserRoleName } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +11,7 @@ export class PermissionService {
     const user = this.authService.currentUser;
     if (!user) return false;
 
-    const role = this.authService.getCurrentRole();
-    if (role === 'admin') return true;
+    if (this.authService.getCurrentRole() === 'superadmin') return true;
 
     const permissions = Array.isArray(user.permissions) ? user.permissions : [];
     return permissions.includes('*:*') || permissions.includes(code);
@@ -22,7 +21,7 @@ export class PermissionService {
     return codes.some((code) => this.hasPermission(code));
   }
 
-  hasRole(roleName: string): boolean {
+  hasRole(roleName: UserRoleName): boolean {
     return this.authService.getCurrentRole() === roleName;
   }
 }

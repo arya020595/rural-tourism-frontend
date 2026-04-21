@@ -3,7 +3,6 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { authGuard } from './auth.guard';
 import { loginRedirectGuard } from './login-redirect.guard';
 import { permissionGuard } from './permission.guard';
-import { roleGuard } from './role.guard';
 
 const routes: Routes = [
   // {
@@ -17,9 +16,8 @@ const routes: Routes = [
     path: 'tourist/home',
     loadChildren: () =>
       import('./tourist/home/home.module').then((m) => m.HomePageModule),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['activity:read', 'accommodation:read'],
     },
@@ -46,10 +44,9 @@ const routes: Routes = [
     path: 'acco-form',
     loadChildren: () =>
       import('./acco-form/acco-form.module').then((m) => m.AccoFormPageModule),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['accommodation:create'],
     },
   },
@@ -57,10 +54,9 @@ const routes: Routes = [
     path: 'receipt/:receipt_id',
     loadChildren: () =>
       import('./receipt/receipt.module').then((m) => m.ReceiptPageModule),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['receipt:read'],
     },
   },
@@ -74,10 +70,9 @@ const routes: Routes = [
     path: 'add-item',
     loadChildren: () =>
       import('./add-item/add-item.module').then((m) => m.AddItemPageModule),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['activity:create', 'accommodation:create'],
     },
   },
@@ -87,10 +82,9 @@ const routes: Routes = [
       import('./activity-form/activity-form.module').then(
         (m) => m.ActivityFormPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['activity:create'],
     },
   },
@@ -100,10 +94,9 @@ const routes: Routes = [
       import('./receipt-activity/receipt-activity.module').then(
         (m) => m.ReceiptActivityPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['receipt:read'],
     },
   },
@@ -127,10 +120,9 @@ const routes: Routes = [
       import('./package-form/package-form.module').then(
         (m) => m.PackageFormPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['activity:create'],
     },
   },
@@ -140,10 +132,9 @@ const routes: Routes = [
       import('./receipt-package/receipt-package.module').then(
         (m) => m.ReceiptPackagePageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['receipt:read'],
     },
   },
@@ -153,10 +144,9 @@ const routes: Routes = [
       import('./transaction/transaction.module').then(
         (m) => m.TransactionPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['receipt:read'],
     },
   },
@@ -166,9 +156,8 @@ const routes: Routes = [
       import('./transaction/transaction.module').then(
         (m) => m.TransactionPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['receipt:read'],
     },
@@ -179,10 +168,9 @@ const routes: Routes = [
       import('./view-receipt/view-receipt.module').then(
         (m) => m.ViewReceiptPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator', 'tourist'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['receipt:read'],
     },
   },
@@ -197,9 +185,8 @@ const routes: Routes = [
       import('./booking-home/booking-home.module').then(
         (m) => m.BookingHomePageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['booking:read'],
     },
@@ -214,10 +201,9 @@ const routes: Routes = [
     path: 'home',
     loadChildren: () =>
       import('./home/home.module').then((m) => m.HomePageModule),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['booking:read'],
     },
   },
@@ -227,10 +213,9 @@ const routes: Routes = [
       import('./company-profile/company-profile.module').then(
         (m) => m.CompanyProfilePageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['profile:read'],
     },
   },
@@ -238,10 +223,9 @@ const routes: Routes = [
     path: 'e-receipt',
     loadChildren: () =>
       import('./e-receipt/e-receipt.module').then((m) => m.EReceiptPageModule),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['booking:read'],
     },
   },
@@ -249,9 +233,8 @@ const routes: Routes = [
     path: 'tourist/faq',
     loadChildren: () =>
       import('./tourist/faq/faq.module').then((m) => m.FaqPageModule),
-    canActivate: [authGuard, roleGuard],
+    canActivate: [authGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
     },
   },
@@ -262,9 +245,8 @@ const routes: Routes = [
       import('./tourist/activity-detail/activity-detail.module').then(
         (m) => m.ActivityDetailPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['activity:read'],
     },
@@ -275,9 +257,8 @@ const routes: Routes = [
       import('./tourist/accomodation-detail/accomodation-detail.module').then(
         (m) => m.AccomodationDetailPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['accommodation:read'],
     },
@@ -306,9 +287,8 @@ const routes: Routes = [
       import('./tourist/activity-operator-list/activity-operator-list.module').then(
         (m) => m.ActivityOperatorListPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['activity:read'],
     },
@@ -319,9 +299,8 @@ const routes: Routes = [
       import('./tourist/activity-operator-detail/activity-operator-detail.module').then(
         (m) => m.ActivityOperatorDetailPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['activity:read'],
     },
@@ -333,9 +312,8 @@ const routes: Routes = [
       import('./tourist/activity-booking/activity-booking.module').then(
         (m) => m.ActivityBookingPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['booking:create'],
     },
@@ -346,9 +324,8 @@ const routes: Routes = [
       import('./tourist/confirm-booking-details/confirm-booking-details.module').then(
         (m) => m.ConfirmBookingDetailsPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['booking:create'],
     },
@@ -359,9 +336,8 @@ const routes: Routes = [
       import('./tourist/accommodation-booking/accommodation-booking.module').then(
         (m) => m.AccommodationBookingPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['booking:create'],
     },
@@ -372,9 +348,8 @@ const routes: Routes = [
       import('./tourist/confirm-booking-accommodation-details/confirm-booking-accommodation-details.module').then(
         (m) => m.ConfirmBookingAccommodationDetailsPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['booking:create'],
     },
@@ -385,10 +360,9 @@ const routes: Routes = [
       import('./notifications/notifications.module').then(
         (m) => m.NotificationsPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['booking:read'],
     },
   },
@@ -398,9 +372,8 @@ const routes: Routes = [
       import('./tourist/tourist-bookings/tourist-bookings.module').then(
         (m) => m.TouristBookingsPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['tourist'],
       loginRole: 'tourist',
       permissions: ['booking:read'],
     },
@@ -411,10 +384,9 @@ const routes: Routes = [
       import('./operator-bookings/operator-bookings.module').then(
         (m) => m.OperatorBookingsPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['booking:read'],
     },
   },
@@ -424,10 +396,9 @@ const routes: Routes = [
       import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then(
         (m) => m.ActivityAndAccommodationManagementPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['operator'],
-      loginRole: 'operator',
+      loginRole: 'operator_admin',
       permissions: ['activity:read', 'accommodation:read'],
     },
   },
@@ -437,11 +408,20 @@ const routes: Routes = [
       import('./association/dashboard/dashboard.module').then(
         (m) => m.DashboardPageModule,
       ),
-    canActivate: [authGuard, roleGuard, permissionGuard],
+    canActivate: [authGuard, permissionGuard],
     data: {
-      roles: ['association'],
       loginRole: 'association',
       permissions: ['association:read'],
+    },
+  },
+  {
+    path: 'users',
+    loadChildren: () =>
+      import('./users/users.module').then((m) => m.UsersPageModule),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['user:read'],
     },
   },
   {

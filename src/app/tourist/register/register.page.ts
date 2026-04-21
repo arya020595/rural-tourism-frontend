@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -355,7 +355,7 @@ export class RegisterPage implements OnInit {
   constructor(
     private navCtrl: NavController,
     private router: Router,
-    private apiService: ApiService,
+    private authService: AuthService,
     private alertController: AlertController,
   ) {}
 
@@ -433,16 +433,20 @@ export class RegisterPage implements OnInit {
 
     try {
       const response: any = await firstValueFrom(
-        this.apiService.registerTourist(data),
+        this.authService.registerTourist(data),
       );
 
       if (response?.success) {
-        await this.showAlert('Success', response.message || 'Registration successful.');
+        await this.showAlert(
+          'Success',
+          response.message || 'Registration successful.',
+        );
         this.navCtrl.navigateForward('/login');
       }
     } catch (error: any) {
       console.error(error);
-      const errMsg = error.error?.message || error.error?.error || 'Registration failed.';
+      const errMsg =
+        error.error?.message || error.error?.error || 'Registration failed.';
       this.showAlert('Error', errMsg);
     }
   }

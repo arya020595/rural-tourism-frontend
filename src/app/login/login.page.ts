@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
-import { AuthService } from '../services/auth.service';
-
-type LoginRole = 'admin' | 'operator' | 'tourist' | 'association';
+import { AuthService, UserRoleName } from '../services/auth.service';
 
 interface PendingActivityBooking {
   activityId: string;
@@ -77,7 +75,7 @@ export class LoginPage implements OnInit {
     this.authService.login(credentials).subscribe(
       async (res: any) => {
         if (res.success && res.data?.user) {
-          await this.handleSuccessfulLogin(res.data.user);
+          await this.handleSuccessfulLogin();
           return;
         }
 
@@ -89,33 +87,12 @@ export class LoginPage implements OnInit {
     );
   }
 
-  private resolveAuthenticatedRole(authUser: any): LoginRole {
-    const explicitRole =
-      authUser?.user_type || authUser?.role?.name || authUser?.role || null;
-
-    if (
-      explicitRole === 'admin' ||
-      explicitRole === 'tourist' ||
-      explicitRole === 'association' ||
-      explicitRole === 'operator'
-    ) {
-      return explicitRole;
-    }
-
-    return 'operator';
-  }
-
-  private async handleSuccessfulLogin(authUser: any): Promise<void> {
+  private async handleSuccessfulLogin(): Promise<void> {
     const redirectUrl = this.route.snapshot.queryParamMap.get('redirect');
-    const role = this.resolveAuthenticatedRole(authUser);
+    const role: UserRoleName | null = this.authService.getCurrentRole();
 
     if (role === 'tourist') {
-      const touristUserId = String(
-        authUser.tourist_user_id ||
-          authUser.legacy_user_id ||
-          authUser.id ||
-          '',
-      );
+      const touristUserId = this.authService.getTouristUserId();
 
       if (!touristUserId) {
         await this.errorToast('Login failed');
@@ -130,26 +107,16 @@ export class LoginPage implements OnInit {
     await this.successToast('Login successful!');
 
     if (role === 'association') {
-      if (redirectUrl) {
-        this.navCtrl.navigateRoot(redirectUrl);
-        return;
-      }
-
-      this.navCtrl.navigateRoot('/association/dashboard');
+      this.navCtrl.navigateRoot(redirectUrl || '/association/dashboard');
       return;
     }
 
-    if (role === 'operator') {
+    if (role === 'operator_admin' || role === 'operator_staff') {
       this.navCtrl.navigateRoot('/company-profile');
       return;
     }
 
-    if (redirectUrl) {
-      this.navCtrl.navigateRoot(redirectUrl);
-      return;
-    }
-
-    this.navCtrl.navigateRoot('/company-profile');
+    this.navCtrl.navigateRoot(redirectUrl || '/company-profile');
   }
 
   private redirectTouristAfterLogin(touristUserId: string): void {

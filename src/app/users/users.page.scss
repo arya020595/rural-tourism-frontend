@@ -1,0 +1,24 @@
+ion-toolbar {
+  --background: var(--ion-color-primary);
+  --color: white;
+}
+
+ion-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+ion-searchbar {
+  --background: var(--ion-color-light);
+  margin-bottom: 8px;
+}
+
+ion-item {
+  --padding-start: 8px;
+}
+
+ion-badge {
+  font-size: 0.65rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
