@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-users',
@@ -19,7 +19,7 @@ export class UsersPage implements OnInit {
   isLoading: boolean = false;
 
   constructor(
-    private apiService: ApiService,
+    private userService: UserService,
     private menuCtrl: MenuController,
     private router: Router,
     private menuService: MenuService,
@@ -40,7 +40,7 @@ export class UsersPage implements OnInit {
 
   loadUsers(): void {
     this.isLoading = true;
-    this.apiService.getAllUser().subscribe({
+    this.userService.getAllUser().subscribe({
       next: (res: any) => {
         this.isLoading = false;
         const data = res?.data ?? res;

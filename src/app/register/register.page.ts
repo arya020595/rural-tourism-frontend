@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NavController, ToastController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
+import { AssociationService } from '../services/association.service';
+import { AuthService } from '../services/auth.service';
 
 interface AssociationItem {
   id: number;
@@ -75,7 +76,8 @@ export class RegisterPage implements OnInit {
   ];
 
   constructor(
-    private apiService: ApiService,
+    private authService: AuthService,
+    private associationService: AssociationService,
     private navCtrl: NavController,
     private toastController: ToastController,
   ) {}
@@ -97,7 +99,7 @@ export class RegisterPage implements OnInit {
   }
 
   loadAssociations() {
-    this.apiService.getAssociationList().subscribe({
+    this.associationService.getAssociationList().subscribe({
       next: (res) => {
         this.associations = res || [];
       },
@@ -360,7 +362,7 @@ export class RegisterPage implements OnInit {
       );
     }
 
-    this.apiService.createUser(payload).subscribe({
+    this.authService.registerOperator(payload).subscribe({
       next: () => {
         this.isSuccessAlertOpen = true;
       },
@@ -373,7 +375,9 @@ export class RegisterPage implements OnInit {
         }
 
         this.showError(
-          error?.error?.message || error?.error?.error || 'Registration failed.',
+          error?.error?.message ||
+            error?.error?.error ||
+            'Registration failed.',
         );
       },
     });

@@ -358,4 +358,38 @@ export class AuthService {
       ? (role as UserRoleName)
       : null;
   }
+
+  // ── Auth HTTP calls ──────────────────────────────────────────────
+
+  register(payload: any, userType: 'operator' | 'tourist'): Observable<any> {
+    if (payload instanceof FormData) {
+      if (!payload.has('user_type')) {
+        payload.append('user_type', userType);
+      }
+      return this.http.post(`${this.apiUrl}/auth/register`, payload);
+    }
+    return this.http.post(`${this.apiUrl}/auth/register`, {
+      ...(payload || {}),
+      user_type: userType,
+    });
+  }
+
+  registerOperator(payload: any): Observable<any> {
+    return this.register(payload, 'operator');
+  }
+
+  registerTourist(payload: any): Observable<any> {
+    return this.register(payload, 'tourist');
+  }
+
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password/forgot-password`, { email });
+  }
+
+  resetPasswordWithToken(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password/reset-password`, {
+      token,
+      password,
+    });
+  }
 }

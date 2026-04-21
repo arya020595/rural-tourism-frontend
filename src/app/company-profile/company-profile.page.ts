@@ -3,13 +3,15 @@ import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { environment } from '../../environments/environment';
-import { ApiService } from '../services/api.service';
+import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
+import { CompanyService } from '../services/company.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
+import { UserService } from '../services/user.service';
 
 type DocumentField =
   | 'motac_license_file'
@@ -87,7 +89,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   private initialFormData: CompanyProfileFormData = this.createEmptyFormData();
 
   constructor(
-    private apiService: ApiService,
+    private userService: UserService,
+    private companyService: CompanyService,
+    private associationService: AssociationService,
     private authService: AuthService,
     private menuCtrl: MenuController,
     private menuService: MenuService,
@@ -191,7 +195,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   }
 
   private loadAssociations(): void {
-    this.apiService.getAssociationList().subscribe({
+    this.associationService.getAssociationList().subscribe({
       next: (res: AssociationItem[]) => {
         this.associations = res || [];
       },
@@ -204,7 +208,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   private loadProfile(userId: string): void {
     this.isLoading = true;
 
-    this.apiService.getUserByID(userId).subscribe({
+    this.userService.getUserByID(userId).subscribe({
       next: (response: any) => {
         const data = response?.data ?? response;
         this.authService.syncUserProfile(data);
@@ -255,9 +259,16 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       company_logo: toString(
         data?.company_logo ?? data?.company?.operator_logo_image,
       ),
-      motac_license_file: toString(data?.motac_license_file),
-      trading_operation_license: toString(data?.trading_operation_license),
-      homestay_certificate: toString(data?.homestay_certificate),
+      motac_license_file: toString(
+        data?.motac_license_file ?? data?.company?.motac_license_file,
+      ),
+      trading_operation_license: toString(
+        data?.trading_operation_license ??
+          data?.company?.trading_operation_license,
+      ),
+      homestay_certificate: toString(
+        data?.homestay_certificate ?? data?.company?.homestay_certificate,
+      ),
     };
   }
 
@@ -446,7 +457,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
     this.isSaving = true;
 
-    this.apiService.updateCompanyById(companyId, payload).subscribe({
+    this.companyService.updateCompanyById(companyId, payload).subscribe({
       next: (_response: any) => {
         // Reload the full user profile to get the latest merged data
         this.loadProfile(this.uid!);
