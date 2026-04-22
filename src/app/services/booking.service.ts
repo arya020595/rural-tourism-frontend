@@ -94,8 +94,10 @@ export class BookingService {
     );
   }
 
-  getTouristAllBookings(touristUserId: string): Observable<any[]> {
-    return this.http.get<any[]>(
+  getTouristAllBookings(
+    touristUserId: string,
+  ): Observable<{ success: boolean; data: any[] }> {
+    return this.http.get<{ success: boolean; data: any[] }>(
       `${this.apiUrl}/tourist-bookings/user/${touristUserId}`,
     );
   }

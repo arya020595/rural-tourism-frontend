@@ -21,7 +21,6 @@ export class ActivityDetailPage implements OnInit {
 
   ngOnInit() {
     this.activityId = this.route.snapshot.paramMap.get('id') || '';
-    console.log('Loaded activityId:', this.activityId); // Debug this
     this.loadActivity();
   }
 
@@ -38,7 +37,10 @@ export class ActivityDetailPage implements OnInit {
 
   loadActivity() {
     this.api.getActivityById(this.activityId).subscribe(
-      (data) => {
+      (res) => {
+        const data =
+          res?.data && Array.isArray(res.data) ? res.data[0] : res || {};
+
         // Ensure things_to_know is an array of {title, description}
         if (data.things_to_know) {
           if (typeof data.things_to_know === 'string') {
@@ -73,36 +75,4 @@ export class ActivityDetailPage implements OnInit {
       },
     );
   }
-
-  //   loadActivity() {
-  //   this.api.getActivityById(this.activityId).subscribe(
-  //     (data) => {
-  //       // If things_to_know is a string, parse it
-  //       if (typeof data.things_to_know === 'string') {
-  //         try {
-  //           data.things_to_know = JSON.parse(data.things_to_know);
-  //         } catch (e) {
-  //           console.warn('Failed to parse things_to_know', e);
-  //           data.things_to_know = []; // fallback
-  //         }
-  //       }
-
-  //       this.activityData = data;
-  //     },
-  //     (error) => {
-  //       console.error('Error fetching activity:', error);
-  //     }
-  //   );
-  // }
-
-  // loadActivity() {
-  //   this.api.getActivityById(this.activityId).subscribe(
-  //     (data) => {
-  //       this.activityData = data;
-  //     },
-  //     (error) => {
-  //       console.error('Error fetching activity:', error);
-  //     }
-  //   );
-  // }
 }

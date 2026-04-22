@@ -237,12 +237,6 @@ export class PackageFormPage implements OnInit {
 
   onActivityChange(selectedActivity: any) {
     if (selectedActivity.activity_name) {
-      this.inputSets;
-      // this.form.activity_name = selectedActivity.activity_name;  // Set homest_name
-      // this.form.location = selectedActivity.location;  // Set location
-      // this.form.activity_id = selectedActivity.activity_id;
-      // console.log(selectedActivity.location)
-      // console.log(selectedActivity.homest_id)
     }
   }
 

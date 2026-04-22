@@ -133,14 +133,6 @@ export class TransactionPage implements OnInit {
     toast.present();
   }
 
-  // Load the transactions from API
-  loadTransactions() {
-    // Fetch the transactions
-    this.formService.getFormsByUser('user-id').subscribe((data: any) => {
-      this.transactions = data;
-    });
-  }
-
   onTransactionClick(transaction: any) {
     // If the transaction is already voided, do nothing
     // if (this.isVoided(transaction.receipt_id)) {
