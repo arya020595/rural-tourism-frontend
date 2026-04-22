@@ -1,13 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
-import { ApiService } from '../../services/api.service';
-import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import { ModalController } from '@ionic/angular';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  AlertController,
+  ModalController,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
 import { DateModalComponent } from 'src/app/date-modal/date-modal.component';
+import { environment } from '../../../environments/environment';
+import { BookingService } from '../../services/booking.service';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-tourist-transaction',
@@ -90,7 +93,8 @@ export class TouristTransactionPage implements OnInit {
   private apiUrl = environment.apiUrl;
 
   constructor(
-    private apiService: ApiService,
+    private formService: FormService,
+    private bookingService: BookingService,
     private modalCtrl: ModalController,
     private navCtrl: NavController,
     private router: Router,
@@ -128,11 +132,11 @@ export class TouristTransactionPage implements OnInit {
   loadHistory() {
     const uid = localStorage.getItem('tourist_user_id') as string;
 
-    this.apiService.getFormsByTourist(uid).subscribe(
+    this.formService.getFormsByTourist(uid).subscribe(
       (data) => {
         const paid = Array.isArray(data?.data) ? data.data : [];
 
-        this.apiService.getTouristAllBookings(uid).subscribe(
+        this.bookingService.getTouristAllBookings(uid).subscribe(
           (res: any) => {
             const allBookings = Array.isArray(res?.data) ? res.data : [];
             const cancelled = allBookings

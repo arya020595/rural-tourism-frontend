@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
+import { BookingService } from '../services/booking.service';
 
 @Component({
   selector: 'app-operator-bookings',
@@ -17,7 +17,7 @@ export class OperatorBookingsPage implements OnInit {
   filterStatus: string = 'all';
 
   constructor(
-    private api: ApiService,
+    private api: BookingService,
     private alertCtrl: AlertController,
     private navCtrl: NavController,
   ) {}

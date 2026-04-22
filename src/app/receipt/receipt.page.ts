@@ -8,7 +8,8 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import html2canvas from 'html2canvas'; // Import html2canvas
 import { environment } from '../../environments/environment';
-import { ApiService } from '../services/api.service';
+import { FormService } from '../services/form.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-receipt',
@@ -28,7 +29,8 @@ export class ReceiptPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private apiService: ApiService,
+    private userService: UserService,
+    private formService: FormService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -55,7 +57,7 @@ export class ReceiptPage implements OnInit {
 
   loadUser() {
     if (this.uid) {
-      this.apiService.getUserByID(this.uid).subscribe(
+      this.userService.getUserByID(this.uid).subscribe(
         (data) => {
           this.user = data;
           // console.log(data);
@@ -81,7 +83,7 @@ export class ReceiptPage implements OnInit {
   //get receipt details
   loadForm() {
     if (this.receiptId) {
-      this.apiService.getFormByID(this.receiptId).subscribe(
+      this.formService.getFormByID(this.receiptId).subscribe(
         (response) => {
           // Unwrap the response to get the actual data
           this.receipt = response.data || response;
@@ -160,7 +162,7 @@ export class ReceiptPage implements OnInit {
             formData.append('receiptId', this.receiptId); // append receipt id as req
 
             // Send the formData to the backend API to generate the PDF
-            this.apiService.generatePdfFromImage(formData).subscribe(
+            this.formService.generatePdfFromImage(formData).subscribe(
               (response: any) => {
                 if (response.success) {
                   this.pdfUrl = response.fileUrl; // Save the returned PDF URL

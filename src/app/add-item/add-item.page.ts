@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import Swiper from 'swiper';
 import { register } from 'swiper/element/bundle';
-import { ApiService } from '../services/api.service';
+import { AccommodationService } from '../services/accommodation.service';
+import { ActivityService } from '../services/activity.service';
 
 register();
 
@@ -126,7 +127,8 @@ export class AddItemPage implements OnInit {
 
   constructor(
     private router: Router,
-    private apiService: ApiService,
+    private activityService: ActivityService,
+    private accommodationService: AccommodationService,
     private navController: NavController,
   ) {}
 
@@ -148,7 +150,7 @@ export class AddItemPage implements OnInit {
   // ===== Activity Type Methods =====
   loadActivityTypes() {
     this.isActivityTypesLoaded = false;
-    this.apiService.getAllActivityMasterData().subscribe(
+    this.activityService.getAllActivityMasterData().subscribe(
       (res: any) => {
         // API returns { data: [...], pagination: {...} } — extract the array
         if (Array.isArray(res)) {
@@ -498,7 +500,7 @@ export class AddItemPage implements OnInit {
 
       console.log('Submitting activity:', dataToSend);
 
-      this.apiService.createOperatorActivity(dataToSend).subscribe(
+      this.activityService.createOperatorActivity(dataToSend).subscribe(
         (res) => {
           console.log('Activity created:', res);
           this.setOpen(true);
@@ -547,7 +549,7 @@ export class AddItemPage implements OnInit {
         JSON.stringify(dataToSend, null, 2),
       );
 
-      this.apiService.createAccom(dataToSend).subscribe(
+      this.accommodationService.createAccom(dataToSend).subscribe(
         (res) => {
           console.log('Accommodation created:', res);
           this.setOpen(true);

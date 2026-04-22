@@ -1,0 +1,139 @@
+<div class="ufm-content">
+  <form #formRef="ngForm" (ngSubmit)="submit(formRef)">
+    <!-- Modal header -->
+    <div class="ufm-header">
+      <button
+        type="button"
+        class="ufm-close-btn"
+        (click)="dismiss()"
+        aria-label="Close"
+      >
+        &times;
+      </button>
+      <h2 class="ufm-title">{{ title }}</h2>
+      <hr class="ufm-divider" />
+    </div>
+
+    <!-- Full Name -->
+    <div class="ufm-field">
+      <label class="ufm-label"
+        >Nama Penuh/Full Name <span class="ufm-required">*</span></label
+      >
+      <ion-input
+        fill="outline"
+        class="ufm-input"
+        placeholder="Sila isi nama penuh/Enter full name"
+        [(ngModel)]="form.name"
+        name="name"
+        required
+        #nameInput="ngModel"
+      ></ion-input>
+      <p class="ufm-error" *ngIf="nameInput.invalid && nameInput.touched">
+        Full name is required.
+      </p>
+    </div>
+
+    <!-- Username -->
+    <div class="ufm-field">
+      <label class="ufm-label"
+        >Nama Pengguna/Username <span class="ufm-required">*</span></label
+      >
+      <ion-input
+        fill="outline"
+        class="ufm-input"
+        placeholder="Sila isi nama pengguna/Enter username"
+        [(ngModel)]="form.username"
+        name="username"
+        required
+        #usernameInput="ngModel"
+      ></ion-input>
+      <p
+        class="ufm-error"
+        *ngIf="usernameInput.invalid && usernameInput.touched"
+      >
+        Username is required.
+      </p>
+    </div>
+
+    <!-- Email -->
+    <div class="ufm-field">
+      <label class="ufm-label"
+        >Alamat E-mel/Email Address <span class="ufm-required">*</span></label
+      >
+      <ion-input
+        fill="outline"
+        class="ufm-input"
+        type="email"
+        placeholder="Sila isi alamat e-mel/Enter email address"
+        [(ngModel)]="form.email"
+        name="email"
+        required
+        email
+        #emailInput="ngModel"
+      ></ion-input>
+      <p class="ufm-error" *ngIf="emailInput.invalid && emailInput.touched">
+        A valid email address is required.
+      </p>
+    </div>
+
+    <!-- Password -->
+    <div class="ufm-field">
+      <label class="ufm-label">
+        Kata Laluan/Password
+        <span class="ufm-required" *ngIf="!isEditMode">*</span>
+        <span class="ufm-optional" *ngIf="isEditMode"
+          >(kosong = tidak berubah / leave blank to keep current)</span
+        >
+      </label>
+      <ion-input
+        fill="outline"
+        class="ufm-input"
+        type="password"
+        placeholder="Sila isi kata laluan/Enter password"
+        [(ngModel)]="form.password"
+        name="password"
+        [required]="!isEditMode"
+        minlength="6"
+        #passwordInput="ngModel"
+      ></ion-input>
+      <p
+        class="ufm-error"
+        *ngIf="passwordInput.invalid && passwordInput.touched"
+      >
+        Password must be at least 6 characters.
+      </p>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="ufm-field">
+      <label class="ufm-label">
+        Sahkan Kata Laluan/Confirm Password
+        <span class="ufm-required" *ngIf="!isEditMode">*</span>
+      </label>
+      <ion-input
+        fill="outline"
+        class="ufm-input"
+        type="password"
+        placeholder="Sila isi kata laluan untuk mengesahkan/Enter password again.."
+        [(ngModel)]="form.confirmed_password"
+        name="confirmed_password"
+        [required]="!isEditMode || !!form.password"
+        #confirmInput="ngModel"
+      ></ion-input>
+      <p class="ufm-error" *ngIf="confirmInput.invalid && confirmInput.touched">
+        Confirm password is required.
+      </p>
+    </div>
+
+    <!-- API error -->
+    <p class="ufm-api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <!-- Footer -->
+    <div class="ufm-footer">
+      <ion-button type="submit" class="ufm-save-btn" [disabled]="isSaving">
+        <ion-icon name="save-outline" slot="start"></ion-icon>
+        {{ isSaving ? "Menyimpan..." : "Save/Simpan" }}
+      </ion-button>
+    </div>
+  </form>
+</div>

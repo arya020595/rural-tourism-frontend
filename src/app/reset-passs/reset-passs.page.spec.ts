@@ -1,25 +1,30 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { BehaviorSubject, of, throwError } from 'rxjs';
-import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 import { ResetPasssPage } from './reset-passs.page';
 
 describe('ResetPasssPage', () => {
   let component: ResetPasssPage;
   let fixture: ComponentFixture<ResetPasssPage>;
-  let apiServiceSpy: jasmine.SpyObj<ApiService>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
   let queryParamsSubject: BehaviorSubject<Record<string, string>>;
   let router: Router;
   let toastCtrl: ToastController;
 
   beforeEach(async () => {
     queryParamsSubject = new BehaviorSubject<Record<string, string>>({});
-    apiServiceSpy = jasmine.createSpyObj('ApiService', [
+    authServiceSpy = jasmine.createSpyObj('AuthService', [
       'requestPasswordReset',
       'resetPasswordWithToken',
     ]);
@@ -33,7 +38,7 @@ describe('ResetPasssPage', () => {
         FormsModule,
       ],
       providers: [
-        { provide: ApiService, useValue: apiServiceSpy },
+        { provide: AuthService, useValue: authServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: { queryParams: queryParamsSubject.asObservable() },
@@ -45,7 +50,9 @@ describe('ResetPasssPage', () => {
     router = TestBed.inject(Router);
     toastCtrl = TestBed.inject(ToastController);
     spyOn(router, 'navigate').and.resolveTo(true);
-    spyOn(toastCtrl, 'create').and.resolveTo({ present: () => Promise.resolve() } as any);
+    spyOn(toastCtrl, 'create').and.resolveTo({
+      present: () => Promise.resolve(),
+    } as any);
 
     fixture = TestBed.createComponent(ResetPasssPage);
     component = fixture.componentInstance;
@@ -79,14 +86,14 @@ describe('ResetPasssPage', () => {
 
   describe('sendResetLink', () => {
     it('should call the API, reset the loading flag and open the alert on success', fakeAsync(() => {
-      apiServiceSpy.requestPasswordReset.and.returnValue(of({}));
+      authServiceSpy.requestPasswordReset.and.returnValue(of({}));
       component.email = 'test@example.com';
       const mockForm = { valid: true } as any;
 
       component.sendResetLink(mockForm);
       tick();
 
-      expect(apiServiceSpy.requestPasswordReset).toHaveBeenCalledWith(
+      expect(authServiceSpy.requestPasswordReset).toHaveBeenCalledWith(
         'test@example.com',
       );
       expect(component.isSendingResetLink).toBeFalse();
@@ -94,7 +101,7 @@ describe('ResetPasssPage', () => {
     }));
 
     it('should reset isSendingResetLink and not open alert on error', fakeAsync(() => {
-      apiServiceSpy.requestPasswordReset.and.returnValue(
+      authServiceSpy.requestPasswordReset.and.returnValue(
         throwError(() => new Error('fail')),
       );
       component.email = 'bad@example.com';
@@ -109,13 +116,13 @@ describe('ResetPasssPage', () => {
 
     it('should not call the API when the form is invalid', () => {
       component.sendResetLink({ valid: false } as any);
-      expect(apiServiceSpy.requestPasswordReset).not.toHaveBeenCalled();
+      expect(authServiceSpy.requestPasswordReset).not.toHaveBeenCalled();
     });
   });
 
   describe('submitNewPassword', () => {
     it('should call the API when passwords match and token is present', fakeAsync(() => {
-      apiServiceSpy.resetPasswordWithToken.and.returnValue(of({}));
+      authServiceSpy.resetPasswordWithToken.and.returnValue(of({}));
       component.resetToken = 'validtoken';
       component.newPassword = 'Password1!';
       component.confirmPassword = 'Password1!';
@@ -124,7 +131,7 @@ describe('ResetPasssPage', () => {
       component.submitNewPassword(mockForm);
       tick();
 
-      expect(apiServiceSpy.resetPasswordWithToken).toHaveBeenCalledWith(
+      expect(authServiceSpy.resetPasswordWithToken).toHaveBeenCalledWith(
         'validtoken',
         'Password1!',
       );
@@ -137,7 +144,7 @@ describe('ResetPasssPage', () => {
 
       component.submitNewPassword({ valid: true } as any);
 
-      expect(apiServiceSpy.resetPasswordWithToken).not.toHaveBeenCalled();
+      expect(authServiceSpy.resetPasswordWithToken).not.toHaveBeenCalled();
     });
 
     it('should not call the API when the token is missing', () => {
@@ -147,7 +154,7 @@ describe('ResetPasssPage', () => {
 
       component.submitNewPassword({ valid: true } as any);
 
-      expect(apiServiceSpy.resetPasswordWithToken).not.toHaveBeenCalled();
+      expect(authServiceSpy.resetPasswordWithToken).not.toHaveBeenCalled();
     });
   });
 });

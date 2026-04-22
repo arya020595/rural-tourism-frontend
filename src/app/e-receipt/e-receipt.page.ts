@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
+import { BookingService } from '../services/booking.service';
+import { MenuItem, MenuService } from '../services/menu.service';
 import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
-import { AuthService } from '../services/auth.service';
-import { MenuItem, MenuService } from '../services/menu.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-e-receipt',
@@ -24,7 +25,8 @@ export class EReceiptPage implements OnInit {
   pendingBookingsCount: number = 0;
 
   constructor(
-    private apiService: ApiService,
+    private userService: UserService,
+    private bookingService: BookingService,
     private menuCtrl: MenuController,
     private router: Router,
     private toastController: ToastController,
@@ -65,7 +67,7 @@ export class EReceiptPage implements OnInit {
   private loadUser(): void {
     if (!this.uid) return;
 
-    this.apiService.getUserByID(this.uid).subscribe({
+    this.userService.getUserByID(this.uid).subscribe({
       next: (data: any) => {
         this.authService.syncUserProfile(data);
         this.user = this.authService.currentUser || data;
@@ -100,7 +102,7 @@ export class EReceiptPage implements OnInit {
     const operatorId = this.user?.id;
     if (!operatorId) return;
 
-    this.apiService.getOperatorAllBookings(operatorId).subscribe({
+    this.bookingService.getOperatorAllBookings(operatorId).subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
           this.pendingBookingsCount = res.data.filter(

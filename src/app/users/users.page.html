@@ -9,57 +9,182 @@
   (logoutTap)="logOut()"
 ></app-side-nav>
 
-<ion-header style="height: 5vh; box-shadow: none">
+<ion-header class="um-header" style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="users-menu" style="color: white"></ion-menu-button>
+      <ion-menu-button menu="users-menu" class="menu-toggle"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Users</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="logOut()" fill="clear">
-        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      <ion-button
+        class="notification-button"
+        (click)="goToNotifications()"
+        *hasPermission="'booking:read'"
+      >
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+        <ion-badge
+          *ngIf="unreadCount > 0"
+          color="danger"
+          class="notification-badge"
+        >
+          {{ unreadCount }}
+        </ion-badge>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" id="users-main-content" class="ion-padding">
-  <!-- Search bar -->
-  <ion-searchbar
-    placeholder="Search by name, username or email"
-    (ionInput)="onSearch($event)"
-    debounce="300"
-  ></ion-searchbar>
-
-  <!-- Loading spinner -->
-  <div *ngIf="isLoading" class="ion-text-center ion-padding">
-    <ion-spinner name="crescent"></ion-spinner>
+<ion-content [fullscreen]="true" id="users-main-content" class="um-content">
+  <!-- ── Shared header logo ────────────────────────────────────────────── -->
+  <div class="um-logo-section">
+    <app-header-logo></app-header-logo>
   </div>
 
-  <!-- User list -->
-  <ion-list *ngIf="!isLoading">
-    <ion-item *ngFor="let u of filteredUsers" lines="full">
-      <ion-avatar slot="start">
-        <ion-icon
-          name="person-circle-outline"
-          style="font-size: 40px; color: var(--ion-color-primary)"
-        ></ion-icon>
-      </ion-avatar>
-      <ion-label>
-        <h2>{{ getDisplayName(u) }}</h2>
-        <p>{{ u.email }}</p>
-        <p *ngIf="u.company?.business_name">{{ u.company.business_name }}</p>
-      </ion-label>
-      <ion-badge slot="end" [color]="getRoleBadgeColor(u.role?.name)">
-        {{ u.role?.name ?? 'unknown' }}
-      </ion-badge>
-    </ion-item>
+  <div class="um-container">
+    <!-- ── Page header row (title + Add button) ───────────────────────────── -->
+    <div class="um-page-header">
+      <h1 class="um-page-header__title">
+        Pengurusan Pengguna/<em>User Management</em>
+      </h1>
+      <hr class="um-page-header__divider" />
+      <div class="um-page-header__actions">
+        <button
+          class="um-add-btn"
+          (click)="openAddModal()"
+          *hasPermission="'user:create'"
+        >
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Tambah/Add
+        </button>
+      </div>
+    </div>
 
-    <!-- Empty state -->
-    <ion-item *ngIf="filteredUsers.length === 0" lines="none">
-      <ion-label class="ion-text-center" color="medium">
-        <p>No users found.</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+    <!-- ── Search bar ─────────────────────────────────────────────────────── -->
+    <div class="um-search-row">
+      <ion-searchbar
+        class="um-searchbar"
+        placeholder="Cari nama, username atau e-mel / Search name, username or email"
+        (ionInput)="onSearch($event)"
+        debounce="0"
+      ></ion-searchbar>
+    </div>
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    <div class="um-spinner" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+
+    <!-- ── Table ──────────────────────────────────────────────────────────── -->
+    <div class="um-table-wrap" *ngIf="!isLoading">
+      <table class="um-table">
+        <thead>
+          <tr>
+            <th class="col-actions"></th>
+            <th class="col-id">User ID</th>
+            <th class="col-name">Full Name</th>
+            <th class="col-email hide-mobile">Email Address</th>
+            <th class="col-date hide-sm">Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users">
+            <!-- Action buttons -->
+            <td class="col-actions">
+              <div class="um-action-btns">
+                <button
+                  class="um-btn um-btn--info"
+                  title="Lihat / View"
+                  (click)="openViewModal(u)"
+                >
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                </button>
+                <button
+                  class="um-btn um-btn--edit"
+                  title="Kemaskini / Edit"
+                  (click)="openEditModal(u)"
+                  *hasPermission="'user:update'"
+                >
+                  <ion-icon name="create-outline"></ion-icon>
+                </button>
+                <button
+                  class="um-btn um-btn--delete"
+                  title="Padam / Delete"
+                  (click)="openDeleteModal(u)"
+                  *hasPermission="'user:delete'"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </td>
+            <td class="col-id">{{ formatUserId(u.id) }}</td>
+            <td class="col-name">{{ u.name }}</td>
+            <td class="col-email hide-mobile">{{ u.email }}</td>
+            <td class="col-date hide-sm">{{ formatDate(u.created_at) }}</td>
+          </tr>
+
+          <!-- Empty state -->
+          <tr *ngIf="users.length === 0">
+            <td colspan="5" class="um-empty">
+              <ion-icon name="people-outline"></ion-icon>
+              <p>Tiada pengguna dijumpai / No users found.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Footer: per-page + info + pagination ───────────────────────────── -->
+    <div class="um-footer" *ngIf="!isLoading && meta.total > 0">
+      <!-- Per-page selector -->
+      <div class="um-per-page">
+        <label>Show</label>
+        <select (change)="onPerPageChange($event)" [value]="meta.per_page">
+          <option *ngFor="let opt of perPageOptions" [value]="opt">
+            {{ opt }}
+          </option>
+        </select>
+        <label>entries</label>
+      </div>
+
+      <!-- Record count -->
+      <p class="um-count">
+        Showing {{ showingFrom }} to {{ showingTo }} out of {{ meta.total }}
+        entries
+      </p>
+
+      <!-- Pagination -->
+      <nav class="um-pagination" aria-label="Pagination">
+        <button
+          class="um-page-btn"
+          [disabled]="!meta.has_prev"
+          (click)="goToPage(meta.page - 1)"
+        >
+          &laquo; Previous
+        </button>
+
+        <ng-container *ngFor="let btn of pageButtons">
+          <button
+            *ngIf="btn !== '...'"
+            class="um-page-btn"
+            [class.active]="btn === meta.page"
+            (click)="goToPage(+btn)"
+          >
+            {{ btn }}
+          </button>
+          <span *ngIf="btn === '...'" class="um-ellipsis">&hellip;</span>
+        </ng-container>
+
+        <button
+          class="um-page-btn"
+          [disabled]="!meta.has_next"
+          (click)="goToPage(meta.page + 1)"
+        >
+          Next &raquo;
+        </button>
+      </nav>
+    </div>
+  </div>
 </ion-content>
