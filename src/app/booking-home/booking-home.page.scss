@@ -1,59 +1,388 @@
-.red-separator {
-  border-top: 2px solid red;
-  margin: 16px 0;
+ion-content {
+  --ion-background-color: #2b2f2b;
 }
 
-.royal-btn {
-  --background: royalblue;
-  --background-activated: #add8e6; /* light blue when pressed */
-  --border-radius: 8px;
-  font-weight: bold;
+.booking-header ion-toolbar {
+  --background: #2b2f2b;
+  --box-shadow: none;
+  --border-width: 0;
 }
 
-ion-item {
-  --highlight-color-focused: royalblue;
+.menu-toggle {
+  color: #ffffff;
+}
+
+.notification-button {
+  --color: #ffc107;
+}
+
+.notification-bell {
+  font-size: 24px;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #f5f5f5;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.booking-container {
+  background: #f5f5f5;
+  border-radius: 14px;
+  padding: 18px 22px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  border-bottom: 1px solid #dadada;
+  margin-bottom: 18px;
+}
+
+.title-row h1 {
+  margin: 0 0 12px;
+  color: #04552f;
+  font-size: 48px;
+  font-weight: 800;
+}
+
+.title-row em {
+  font-style: italic;
+}
+
+.toolbar-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.top-action {
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-action.calendar {
+  background: #255c90;
+}
+
+.top-action.add {
+  background: #015c2f;
+}
+
+.top-action ion-icon {
+  font-size: 22px;
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr);
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.calendar-panel {
+  border-right: 1px solid #b9b9b9;
+  padding-right: 18px;
+}
+
+.month-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.month-header h2 {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 800;
+  color: #04060f;
+}
+
+.month-nav {
+  border: none;
+  background: transparent;
+  color: #292929;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.month-nav ion-icon {
+  font-size: 34px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.day-name {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #161616;
+  padding-bottom: 4px;
+}
+
+.day-cell {
+  border: none;
+  min-height: 88px;
+  border-radius: 4px;
+  background: #cacaca;
+  color: #101010;
+  font-size: 26px;
+  font-weight: 700;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-cell.empty {
+  visibility: hidden;
+}
+
+.day-cell.paid {
+  background: #015c2f;
+  color: #ffffff;
+}
+
+.day-cell.booked {
+  background: #ff9600;
+  color: #131313;
+}
+
+.day-cell.selected {
+  background: #a6c8e4;
+  color: #101010;
+}
+
+.booking-dot {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+}
+
+.day-cell.selected .booking-dot {
+  background: #111111;
+}
+
+.booked-dates-panel {
+  padding-left: 18px;
+}
+
+.booked-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid #c9c9c9;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.booked-header-row h3 {
+  margin: 0;
+  font-size: 38px;
+  color: #04552f;
+  font-weight: 800;
+}
+
+.legend-list {
+  display: grid;
+  gap: 8px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.legend-box {
+  width: 40px;
+  height: 28px;
+  border-radius: 2px;
+}
+
+.legend-box.booked {
+  background: #ff9600;
+}
+
+.legend-box.paid {
+  background: #015c2f;
+}
+
+.booked-body {
+  display: grid;
+  gap: 10px;
+}
+
+.date-label {
+  font-size: 20px;
+  font-weight: 800;
+  color: #04552f;
+  border-bottom: 1px solid #d7d7d7;
+  padding-bottom: 8px;
+}
+
+.booking-chip {
+  border-radius: 0;
+  padding: 12px 14px;
+}
+
+.booking-chip.paid {
+  background: #015c2f;
+  color: #ffffff;
+}
+
+.booking-chip.booked {
+  background: #ff9600;
+  color: #111111;
+}
+
+.booking-chip-title {
+  font-size: 20px;
+  font-weight: 800;
   margin-bottom: 4px;
 }
 
-.aktiviti-list ion-item {
-  padding-left: 30px;
-  background: #f8f9ff;
-  --background: #f8f9ff;
+.booking-chip-meta {
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.destination-card {
-  margin: 12px 0;
-  cursor: pointer;
+.no-booking-text {
+  margin: 0;
+  color: #525252;
+  font-size: 16px;
+}
 
-.card-background {
-    height: 150px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-
-.overlay {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      padding: 12px;
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-
-h2 {
-        margin: 0;
-        font-size: 18px;
-      }
-
-      p {
-        margin: 4px 0 0;
-        font-size: 14px;
-      }
-    }
+@media (max-width: 992px) {
+  .title-row h1 {
+    font-size: 38px;
   }
 
-&.active .card-background {
-    border: 2px solid var(--ion-color-primary);
+  .top-action {
+    font-size: 16px;
+  }
+
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-panel {
+    border-right: 0;
+    border-bottom: 1px solid #b9b9b9;
+    padding-right: 0;
+    padding-bottom: 18px;
+  }
+
+  .booked-dates-panel {
+    padding-left: 0;
+  }
+
+  .month-header h2 {
+    font-size: 30px;
+  }
+
+  .booked-header-row h3 {
+    font-size: 28px;
+  }
+
+  .day-name {
+    font-size: 18px;
+  }
+
+  .day-cell {
+    min-height: 72px;
+    font-size: 22px;
+  }
+
+  .booking-chip-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 576px) {
+  .surface-card {
+    padding: 10px;
+  }
+
+  .booking-container {
+    padding: 14px;
+  }
+
+  .title-row h1 {
+    font-size: 30px;
+  }
+
+  .toolbar-row {
+    justify-content: stretch;
+  }
+
+  .top-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .day-name {
+    font-size: 14px;
+  }
+
+  .day-cell {
+    min-height: 56px;
+    font-size: 18px;
+  }
+
+  .booking-dot {
+    top: 6px;
+    width: 8px;
+    height: 8px;
+  }
+
+  .booked-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legend-item {
+    font-size: 14px;
+  }
+
+  .legend-box {
+    width: 28px;
+    height: 20px;
   }
 }
