@@ -87,6 +87,17 @@ export interface RegisterData {
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
+  private readonly powerBiSensitiveParams = new Set([
+    'access_token',
+    'token',
+    'id_token',
+    'embedtoken',
+    'jwt',
+    'sig',
+    'signature',
+    'apikey',
+    'api_key',
+  ]);
 
   // Observable user state
   private currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -135,6 +146,45 @@ export class AuthService {
     return user.role.name || null;
   }
 
+  private sanitizePowerBiUrl(rawUrl: unknown): string | null {
+    if (typeof rawUrl !== 'string') {
+      return null;
+    }
+
+    const trimmedUrl = rawUrl.trim();
+    if (!trimmedUrl) {
+      return null;
+    }
+
+    try {
+      const parsedUrl = new URL(trimmedUrl);
+      const hostname = parsedUrl.hostname.toLowerCase();
+
+      if (parsedUrl.protocol !== 'https:') {
+        return null;
+      }
+
+      if (hostname !== 'powerbi.com' && !hostname.endsWith('.powerbi.com')) {
+        return null;
+      }
+
+      let hasSensitiveParam = false;
+      parsedUrl.searchParams.forEach((_value, queryKey) => {
+        if (this.powerBiSensitiveParams.has(queryKey.toLowerCase())) {
+          hasSensitiveParam = true;
+        }
+      });
+
+      if (hasSensitiveParam) {
+        return null;
+      }
+
+      return parsedUrl.toString();
+    } catch {
+      return null;
+    }
+  }
+
   private normalizeUser(user: User): User {
     const roleName = this.getRoleName(user);
     const isOperator =
@@ -171,6 +221,7 @@ export class AuthService {
       legacy_user_id: isOperator ? undefined : legacyId,
       full_name: user.full_name || user.name || user.username,
       role: roleObj,
+      power_bi_url: this.sanitizePowerBiUrl(user.power_bi_url),
       permissions: Array.isArray(user.permissions) ? user.permissions : [],
     };
 

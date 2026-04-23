@@ -14,6 +14,17 @@ export class AssociationDashboardPage implements OnInit {
   user: any = null;
   menuItems: MenuItem[] = [];
   biDashboardUrl: SafeResourceUrl | null = null;
+  private readonly powerBiSensitiveParams = new Set([
+    'access_token',
+    'token',
+    'id_token',
+    'embedtoken',
+    'jwt',
+    'sig',
+    'signature',
+    'apikey',
+    'api_key',
+  ]);
 
   constructor(
     private menuCtrl: MenuController,
@@ -33,21 +44,76 @@ export class AssociationDashboardPage implements OnInit {
   }
 
   loadUser() {
-    const storedUser =
-      localStorage.getItem('association_user') || localStorage.getItem('user');
-    this.user = storedUser ? JSON.parse(storedUser) : null;
+    const storedAssociationUser = this.parseStoredUser(
+      localStorage.getItem('association_user'),
+    );
+    const storedUser = this.parseStoredUser(localStorage.getItem('user'));
+    this.user =
+      this.authService.currentUser || storedAssociationUser || storedUser;
     this.menuItems =
       this.menuService.getVisibleMenuItemsForContext('association');
 
     if (!this.user) {
+      this.biDashboardUrl = null;
       this.router.navigate(['/login']);
       return;
     }
 
-    const rawUrl: string | null = this.user.power_bi_url || null;
+    const rawUrl = this.sanitizePowerBiUrl(this.user.power_bi_url);
     this.biDashboardUrl = rawUrl
       ? this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl)
       : null;
+  }
+
+  private parseStoredUser(rawUser: string | null): any | null {
+    if (!rawUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(rawUser);
+    } catch {
+      return null;
+    }
+  }
+
+  private sanitizePowerBiUrl(rawUrl: unknown): string | null {
+    if (typeof rawUrl !== 'string') {
+      return null;
+    }
+
+    const trimmedUrl = rawUrl.trim();
+    if (!trimmedUrl) {
+      return null;
+    }
+
+    try {
+      const parsedUrl = new URL(trimmedUrl);
+      const hostname = parsedUrl.hostname.toLowerCase();
+
+      if (parsedUrl.protocol !== 'https:') {
+        return null;
+      }
+
+      if (hostname !== 'powerbi.com' && !hostname.endsWith('.powerbi.com')) {
+        return null;
+      }
+
+      let hasSensitiveParam = false;
+      parsedUrl.searchParams.forEach((_value, queryKey) => {
+        if (this.powerBiSensitiveParams.has(queryKey.toLowerCase())) {
+          hasSensitiveParam = true;
+        }
+      });
+
+      if (hasSensitiveParam) {
+        return null;
+      }
+
+      return parsedUrl.toString();
+    } catch {
+      return null;
+    }
   }
 
   onMenuItemTap(item: MenuItem): void {
