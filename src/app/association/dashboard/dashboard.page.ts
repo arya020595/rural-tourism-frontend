@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, User } from '../../services/auth.service';
 import { MenuItem, MenuService } from '../../services/menu.service';
+import { sanitizePowerBiUrl } from '../../utils/power-bi-url.util';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,8 +12,9 @@ import { MenuItem, MenuService } from '../../services/menu.service';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class AssociationDashboardPage implements OnInit {
-  user: any = null;
+  user: User | null = null;
   menuItems: MenuItem[] = [];
+  biDashboardUrl: SafeResourceUrl | null = null;
 
   constructor(
     private menuCtrl: MenuController,
@@ -19,6 +22,7 @@ export class AssociationDashboardPage implements OnInit {
     private toastController: ToastController,
     private menuService: MenuService,
     private authService: AuthService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit() {
@@ -30,13 +34,39 @@ export class AssociationDashboardPage implements OnInit {
   }
 
   loadUser() {
-    const storedUser = localStorage.getItem('association_user');
-    this.user = storedUser ? JSON.parse(storedUser) : null;
+    const storedAssociationUser = this.parseStoredUser(
+      localStorage.getItem('association_user'),
+    );
+    const storedUser = this.parseStoredUser(localStorage.getItem('user'));
+    this.user =
+      this.authService.currentUser || storedAssociationUser || storedUser;
     this.menuItems =
       this.menuService.getVisibleMenuItemsForContext('association');
 
     if (!this.user) {
+      this.biDashboardUrl = null;
       this.router.navigate(['/login']);
+      return;
+    }
+
+    const rawUrl = sanitizePowerBiUrl(this.user.power_bi_url);
+    this.biDashboardUrl = rawUrl
+      ? this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl)
+      : null;
+  }
+
+  private parseStoredUser(rawUser: string | null): User | null {
+    if (!rawUser) {
+      return null;
+    }
+
+    try {
+      const parsedUser = JSON.parse(rawUser);
+      return parsedUser && typeof parsedUser === 'object'
+        ? (parsedUser as User)
+        : null;
+    } catch {
+      return null;
     }
   }
 

@@ -411,7 +411,7 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'association',
-      permissions: ['association:read'],
+      permissions: ['bi_dashboard:read'],
     },
   },
   {
