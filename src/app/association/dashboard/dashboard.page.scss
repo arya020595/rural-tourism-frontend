@@ -58,6 +58,18 @@ hr {
   position: relative;
 }
 
+.bi-dashboard-container {
+  width: 100%;
+  margin: 0 0 16px 0;
+}
+
+.bi-iframe {
+  width: 100%;
+  height: 70vh;
+  border: none;
+  display: block;
+}
+
 .notification-bell {
   font-size: 24px;
   color: #ffc107;

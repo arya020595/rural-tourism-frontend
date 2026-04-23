@@ -29,9 +29,29 @@
     <ion-card-content
       style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
     >
-      <h1>My Dashboard</h1>
+      <h1>Dashboard Anda/My Dashboard</h1>
       <hr />
-      <p>Unfortunately, the dashboard is not available right now...</p>
+
+      <!-- Power BI iframe -->
+      <div
+        class="bi-dashboard-container"
+        *ngIf="biDashboardUrl; else noDashboard"
+      >
+        <iframe
+          [src]="biDashboardUrl"
+          class="bi-iframe"
+          frameborder="0"
+          allowfullscreen="true"
+        ></iframe>
+      </div>
+
+      <!-- Fallback when no URL is configured -->
+      <ng-template #noDashboard>
+        <p>
+          Unfortunately, the dashboard is not available in this system at the
+          moment...
+        </p>
+      </ng-template>
     </ion-card-content>
   </ion-card>
 </ion-content>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
@@ -12,6 +13,7 @@ import { MenuItem, MenuService } from '../../services/menu.service';
 export class AssociationDashboardPage implements OnInit {
   user: any = null;
   menuItems: MenuItem[] = [];
+  biDashboardUrl: SafeResourceUrl | null = null;
 
   constructor(
     private menuCtrl: MenuController,
@@ -19,6 +21,7 @@ export class AssociationDashboardPage implements OnInit {
     private toastController: ToastController,
     private menuService: MenuService,
     private authService: AuthService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit() {
@@ -30,14 +33,21 @@ export class AssociationDashboardPage implements OnInit {
   }
 
   loadUser() {
-    const storedUser = localStorage.getItem('association_user');
+    const storedUser =
+      localStorage.getItem('association_user') || localStorage.getItem('user');
     this.user = storedUser ? JSON.parse(storedUser) : null;
     this.menuItems =
       this.menuService.getVisibleMenuItemsForContext('association');
 
     if (!this.user) {
       this.router.navigate(['/login']);
+      return;
     }
+
+    const rawUrl: string | null = this.user.power_bi_url || null;
+    this.biDashboardUrl = rawUrl
+      ? this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl)
+      : null;
   }
 
   onMenuItemTap(item: MenuItem): void {
