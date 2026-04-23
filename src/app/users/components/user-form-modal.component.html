@@ -76,6 +76,26 @@
       </p>
     </div>
 
+    <!-- Role (superadmin create only) -->
+    <div class="ufm-field" *ngIf="isSuperadmin && !isEditMode">
+      <label class="ufm-label">
+        Peranan/Role <span class="ufm-required">*</span>
+      </label>
+      <select
+        class="ufm-select"
+        [(ngModel)]="form.role_id"
+        name="role_id"
+        required
+        #roleInput="ngModel"
+      >
+        <option [ngValue]="null" disabled>Pilih peranan / Select role</option>
+        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
+      </select>
+      <p class="ufm-error" *ngIf="roleInput.invalid && roleInput.touched">
+        Role is required.
+      </p>
+    </div>
+
     <!-- Password -->
     <div class="ufm-field">
       <label class="ufm-label">

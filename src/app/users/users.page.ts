@@ -196,9 +196,11 @@ export class UsersPage implements OnInit, OnDestroy {
   // ── Modal launchers ───────────────────────────────────────────────────────
 
   async openAddModal(): Promise<void> {
+    const isSuperadmin = this.authService.isAdmin();
+
     const modal = await this.modalCtrl.create({
       component: UserFormModalComponent,
-      componentProps: { user: null },
+      componentProps: { user: null, isSuperadmin },
       cssClass: 'user-form-modal',
     });
     await modal.present();

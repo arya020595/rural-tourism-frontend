@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import {
+  RoleItem,
   User,
   UserCreatePayload,
   UserUpdatePayload,
@@ -15,10 +16,14 @@ import { UserService } from '../../services/user.service';
 export class UserFormModalComponent implements OnInit {
   /** Pass a user to enter edit mode; omit (null) for create mode */
   @Input() user: User | null = null;
+  /** Pass true when the logged-in user is superadmin to show the role selector */
+  @Input() isSuperadmin = false;
 
   isEditMode = false;
   isSaving = false;
   errorMessage = '';
+
+  roles: RoleItem[] = [];
 
   form = {
     name: '',
@@ -26,6 +31,7 @@ export class UserFormModalComponent implements OnInit {
     email: '',
     password: '',
     confirmed_password: '',
+    role_id: null as number | null,
   };
 
   constructor(
@@ -40,6 +46,17 @@ export class UserFormModalComponent implements OnInit {
       this.form.name = this.user.name;
       this.form.username = this.user.username;
       this.form.email = this.user.email;
+    }
+
+    if (this.isSuperadmin && !this.isEditMode) {
+      this.userService.getRoles().subscribe({
+        next: (res) => {
+          this.roles = res.data ?? [];
+        },
+        error: () => {
+          this.roles = [];
+        },
+      });
     }
   }
 
@@ -103,6 +120,9 @@ export class UserFormModalComponent implements OnInit {
         email: this.form.email,
         password: this.form.password,
         confirmed_password: this.form.confirmed_password,
+        ...(this.isSuperadmin && this.form.role_id != null
+          ? { role_id: this.form.role_id }
+          : {}),
       };
       this.userService.createUser(payload).subscribe({
         next: (res) => {

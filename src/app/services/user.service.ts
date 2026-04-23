@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
+  RoleListResponse,
   UserCreatePayload,
   UserListParams,
   UserListResponse,
@@ -56,17 +57,15 @@ export class UserService {
     );
   }
 
+  /** Get all roles (superadmin only) */
+  getRoles(): Observable<RoleListResponse> {
+    return this.http.get<RoleListResponse>(`${this.apiUrl}/roles`);
+  }
+
   // ── Legacy methods kept for backward compatibility ────────────────────────
 
   getUserByID(user_id: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/users/${user_id}`);
-  }
-
-  updateUserByID(
-    user_id: string,
-    payload: FormData | Record<string, any>,
-  ): Observable<any> {
-    return this.http.put(`${this.apiUrl}/users/${user_id}`, payload);
   }
 
   getAllUser(): Observable<any> {

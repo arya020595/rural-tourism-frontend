@@ -359,6 +359,20 @@ export class AuthService {
       : null;
   }
 
+  /**
+   * Returns true when the current user is superadmin or holds the wildcard
+   * permission `*:*`. Single source of truth — mirrors the backend
+   * ApplicationPolicy.isAdmin() logic.
+   */
+  isAdmin(): boolean {
+    const user = this.currentUser;
+    const roleName = this.getRoleName(user);
+    return (
+      roleName === 'superadmin' ||
+      (Array.isArray(user?.permissions) && user.permissions.includes('*:*'))
+    );
+  }
+
   // ── Auth HTTP calls ──────────────────────────────────────────────
 
   register(payload: any, userType: 'operator' | 'tourist'): Observable<any> {

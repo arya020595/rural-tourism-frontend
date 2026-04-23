@@ -65,6 +65,7 @@ export interface UserCreatePayload {
   email: string;
   password: string;
   confirmed_password: string;
+  role_id?: number | null;
 }
 
 export interface UserUpdatePayload {
@@ -73,6 +74,16 @@ export interface UserUpdatePayload {
   email?: string;
   password?: string;
   confirmed_password?: string;
+}
+
+export interface RoleItem {
+  id: number;
+  name: string;
+}
+
+export interface RoleListResponse {
+  success: boolean;
+  data: RoleItem[];
 }
 
 export interface UserListParams {
