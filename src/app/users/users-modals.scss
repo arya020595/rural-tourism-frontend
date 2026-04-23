@@ -40,6 +40,8 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 
   @media (max-width: 575px) {
     .ufm-content {
+      width: calc(100% - 24px);
+      box-sizing: border-box;
       margin: 0 12px;
       border-radius: #{$um-modal-radius};
       max-height: calc(100vh - 24px);
