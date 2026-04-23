@@ -141,8 +141,11 @@
       <!-- Per-page selector -->
       <div class="um-per-page">
         <label>Show</label>
-        <select (change)="onPerPageChange($event)" [value]="meta.per_page">
-          <option *ngFor="let opt of perPageOptions" [value]="opt">
+        <select
+          [(ngModel)]="meta.per_page"
+          (ngModelChange)="onPerPageChange($event)"
+        >
+          <option *ngFor="let opt of perPageOptions" [ngValue]="opt">
             {{ opt }}
           </option>
         </select>

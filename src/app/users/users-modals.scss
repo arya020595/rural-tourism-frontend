@@ -20,9 +20,13 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   --border-radius: #{$um-modal-radius};
   --box-shadow: #{$um-modal-shadow};
 
+  .ion-page {
+    height: auto;
+    min-height: 0;
+  }
+
   @media (min-width: 576px) {
     --width: 500px;
-    --height: auto;
     --max-height: 92vh;
   }
 
@@ -31,6 +35,17 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     background: #fff;
     overflow-y: auto;
     max-height: calc(92vh - 32px);
+    width: 100%;
+  }
+
+  @media (max-width: 575px) {
+    .ufm-content {
+      width: calc(100% - 24px);
+      box-sizing: border-box;
+      margin: 0 12px;
+      border-radius: #{$um-modal-radius};
+      max-height: calc(100vh - 24px);
+    }
   }
 
   .ufm-header {
@@ -138,10 +153,15 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 // ── View modal (read-only user details) ───────────────────────────────────
 .user-view-modal {
   --border-radius: #{$um-modal-radius};
+  --box-shadow: #{$um-modal-shadow};
+
+  .ion-page {
+    height: auto;
+    min-height: 0;
+  }
 
   @media (min-width: 576px) {
     --width: 440px;
-    --height: auto;
     --max-height: 90vh;
   }
 
@@ -150,20 +170,39 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     --color: white;
   }
 
+  ion-buttons ion-button {
+    --color: white;
+  }
+
+  ion-buttons ion-icon {
+    color: white;
+  }
+
   // Wrapper div replacing ion-content
   .uvm-scroll-content {
     overflow-y: auto;
     max-height: calc(90vh - 56px);
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
+
+  .view-container {
+    width: 100%;
   }
 }
 
 // ── Delete confirmation modal ─────────────────────────────────────────────
 .user-delete-modal {
   --border-radius: #{$um-modal-radius};
+  --box-shadow: #{$um-modal-shadow};
+
+  .ion-page {
+    height: auto;
+    min-height: 0;
+  }
 
   @media (min-width: 576px) {
     --width: 420px;
-    --height: auto;
     --max-height: 80vh;
   }
 
@@ -171,5 +210,11 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   .udm-scroll-content {
     overflow-y: auto;
     max-height: calc(80vh - 56px);
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
+
+  .confirm-container {
+    width: 100%;
   }
 }

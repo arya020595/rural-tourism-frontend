@@ -149,8 +149,8 @@ export class UsersPage implements OnInit, OnDestroy {
     this.searchSubject.next((event?.detail?.value ?? '').trim());
   }
 
-  onPerPageChange(event: any): void {
-    this.meta.per_page = Number(event.target.value);
+  onPerPageChange(perPage: number | string): void {
+    this.meta.per_page = Number(perPage);
     this.meta.page = 1;
     this.loadUsers();
   }
