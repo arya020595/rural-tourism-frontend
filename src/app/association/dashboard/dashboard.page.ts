@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, User } from '../../services/auth.service';
 import { MenuItem, MenuService } from '../../services/menu.service';
+import { sanitizePowerBiUrl } from '../../utils/power-bi-url.util';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,20 +12,9 @@ import { MenuItem, MenuService } from '../../services/menu.service';
   styleUrls: ['./dashboard.page.scss'],
 })
 export class AssociationDashboardPage implements OnInit {
-  user: any = null;
+  user: User | null = null;
   menuItems: MenuItem[] = [];
   biDashboardUrl: SafeResourceUrl | null = null;
-  private readonly powerBiSensitiveParams = new Set([
-    'access_token',
-    'token',
-    'id_token',
-    'embedtoken',
-    'jwt',
-    'sig',
-    'signature',
-    'apikey',
-    'api_key',
-  ]);
 
   constructor(
     private menuCtrl: MenuController,
@@ -59,58 +49,22 @@ export class AssociationDashboardPage implements OnInit {
       return;
     }
 
-    const rawUrl = this.sanitizePowerBiUrl(this.user.power_bi_url);
+    const rawUrl = sanitizePowerBiUrl(this.user.power_bi_url);
     this.biDashboardUrl = rawUrl
       ? this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl)
       : null;
   }
 
-  private parseStoredUser(rawUser: string | null): any | null {
+  private parseStoredUser(rawUser: string | null): User | null {
     if (!rawUser) {
       return null;
     }
 
     try {
-      return JSON.parse(rawUser);
-    } catch {
-      return null;
-    }
-  }
-
-  private sanitizePowerBiUrl(rawUrl: unknown): string | null {
-    if (typeof rawUrl !== 'string') {
-      return null;
-    }
-
-    const trimmedUrl = rawUrl.trim();
-    if (!trimmedUrl) {
-      return null;
-    }
-
-    try {
-      const parsedUrl = new URL(trimmedUrl);
-      const hostname = parsedUrl.hostname.toLowerCase();
-
-      if (parsedUrl.protocol !== 'https:') {
-        return null;
-      }
-
-      if (hostname !== 'powerbi.com' && !hostname.endsWith('.powerbi.com')) {
-        return null;
-      }
-
-      let hasSensitiveParam = false;
-      parsedUrl.searchParams.forEach((_value, queryKey) => {
-        if (this.powerBiSensitiveParams.has(queryKey.toLowerCase())) {
-          hasSensitiveParam = true;
-        }
-      });
-
-      if (hasSensitiveParam) {
-        return null;
-      }
-
-      return parsedUrl.toString();
+      const parsedUser = JSON.parse(rawUser);
+      return parsedUser && typeof parsedUser === 'object'
+        ? (parsedUser as User)
+        : null;
     } catch {
       return null;
     }
