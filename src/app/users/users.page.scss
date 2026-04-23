@@ -112,12 +112,15 @@
   background: white;
   border-radius: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-bottom: 16px;
 }
 
 .um-table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   font-size: 0.88rem;
 
@@ -174,13 +177,13 @@
 
 // Responsive column hiding
 @media (max-width: 599px) {
-  .hide-mobile {
-    display: none;
+  .um-table .hide-mobile {
+    display: table-cell;
   }
 }
 @media (max-width: 767px) {
-  .hide-sm {
-    display: none;
+  .um-table .hide-sm {
+    display: table-cell;
   }
 }
 
