@@ -1,0 +1,152 @@
+<app-side-nav
+  [menuId]="'my-transaction-menu'"
+  [contentId]="'my-transaction-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="transaction-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="my-transaction-menu" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button class="notification-button" aria-label="Notifications">
+        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="my-transaction-main-content">
+  <div class="surface-card">
+    <div class="transaction-container">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1>My Transaction/<em>Transaksi</em></h1>
+      </div>
+
+      <div class="date-action-row">
+        <button type="button" class="date-btn select" (click)="openDatePicker()">
+          {{ selectedDateLabel }}
+        </button>
+        <button type="button" class="date-btn reset" (click)="onResetDate()">Reset Date</button>
+      </div>
+
+      <div class="tab-row" role="tablist" aria-label="Transaction category tabs">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="selectedTab === 'activity'"
+          (click)="selectTab('activity')"
+        >
+          Booking Activity
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="selectedTab === 'accommodation'"
+          (click)="selectTab('accommodation')"
+        >
+          Booking Accommodation
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="selectedTab === 'package'"
+          (click)="selectTab('package')"
+        >
+          Booking Package
+        </button>
+      </div>
+
+      <div class="card-grid">
+        <article class="transaction-card" *ngFor="let trx of visibleTransactions">
+          <h3>{{ trx.title }}</h3>
+
+          <div class="trx-body">
+            <div class="trx-meta">
+              <p><strong>Name:</strong> {{ trx.name }}</p>
+              <p><strong>Date:</strong> {{ trx.date }}</p>
+              <p><strong>Time:</strong> {{ trx.time }}</p>
+              <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
+              <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+              <p class="status-line">
+                <strong>Status:</strong>
+                <span class="status-pill" [class.paid]="getStatusClass(trx.status) === 'paid'" [class.void]="getStatusClass(trx.status) === 'void'" [class.booked]="getStatusClass(trx.status) === 'booked'">
+                  {{ trx.status }}
+                </span>
+              </p>
+            </div>
+
+            <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+              <ion-icon name="receipt-outline"></ion-icon>
+              <span>View Receipt</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <div class="table-footer">
+        <div class="entries-control">
+          <span>Show</span>
+          <select>
+            <option selected>10</option>
+          </select>
+          <span>entries</span>
+        </div>
+
+        <div class="entries-summary">
+          Showing 1 to {{ visibleTransactions.length }} out of {{ visibleTransactions.length }} entries ({{ activeTabLabel }})
+        </div>
+
+        <div class="pagination">
+          <button type="button" class="page-btn">&laquo; Previous</button>
+          <button type="button" class="page-btn active">1</button>
+          <button type="button" class="page-btn">2</button>
+          <button type="button" class="page-btn">3</button>
+          <button type="button" class="page-btn">...</button>
+          <button type="button" class="page-btn">19</button>
+          <button type="button" class="page-btn">20</button>
+          <button type="button" class="page-btn">Next &raquo;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ion-modal
+    [isOpen]="isDateModalOpen"
+    (didDismiss)="closeDatePicker()"
+    cssClass="date-picker-modal"
+  >
+    <ng-template>
+      <ion-content class="date-modal-content">
+        <div class="date-modal-inner">
+          <h3>Select Date</h3>
+          <ion-datetime
+            presentation="date"
+            [showDefaultButtons]="false"
+            [(ngModel)]="selectedDateIso"
+          ></ion-datetime>
+
+          <div class="date-modal-actions">
+            <button type="button" class="date-modal-btn cancel" (click)="closeDatePicker()">
+              Cancel
+            </button>
+            <button type="button" class="date-modal-btn apply" (click)="applyDateSelection()">
+              Apply
+            </button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>
