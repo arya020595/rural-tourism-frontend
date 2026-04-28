@@ -14,6 +14,7 @@ thead th {
   font-size: 18px;
   font-weight: 700;
   padding: 16px 12px;
+  text-align: center;
 }
 
 thead th:first-child {
@@ -32,6 +33,7 @@ tbody td {
   color: #121212;
   font-size: 18px;
   vertical-align: middle;
+  text-align: center;
 }
 
 .action-cell {
@@ -67,6 +69,12 @@ tbody td {
 
 .service-name {
   max-width: 420px;
+  text-align: center;
+}
+
+.booking-id {
+  font-weight: 600;
+  color: #015c2f;
 }
 
 .status-pill {

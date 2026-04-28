@@ -1,0 +1,387 @@
+@import '../booking-add/components/booking-form-base';
+
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
+.booking-header ion-toolbar {
+  --background: #2b2f2b;
+  --box-shadow: none;
+  --border-width: 0;
+}
+
+.menu-toggle {
+  color: #ffffff;
+}
+
+.notification-button {
+  --color: #ffc107;
+}
+
+.notification-bell {
+  font-size: 24px;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #f5f5f5;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.booking-container {
+  background: #f5f5f5;
+  border-radius: 14px;
+  padding: 18px 22px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  text-decoration: none;
+  color: #04552f;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 2px 0 8px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.back-link ion-icon {
+  font-size: 24px;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dadada;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+}
+
+.title-row h1 {
+  margin: 0;
+  color: #04552f;
+  font-size: 32px;
+  font-weight: 800;
+  flex: 1;
+}
+
+.title-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .booking-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .status-label {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+
+      &.paid {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      &.booked {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      &.pending {
+        background-color: #ffe5cc;
+        color: #d97706;
+      }
+    }
+  }
+}
+
+// PDF Button Row - positioned below title
+.pdf-button-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dadada;
+
+  .pdf-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1e40af;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    &:hover {
+      background-color: #1e3a8a;
+    }
+  }
+}
+
+// Remove PDF button from title-actions since it's now in pdf-button-row
+.title-actions .pdf-button {
+  display: none;
+}
+
+// Greyed out section styling for view-only mode
+.disabled-section {
+  opacity: 0.7;
+  pointer-events: none;
+
+  input,
+  select {
+    background-color: #e8e8e8 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+    border: 1px solid #bbb !important;
+  }
+
+  .field input,
+  .field select {
+    background-color: #e8e8e8 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+    border: 1px solid #bbb !important;
+  }
+
+  input[readonly],
+  input[type="radio"],
+  input[type="text"],
+  input[type="number"] {
+    background-color: #e8e8e8 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+    border: 1px solid #bbb !important;
+  }
+
+  .radio-card {
+    background-color: #e8e8e8 !important;
+    border: 1px solid #bbb !important;
+    opacity: 1 !important;
+
+    input {
+      cursor: not-allowed !important;
+    }
+
+    &.checked {
+      background-color: #ddd !important;
+    }
+  }
+
+  .form-section {
+    opacity: 1;
+  }
+
+  h2,
+  h3,
+  label {
+    opacity: 1;
+    color: inherit;
+  }
+}
+
+// Deep selector for component-scoped styles
+::ng-deep .disabled-section {
+  input,
+  select {
+    background-color: #e8e8e8 !important;
+    color: #666 !important;
+  }
+
+  .field input,
+  .field select {
+    background-color: #e8e8e8 !important;
+    color: #666 !important;
+  }
+
+  .radio-card {
+    background-color: #e8e8e8 !important;
+    border: 1px solid #bbb !important;
+    opacity: 1 !important;
+    color: #666 !important;
+
+    input {
+      cursor: not-allowed !important;
+      background: #e8e8e8 !important;
+      border-color: #bbb !important;
+    }
+
+    &.checked {
+      background-color: #ddd !important;
+    }
+  }
+
+  .radio-grid .radio-card {
+    background-color: #e8e8e8 !important;
+    border: 1px solid #bbb !important;
+    color: #666 !important;
+  }
+
+  .radio-grid .radio-card input {
+    background: #e8e8e8 !important;
+    border-color: #bbb !important;
+  }
+
+  app-activity-booking-detail .radio-card,
+  app-accommodation-booking-detail .radio-card,
+  app-package-booking-detail .radio-card {
+    background-color: #e8e8e8 !important;
+    border: 1px solid #bbb !important;
+  }
+
+  app-activity-booking-detail .radio-card input,
+  app-accommodation-booking-detail .radio-card input,
+  app-package-booking-detail .radio-card input {
+    background: #e8e8e8 !important;
+    border-color: #bbb !important;
+  }
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 40px 20px;
+  margin-top: 40px;
+
+  p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+}
+
+// Readonly input styling (for Booked status or normal view)
+.booking-form:not(.disabled-section) .field input[readonly],
+.booking-form:not(.disabled-section) .field select[readonly] {
+  background-color: #f7f7f7;
+  color: #121212;
+  cursor: default;
+  border: 1px solid #c9c9c9;
+}
+
+// Required field asterisk
+.required {
+  color: #f31212;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+// Action rows
+.action-row {
+  display: grid;
+  gap: 14px 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #dadada;
+}
+
+// 3-button layout (for Pending/Booked status)
+.action-row.action-row-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  .bottom-action {
+    &.edit {
+      background-color: #ff9800;
+
+      &:hover {
+        background-color: #fb8c00;
+      }
+    }
+  }
+}
+
+// Single centered button layout (for Paid status)
+.action-row.action-row-single-center {
+  grid-template-columns: 1fr;
+  display: flex;
+  justify-content: center;
+
+  .bottom-action {
+    max-width: 400px;
+    width: 100%;
+  }
+}
+
+// Mobile responsive
+@media (max-width: 992px) {
+  .back-link,
+  .title-row h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    h1 {
+      width: 100%;
+    }
+  }
+
+  .title-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .pdf-button-row {
+    justify-content: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .action-row.action-row-three {
+    grid-template-columns: 1fr;
+
+    .bottom-action {
+      width: 100%;
+    }
+  }
+
+  .action-row.action-row-single-center {
+    .bottom-action {
+      max-width: 100%;
+    }
+  }
+}
+

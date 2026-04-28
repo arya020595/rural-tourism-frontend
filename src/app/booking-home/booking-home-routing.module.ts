@@ -6,8 +6,8 @@ import { BookingHomePage } from './booking-home.page';
 const routes: Routes = [
   {
     path: '',
-    component: BookingHomePage
-  }
+    component: BookingHomePage,
+  },
 ];
 
 @NgModule({
@@ -15,4 +15,3 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class BookingHomePageRoutingModule {}
-
