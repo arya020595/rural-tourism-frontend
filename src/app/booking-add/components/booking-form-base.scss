@@ -244,4 +244,12 @@
   .half-width-field {
     max-width: none;
   }
+
+  .bottom-action.cancel {
+    order: 2;
+  }
+
+  .bottom-action.submit {
+    order: 1;
+  }
 }
