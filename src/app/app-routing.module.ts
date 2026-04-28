@@ -212,6 +212,14 @@ const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'booking-home/detail/:id',
+    loadChildren: () =>
+      import('./booking-detail/booking-detail.module').then(
+        (m) => m.BookingDetailPageModule,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'about',
     loadChildren: () =>
       import('./about/about.module').then((m) => m.AboutPageModule),

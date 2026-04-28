@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { BookingRow } from '../booking-home.models';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { BookingDetail } from '../booking-home.models';
 
 @Component({
   selector: 'app-booking-list-table',
@@ -7,7 +7,8 @@ import { BookingRow } from '../booking-home.models';
   styleUrls: ['./booking-list-table.component.scss'],
 })
 export class BookingListTableComponent {
-  @Input() bookings: BookingRow[] = [];
+  @Input() bookings: BookingDetail[] = [];
+  @Output() viewDetails = new EventEmitter<BookingDetail>();
 
   trackByIndex(index: number): number {
     return index;
@@ -21,5 +22,9 @@ export class BookingListTableComponent {
     }
 
     return `${day}-${month}-${year}`;
+  }
+
+  onViewDetails(booking: BookingDetail): void {
+    this.viewDetails.emit(booking);
   }
 }

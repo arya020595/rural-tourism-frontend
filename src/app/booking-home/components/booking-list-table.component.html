@@ -3,6 +3,7 @@
     <thead>
       <tr>
         <th>Action</th>
+        <th>Booking ID</th>
         <th>Booked Date</th>
         <th>Service Name</th>
         <th>Type</th>
@@ -13,17 +14,31 @@
       <tr *ngFor="let booking of bookings; trackBy: trackByIndex">
         <td>
           <div class="action-cell">
-            <button type="button" class="icon-btn info" aria-label="View booking details">
+            <button
+              type="button"
+              class="icon-btn info"
+              aria-label="View booking details"
+              (click)="onViewDetails(booking)"
+            >
               <ion-icon name="information-circle"></ion-icon>
             </button>
-            <button type="button" class="icon-btn edit" aria-label="Edit booking">
+            <button
+              type="button"
+              class="icon-btn edit"
+              aria-label="Edit booking"
+            >
               <ion-icon name="create"></ion-icon>
             </button>
-            <button type="button" class="icon-btn delete" aria-label="Delete booking">
+            <button
+              type="button"
+              class="icon-btn delete"
+              aria-label="Delete booking"
+            >
               <ion-icon name="trash"></ion-icon>
             </button>
           </div>
         </td>
+        <td class="booking-id">{{ booking.id }}</td>
         <td>{{ formatDate(booking.bookedDate) }}</td>
         <td class="service-name">{{ booking.serviceName }}</td>
         <td>{{ booking.type }}</td>
@@ -33,7 +48,7 @@
             [class.paid]="booking.status === 'Paid'"
             [class.pending]="booking.status !== 'Paid'"
           >
-            {{ booking.status === 'Paid' ? 'Paid' : 'Booked' }}
+            {{ booking.status === "Paid" ? "Paid" : "Booked" }}
           </span>
         </td>
       </tr>
@@ -50,7 +65,9 @@
     <span>entries</span>
   </div>
 
-  <div class="entries-summary">Showing 1 to 10 out of {{ bookings.length }} entries</div>
+  <div class="entries-summary">
+    Showing 1 to 10 out of {{ bookings.length }} entries
+  </div>
 
   <div class="pagination">
     <button type="button" class="page-btn">&laquo; Previous</button>

@@ -12,12 +12,19 @@
 <ion-header class="booking-header" style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="booking-menu" class="menu-toggle"></ion-menu-button>
+      <ion-menu-button
+        menu="booking-menu"
+        class="menu-toggle"
+      ></ion-menu-button>
     </ion-buttons>
 
     <ion-buttons slot="end">
       <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -40,11 +47,19 @@
           class="top-action calendar"
           (click)="setView(viewMode === 'table' ? 'calendar' : 'table')"
         >
-          <ion-icon [name]="viewMode === 'table' ? 'calendar-outline' : 'grid-outline'"></ion-icon>
-          <span>{{ viewMode === 'table' ? 'Calendar View' : 'Table View' }}</span>
+          <ion-icon
+            [name]="viewMode === 'table' ? 'calendar-outline' : 'grid-outline'"
+          ></ion-icon>
+          <span
+            >{{ viewMode === 'table' ? 'Calendar View' : 'Table View' }}</span
+          >
         </button>
 
-        <button type="button" class="top-action add" routerLink="/booking-home/add">
+        <button
+          type="button"
+          class="top-action add"
+          routerLink="/booking-home/add"
+        >
           <ion-icon name="document-text-outline"></ion-icon>
           <span>Tambah Tempahan/Add Booking</span>
         </button>
@@ -53,22 +68,35 @@
       <app-booking-list-table
         *ngIf="viewMode === 'table'"
         [bookings]="bookings"
+        (viewDetails)="viewBookingDetails($event)"
       ></app-booking-list-table>
 
       <section *ngIf="viewMode === 'calendar'" class="calendar-layout">
         <div class="calendar-panel">
           <div class="month-header">
-            <button type="button" class="month-nav" (click)="goToPreviousMonth()" aria-label="Previous month">
+            <button
+              type="button"
+              class="month-nav"
+              (click)="goToPreviousMonth()"
+              aria-label="Previous month"
+            >
               <ion-icon name="chevron-back-outline"></ion-icon>
             </button>
             <h2>{{ currentMonthLabel }}</h2>
-            <button type="button" class="month-nav" (click)="goToNextMonth()" aria-label="Next month">
+            <button
+              type="button"
+              class="month-nav"
+              (click)="goToNextMonth()"
+              aria-label="Next month"
+            >
               <ion-icon name="chevron-forward-outline"></ion-icon>
             </button>
           </div>
 
           <div class="calendar-grid">
-            <div class="day-name" *ngFor="let dayName of dayNames">{{ dayName }}</div>
+            <div class="day-name" *ngFor="let dayName of dayNames">
+              {{ dayName }}
+            </div>
 
             <button
               type="button"
@@ -106,7 +134,9 @@
           <div class="booked-body">
             <div class="date-label">{{ selectedDateLabel }}</div>
 
-            <ng-container *ngIf="selectedDateBookings.length > 0; else noBookingsTemplate">
+            <ng-container
+              *ngIf="selectedDateBookings.length > 0; else noBookingsTemplate"
+            >
               <div
                 class="booking-chip"
                 *ngFor="let booking of selectedDateBookings"
@@ -114,7 +144,9 @@
                 [class.booked]="getBookingStatusClass(booking) === 'booked'"
               >
                 <div class="booking-chip-title">{{ booking.serviceName }}</div>
-                <div class="booking-chip-meta">{{ booking.type }} - {{ getBookingStatusText(booking) }}</div>
+                <div class="booking-chip-meta">
+                  {{ booking.type }} - {{ getBookingStatusText(booking) }}
+                </div>
               </div>
             </ng-container>
 
