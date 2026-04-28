@@ -13,7 +13,6 @@ export class BookingAddPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   selectedType = 'activity';
-  selectedNationality = 'domestic';
 
   constructor(
     private menuCtrl: MenuController,
@@ -29,6 +28,10 @@ export class BookingAddPage implements OnInit {
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'booking-add-menu');
     this.loadUser();
+  }
+
+  handleFormSubmit(formType: string, payload: unknown): void {
+    console.log(`[booking-add] ${formType} form submitted`, payload);
   }
 
   onMenuItemTap(_item: MenuItem): void {
