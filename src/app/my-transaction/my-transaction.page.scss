@@ -1,0 +1,381 @@
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
+.transaction-header ion-toolbar {
+  --background: #2b2f2b;
+  --box-shadow: none;
+  --border-width: 0;
+}
+
+.menu-toggle {
+  color: #ffffff;
+}
+
+.notification-button {
+  --color: #ffc107;
+}
+
+.notification-bell {
+  font-size: 24px;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #f5f5f5;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.transaction-container {
+  background: #f5f5f5;
+  border-radius: 14px;
+  padding: 18px 22px 24px;
+  max-width: 1220px;
+  margin: 0 auto;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  border-bottom: 1px solid #d2d2d2;
+  margin-bottom: 18px;
+}
+
+.title-row h1 {
+  margin: 0 0 12px;
+  color: #050505;
+  font-size: 48px;
+  font-weight: 800;
+}
+
+.title-row em {
+  font-style: italic;
+}
+
+.date-action-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.date-btn {
+  min-height: 44px;
+  padding: 0 30px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.date-btn.select {
+  color: #04552f;
+  background: #ffffff;
+  border-color: #04552f;
+}
+
+.date-btn.reset {
+  color: #ff0000;
+  background: #ffffff;
+  border-color: #ff0000;
+}
+
+.tab-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  background: #cfcfcf;
+  border-radius: 6px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.tab-btn {
+  border: none;
+  min-height: 70px;
+  background: transparent;
+  color: #101010;
+  font-size: 20px;
+  font-weight: 700;
+  position: relative;
+  padding: 0 12px;
+}
+
+.tab-btn + .tab-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 1px;
+  height: calc(100% - 24px);
+  background: #7c7c7c;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.transaction-card {
+  border: 1px solid #b8b8b8;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  padding: 16px;
+}
+
+.transaction-card h3 {
+  margin: 0 0 14px;
+  color: #04552f;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.trx-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.trx-meta p {
+  margin: 0 0 6px;
+  color: #686868;
+  font-size: 19px;
+}
+
+.trx-meta strong {
+  color: #5e5e5e;
+  font-weight: 800;
+}
+
+.status-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  min-height: 26px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 0 12px;
+}
+
+.status-pill.paid {
+  background: #04552f;
+}
+
+.status-pill.void {
+  background: #ff1010;
+}
+
+.status-pill.booked {
+  background: #ff9600;
+  color: #101010;
+}
+
+.receipt-btn {
+  border: none;
+  background: #0722b8;
+  color: #ffffff;
+  border-radius: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.table-footer {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.entries-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.entries-control select {
+  border: 1px solid #c5c5c5;
+  border-radius: 4px;
+  min-width: 72px;
+  min-height: 38px;
+  padding: 0 10px;
+  background: #ffffff;
+  font-size: 18px;
+}
+
+.entries-summary {
+  font-size: 18px;
+  text-align: center;
+}
+
+.pagination {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.page-btn {
+  border: 1px solid #b6b6b6;
+  border-left: none;
+  background: #f8f8f8;
+  color: #202020;
+  font-size: 18px;
+  min-height: 42px;
+  padding: 0 14px;
+}
+
+.page-btn:first-child {
+  border-left: 1px solid #b6b6b6;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.page-btn:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.page-btn.active {
+  background: #015c2f;
+  color: #ffffff;
+  border-color: #015c2f;
+}
+
+@media (max-width: 1200px) {
+  .tab-btn {
+    font-size: 18px;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .title-row h1 {
+    font-size: 36px;
+  }
+
+  .tab-btn {
+    min-height: 58px;
+    font-size: 20px;
+  }
+
+  .trx-meta p {
+    font-size: 16px;
+  }
+
+  .table-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .entries-summary,
+  .pagination {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .surface-card {
+    padding: 12px;
+  }
+
+  .transaction-container {
+    padding: 14px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-btn + .tab-btn::before {
+    display: none;
+  }
+
+  .date-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .trx-body {
+    flex-direction: column;
+  }
+}
+
+.date-modal-content {
+  --background: #f6f6f6;
+}
+
+.date-modal-inner {
+  padding: 16px;
+}
+
+.date-modal-inner h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e1e1e;
+}
+
+.date-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.date-modal-btn {
+  border: none;
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.date-modal-btn.cancel {
+  background: #ececec;
+  color: #212121;
+}
+
+.date-modal-btn.apply {
+  background: #04552f;
+  color: #ffffff;
+}

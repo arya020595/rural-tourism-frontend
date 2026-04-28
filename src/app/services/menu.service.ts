@@ -27,6 +27,18 @@ export class MenuService {
         permission: 'profile:read',
       },
       {
+        id: 'booking-home',
+        label: 'Booking/Tempahan',
+        icon: 'calendar-outline',
+        route: '/booking-home',
+      },
+      {
+        id: 'my-transaction',
+        label: 'My Transaksi / Transaksi',
+        icon: 'receipt-outline',
+        route: '/my-transaction',
+      },
+      {
         id: 'users',
         label: 'Users / Pengguna',
         icon: 'people-outline',

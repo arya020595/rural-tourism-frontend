@@ -1,67 +1,129 @@
-<ion-header [translucent]="true">
+<app-side-nav
+  [menuId]="'booking-menu'"
+  [contentId]="'booking-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="booking-header" style="height: 5vh; box-shadow: none">
   <ion-toolbar>
-    <ion-title>Pilih Destinasi & Aktiviti</ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="booking-menu" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button class="notification-button" aria-label="Notifications">
+        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
+<ion-content [fullscreen]="true" id="booking-main-content">
+  <div class="surface-card">
+    <div class="booking-container">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
 
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Pilih Destinasi & Aktiviti</ion-title>
-    </ion-toolbar>
-  </ion-header>
+      <div class="title-row">
+        <h1>Booking/<em>Tempahan</em></h1>
+      </div>
 
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Senarai Destinasi</ion-card-title>
-      <ion-card-subtitle>Klik destinasi untuk lihat aktivitinya</ion-card-subtitle>
-    </ion-card-header>
-  </ion-card>
+      <div class="toolbar-row">
+        <button
+          type="button"
+          class="top-action calendar"
+          (click)="setView(viewMode === 'table' ? 'calendar' : 'table')"
+        >
+          <ion-icon [name]="viewMode === 'table' ? 'calendar-outline' : 'grid-outline'"></ion-icon>
+          <span>{{ viewMode === 'table' ? 'Calendar View' : 'Table View' }}</span>
+        </button>
 
-  <div class="red-separator"></div>
+        <button type="button" class="top-action add" routerLink="/booking-home/add">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <span>Tambah Tempahan/Add Booking</span>
+        </button>
+      </div>
 
-  <!-- Loop through destinations -->
-  <ion-list>
-    <ng-container *ngFor="let destinasi of destinasiList">
-      
-      <!-- Destination Card -->
-      <ion-card 
-        (click)="toggleAktiviti(destinasi)" 
-        class="destination-card" 
-        [ngClass]="{ 'active': selectedDestinasi === destinasi }">
-        
-        <div class="card-background" [ngStyle]="{'background-image': 'url(' + destinasi.gambar + ')'}">
-          <div class="overlay">
-            <h2>{{ destinasi.nama }}</h2>
-            <p *ngIf="selectedDestinasi !== destinasi">Klik untuk lihat aktiviti</p>
-            <p *ngIf="selectedDestinasi === destinasi">Sembunyikan aktiviti</p>
+      <app-booking-list-table
+        *ngIf="viewMode === 'table'"
+        [bookings]="bookings"
+      ></app-booking-list-table>
+
+      <section *ngIf="viewMode === 'calendar'" class="calendar-layout">
+        <div class="calendar-panel">
+          <div class="month-header">
+            <button type="button" class="month-nav" (click)="goToPreviousMonth()" aria-label="Previous month">
+              <ion-icon name="chevron-back-outline"></ion-icon>
+            </button>
+            <h2>{{ currentMonthLabel }}</h2>
+            <button type="button" class="month-nav" (click)="goToNextMonth()" aria-label="Next month">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="calendar-grid">
+            <div class="day-name" *ngFor="let dayName of dayNames">{{ dayName }}</div>
+
+            <button
+              type="button"
+              class="day-cell"
+              *ngFor="let cell of calendarCells; trackBy: trackByCell"
+              [class.empty]="!cell.inCurrentMonth"
+              [class.has-booking]="hasBookings(cell)"
+              [class.selected]="isSelectedDay(cell)"
+              [class.paid]="getDayStatusClass(cell) === 'paid'"
+              [class.booked]="getDayStatusClass(cell) === 'booked'"
+              (click)="selectDate(cell)"
+              [disabled]="!cell.inCurrentMonth"
+            >
+              <span *ngIf="hasBookings(cell)" class="booking-dot"></span>
+              <span>{{ cell.dayNumber }}</span>
+            </button>
           </div>
         </div>
-      </ion-card>
 
-      <!-- Activities with checkboxes -->
-      <ion-list *ngIf="selectedDestinasi === destinasi" class="aktiviti-list">
-        <ion-item *ngFor="let a of destinasi.aktiviti">
-          <ion-checkbox
-            slot="start"
-            [(ngModel)]="selectedAktivitiMap[destinasi.nama][a]"
-            (ionChange)="onCheckboxChange()">
-          </ion-checkbox>
-          <ion-label>{{ a }}</ion-label>
-        </ion-item>
-      </ion-list>
+        <aside class="booked-dates-panel">
+          <div class="booked-header-row">
+            <h3>Booked Dates</h3>
+            <div class="legend-list">
+              <div class="legend-item">
+                <span class="legend-box booked"></span>
+                <span>Booked</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-box paid"></span>
+                <span>Paid</span>
+              </div>
+            </div>
+          </div>
 
-    </ng-container>
-  </ion-list>
+          <div class="booked-body">
+            <div class="date-label">{{ selectedDateLabel }}</div>
 
-  <div class="red-separator" *ngIf="hasSelectedAktiviti"></div>
+            <ng-container *ngIf="selectedDateBookings.length > 0; else noBookingsTemplate">
+              <div
+                class="booking-chip"
+                *ngFor="let booking of selectedDateBookings"
+                [class.paid]="getBookingStatusClass(booking) === 'paid'"
+                [class.booked]="getBookingStatusClass(booking) === 'booked'"
+              >
+                <div class="booking-chip-title">{{ booking.serviceName }}</div>
+                <div class="booking-chip-meta">{{ booking.type }} - {{ getBookingStatusText(booking) }}</div>
+              </div>
+            </ng-container>
 
-  <ion-button expand="block"
-              class="royal-btn"
-              [disabled]="!hasSelectedAktiviti"
-              (click)="seterusnya()">
-    Seterusnya
-  </ion-button>
-
+            <ng-template #noBookingsTemplate>
+              <p class="no-booking-text">No bookings on this date.</p>
+            </ng-template>
+          </div>
+        </aside>
+      </section>
+    </div>
+  </div>
 </ion-content>
