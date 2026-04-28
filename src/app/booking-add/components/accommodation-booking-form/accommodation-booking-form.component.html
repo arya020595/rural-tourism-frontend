@@ -1,0 +1,274 @@
+<form class="booking-form" novalidate (ngSubmit)="submitForm()">
+  <section class="form-section">
+    <h3>New Accommodation Booking</h3>
+
+    <div class="field-grid two-col">
+      <div class="field">
+        <label
+          >2. Tarikh Daftar Masuk/Check In Date<span class="required"
+            >*</span
+          ></label
+        >
+        <div class="input-with-icon">
+          <input
+            type="text"
+            [(ngModel)]="checkInDate"
+            name="accommodationCheckInDate"
+          />
+          <ion-icon name="calendar-clear-outline"></ion-icon>
+        </div>
+      </div>
+
+      <div class="field">
+        <label
+          >3. Tarikh Daftar Keluar/Check Out Date<span class="required"
+            >*</span
+          ></label
+        >
+        <div class="input-with-icon">
+          <input
+            type="text"
+            [(ngModel)]="checkOutDate"
+            name="accommodationCheckOutDate"
+          />
+          <ion-icon name="calendar-clear-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-grid one-col">
+      <div class="field">
+        <label>4. Nama Penuh Pelancong/Tourist Full Name</label>
+        <input
+          type="text"
+          [(ngModel)]="fullName"
+          name="accommodationFullName"
+          placeholder="Sila masukkan nama penuh pelancong/Please enter tourist full name"
+        />
+      </div>
+    </div>
+
+    <div class="field-grid two-col">
+      <div class="field">
+        <label>5. No. Telefon/Telephone No.</label>
+        <input
+          type="text"
+          [(ngModel)]="phone"
+          name="accommodationPhone"
+          placeholder="Sila masukkan no. telefon/Please enter telephone no."
+        />
+      </div>
+
+      <div class="field">
+        <label>6. Emel/Email</label>
+        <input
+          type="text"
+          [(ngModel)]="email"
+          name="accommodationEmail"
+          placeholder="Sila masukkan emel/Please enter email"
+        />
+      </div>
+    </div>
+
+    <section class="form-section">
+      <h2 class="form-input-label">
+        7. Domestik/Antarabangsa<span class="required">*</span>
+      </h2>
+      <div class="radio-grid three-col">
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'domestic'"
+        >
+          <input
+            type="radio"
+            name="accommodationNationality"
+            value="domestic"
+            [(ngModel)]="selectedNationality"
+          />
+          <span>Domestik</span>
+        </label>
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'international'"
+        >
+          <input
+            type="radio"
+            name="accommodationNationality"
+            value="international"
+            [(ngModel)]="selectedNationality"
+          />
+          <span>Antarabangsa</span>
+        </label>
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'both'"
+        >
+          <input
+            type="radio"
+            name="accommodationNationality"
+            value="both"
+            [(ngModel)]="selectedNationality"
+          />
+          <span>Domestik/Antarabangsa</span>
+        </label>
+      </div>
+    </section>
+
+    <ng-container *ngIf="isMixedNationality; else singleNationalityLayout">
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >8(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="domesticPax"
+            name="accommodationDomesticPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+          />
+        </div>
+
+        <div class="field">
+          <label
+            >8(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
+              class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="internationalPax"
+            name="accommodationInternationalPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >9. Jumlah Malam/Total No. of Nights<span class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="nights"
+            name="accommodationNightsMixed"
+            placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
+          />
+        </div>
+
+        <div class="field">
+          <label>10. Penginapan/Homestay<span class="required">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="homestay"
+            name="accommodationHomestayMixed"
+            placeholder="Sila pilih penginapan/Select homestay"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>11. Jumlah/Total (RM)<span class="required">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="total"
+            name="accommodationTotalMixed"
+            placeholder="Sila isi jumlah bayaran/Please insert total payment"
+          />
+        </div>
+
+        <div class="field">
+          <label>12. Nama Pengandali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="accommodationOperatorMixed"
+            placeholder="Sila isi nama pengandali/Enter operator name"
+          />
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #singleNationalityLayout>
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >8. Bilangan Orang/No. of Pax<span class="required">*</span></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="paxCount"
+            name="accommodationPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+          />
+        </div>
+
+        <div class="field">
+          <label
+            >9. Jumlah Malam/Total No. of Nights<span class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="nights"
+            name="accommodationNightsSingle"
+            placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>10. Penginapan/Homestay<span class="required">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="homestay"
+            name="accommodationHomestaySingle"
+            placeholder="Sila pilih penginapan/Select homestay"
+          />
+        </div>
+
+        <div class="field">
+          <label>11. Jumlah/Total (RM)<span class="required">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="total"
+            name="accommodationTotalSingle"
+            placeholder="Sila isi jumlah bayaran/Please insert total payment"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid one-col">
+        <div class="field half-width-field">
+          <label>12. Nama Pengandali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="accommodationOperatorSingle"
+            placeholder="Sila isi nama pengandali/Enter operator name"
+          />
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="action-row">
+      <button type="button" class="bottom-action cancel" (click)="onCancel()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        <span>Batal Tempahan/Cancel Booking</span>
+      </button>
+
+      <button type="submit" class="bottom-action submit">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span>Hantar Tempahan/Submit Booking</span>
+      </button>
+    </div>
+  </section>
+</form>

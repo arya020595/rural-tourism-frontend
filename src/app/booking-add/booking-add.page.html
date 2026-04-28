@@ -12,12 +12,19 @@
 <ion-header class="booking-header" style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button menu="booking-add-menu" class="menu-toggle"></ion-menu-button>
+      <ion-menu-button
+        menu="booking-add-menu"
+        class="menu-toggle"
+      ></ion-menu-button>
     </ion-buttons>
 
     <ion-buttons slot="end">
       <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -39,120 +46,69 @@
         <h1>Enter Booking Details</h1>
       </div>
 
-      <form class="booking-form" novalidate>
+      <div class="booking-form">
         <section class="form-section">
           <h2 class="form-input-label">1. Select Type</h2>
           <div class="radio-grid three-col">
-            <label class="radio-card" [class.active]="selectedType === 'activity'">
-              <input type="radio" name="bookingType" value="activity" [(ngModel)]="selectedType" />
+            <label
+              class="radio-card"
+              [class.active]="selectedType === 'activity'"
+            >
+              <input
+                type="radio"
+                name="bookingType"
+                value="activity"
+                [(ngModel)]="selectedType"
+              />
               <span>Activity</span>
             </label>
-            <label class="radio-card" [class.active]="selectedType === 'accommodation'">
-              <input type="radio" name="bookingType" value="accommodation" [(ngModel)]="selectedType" />
+            <label
+              class="radio-card"
+              [class.active]="selectedType === 'accommodation'"
+            >
+              <input
+                type="radio"
+                name="bookingType"
+                value="accommodation"
+                [(ngModel)]="selectedType"
+              />
               <span>Accommodation</span>
             </label>
-            <label class="radio-card" [class.active]="selectedType === 'package'">
-              <input type="radio" name="bookingType" value="package" [(ngModel)]="selectedType" />
+            <label
+              class="radio-card"
+              [class.active]="selectedType === 'package'"
+            >
+              <input
+                type="radio"
+                name="bookingType"
+                value="package"
+                [(ngModel)]="selectedType"
+              />
               <span>Package</span>
             </label>
           </div>
         </section>
 
-        <section class="form-section">
-          <h3>New Activity Booking</h3>
+        <ng-container [ngSwitch]="selectedType">
+          <app-activity-booking-form
+            *ngSwitchCase="'activity'"
+            (cancel)="goBack()"
+            (submit)="handleFormSubmit('activity', $event)"
+          ></app-activity-booking-form>
 
-          <div class="field-grid two-col">
-            <div class="field">
-              <label>2. Tarikh/Date<span class="required">*</span></label>
-              <div class="input-with-icon">
-                <input type="text" value="12/03/2026" />
-                <ion-icon name="calendar-clear-outline"></ion-icon>
-              </div>
-            </div>
+          <app-accommodation-booking-form
+            *ngSwitchCase="'accommodation'"
+            (cancel)="goBack()"
+            (submit)="handleFormSubmit('accommodation', $event)"
+          ></app-accommodation-booking-form>
 
-            <div class="field">
-              <label>3. Masa/Time</label>
-              <div class="input-with-icon">
-                <input type="text" placeholder="Sila pilih masa aktiviti/Please choose the activity time" />
-                <ion-icon name="time-outline"></ion-icon>
-              </div>
-            </div>
-          </div>
-
-          <div class="field-grid one-col">
-            <div class="field">
-              <label>4. Nama Penuh Pelancong/Tourist Full Name</label>
-              <input type="text" placeholder="Sila masukkan nama penuh pelancong/Please enter tourist full name" />
-            </div>
-          </div>
-
-          <div class="field-grid two-col">
-            <div class="field">
-              <label>5. No. Telefon/Telephone No.</label>
-              <input type="text" placeholder="Sila masukkan no. telefon/Please enter telephone no." />
-            </div>
-
-            <div class="field">
-              <label>6. Emel/Email</label>
-              <input type="text" placeholder="Sila masukkan emel/Please enter email" />
-            </div>
-          </div>
-
-          <section class="form-section">
-            <h2 class="form-input-label">7. Domestik/Antarabangsa<span class="required">*</span></h2>
-            <div class="radio-grid three-col">
-              <label class="radio-card" [class.active]="selectedNationality === 'domestic'">
-                <input type="radio" name="nationality" value="domestic" [(ngModel)]="selectedNationality" />
-                <span>Domestik</span>
-              </label>
-              <label class="radio-card" [class.active]="selectedNationality === 'international'">
-                <input type="radio" name="nationality" value="international" [(ngModel)]="selectedNationality" />
-                <span>Antarabangsa</span>
-              </label>
-              <label class="radio-card" [class.active]="selectedNationality === 'both'">
-                <input type="radio" name="nationality" value="both" [(ngModel)]="selectedNationality" />
-                <span>Domestik/Antarabangsa</span>
-              </label>
-            </div>
-          </section>
-
-          <div class="field-grid two-col">
-            <div class="field">
-              <label>8. Bilangan Orang/No. of Pax<span class="required">*</span></label>
-              <input type="text" placeholder="Sila masukkan bilangan orang/Please insert number of pax" />
-            </div>
-
-            <div class="field">
-              <label>9. Aktiviti/Activity<span class="required">*</span></label>
-              <input type="text" placeholder="Sila pilih aktiviti/Please choose an activity" />
-            </div>
-          </div>
-
-          <div class="field-grid two-col">
-            <div class="field">
-              <label>10. Jumlah/Total (RM)<span class="required">*</span></label>
-              <input type="text" placeholder="Sila isi jumlah bayaran/Please insert total payment" />
-            </div>
-
-            <div class="field">
-              <label>11. Nama Pengandali/Operator Name</label>
-              <input type="text" placeholder="Sila isi nama pengandali/Enter operator name" />
-            </div>
-          </div>
-
-          <div class="action-row">
-            <button type="button" class="bottom-action cancel">
-              <ion-icon name="close-circle-outline"></ion-icon>
-              <span>Batal Tempahan/Cancel Booking</span>
-            </button>
-
-            <button type="button" class="bottom-action submit">
-              <ion-icon name="paper-plane-outline"></ion-icon>
-              <span>Hantar Tempahan/Submit Booking</span>
-            </button>
-          </div>
-        </section>
-      </form>
+          <app-package-booking-form
+            *ngSwitchCase="'package'"
+            (cancel)="goBack()"
+            (submit)="handleFormSubmit('package', $event)"
+          ></app-package-booking-form>
+        </ng-container>
+      </div>
     </div>
   </div>
 </ion-content>
