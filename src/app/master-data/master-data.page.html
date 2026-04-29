@@ -1,0 +1,272 @@
+<app-side-nav
+  [menuId]="'master-data-menu'"
+  [contentId]="'master-data-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Logout Account'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="master-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="master-data-menu" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button class="notification-button" aria-label="Notifications" (click)="goToNotifications()">
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+ </ion-header>
+
+<ion-content [fullscreen]="true" id="master-data-content">
+  <div class="master-page">
+    <div class="logo-row">
+      <app-header-logo></app-header-logo>
+    </div>
+
+    <div class="title-row">
+      <h1>Master Data/<em>Data Induk</em></h1>
+    </div>
+
+    <div class="top-actions">
+      <ion-button class="add-btn" (click)="openAddModal()">
+        <ion-icon name="add-circle" slot="start"></ion-icon>
+        Tambah/Add
+      </ion-button>
+    </div>
+
+    <div class="page-message page-error" *ngIf="pageErrorMessage">
+      {{ pageErrorMessage }}
+    </div>
+
+    <div class="table-card">
+      <table class="master-table">
+        <thead>
+          <tr>
+            <th class="col-action"></th>
+            <th>ID</th>
+            <th>Product Name</th>
+            <th>Type</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of pagedData">
+            <td class="action-group">
+              <ion-button fill="clear" size="small" aria-label="View details" (click)="viewDetail(item)">
+                <ion-icon name="information-circle" class="action-icon info-icon"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" aria-label="Edit" (click)="openEditModal(item)">
+                <ion-icon name="create" class="action-icon edit-icon"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" aria-label="Delete" (click)="openDeleteModal(item)">
+                <ion-icon name="trash" class="action-icon delete-icon"></ion-icon>
+              </ion-button>
+            </td>
+            <td>{{ item.code }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ getProductTypeLabel(item.product_type) }}</td>
+            <td>{{ formatDateTime(item.created_at) }}</td>
+            <td>{{ formatDateTime(item.updated_at) }}</td>
+          </tr>
+
+          <tr *ngIf="!isLoading && !pagedData.length && !pageErrorMessage">
+            <td class="empty-state" colspan="6">No master data found.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="table-footer">
+        <div class="left-tools">
+          <span>Show</span>
+          <ion-select
+            [(ngModel)]="pageSize"
+            interface="popover"
+            class="entries-select"
+            (ionChange)="onPageSizeChange()"
+          >
+            <ion-select-option [value]="7">7</ion-select-option>
+            <ion-select-option [value]="10">10</ion-select-option>
+            <ion-select-option [value]="25">25</ion-select-option>
+          </ion-select>
+          <span>entries</span>
+        </div>
+
+        <div class="middle-info">
+          Showing {{ startItem }} to {{ endItem }} out of {{ totalItems }} entries
+        </div>
+
+        <div class="right-pagination">
+          <ion-button class="pagination-prev" size="small" fill="outline" (click)="prevPage()" [disabled]="currentPage === 1">
+            Previous
+          </ion-button>
+
+          <ion-button
+            *ngFor="let p of visiblePages"
+            [class]="p === '...' ? 'pagination-ellipsis' : 'pagination-page'"
+            size="small"
+            [fill]="p === currentPage ? 'solid' : 'outline'"
+            [disabled]="p === '...'"
+            (click)="onPageClick(p)"
+          >
+            {{ p }}
+          </ion-button>
+
+          <ion-button class="pagination-next" size="small" fill="outline" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            Next
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" *ngIf="isModalOpen">
+      <div class="master-modal">
+        <div class="modal-header">
+          <div>
+            <h3>
+              {{
+                modalMode === 'detail'
+                  ? 'Master Data Details'
+                  : modalMode === 'create'
+                  ? 'Tambah Data Induk/Add New Master Data'
+                  : 'Edit Data Induk/Update Master Data'
+              }}
+            </h3>
+          </div>
+
+          <ion-button fill="clear" class="close-btn" aria-label="Close dialog" (click)="closeModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="modal-body">
+          <div class="page-message form-error" *ngIf="formErrorMessage">
+            {{ formErrorMessage }}
+          </div>
+
+          <ng-container *ngIf="modalMode === 'detail' && detailItem">
+            <div class="detail-panel">
+              <div class="detail-row">
+                <span class="detail-label">ID</span>
+                <span class="detail-value">{{ detailItem.code }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Product Name</span>
+                <span class="detail-value">{{ detailItem.name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Type</span>
+                <span class="detail-value">{{ getProductTypeLabel(detailItem.product_type) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Created At</span>
+                <span class="detail-value">{{ formatDateTime(detailItem.created_at) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Updated At</span>
+                <span class="detail-value">{{ formatDateTime(detailItem.updated_at) }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="modalMode !== 'detail'">
+            <div class="field-block">
+              <label class="field-label">Jenis/Type<span>*</span></label>
+              <ion-select
+                [(ngModel)]="draft.product_type"
+                interface="popover"
+                placeholder="Sila pilih jenis/Select Type"
+                class="modal-select"
+              >
+                <ion-select-option value="activity">Activity</ion-select-option>
+                <ion-select-option value="accommodation">Accommodation</ion-select-option>
+              </ion-select>
+            </div>
+
+            <ng-container *ngIf="modalMode === 'create'">
+              <div class="field-block inline-field">
+                <div class="inline-label-wrap">
+                  <label class="field-label">Nama Produk/Product Name<span>*</span></label>
+                </div>
+
+                <div class="inline-input-row">
+                  <ion-input
+                    [(ngModel)]="draft.name"
+                    placeholder="Sila isi nama produk/Enter product name"
+                    class="modal-input"
+                  ></ion-input>
+
+                  <ion-button class="inline-add-btn" (click)="addPendingItem()">
+                    <ion-icon name="add-circle" slot="start"></ion-icon>
+                    Tambah/Add
+                  </ion-button>
+                </div>
+              </div>
+
+              <div class="mini-table-wrap">
+                <table class="mini-table">
+                  <thead>
+                    <tr>
+                      <th>Product Name</th>
+                      <th>Type</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let pending of pendingItems">
+                      <td>{{ pending.name }}</td>
+                      <td>{{ getProductTypeLabel(pending.product_type) }}</td>
+                      <td class="pending-actions">
+                        <ion-button fill="clear" size="small" (click)="removePendingItem(pending.tempId)">
+                          <ion-icon name="trash" class="action-icon delete-icon"></ion-icon>
+                        </ion-button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="!pendingItems.length">
+                      <td class="empty-state" colspan="3">
+                        No 'Master Data' here. Fill in the fields above and click 'Tambah/Add' to add new data.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="modalMode === 'edit'">
+              <div class="field-block">
+                <label class="field-label">Nama Produk/Product Name<span>*</span></label>
+                <ion-input
+                  [(ngModel)]="draft.name"
+                  placeholder="Sila isi nama produk/Enter product name"
+                  class="modal-input"
+                ></ion-input>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+
+        <div class="modal-footer">
+          <ion-button fill="outline" class="cancel-btn" (click)="closeModal()">
+            {{ modalMode === 'detail' ? 'Close/Tutup' : 'Cancel/Batal' }}
+          </ion-button>
+
+          <ion-button class="save-btn" *ngIf="modalMode !== 'detail'" (click)="saveMasterData()" [disabled]="isLoading">
+            <ion-icon name="save" slot="start"></ion-icon>
+            Save/Simpan
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

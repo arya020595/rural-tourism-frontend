@@ -27,6 +27,13 @@ export class MenuService {
         permission: 'profile:read',
       },
       {
+        id: 'master-data',
+        label: 'Data Induk/Master Data',
+        icon: 'list-outline',
+        route: '/master-data',
+        permission: 'product:read',
+      },
+      {
         id: 'booking-home',
         label: 'Booking/Tempahan',
         icon: 'calendar-outline',
