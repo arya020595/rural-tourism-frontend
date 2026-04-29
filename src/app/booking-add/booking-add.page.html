@@ -1,0 +1,114 @@
+<app-side-nav
+  [menuId]="'booking-add-menu'"
+  [contentId]="'booking-add-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="booking-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button
+        menu="booking-add-menu"
+        class="menu-toggle"
+      ></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button class="notification-button" aria-label="Notifications">
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="booking-add-main-content">
+  <div class="surface-card">
+    <div class="booking-container">
+      <button type="button" class="back-link" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Kembali</span>
+      </button>
+
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1>Enter Booking Details</h1>
+      </div>
+
+      <div class="booking-form">
+        <section class="form-section">
+          <h2 class="form-input-label">1. Select Type</h2>
+          <div class="radio-grid three-col">
+            <label
+              class="radio-card"
+              [class.active]="selectedType === 'activity'"
+            >
+              <input
+                type="radio"
+                name="bookingType"
+                value="activity"
+                [(ngModel)]="selectedType"
+              />
+              <span>Activity</span>
+            </label>
+            <label
+              class="radio-card"
+              [class.active]="selectedType === 'accommodation'"
+            >
+              <input
+                type="radio"
+                name="bookingType"
+                value="accommodation"
+                [(ngModel)]="selectedType"
+              />
+              <span>Accommodation</span>
+            </label>
+            <label
+              class="radio-card"
+              [class.active]="selectedType === 'package'"
+            >
+              <input
+                type="radio"
+                name="bookingType"
+                value="package"
+                [(ngModel)]="selectedType"
+              />
+              <span>Package</span>
+            </label>
+          </div>
+        </section>
+
+        <ng-container [ngSwitch]="selectedType">
+          <app-activity-booking-form
+            *ngSwitchCase="'activity'"
+            (cancel)="goBack()"
+            (submit)="handleFormSubmit('activity', $event)"
+          ></app-activity-booking-form>
+
+          <app-accommodation-booking-form
+            *ngSwitchCase="'accommodation'"
+            (cancel)="goBack()"
+            (submit)="handleFormSubmit('accommodation', $event)"
+          ></app-accommodation-booking-form>
+
+          <app-package-booking-form
+            *ngSwitchCase="'package'"
+            (cancel)="goBack()"
+            (submit)="handleFormSubmit('package', $event)"
+          ></app-package-booking-form>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</ion-content>

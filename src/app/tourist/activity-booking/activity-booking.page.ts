@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
-import { ApiService } from 'src/app/services/api.service';
+import { ActivityService } from 'src/app/services/activity.service';
+import { BookingService } from 'src/app/services/booking.service';
 
 interface Slot {
   date: string;
@@ -92,7 +93,8 @@ export class ActivityBookingPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private api: ApiService,
+    private api: ActivityService,
+    private bookingService: BookingService,
     private navCtrl: NavController,
     private alertController: AlertController,
     private cdr: ChangeDetectorRef,
@@ -355,12 +357,14 @@ export class ActivityBookingPage implements OnInit {
   loadBookedSlots() {
     if (!this.activityId) return;
 
-    this.api.getBookedDatesByActivity(this.activityId).subscribe((res) => {
-      this.bookedSlots = res?.data || [];
-      this.generateCalendar();
-      this.autoSelectFirstAvailableDate();
-      this.cdr.detectChanges();
-    });
+    this.bookingService
+      .getBookedDatesByActivity(this.activityId)
+      .subscribe((res) => {
+        this.bookedSlots = res?.data || [];
+        this.generateCalendar();
+        this.autoSelectFirstAvailableDate();
+        this.cdr.detectChanges();
+      });
   }
 
   async confirmCancel() {

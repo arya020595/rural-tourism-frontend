@@ -1,0 +1,73 @@
+<ion-content class="receipt-page" [fullscreen]="true">
+  <div class="receipt-shell">
+    <article class="receipt-card">
+      <header class="receipt-top">
+        <div class="receipt-logo-wrap">
+          <app-header-logo></app-header-logo>
+        </div>
+        <div class="receipt-date">{{ receipt.receiptDateLabel }}</div>
+      </header>
+
+      <section class="receipt-grid">
+        <div class="receipt-block">
+          <div class="label">DITEMPAH OLEH/<em>BOOKED BY</em>:</div>
+          <div class="value strong">{{ receipt.bookedBy }}</div>
+        </div>
+
+        <div class="receipt-block">
+          <div class="label">PENGINAPAN/<em>ACCOMMODATION</em></div>
+          <div class="value strong">{{ receipt.title }}</div>
+        </div>
+
+        <div class="receipt-block">
+          <div class="label">TARIKH DAFTAR MASUK/<em>CHECK - IN DATE</em></div>
+          <div class="value strong">{{ receipt.checkInDate }}</div>
+        </div>
+
+        <div class="receipt-block">
+          <div class="label">TARIKH DAFTAR KELUAR/<em>CHECK - OUT DATE</em></div>
+          <div class="value strong">{{ receipt.checkOutDate }}</div>
+        </div>
+
+        <div class="receipt-block">
+          <div class="label">JUMLAH MALAM/<em>TOTAL NIGHTS</em></div>
+          <div class="value strong">{{ receipt.totalNightsLabel }}</div>
+        </div>
+
+        <div class="receipt-block">
+          <div class="label">STATUS PEMBAYARAN/<em>PAYMENT STATUS</em></div>
+          <div class="value strong">{{ receipt.paymentStatus }}</div>
+        </div>
+      </section>
+
+      <section class="receipt-bottom">
+        <div class="issuer-block">
+          <div class="label">DIKELUARKAN OLEH/ISSUED BY:</div>
+          <div class="issuer-name">{{ receipt.issuedBy }}</div>
+          <div class="issuer-email">{{ receipt.issuerEmail }}</div>
+          <div class="trx-id">Transaction ID: {{ receipt.transactionId }}</div>
+        </div>
+
+        <div class="total-block">
+          <div class="label">JUMLAH/<em>TOTAL</em>:</div>
+          <div class="total-value">{{ receipt.totalLabel }}</div>
+        </div>
+      </section>
+
+      <section class="receipt-qr-row">
+        <div class="qr-text">
+          Imbas di sini untuk mendapatkan resit anda
+          <em>Scan here to get your receipt</em>
+        </div>
+
+        <div class="qr-placeholder">
+          <ion-icon name="qr-code-outline"></ion-icon>
+        </div>
+      </section>
+    </article>
+
+    <button type="button" class="back-btn" (click)="goBackToTransactionHistory()">
+      Back to Transaction History
+    </button>
+  </div>
+</ion-content>

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StorageService } from './storage.service';
+import { sanitizePowerBiUrl } from '../utils/power-bi-url.util';
 
 export type UserRoleName =
   | 'superadmin'
@@ -38,6 +39,7 @@ export interface User {
   full_name?: string;
   email?: string;
   association_id?: string | number;
+  power_bi_url?: string | null;
   company_id?: string | number;
   contact_no?: string;
   nationality?: string;
@@ -170,6 +172,7 @@ export class AuthService {
       legacy_user_id: isOperator ? undefined : legacyId,
       full_name: user.full_name || user.name || user.username,
       role: roleObj,
+      power_bi_url: sanitizePowerBiUrl(user.power_bi_url),
       permissions: Array.isArray(user.permissions) ? user.permissions : [],
     };
 
@@ -357,6 +360,20 @@ export class AuthService {
     return VALID_ROLES.includes(role as UserRoleName)
       ? (role as UserRoleName)
       : null;
+  }
+
+  /**
+   * Returns true when the current user is superadmin or holds the wildcard
+   * permission `*:*`. Single source of truth — mirrors the backend
+   * ApplicationPolicy.isAdmin() logic.
+   */
+  isAdmin(): boolean {
+    const user = this.currentUser;
+    const roleName = this.getRoleName(user);
+    return (
+      roleName === 'superadmin' ||
+      (Array.isArray(user?.permissions) && user.permissions.includes('*:*'))
+    );
   }
 
   // ── Auth HTTP calls ──────────────────────────────────────────────

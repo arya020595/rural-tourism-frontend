@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
 import { DateModalComponent } from '../date-modal/date-modal.component';
-import { ActivatedRoute } from '@angular/router';
-import { ApiService } from '../services/api.service';
+import { AccommodationService } from '../services/accommodation.service';
+import { BookingService } from '../services/booking.service';
+import { FormService } from '../services/form.service';
 import {
   AccommodationTouristOptionMapper,
   BookingFilter,
@@ -70,7 +72,9 @@ export class AccoFormPage implements OnInit {
   accoAvailableDates: { date: string; price: number }[] = [];
 
   constructor(
-    private apiService: ApiService,
+    private accommodationService: AccommodationService,
+    private bookingService: BookingService,
+    private formService: FormService,
     private navCtrl: NavController,
     private route: ActivatedRoute,
     private modalCtrl: ModalController,
@@ -98,7 +102,7 @@ export class AccoFormPage implements OnInit {
 
   // ---------------- Load All Tourist Users (for manual booking) ----------------
   loadAllTouristUsers() {
-    this.apiService.getAllTouristUsers().subscribe(
+    this.bookingService.getAllTouristUsers().subscribe(
       (res: any) => {
         const list: any[] = Array.isArray(res.data)
           ? res.data
@@ -252,7 +256,7 @@ export class AccoFormPage implements OnInit {
       this.touristOptions = [];
       return;
     }
-    this.apiService.getOperatorAllBookings(operatorUid).subscribe(
+    this.bookingService.getOperatorAllBookings(operatorUid).subscribe(
       (res: any) => {
         const bookings: any[] = Array.isArray(res.data)
           ? res.data
@@ -485,7 +489,7 @@ export class AccoFormPage implements OnInit {
     // )
     const uid = localStorage.getItem('uid') as string;
     //get all accommodations by user
-    this.apiService.getAllAccomByUser(uid).subscribe(
+    this.accommodationService.getAllAccomByUser(uid).subscribe(
       (data) => {
         this.accommodations = data;
         // console.log(data);
@@ -621,7 +625,7 @@ export class AccoFormPage implements OnInit {
       console.debug('Submitting accommodation form payload:', payload);
 
       // Wait for the backend response using async/await
-      const response: any = await this.apiService
+      const response: any = await this.formService
         .createForm(payload)
         .toPromise();
       console.log('Form created successfully:', response);
@@ -665,7 +669,7 @@ export class AccoFormPage implements OnInit {
           '',
       );
       if (accommodationId) {
-        this.apiService
+        this.bookingService
           .getBookedDatesByAccommodation(accommodationId)
           .subscribe(
             (res: any) => {

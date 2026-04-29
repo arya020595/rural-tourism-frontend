@@ -8,7 +8,8 @@ import {
 } from '@ionic/angular';
 import { CalendarModal, CalendarModalOptions } from 'ion7-calendar';
 import { environment } from '../../../environments/environment';
-import { ApiService } from '../../services/api.service';
+import { AccommodationService } from '../../services/accommodation.service';
+import { ActivityService } from '../../services/activity.service';
 import { AuthService } from '../../services/auth.service';
 import { MenuItem, MenuService } from '../../services/menu.service';
 
@@ -35,7 +36,8 @@ export class HomePage implements OnInit {
   private hasShownDevAlert = false;
 
   constructor(
-    private apiService: ApiService,
+    private activityService: ActivityService,
+    private accommodationService: AccommodationService,
     private menu: MenuController,
     private router: Router,
     private toastController: ToastController,
@@ -340,7 +342,7 @@ export class HomePage implements OnInit {
   }
 
   private loadActivities() {
-    this.apiService.getAllActivityMasterData().subscribe({
+    this.activityService.getAllActivityMasterData().subscribe({
       next: (response: any) => {
         this.activities = response.data || response;
         this.filteredActivities = [...this.activities];
@@ -354,7 +356,7 @@ export class HomePage implements OnInit {
   }
 
   private loadAccommodations() {
-    this.apiService.getAllAccommodations().subscribe({
+    this.accommodationService.getAllAccommodations().subscribe({
       next: (response: any) => {
         this.accommodations = response.data || response;
         this.filteredAccommodations = [...this.accommodations];

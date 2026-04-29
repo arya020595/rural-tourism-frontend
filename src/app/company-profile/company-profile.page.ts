@@ -196,8 +196,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   private loadAssociations(): void {
     this.associationService.getAssociationList().subscribe({
-      next: (res: AssociationItem[]) => {
-        this.associations = res || [];
+      next: (res: any) => {
+        this.associations = Array.isArray(res) ? res : (res?.data ?? []);
       },
       error: () => {
         this.associations = [];

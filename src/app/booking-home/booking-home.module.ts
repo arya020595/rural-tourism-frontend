@@ -5,16 +5,19 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
 import { BookingHomePageRoutingModule } from './booking-home-routing.module';
+import { SharedModule } from '../_shared/shared.module';
 
 import { BookingHomePage } from './booking-home.page';
+import { BookingListTableComponent } from './components/booking-list-table.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    BookingHomePageRoutingModule
+    BookingHomePageRoutingModule,
+    SharedModule,
   ],
-  declarations: [BookingHomePage]
+  declarations: [BookingHomePage, BookingListTableComponent],
 })
 export class BookingHomePageModule {}

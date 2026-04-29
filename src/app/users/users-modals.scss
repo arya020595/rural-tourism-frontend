@@ -1,0 +1,232 @@
+// =============================================================================
+// Users Module — Modal Overlay Styles
+//
+// These styles MUST live in a globally-imported file because Ionic appends
+// modals directly to <ion-app>, outside any Angular component's shadow/scope.
+// This partial is imported once from src/global.scss.
+//
+// Single Responsibility : each block styles exactly one modal variant.
+// Open/Closed           : add new modal variants by appending new blocks.
+// Interface Segregation : each modal class is self-contained — no cross-deps.
+// =============================================================================
+
+// ── Shared modal token ────────────────────────────────────────────────────
+// Used by all three user modals for consistent corner radius & elevation.
+$um-modal-radius: 16px;
+$um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+// ── Form modal (Add / Edit user) ──────────────────────────────────────────
+.user-form-modal {
+  --border-radius: #{$um-modal-radius};
+  --box-shadow: #{$um-modal-shadow};
+
+  @media (min-width: 576px) {
+    --width: 500px;
+    --max-height: 90vh;
+  }
+
+  .ion-page {
+    position: relative;
+    contain: layout style;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Wrapper div: fills remaining modal height and scrolls
+  .ufm-content {
+    background: #fff;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .ufm-header {
+    position: relative;
+    padding: 20px 24px 0;
+  }
+
+  .ufm-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #555;
+    cursor: pointer;
+    padding: 0 4px;
+
+    &:hover {
+      color: #000;
+    }
+  }
+
+  .ufm-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a4d2e;
+    margin: 0 0 16px;
+    padding-right: 32px;
+  }
+
+  .ufm-divider {
+    border: none;
+    border-top: 1.5px solid #e0e0e0;
+    margin: 0 0 16px;
+  }
+
+  .ufm-field {
+    padding: 0 24px;
+    margin-bottom: 14px;
+  }
+
+  .ufm-label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 6px;
+  }
+
+  .ufm-required {
+    color: var(--ion-color-danger);
+    margin-left: 2px;
+  }
+
+  .ufm-optional {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--ion-color-medium);
+    margin-left: 4px;
+  }
+
+  .ufm-input {
+    --border-radius: 10px;
+    --border-color: #ccc;
+    --border-width: 1.5px;
+    --padding-start: 14px;
+    --padding-end: 14px;
+    font-size: 0.9rem;
+  }
+
+  .ufm-select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border: 1.5px solid #ccc;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ion-text-color, #000);
+    appearance: auto;
+    outline: none;
+
+    &:focus {
+      border-color: var(--ion-color-primary, #024e25);
+    }
+  }
+
+  .ufm-error {
+    font-size: 0.78rem;
+    color: var(--ion-color-danger);
+    margin: 4px 0 0;
+  }
+
+  .ufm-api-error {
+    color: var(--ion-color-danger);
+    font-size: 0.85rem;
+    margin: 4px 24px 0;
+    padding: 8px 12px;
+    background: rgba(255, 0, 0, 0.06);
+    border-radius: 8px;
+  }
+
+  .ufm-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 24px 24px;
+  }
+
+  .ufm-save-btn {
+    --background: #1a4d2e;
+    --background-activated: #153d25;
+    --border-radius: 10px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+}
+
+// ── View modal (read-only user details) ───────────────────────────────────
+.user-view-modal {
+  --border-radius: #{$um-modal-radius};
+  --box-shadow: #{$um-modal-shadow};
+
+  .ion-page {
+    height: auto;
+    min-height: 0;
+  }
+
+  @media (min-width: 576px) {
+    --width: 440px;
+    --max-height: 90vh;
+  }
+
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: white;
+  }
+
+  ion-buttons ion-button {
+    --color: white;
+  }
+
+  ion-buttons ion-icon {
+    color: white;
+  }
+
+  // Wrapper div replacing ion-content
+  .uvm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(90vh - 56px);
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
+
+  .view-container {
+    width: 100%;
+  }
+}
+
+// ── Delete confirmation modal ─────────────────────────────────────────────
+.user-delete-modal {
+  --border-radius: #{$um-modal-radius};
+  --box-shadow: #{$um-modal-shadow};
+
+  .ion-page {
+    height: auto;
+    min-height: 0;
+  }
+
+  @media (min-width: 576px) {
+    --width: 420px;
+    --max-height: 80vh;
+  }
+
+  // Wrapper div replacing ion-content
+  .udm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(80vh - 56px);
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
+
+  .confirm-container {
+    width: 100%;
+  }
+}

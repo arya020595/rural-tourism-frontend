@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import { ApiService } from 'src/app/services/api.service';
+import { ActivityService } from 'src/app/services/activity.service';
+import { BookingService } from 'src/app/services/booking.service';
 import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
@@ -22,7 +23,8 @@ export class ConfirmBookingDetailsPage implements OnInit {
     private alertController: AlertController,
     private router: Router,
     private route: ActivatedRoute,
-    private api: ApiService,
+    private api: ActivityService,
+    private bookingService: BookingService,
     private notificationService: NotificationService,
   ) {}
 
@@ -374,7 +376,7 @@ export class ConfirmBookingDetailsPage implements OnInit {
 
     try {
       const bookingResponse: any = await firstValueFrom(
-        this.api.createBooking(finalBooking),
+        this.bookingService.createBooking(finalBooking),
       );
       this.isSubmitting = false;
 
