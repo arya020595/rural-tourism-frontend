@@ -453,6 +453,18 @@ const routes: Routes = [
     },
   },
   {
+    path: 'master-data',
+    loadChildren: () =>
+      import('./master-data/master-data.module').then(
+        (m) => m.MasterDataPageModule,
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['product:read'],
+    },
+  },
+  {
     path: 'association/login',
     redirectTo: 'login',
     pathMatch: 'full',
