@@ -201,7 +201,11 @@ const routes: Routes = [
       import('./booking-home/booking-home.module').then(
         (m) => m.BookingHomePageModule,
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:read'],
+    },
   },
   {
     path: 'booking-home/add',
@@ -209,7 +213,11 @@ const routes: Routes = [
       import('./booking-add/booking-add.module').then(
         (m) => m.BookingAddPageModule,
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:create'],
+    },
   },
   {
     path: 'booking-home/detail/:id',
@@ -217,7 +225,11 @@ const routes: Routes = [
       import('./booking-detail/booking-detail.module').then(
         (m) => m.BookingDetailPageModule,
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:read'],
+    },
   },
   {
     path: 'about',

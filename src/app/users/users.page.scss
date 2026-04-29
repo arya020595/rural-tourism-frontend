@@ -178,12 +178,12 @@
 // Responsive column hiding
 @media (max-width: 599px) {
   .um-table .hide-mobile {
-    display: table-cell;
+    display: none;
   }
 }
 @media (max-width: 767px) {
   .um-table .hide-sm {
-    display: table-cell;
+    display: none;
   }
 }
 

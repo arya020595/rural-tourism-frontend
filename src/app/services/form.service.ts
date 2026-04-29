@@ -37,13 +37,6 @@ export class FormService {
     );
   }
 
-  uploadPdf(formData: FormData): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/receipts/generate-pdf-from-image`,
-      formData,
-    );
-  }
-
   voidReceipt(receiptID: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/receipts/void-receipt`, {
       receiptID,
