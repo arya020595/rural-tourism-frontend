@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, MenuController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import { ApiService } from '../services/api.service';
+import { ProductService } from '../services/product.service';
 import { AuthService } from '../services/auth.service';
 import { MenuItem } from '../services/menu.service';
 
@@ -111,7 +111,7 @@ export class MasterDataPage implements OnInit {
   constructor(
     private menuCtrl: MenuController,
     private authService: AuthService,
-    private apiService: ApiService,
+    private productService: ProductService,
     private alertCtrl: AlertController,
   ) {}
 
@@ -221,7 +221,7 @@ export class MasterDataPage implements OnInit {
     this.isLoading = true;
     this.pageErrorMessage = '';
 
-    this.apiService.getAllProducts({ page, per_page: this.pageSize }).subscribe({
+    this.productService.getAllProducts({ page, per_page: this.pageSize }).subscribe({
       next: (response) => {
         const rows = this.extractRows(response).map((record, index) =>
           this.mapRow(record, index),
@@ -395,7 +395,7 @@ export class MasterDataPage implements OnInit {
       this.isLoading = true;
       try {
         await firstValueFrom(
-          this.apiService.updateProduct(this.editingId, {
+          this.productService.updateProduct(this.editingId, {
             name,
             product_type: this.draft.product_type,
           }),
@@ -416,7 +416,7 @@ export class MasterDataPage implements OnInit {
     try {
       for (const item of this.pendingItems) {
         await firstValueFrom(
-          this.apiService.createProduct({
+          this.productService.createProduct({
             name: item.name,
             product_type: item.product_type,
           }),
@@ -436,7 +436,7 @@ export class MasterDataPage implements OnInit {
   private async deleteMasterData(id: number): Promise<void> {
     this.isLoading = true;
     try {
-      await firstValueFrom(this.apiService.deleteProduct(id));
+      await firstValueFrom(this.productService.deleteProduct(id));
       this.loadMasterData(this.currentPage);
     } catch (error: any) {
       this.pageErrorMessage =

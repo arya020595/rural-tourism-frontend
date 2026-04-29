@@ -1,0 +1,85 @@
+@import './components/booking-form-base';
+
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
+.booking-header ion-toolbar {
+  --background: #2b2f2b;
+  --box-shadow: none;
+  --border-width: 0;
+}
+
+.menu-toggle {
+  color: #ffffff;
+}
+
+.notification-button {
+  --color: #ffc107;
+}
+
+.notification-bell {
+  font-size: 24px;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #f5f5f5;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.booking-container {
+  background: #f5f5f5;
+  border-radius: 14px;
+  padding: 18px 22px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  text-decoration: none;
+  color: #04552f;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 2px 0 8px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.back-link ion-icon {
+  font-size: 24px;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  border-bottom: 1px solid #dadada;
+  margin-bottom: 20px;
+}
+
+.title-row h1 {
+  margin: 0 0 12px;
+  color: #04552f;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+@media (max-width: 992px) {
+  .back-link,
+  .title-row h1,
+  .form-section h3 {
+    font-size: 24px;
+  }
+}

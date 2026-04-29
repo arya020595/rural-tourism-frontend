@@ -34,6 +34,18 @@ export class MenuService {
         permission: 'product:read',
       },
       {
+        id: 'booking-home',
+        label: 'Booking/Tempahan',
+        icon: 'calendar-outline',
+        route: '/booking-home',
+      },
+      {
+        id: 'my-transaction',
+        label: 'My Transaksi / Transaksi',
+        icon: 'receipt-outline',
+        route: '/my-transaction',
+      },
+      {
         id: 'users',
         label: 'Users / Pengguna',
         icon: 'people-outline',
@@ -66,10 +78,10 @@ export class MenuService {
     association: [
       {
         id: 'association-dashboard',
-        label: 'Dashboard',
-        icon: 'analytics',
+        label: 'BI Dashboard',
+        icon: 'bar-chart-outline',
         route: '/association/dashboard',
-        permission: 'association:read',
+        permission: 'bi_dashboard:read',
       },
     ],
   };

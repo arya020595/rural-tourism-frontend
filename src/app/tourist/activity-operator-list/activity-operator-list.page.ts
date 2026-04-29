@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { ApiService } from 'src/app/services/api.service';
+import { ActivityService } from 'src/app/services/activity.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -16,7 +16,7 @@ export class ActivityOperatorListPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private api: ApiService,
+    private api: ActivityService,
   ) {}
 
   ngOnInit() {

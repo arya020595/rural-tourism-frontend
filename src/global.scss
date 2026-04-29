@@ -79,6 +79,11 @@
   --button-color: white;
 }
 
+/* ============================================
+   USER MANAGEMENT MODALS
+   ============================================ */
+@import "app/users/users-modals";
+
 .info-toast {
   --background: #2196f3;
   --color: white;

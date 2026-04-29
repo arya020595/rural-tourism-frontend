@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { ApiService } from '../../services/api.service';
+import { AccommodationService } from '../../services/accommodation.service';
 
 @Component({
   selector: 'app-accomodation-detail',
@@ -20,7 +20,7 @@ export class AccomodationDetailPage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private apiService: ApiService,
+    private apiService: AccommodationService,
     private navCtrl: NavController,
   ) {}
 

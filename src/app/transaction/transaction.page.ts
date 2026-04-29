@@ -1,21 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
-import { ApiService } from '../services/api.service';
-import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef } from '@angular/core';
-import { environment } from '../../environments/environment';
-import { ModalController } from '@ionic/angular';
-import { DateModalComponent } from 'src/app/date-modal/date-modal.component';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import {
-  IonItem,
-  IonItemOption,
-  IonItemOptions,
-  IonItemSliding,
-  IonLabel,
-  IonList,
-} from '@ionic/angular/standalone';
+  AlertController,
+  ModalController,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
+import { DateModalComponent } from 'src/app/date-modal/date-modal.component';
+import { environment } from '../../environments/environment';
+import { BookingService } from '../services/booking.service';
+import { FormService } from '../services/form.service';
 
 @Component({
   selector: 'app-transaction',
@@ -94,7 +89,8 @@ export class TransactionPage implements OnInit {
   }
 
   constructor(
-    private apiService: ApiService,
+    private formService: FormService,
+    private bookingService: BookingService,
     private modalCtrl: ModalController,
     private navCtrl: NavController,
     private router: Router,
@@ -135,14 +131,6 @@ export class TransactionPage implements OnInit {
       position: 'bottom', // Position of the toast (can be 'top', 'bottom', or 'middle')
     });
     toast.present();
-  }
-
-  // Load the transactions from API
-  loadTransactions() {
-    // Fetch the transactions
-    this.apiService.getFormsByUser('user-id').subscribe((data: any) => {
-      this.transactions = data;
-    });
   }
 
   onTransactionClick(transaction: any) {
@@ -223,11 +211,11 @@ export class TransactionPage implements OnInit {
   loadHistory() {
     const uid = localStorage.getItem('uid') as string;
 
-    this.apiService.getFormsByUser(uid).subscribe(
+    this.formService.getFormsByUser(uid).subscribe(
       (data) => {
         const paid = Array.isArray(data?.data) ? data.data : [];
 
-        this.apiService.getOperatorAllBookings(uid).subscribe(
+        this.bookingService.getOperatorAllBookings(uid).subscribe(
           (res: any) => {
             const allBookings = Array.isArray(res?.data) ? res.data : [];
             const cancelled = allBookings

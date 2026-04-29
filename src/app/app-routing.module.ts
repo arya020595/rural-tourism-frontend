@@ -151,6 +151,22 @@ const routes: Routes = [
     },
   },
   {
+    path: 'my-transaction',
+    loadChildren: () =>
+      import('./my-transaction/my-transaction.module').then(
+        (m) => m.MyTransactionPageModule,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'my-transaction/receipt',
+    loadChildren: () =>
+      import('./my-transaction-receipt/my-transaction-receipt.module').then(
+        (m) => m.MyTransactionReceiptPageModule,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'tourist/transaction',
     loadChildren: () =>
       import('./transaction/transaction.module').then(
@@ -185,11 +201,23 @@ const routes: Routes = [
       import('./booking-home/booking-home.module').then(
         (m) => m.BookingHomePageModule,
       ),
-    canActivate: [authGuard, permissionGuard],
-    data: {
-      loginRole: 'tourist',
-      permissions: ['booking:read'],
-    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'booking-home/add',
+    loadChildren: () =>
+      import('./booking-add/booking-add.module').then(
+        (m) => m.BookingAddPageModule,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'booking-home/detail/:id',
+    loadChildren: () =>
+      import('./booking-detail/booking-detail.module').then(
+        (m) => m.BookingDetailPageModule,
+      ),
+    canActivate: [authGuard],
   },
   {
     path: 'about',
@@ -411,7 +439,7 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'association',
-      permissions: ['association:read'],
+      permissions: ['bi_dashboard:read'],
     },
   },
   {

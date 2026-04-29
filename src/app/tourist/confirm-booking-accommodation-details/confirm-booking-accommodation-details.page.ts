@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import { ApiService } from 'src/app/services/api.service';
+import { AccommodationService } from 'src/app/services/accommodation.service';
+import { BookingService } from 'src/app/services/booking.service';
 import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
@@ -22,7 +23,8 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
     private alertController: AlertController,
     private router: Router,
     private route: ActivatedRoute,
-    private api: ApiService,
+    private api: AccommodationService,
+    private bookingService: BookingService,
     private notificationService: NotificationService,
   ) {}
 
@@ -280,7 +282,7 @@ export class ConfirmBookingAccommodationDetailsPage implements OnInit {
 
     try {
       const res: any = await firstValueFrom(
-        this.api.createAccommodationBooking(payload),
+        this.bookingService.createAccommodationBooking(payload),
       );
 
       const bookingId = res?.data?.id;

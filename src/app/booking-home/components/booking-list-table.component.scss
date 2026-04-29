@@ -1,0 +1,187 @@
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+thead th {
+  background: #015c2f;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+thead th:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+thead th:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #d6d6d6;
+  color: #121212;
+  font-size: 18px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.action-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn ion-icon {
+  font-size: 28px;
+}
+
+.icon-btn.info {
+  color: #245a94;
+}
+
+.icon-btn.edit {
+  color: #f28a00;
+}
+
+.icon-btn.delete {
+  color: #ef1616;
+}
+
+.service-name {
+  max-width: 420px;
+  text-align: center;
+}
+
+.booking-id {
+  font-weight: 600;
+  color: #015c2f;
+}
+
+.status-pill {
+  min-width: 128px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 8px 20px;
+  border: 1px solid transparent;
+}
+
+.status-pill.paid {
+  background: #a4d6af;
+  color: #015c2f;
+  border-color: #4f9a65;
+}
+
+.status-pill.pending {
+  background: #f7d4a0;
+  color: #f28a00;
+  border-color: #f28a00;
+}
+
+.table-footer {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.entries-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.entries-control select {
+  border: 1px solid #c5c5c5;
+  border-radius: 4px;
+  min-width: 72px;
+  min-height: 38px;
+  padding: 0 10px;
+  background: #ffffff;
+  font-size: 18px;
+}
+
+.entries-summary {
+  font-size: 18px;
+  text-align: center;
+}
+
+.pagination {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.page-btn {
+  border: 1px solid #b6b6b6;
+  border-left: none;
+  background: #f8f8f8;
+  color: #202020;
+  font-size: 18px;
+  min-height: 42px;
+  padding: 0 14px;
+}
+
+.page-btn:first-child {
+  border-left: 1px solid #b6b6b6;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.page-btn:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.page-btn.active {
+  background: #015c2f;
+  color: #ffffff;
+  border-color: #015c2f;
+}
+
+@media (max-width: 992px) {
+  tbody td,
+  thead th,
+  .status-pill,
+  .entries-summary,
+  .entries-control,
+  .entries-control select,
+  .page-btn {
+    font-size: 16px;
+  }
+
+  .table-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .entries-summary,
+  .pagination {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
