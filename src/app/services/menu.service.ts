@@ -27,6 +27,13 @@ export class MenuService {
         permission: 'profile:read',
       },
       {
+        id: 'master-data',
+        label: 'Data Induk/Master Data',
+        icon: 'list-outline',
+        route: '/master-data',
+        permission: 'product:read',
+      },
+      {
         id: 'users',
         label: 'Users / Pengguna',
         icon: 'people-outline',
