@@ -348,7 +348,7 @@ export class MasterDataPage implements OnInit {
     const name = this.draft.name.trim();
 
     if (!name) {
-      this.formErrorMessage = 'Full name is required.';
+      this.formErrorMessage = 'Product name is required.';
       return;
     }
 
