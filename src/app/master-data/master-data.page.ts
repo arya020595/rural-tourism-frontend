@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AlertController, MenuController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { AuthService } from '../services/auth.service';
-import { MenuItem } from '../services/menu.service';
+import { MenuItem, MenuService } from '../services/menu.service';
 
 interface MasterDataRow {
   id: number;
@@ -41,63 +42,8 @@ export class MasterDataPage implements OnInit {
   pendingItems: PendingMasterData[] = [];
   private tempIdSeed = 1;
 
-  // Side menu entries tuned to the provided design.
-  menuItems: MenuItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard Anda/My Dashboard',
-      icon: 'stats-chart-outline',
-      route: '/home',
-    },
-    {
-      id: 'transaction',
-      label: 'Transaksi/My Transaction',
-      icon: 'briefcase-outline',
-      route: '/transaction',
-    },
-    {
-      id: 'receipt',
-      label: 'E-Resit/E-Reciept',
-      icon: 'reader-outline',
-      route: '/e-receipt',
-    },
-    {
-      id: 'booking',
-      label: 'Tempahan/Booking',
-      icon: 'calendar-outline',
-      route: '/operator-bookings',
-    },
-    {
-      id: 'master-data',
-      label: 'Data Induk/Master Data',
-      icon: 'list-outline',
-      route: '/master-data',
-    },
-    {
-      id: 'profile',
-      label: 'Profil Anda/My Profile',
-      icon: 'person-outline',
-      route: '/company-profile',
-    },
-    {
-      id: 'customer-service',
-      label: 'Perkhidmatan Pelanggan/Customer Services',
-      icon: 'chatbubble-ellipses-outline',
-      route: '/about',
-    },
-    {
-      id: 'user-management',
-      label: 'Pengurusan Pengguna/User Management',
-      icon: 'settings-outline',
-      route: '/users',
-    },
-    {
-      id: 'faq',
-      label: 'Soalan Lazim/Frequently Asked Questions',
-      icon: 'help-circle-outline',
-      route: '/faq',
-    },
-  ];
+  // Side menu items populated via MenuService for centralized permission-based filtering.
+  menuItems: MenuItem[] = [];
 
   currentPage = 1;
   pageSize = 7;
@@ -113,17 +59,24 @@ export class MasterDataPage implements OnInit {
     private authService: AuthService,
     private productService: ProductService,
     private alertCtrl: AlertController,
+    private menuService: MenuService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.user = this.authService.currentUser;
-    this.loadMasterData();
+    this.refreshMenuItems();
   }
 
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'master-data-menu');
     this.user = this.authService.currentUser;
+    this.refreshMenuItems();
     this.loadMasterData(this.currentPage);
+  }
+
+  private refreshMenuItems(): void {
+    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
   }
 
   private createEmptyDraft(): MasterDataDraft {
@@ -316,7 +269,7 @@ export class MasterDataPage implements OnInit {
   async openDeleteModal(item: MasterDataRow): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'Delete Master Data',
-      message: `Delete ${item.name}?`,
+      message: 'Are you sure you want to delete this master data item?',
       buttons: [
         {
           text: 'Cancel',
@@ -388,7 +341,7 @@ export class MasterDataPage implements OnInit {
 
       const name = this.draft.name.trim();
       if (!name) {
-        this.formErrorMessage = 'Full name is required.';
+        this.formErrorMessage = 'Product name is required.';
         return;
       }
 
@@ -467,6 +420,10 @@ export class MasterDataPage implements OnInit {
     const displayHours = String(hours % 12 || 12).padStart(2, '0');
 
     return `${day}-${month}-${year}, ${displayHours}:${minutes}${suffix}`;
+  }
+
+  goToNotifications(): void {
+    this.router.navigate(['/notifications']);
   }
 
   onMenuItemTap(_item: MenuItem): void {

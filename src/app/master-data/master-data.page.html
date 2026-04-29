@@ -16,7 +16,7 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
+      <ion-button class="notification-button" aria-label="Notifications" (click)="goToNotifications()">
         <ion-icon
           class="notification-bell"
           slot="icon-only"
@@ -64,13 +64,13 @@
         <tbody>
           <tr *ngFor="let item of pagedData">
             <td class="action-group">
-              <ion-button fill="clear" size="small" (click)="viewDetail(item)">
+              <ion-button fill="clear" size="small" aria-label="View details" (click)="viewDetail(item)">
                 <ion-icon name="information-circle" class="action-icon info-icon"></ion-icon>
               </ion-button>
-              <ion-button fill="clear" size="small" (click)="openEditModal(item)">
+              <ion-button fill="clear" size="small" aria-label="Edit" (click)="openEditModal(item)">
                 <ion-icon name="create" class="action-icon edit-icon"></ion-icon>
               </ion-button>
-              <ion-button fill="clear" size="small" (click)="openDeleteModal(item)">
+              <ion-button fill="clear" size="small" aria-label="Delete" (click)="openDeleteModal(item)">
                 <ion-icon name="trash" class="action-icon delete-icon"></ion-icon>
               </ion-button>
             </td>
@@ -81,7 +81,7 @@
             <td>{{ formatDateTime(item.updated_at) }}</td>
           </tr>
 
-          <tr *ngIf="!pagedData.length && !pageErrorMessage">
+          <tr *ngIf="!isLoading && !pagedData.length && !pageErrorMessage">
             <td class="empty-state" colspan="6">No master data found.</td>
           </tr>
         </tbody>
@@ -145,7 +145,7 @@
             </h3>
           </div>
 
-          <ion-button fill="clear" class="close-btn" (click)="closeModal()">
+          <ion-button fill="clear" class="close-btn" aria-label="Close dialog" (click)="closeModal()">
             <ion-icon name="close"></ion-icon>
           </ion-button>
         </div>
@@ -162,7 +162,7 @@
                 <span class="detail-value">{{ detailItem.code }}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Full Name</span>
+                <span class="detail-label">Product Name</span>
                 <span class="detail-value">{{ detailItem.name }}</span>
               </div>
               <div class="detail-row">
@@ -197,13 +197,13 @@
             <ng-container *ngIf="modalMode === 'create'">
               <div class="field-block inline-field">
                 <div class="inline-label-wrap">
-                  <label class="field-label">Nama Penuh/Full Name<span>*</span></label>
+                  <label class="field-label">Nama Produk/Product Name<span>*</span></label>
                 </div>
 
                 <div class="inline-input-row">
                   <ion-input
                     [(ngModel)]="draft.name"
-                    placeholder="Sila isi nama penuh/Enter full name"
+                    placeholder="Sila isi nama produk/Enter product name"
                     class="modal-input"
                   ></ion-input>
 
@@ -218,7 +218,7 @@
                 <table class="mini-table">
                   <thead>
                     <tr>
-                      <th>Full Name</th>
+                      <th>Product Name</th>
                       <th>Type</th>
                       <th></th>
                     </tr>
@@ -245,10 +245,10 @@
 
             <ng-container *ngIf="modalMode === 'edit'">
               <div class="field-block">
-                <label class="field-label">Nama Penuh/Full Name<span>*</span></label>
+                <label class="field-label">Nama Produk/Product Name<span>*</span></label>
                 <ion-input
                   [(ngModel)]="draft.name"
-                  placeholder="Sila isi nama penuh/Enter full name"
+                  placeholder="Sila isi nama produk/Enter product name"
                   class="modal-input"
                 ></ion-input>
               </div>
