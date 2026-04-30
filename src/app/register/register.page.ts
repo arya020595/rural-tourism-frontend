@@ -101,7 +101,7 @@ export class RegisterPage implements OnInit {
   loadAssociations() {
     this.associationService.getAssociationList().subscribe({
       next: (res) => {
-        this.associations = res || [];
+        this.associations = res?.data || [];
       },
       error: () => {
         this.showError('Failed to load association list.');
