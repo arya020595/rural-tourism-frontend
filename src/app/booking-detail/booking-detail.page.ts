@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-booking-detail',
@@ -25,6 +26,7 @@ export class BookingDetailPage implements OnInit {
     private authService: AuthService,
     private bookingService: BookingService,
     private bookingStateService: BookingStateService,
+    private toastService: ToastService,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['booking']) {
@@ -77,7 +79,7 @@ export class BookingDetailPage implements OnInit {
 
   viewPaymentReceipt(): void {
     if (!this.booking?.numericId) {
-      console.error('No numeric booking ID available for PDF download');
+      this.toastService.error('PDF receipt is not available for this booking.');
       return;
     }
 
@@ -87,11 +89,16 @@ export class BookingDetailPage implements OnInit {
         const anchor = document.createElement('a');
         anchor.href = url;
         anchor.download = `booking-${this.booking!.id ?? this.booking!.numericId}.pdf`;
+        document.body.appendChild(anchor);
         anchor.click();
-        URL.revokeObjectURL(url);
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          document.body.removeChild(anchor);
+        }, 100);
       },
       error: (err) => {
         console.error('Failed to download booking PDF:', err);
+        this.toastService.error('Failed to download the booking PDF. Please try again.');
       },
     });
   }

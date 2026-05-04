@@ -4,6 +4,10 @@ const path = require("path");
 const fs = require("fs");
 const os = require("os");
 
+const BASE_URL = process.env.BASE_URL || "http://localhost:8100";
+const E2E_USERNAME = process.env.E2E_USERNAME || "operator_seed";
+const E2E_PASSWORD = process.env.E2E_PASSWORD || "password123";
+
 (async () => {
   const downloadDir = fs.mkdtempSync(path.join(os.tmpdir(), "booking-pdf-"));
   console.log(`📁 Download dir: ${downloadDir}`);
@@ -22,16 +26,16 @@ const os = require("os");
   try {
     // ── 1. Login ─────────────────────────────────────────────────────────────
     console.log("Step 1: Navigating to login page...");
-    await page.goto("http://localhost:8100/login", {
+    await page.goto(`${BASE_URL}/login`, {
       waitUntil: "networkidle",
     });
 
     // Ionic uses shadow DOM for ion-input — fill the native input inside the shadow root
     const usernameInput = page.locator('ion-input[name="username"]');
-    await usernameInput.locator("input").fill("operator_seed");
+    await usernameInput.locator("input").fill(E2E_USERNAME);
 
     const passwordInput = page.locator('ion-input[name="password"]');
-    await passwordInput.locator("input").fill("password123");
+    await passwordInput.locator("input").fill(E2E_PASSWORD);
 
     console.log("Step 1: Submitting login form...");
     await page
@@ -47,7 +51,7 @@ const os = require("os");
 
     // ── 2. Navigate to Booking Home ──────────────────────────────────────────
     console.log("Step 2: Navigating to booking home...");
-    await page.goto("http://localhost:8100/booking-home", {
+    await page.goto(`${BASE_URL}/booking-home`, {
       waitUntil: "networkidle",
     });
 
