@@ -4,6 +4,7 @@ import { MenuController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { BookingDetail } from '../booking-home/booking-home.models';
+import { LoadingService } from '../services/loading.service';
 
 @Component({
   selector: 'app-booking-detail',
@@ -14,6 +15,7 @@ export class BookingDetailPage implements OnInit {
   user: any = null;
   menuItems: MenuItem[] = [];
   booking: BookingDetail | null = null;
+  isGeneratingPdf = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -21,6 +23,7 @@ export class BookingDetailPage implements OnInit {
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
+    private loadingService: LoadingService,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['booking']) {
@@ -66,9 +69,21 @@ export class BookingDetailPage implements OnInit {
     // this.router.navigate(['/booking-add'], { state: { booking: this.booking, mode: 'edit' } });
   }
 
-  viewPaymentReceipt(): void {
-    // TODO: Generate and display PDF
-    console.log('Generating payment receipt for:', this.booking?.id);
+  async viewPaymentReceipt(): Promise<void> {
+    if (this.isGeneratingPdf) {
+      return;
+    }
+    this.isGeneratingPdf = true;
+    await this.loadingService.show('Menjana PDF / Generating PDF...');
+    try {
+      // TODO: Generate and display PDF
+      console.log('Generating payment receipt for:', this.booking?.id);
+      // Simulate async PDF generation until real implementation is added
+      await new Promise<void>((resolve) => setTimeout(resolve, 2000));
+    } finally {
+      await this.loadingService.hide();
+      this.isGeneratingPdf = false;
+    }
   }
 
   private loadUser(): void {

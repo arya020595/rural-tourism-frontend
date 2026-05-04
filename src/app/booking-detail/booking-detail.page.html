@@ -58,9 +58,19 @@
       </div>
 
       <div class="pdf-button-row">
-        <button type="button" class="pdf-button" (click)="viewPaymentReceipt()">
-          <ion-icon name="document-text-outline"></ion-icon>
-          <span>Manjana PDF/Generate PDF</span>
+        <button
+          type="button"
+          class="pdf-button"
+          (click)="viewPaymentReceipt()"
+          [disabled]="isGeneratingPdf"
+        >
+          <ion-spinner
+            *ngIf="isGeneratingPdf"
+            name="crescent"
+            class="pdf-spinner"
+          ></ion-spinner>
+          <ion-icon *ngIf="!isGeneratingPdf" name="document-text-outline"></ion-icon>
+          <span>{{ isGeneratingPdf ? 'Menjana PDF...' : 'Manjana PDF/Generate PDF' }}</span>
         </button>
       </div>
 
