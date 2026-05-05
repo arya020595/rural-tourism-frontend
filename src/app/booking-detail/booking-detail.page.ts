@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { AuthService } from '../services/auth.service';
-import { MenuItem, MenuService } from '../services/menu.service';
+import { firstValueFrom } from 'rxjs';
 import { BookingDetail } from '../booking-home/booking-home.models';
+import { AuthService } from '../services/auth.service';
+import { BookingStateService } from '../services/booking-state.service';
+import { BookingService } from '../services/booking.service';
 import { LoadingService } from '../services/loading.service';
+import { MenuItem, MenuService } from '../services/menu.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-booking-detail',
@@ -23,7 +27,10 @@ export class BookingDetailPage implements OnInit {
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
+    private bookingService: BookingService,
+    private bookingStateService: BookingStateService,
     private loadingService: LoadingService,
+    private toastService: ToastService,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['booking']) {
@@ -32,6 +39,11 @@ export class BookingDetailPage implements OnInit {
   }
 
   ngOnInit(): void {
+    // Fall back to BookingStateService if router navigation state was lost
+    // (common in Ionic lazy-loaded pages)
+    if (!this.booking) {
+      this.booking = this.bookingStateService.get();
+    }
     this.loadUser();
   }
 
@@ -73,13 +85,32 @@ export class BookingDetailPage implements OnInit {
     if (this.isGeneratingPdf) {
       return;
     }
+    if (!this.booking?.numericId) {
+      this.toastService.error('PDF receipt is not available for this booking.');
+      return;
+    }
+
     this.isGeneratingPdf = true;
-    await this.loadingService.show('Menjana PDF / Generating PDF...');
     try {
-      // TODO: Generate and display PDF
-      console.log('Generating payment receipt for:', this.booking?.id);
-      // Simulate async PDF generation until real implementation is added
-      await new Promise<void>((resolve) => setTimeout(resolve, 2000));
+      await this.loadingService.show('Menjana PDF / Generating PDF...');
+      const blob = await firstValueFrom(
+        this.bookingService.downloadBookingPdf(this.booking.numericId),
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `booking-${this.booking.id ?? this.booking.numericId}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(anchor);
+      }, 100);
+    } catch (err) {
+      console.error('Failed to download booking PDF:', err);
+      this.toastService.error(
+        'Failed to download the booking PDF. Please try again.',
+      );
     } finally {
       await this.loadingService.hide();
       this.isGeneratingPdf = false;

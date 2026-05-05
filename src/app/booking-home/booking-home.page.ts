@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, NavController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
+import { BookingStateService } from '../services/booking-state.service';
 import { MenuItem, MenuService } from '../services/menu.service';
-import { BookingRow, BookingDetail } from './booking-home.models';
+import { BookingDetail, BookingRow } from './booking-home.models';
 
 interface CalendarCell {
   key: string | null;
@@ -43,6 +44,7 @@ export class BookingHomePage implements OnInit {
     private authService: AuthService,
     private router: Router,
     private navCtrl: NavController,
+    private bookingStateService: BookingStateService,
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +73,7 @@ export class BookingHomePage implements OnInit {
   }
 
   viewBookingDetails(booking: BookingDetail): void {
+    this.bookingStateService.set(booking);
     this.router.navigate(['/booking-home/detail', booking.id], {
       state: { booking },
     });
@@ -273,6 +276,7 @@ export class BookingHomePage implements OnInit {
     return [
       {
         id: 'BK_A001',
+        numericId: 1,
         bookedDate: currentMonthDate(7),
         serviceName: 'Rafting (Kiulu) - Activity',
         type: 'Activity',
@@ -290,6 +294,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_AC001',
+        numericId: 2,
         bookedDate: currentMonthDate(7),
         serviceName: 'Kiulu Farmstay - Accommodation',
         type: 'Accommodation',
@@ -308,6 +313,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_A002',
+        numericId: 3,
         bookedDate: currentMonthDate(7),
         serviceName: 'Kiulu Water Rafting - Activity',
         type: 'Activity',
@@ -324,6 +330,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_P001',
+        numericId: 4,
         bookedDate: currentMonthDate(11),
         serviceName: 'Kiulu Water Rafting & Hiking - Package',
         type: 'Package',
@@ -339,6 +346,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_AC002',
+        numericId: 5,
         bookedDate: currentMonthDate(13),
         serviceName: 'Ranau Hotel Resorts',
         type: 'Accommodation',
@@ -357,6 +365,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_P002',
+        numericId: 6,
         bookedDate: currentMonthDate(19),
         serviceName: 'Hiking, Kiulu Riverside Chalet',
         type: 'Package',
@@ -374,6 +383,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_AC003',
+        numericId: 7,
         bookedDate: nextMonthDate(3),
         serviceName: 'Kiulu Homestay',
         type: 'Accommodation',
@@ -392,6 +402,7 @@ export class BookingHomePage implements OnInit {
       },
       {
         id: 'BK_A003',
+        numericId: 8,
         bookedDate: nextMonthDate(8),
         serviceName: 'Kiulu Water Rafting',
         type: 'Activity',

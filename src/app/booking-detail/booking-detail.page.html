@@ -62,7 +62,7 @@
           type="button"
           class="pdf-button"
           (click)="viewPaymentReceipt()"
-          [disabled]="isGeneratingPdf"
+          [disabled]="isGeneratingPdf || !booking?.numericId"
         >
           <ion-spinner
             *ngIf="isGeneratingPdf"

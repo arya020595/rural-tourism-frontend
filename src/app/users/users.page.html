@@ -95,23 +95,29 @@
             <td class="col-actions">
               <div class="um-action-btns">
                 <button
+                  type="button"
                   class="um-btn um-btn--info"
                   title="Lihat / View"
+                  aria-label="View user"
                   (click)="openViewModal(u)"
                 >
                   <ion-icon name="information-circle-outline"></ion-icon>
                 </button>
                 <button
+                  type="button"
                   class="um-btn um-btn--edit"
                   title="Kemaskini / Edit"
+                  aria-label="Edit user"
                   (click)="openEditModal(u)"
                   *hasPermission="'user:update'"
                 >
                   <ion-icon name="create-outline"></ion-icon>
                 </button>
                 <button
+                  type="button"
                   class="um-btn um-btn--delete"
                   title="Padam / Delete"
+                  aria-label="Delete user"
                   (click)="openDeleteModal(u)"
                   *hasPermission="'user:delete'"
                 >

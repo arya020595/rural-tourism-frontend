@@ -154,14 +154,18 @@ ion-content {
       color: white;
     }
 
+    &:hover {
+      background-color: #1e3a8a;
+    }
+
     &:disabled {
       background-color: #6b8cda;
       cursor: not-allowed;
       opacity: 0.8;
     }
 
-    &:hover {
-      background-color: #1e3a8a;
+    &:disabled:hover {
+      background-color: #6b8cda;
     }
   }
 }

@@ -7,6 +7,9 @@ export interface BookingRow {
 }
 
 export interface BookingDetail extends BookingRow {
+  // Database numeric ID used for API calls (e.g. /api/bookings/:numericId/pdf)
+  numericId?: number;
+
   // Common fields
   time?: string; // HH:MM format for activities
   fullName?: string;
