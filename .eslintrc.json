@@ -41,6 +41,16 @@
       "files": ["*.html"],
       "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {}
+    },
+    {
+      "files": ["*.js"],
+      "parserOptions": {
+        "ecmaVersion": 2020
+      },
+      "env": {
+        "node": true,
+        "es2020": true
+      }
     }
   ]
 }
