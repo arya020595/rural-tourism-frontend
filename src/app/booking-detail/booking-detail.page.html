@@ -62,10 +62,15 @@
           type="button"
           class="pdf-button"
           (click)="viewPaymentReceipt()"
-          [disabled]="!booking?.numericId"
+          [disabled]="isGeneratingPdf || !booking?.numericId"
         >
-          <ion-icon name="document-text-outline"></ion-icon>
-          <span>Manjana PDF/Generate PDF</span>
+          <ion-spinner
+            *ngIf="isGeneratingPdf"
+            name="crescent"
+            class="pdf-spinner"
+          ></ion-spinner>
+          <ion-icon *ngIf="!isGeneratingPdf" name="document-text-outline"></ion-icon>
+          <span>{{ isGeneratingPdf ? 'Menjana PDF...' : 'Menjana PDF/Generate PDF' }}</span>
         </button>
       </div>
 

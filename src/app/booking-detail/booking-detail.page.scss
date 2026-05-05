@@ -148,8 +148,24 @@ ion-content {
       font-size: 18px;
     }
 
+    .pdf-spinner {
+      width: 18px;
+      height: 18px;
+      color: white;
+    }
+
     &:hover {
       background-color: #1e3a8a;
+    }
+
+    &:disabled {
+      background-color: #6b8cda;
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    &:disabled:hover {
+      background-color: #6b8cda;
     }
   }
 }

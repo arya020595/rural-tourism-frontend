@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
 import { BookingDetail } from '../booking-home/booking-home.models';
 import { AuthService } from '../services/auth.service';
 import { BookingStateService } from '../services/booking-state.service';
 import { BookingService } from '../services/booking.service';
+import { LoadingService } from '../services/loading.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { ToastService } from '../services/toast.service';
 
@@ -17,6 +19,7 @@ export class BookingDetailPage implements OnInit {
   user: any = null;
   menuItems: MenuItem[] = [];
   booking: BookingDetail | null = null;
+  isGeneratingPdf = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -26,6 +29,7 @@ export class BookingDetailPage implements OnInit {
     private authService: AuthService,
     private bookingService: BookingService,
     private bookingStateService: BookingStateService,
+    private loadingService: LoadingService,
     private toastService: ToastService,
   ) {
     const navigation = this.router.getCurrentNavigation();
@@ -77,30 +81,40 @@ export class BookingDetailPage implements OnInit {
     // this.router.navigate(['/booking-add'], { state: { booking: this.booking, mode: 'edit' } });
   }
 
-  viewPaymentReceipt(): void {
+  async viewPaymentReceipt(): Promise<void> {
+    if (this.isGeneratingPdf) {
+      return;
+    }
     if (!this.booking?.numericId) {
       this.toastService.error('PDF receipt is not available for this booking.');
       return;
     }
 
-    this.bookingService.downloadBookingPdf(this.booking.numericId).subscribe({
-      next: (blob: Blob) => {
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `booking-${this.booking!.id ?? this.booking!.numericId}.pdf`;
-        document.body.appendChild(anchor);
-        anchor.click();
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-          document.body.removeChild(anchor);
-        }, 100);
-      },
-      error: (err) => {
-        console.error('Failed to download booking PDF:', err);
-        this.toastService.error('Failed to download the booking PDF. Please try again.');
-      },
-    });
+    this.isGeneratingPdf = true;
+    try {
+      await this.loadingService.show('Menjana PDF / Generating PDF...');
+      const blob = await firstValueFrom(
+        this.bookingService.downloadBookingPdf(this.booking.numericId),
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `booking-${this.booking.id ?? this.booking.numericId}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(anchor);
+      }, 100);
+    } catch (err) {
+      console.error('Failed to download booking PDF:', err);
+      this.toastService.error(
+        'Failed to download the booking PDF. Please try again.',
+      );
+    } finally {
+      await this.loadingService.hide();
+      this.isGeneratingPdf = false;
+    }
   }
 
   private loadUser(): void {
