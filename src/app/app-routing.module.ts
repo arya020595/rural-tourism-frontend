@@ -232,6 +232,14 @@ const routes: Routes = [
     },
   },
   {
+    path: 'booking-home/edit/:id',
+    loadChildren: () =>
+      import('./booking-edit/booking-edit.module').then(
+        (m) => m.BookingEditPageModule,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'about',
     loadChildren: () =>
       import('./about/about.module').then((m) => m.AboutPageModule),

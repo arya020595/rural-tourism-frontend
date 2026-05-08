@@ -31,6 +31,57 @@ export class ProductService {
     return this.http.get(`${this.apiUrl}/products`, { params: httpParams });
   }
 
+  getProductsByCompany(
+    companyId: string | number,
+    params?: {
+      page?: number;
+      per_page?: number;
+      search?: string;
+    },
+  ): Observable<any> {
+    let httpParams = new HttpParams();
+
+    if (params?.page !== undefined) {
+      httpParams = httpParams.set('page', String(params.page));
+    }
+
+    if (params?.per_page !== undefined) {
+      httpParams = httpParams.set('per_page', String(params.per_page));
+    }
+
+    if (params?.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get(`${this.apiUrl}/products/company/${companyId}`, {
+      params: httpParams,
+    });
+  }
+
+  getProductsByLocation(params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+  }): Observable<any> {
+    let httpParams = new HttpParams();
+
+    if (params?.page !== undefined) {
+      httpParams = httpParams.set('page', String(params.page));
+    }
+
+    if (params?.per_page !== undefined) {
+      httpParams = httpParams.set('per_page', String(params.per_page));
+    }
+
+    if (params?.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get(`${this.apiUrl}/products/shared-by-location`, {
+      params: httpParams,
+    });
+  }
+
   createProduct(payload: {
     name: string;
     product_type: 'activity' | 'accommodation';

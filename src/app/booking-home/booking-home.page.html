@@ -67,8 +67,14 @@
 
       <app-booking-list-table
         *ngIf="viewMode === 'table'"
-        [bookings]="bookings"
+        [bookings]="pagedBookings"
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalBookings]="bookings.length"
+        [totalPages]="totalBookingPages"
+        (pageChange)="changeBookingPage($event)"
         (viewDetails)="viewBookingDetails($event)"
+        (editBooking)="editBooking($event)"
       ></app-booking-list-table>
 
       <section *ngIf="viewMode === 'calendar'" class="calendar-layout">
@@ -107,6 +113,7 @@
               [class.selected]="isSelectedDay(cell)"
               [class.paid]="getDayStatusClass(cell) === 'paid'"
               [class.booked]="getDayStatusClass(cell) === 'booked'"
+              [class.pending]="getDayStatusClass(cell) === 'pending'"
               (click)="selectDate(cell)"
               [disabled]="!cell.inCurrentMonth"
             >
@@ -132,7 +139,13 @@
           </div>
 
           <div class="booked-body">
-            <div class="date-label">{{ selectedDateLabel }}</div>
+            <div
+              class="date-label"
+              [class.paid]="getSelectedDateStatusClass() === 'paid'"
+              [class.pending]="getSelectedDateStatusClass() === 'pending'"
+            >
+              {{ selectedDateLabel }}
+            </div>
 
             <ng-container
               *ngIf="selectedDateBookings.length > 0; else noBookingsTemplate"
@@ -141,7 +154,7 @@
                 class="booking-chip"
                 *ngFor="let booking of selectedDateBookings"
                 [class.paid]="getBookingStatusClass(booking) === 'paid'"
-                [class.booked]="getBookingStatusClass(booking) === 'booked'"
+                [class.pending]="getBookingStatusClass(booking) === 'pending'"
               >
                 <div class="booking-chip-title">{{ booking.serviceName }}</div>
                 <div class="booking-chip-meta">

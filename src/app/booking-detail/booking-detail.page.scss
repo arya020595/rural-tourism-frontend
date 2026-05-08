@@ -1,4 +1,4 @@
-@import '../booking-add/components/booking-form-base';
+@import '../booking-forms/booking-form-base';
 
 ion-content {
   --ion-background-color: #2b2f2b;
@@ -118,40 +118,48 @@ ion-content {
         background-color: #ffe5cc;
         color: #d97706;
       }
+
+      &.cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
     }
   }
 }
 
-// PDF Button Row - positioned below title
-.pdf-button-row {
+.section-head-row {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #dadada;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
 
-  .pdf-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #1e40af;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    font-weight: 600;
-    font-size: 12px;
-    cursor: pointer;
-    text-decoration: none;
+.section-head-row h3 {
+  margin: 0;
+}
 
-    ion-icon {
-      font-size: 18px;
-    }
+.pdf-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1e40af;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
 
-    &:hover {
-      background-color: #1e3a8a;
-    }
-  }
+.pdf-button ion-icon {
+  font-size: 18px;
+}
+
+.pdf-button:hover {
+  background-color: #1e3a8a;
 }
 
 // Remove PDF button from title-actions since it's now in pdf-button-row
@@ -159,11 +167,15 @@ ion-content {
   display: none;
 }
 
+@media (max-width: 768px) {
+  .section-head-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 // Greyed out section styling for view-only mode
 .disabled-section {
-  opacity: 0.7;
-  pointer-events: none;
-
   input,
   select {
     background-color: #e8e8e8 !important;
@@ -261,19 +273,6 @@ ion-content {
     border-color: #bbb !important;
   }
 
-  app-activity-booking-detail .radio-card,
-  app-accommodation-booking-detail .radio-card,
-  app-package-booking-detail .radio-card {
-    background-color: #e8e8e8 !important;
-    border: 1px solid #bbb !important;
-  }
-
-  app-activity-booking-detail .radio-card input,
-  app-accommodation-booking-detail .radio-card input,
-  app-package-booking-detail .radio-card input {
-    background: #e8e8e8 !important;
-    border-color: #bbb !important;
-  }
 }
 
 .no-data-message {

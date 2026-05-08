@@ -3,7 +3,14 @@ export interface BookingRow {
   bookedDate: string; // YYYY-MM-DD
   serviceName: string;
   type: 'Activity' | 'Accommodation' | 'Package';
-  status: 'Paid' | 'Pending' | 'Booked';
+  status:
+    | 'paid'
+    | 'booked'
+    | 'pending'
+    | 'cancelled'
+    | 'confirmed'
+    | 'completed'
+    | 'rejected';
 }
 
 export interface BookingDetail extends BookingRow {
@@ -31,6 +38,7 @@ export interface BookingDetail extends BookingRow {
   packageName?: string;
   packagePrice?: number;
   customerType?: 'tourist' | 'company';
+  package_companies?: any[];
 
   // UI fields
   createdAt?: string;

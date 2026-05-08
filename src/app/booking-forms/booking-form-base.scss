@@ -75,6 +75,13 @@
   color: #747474;
 }
 
+.field-error {
+  margin-top: 6px;
+  color: #b30000;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .half-width-field {
   max-width: calc(50% - 10px);
 }
@@ -90,9 +97,24 @@
   transform: translateY(-50%);
   color: #015c2f;
   font-size: 20px;
+  cursor: pointer;
+}
+
+.input-with-icon input[type='time']::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.input-with-icon input[type='date']::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+.input-with-icon input[type='time'] {
+  color-scheme: light;
 }
 
 .input-with-icon input {
+  width: 100%;
   padding-right: 54px;
 }
 
@@ -160,6 +182,48 @@
 .radio-card.active {
   background: #b9c8c0;
   color: #04552f;
+}
+
+.booking-form.view-mode .field input,
+.booking-form.view-mode .field select {
+  background: #e8e8e8;
+  color: #666;
+  cursor: not-allowed;
+  border-color: #bbb;
+}
+
+.booking-form.view-mode .field input::placeholder,
+.booking-form.view-mode .field select {
+  color: #777;
+}
+
+.booking-form.view-mode .input-with-icon ion-icon {
+  color: #777;
+}
+
+.booking-form.view-mode .radio-card {
+  background: #e8e8e8;
+  border-color: #bbb;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.booking-form.view-mode .radio-card.active {
+  background: #ddd;
+  color: #666;
+}
+
+.booking-form.view-mode .radio-card input {
+  border-color: #bbb;
+  cursor: not-allowed;
+}
+
+.booking-form.view-mode .radio-card input:checked::after {
+  background: #777;
+}
+
+.booking-form.view-mode .action-row {
+  display: none;
 }
 
 .action-row {

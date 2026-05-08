@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, NavController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
+import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { BookingRow, BookingDetail } from './booking-home.models';
+import { firstValueFrom } from 'rxjs';
 
 interface CalendarCell {
   key: string | null;
@@ -24,9 +26,12 @@ export class BookingHomePage implements OnInit {
   menuItems: MenuItem[] = [];
 
   viewMode: BookingViewMode = 'table';
+  loadingBookings = false;
 
   readonly dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  readonly pageSize = 10;
 
+  currentPage = 1;
   currentMonthDate = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
@@ -35,24 +40,26 @@ export class BookingHomePage implements OnInit {
   calendarCells: CalendarCell[] = [];
   selectedDateKey: string | null = null;
 
-  readonly bookings: BookingDetail[] = this.createMockBookings();
+  bookings: BookingDetail[] = [];
 
   constructor(
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
+    private bookingService: BookingService,
     private router: Router,
     private navCtrl: NavController,
   ) {}
 
   ngOnInit(): void {
     this.loadUser();
-    this.buildCalendar();
+    void this.loadBookings();
   }
 
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'booking-menu');
     this.loadUser();
+    void this.loadBookings();
   }
 
   onMenuItemTap(_item: MenuItem): void {
@@ -70,8 +77,36 @@ export class BookingHomePage implements OnInit {
     this.viewMode = mode;
   }
 
+  get totalBookingPages(): number {
+    return Math.max(1, Math.ceil(this.bookings.length / this.pageSize));
+  }
+
+  get pagedBookings(): BookingDetail[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.bookings.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  changeBookingPage(page: number): void {
+    const nextPage = Math.min(Math.max(1, page), this.totalBookingPages);
+    if (nextPage === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = nextPage;
+  }
+
   viewBookingDetails(booking: BookingDetail): void {
     this.router.navigate(['/booking-home/detail', booking.id], {
+      state: { booking },
+    });
+  }
+
+  editBooking(booking: BookingDetail): void {
+    if (booking.status !== 'pending') {
+      return;
+    }
+
+    this.router.navigate(['/booking-home/edit', booking.id], {
       state: { booking },
     });
   }
@@ -133,6 +168,7 @@ export class BookingHomePage implements OnInit {
 
     return this.bookings
       .filter((booking) => booking.bookedDate === this.selectedDateKey)
+      .filter((booking) => booking.status !== 'cancelled')
       .sort((a, b) => a.serviceName.localeCompare(b.serviceName));
   }
 
@@ -161,17 +197,26 @@ export class BookingHomePage implements OnInit {
       return '';
     }
 
-    return cell.bookings.some((booking) => booking.status === 'Paid')
+    return cell.bookings.some((booking) => booking.status === 'paid')
       ? 'paid'
-      : 'booked';
+      : 'pending';
   }
 
   getBookingStatusClass(booking: BookingRow): string {
-    return booking.status === 'Paid' ? 'paid' : 'booked';
+    return booking.status === 'paid' ? 'paid' : 'pending';
   }
 
   getBookingStatusText(booking: BookingRow): string {
-    return booking.status === 'Paid' ? 'Paid' : 'Booked';
+    return booking.status === 'paid' ? 'Paid' : 'Pending';
+  }
+
+  getSelectedDateStatusClass(): string {
+    if (!this.selectedDateBookings || this.selectedDateBookings.length === 0) {
+      return '';
+    }
+    return this.selectedDateBookings.some((b) => b.status === 'paid')
+      ? 'paid'
+      : 'pending';
   }
 
   private loadUser(): void {
@@ -186,7 +231,46 @@ export class BookingHomePage implements OnInit {
       }
     }
 
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+  }
+
+  private async loadBookings(): Promise<void> {
+    const operatorId = this.user?.id || this.authService.currentUser?.id;
+    if (!operatorId) {
+      this.bookings = [];
+      this.buildCalendar();
+      return;
+    }
+
+    this.loadingBookings = true;
+
+    try {
+      const response = await firstValueFrom(
+        this.bookingService.getBookings({
+          page: 1,
+          per_page: 1000,
+          user_id: String(operatorId),
+        }),
+      );
+
+      const rows = Array.isArray(response?.data) ? response.data : [];
+      this.bookings = rows
+        .map((row: any) => this.mapBookingRow(row))
+        .filter((booking: BookingDetail | null): booking is BookingDetail => {
+          return !!booking && !!booking.bookedDate && !!booking.id;
+        })
+        .sort((a: BookingDetail, b: BookingDetail) =>
+          b.bookedDate.localeCompare(a.bookedDate),
+        );
+      this.currentPage = 1;
+    } catch (error) {
+      console.error('[booking-home] failed to load bookings', error);
+      this.bookings = [];
+    } finally {
+      this.loadingBookings = false;
+      this.buildCalendar();
+    }
   }
 
   private buildCalendar(): void {
@@ -198,6 +282,11 @@ export class BookingHomePage implements OnInit {
 
     const bookingsByDate = new Map<string, BookingRow[]>();
     this.bookings.forEach((booking) => {
+      // Skip cancelled bookings on calendar display
+      if (booking.status === 'cancelled') {
+        return;
+      }
+
       const bookingDate = new Date(booking.bookedDate);
       if (
         bookingDate.getFullYear() === year &&
@@ -259,154 +348,199 @@ export class BookingHomePage implements OnInit {
     this.selectedDateKey = firstBookedDate?.key || null;
   }
 
-  private createMockBookings(): BookingDetail[] {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+  private mapBookingRow(record: any): BookingDetail | null {
+    const bookingType = String(record?.booking_type || '').toLowerCase();
+    const bookedDate = this.resolveBookedDate(record);
+    const type = this.normalizeBookingType(bookingType);
 
-    const currentMonthDate = (day: number): string =>
-      this.toDateKey(new Date(year, month, day));
+    if (!type || !bookedDate) {
+      return null;
+    }
 
-    const nextMonthDate = (day: number): string =>
-      this.toDateKey(new Date(year, month + 1, day));
+    const serviceName = this.resolveServiceName(record, type);
+    const status = String(record?.status || 'booked').toLowerCase();
 
-    return [
-      {
-        id: 'BK_A001',
-        bookedDate: currentMonthDate(7),
-        serviceName: 'Rafting (Kiulu) - Activity',
-        type: 'Activity',
-        status: 'Paid',
-        time: '3:30 PM',
-        fullName: 'Christopher Edward Ludwig',
-        phone: '82938940',
-        email: 'christopher_ludwig@gmail.com',
-        nationality: 'both',
-        domesticPax: 5,
-        internationalPax: 2,
-        activityName: 'Kiulu Water Rafting',
-        totalAmount: 345.0,
-        operatorName: 'Jonathan Christian Erikson',
-      },
-      {
-        id: 'BK_AC001',
-        bookedDate: currentMonthDate(7),
-        serviceName: 'Kiulu Farmstay - Accommodation',
-        type: 'Accommodation',
-        status: 'Paid',
-        fullName: 'Sarah Mitchell',
-        phone: '87654321',
-        email: 'sarah.mitchell@gmail.com',
-        nationality: 'domestic',
-        domesticPax: 4,
-        checkInDate: currentMonthDate(7),
-        checkOutDate: currentMonthDate(10),
-        nights: 3,
-        homestay: 'Kiulu Farmstay',
-        totalAmount: 420.0,
-        operatorName: 'Ravi Patel',
-      },
-      {
-        id: 'BK_A002',
-        bookedDate: currentMonthDate(7),
-        serviceName: 'Kiulu Water Rafting - Activity',
-        type: 'Activity',
-        status: 'Booked',
-        time: '10:00 AM',
-        fullName: 'Maria Garcia',
-        phone: '89123456',
-        email: 'maria.garcia@gmail.com',
-        nationality: 'international',
-        internationalPax: 6,
-        activityName: 'Kiulu Water Rafting',
-        totalAmount: 285.0,
-        operatorName: 'Ahmad Hassan',
-      },
-      {
-        id: 'BK_P001',
-        bookedDate: currentMonthDate(11),
-        serviceName: 'Kiulu Water Rafting & Hiking - Package',
-        type: 'Package',
-        status: 'Booked',
-        fullName: 'Tech Solutions Inc',
-        customerType: 'company',
-        nationality: 'international',
-        internationalPax: 15,
-        packageName: 'Adventure Package',
-        packagePrice: 1500.0,
-        totalAmount: 1500.0,
-        operatorName: 'David Wong',
-      },
-      {
-        id: 'BK_AC002',
-        bookedDate: currentMonthDate(13),
-        serviceName: 'Ranau Hotel Resorts',
-        type: 'Accommodation',
-        status: 'Paid',
-        fullName: 'James Peterson',
-        phone: '86543210',
-        email: 'james.peterson@example.com',
-        nationality: 'international',
-        internationalPax: 3,
-        checkInDate: currentMonthDate(13),
-        checkOutDate: currentMonthDate(16),
-        nights: 3,
-        homestay: 'Ranau Hotel Resorts',
-        totalAmount: 590.0,
-        operatorName: 'Nor Aini',
-      },
-      {
-        id: 'BK_P002',
-        bookedDate: currentMonthDate(19),
-        serviceName: 'Hiking, Kiulu Riverside Chalet',
-        type: 'Package',
-        status: 'Paid',
-        fullName: 'Emma Thompson',
-        phone: '85432109',
-        email: 'emma.thompson@gmail.com',
-        customerType: 'tourist',
-        nationality: 'domestic',
-        domesticPax: 8,
-        packageName: 'Hiking & Chalet Package',
-        packagePrice: 680.0,
-        totalAmount: 680.0,
-        operatorName: 'Suresh Kumar',
-      },
-      {
-        id: 'BK_AC003',
-        bookedDate: nextMonthDate(3),
-        serviceName: 'Kiulu Homestay',
-        type: 'Accommodation',
-        status: 'Booked',
-        fullName: 'Rachel Wong',
-        phone: '84321098',
-        email: 'rachel.wong@gmail.com',
-        nationality: 'domestic',
-        domesticPax: 2,
-        checkInDate: nextMonthDate(3),
-        checkOutDate: nextMonthDate(5),
-        nights: 2,
-        homestay: 'Kiulu Homestay',
-        totalAmount: 240.0,
-        operatorName: 'Lim Tze Wei',
-      },
-      {
-        id: 'BK_A003',
-        bookedDate: nextMonthDate(8),
-        serviceName: 'Kiulu Water Rafting',
-        type: 'Activity',
-        status: 'Paid',
-        time: '2:00 PM',
-        fullName: 'Michael Brown',
-        phone: '83210987',
-        email: 'michael.brown@gmail.com',
-        nationality: 'international',
-        internationalPax: 4,
-        activityName: 'Kiulu Water Rafting',
-        totalAmount: 230.0,
-        operatorName: 'Chin Wei',
-      },
-    ];
+    return {
+      id: String(record?.id || ''),
+      bookedDate,
+      serviceName,
+      type,
+      status: this.normalizeStatus(status),
+      time: this.formatTime(
+        record?.activity_time || record?.time || record?.activity_date,
+      ),
+      fullName: String(record?.tourist_full_name || ''),
+      phone: String(
+        record?.phone_number || record?.phone || record?.contact_phone || '',
+      ),
+      email: String(record?.email || record?.contact_email || ''),
+      nationality: this.normalizeNationality(record?.citizenship),
+      domesticPax: this.toNumber(record?.no_of_pax_domestik),
+      internationalPax: this.toNumber(record?.no_of_pax_antarbangsa),
+      totalAmount: this.toNumber(record?.total_price),
+      operatorName: String(record?.operator_name || ''),
+      activityName:
+        type === 'Activity' ? String(record?.product_name || '') : undefined,
+      checkInDate:
+        type === 'Accommodation'
+          ? this.formatDateForInput(record?.check_in_date)
+          : undefined,
+      checkOutDate:
+        type === 'Accommodation'
+          ? this.formatDateForInput(record?.check_out_date)
+          : undefined,
+      nights:
+        type === 'Accommodation'
+          ? this.toNumber(record?.total_of_night)
+          : undefined,
+      homestay:
+        type === 'Accommodation'
+          ? String(record?.product_name || '')
+          : undefined,
+      packageName:
+        type === 'Package'
+          ? String(record?.product_name || 'Package')
+          : undefined,
+      packagePrice:
+        type === 'Package' ? this.toNumber(record?.total_price) : undefined,
+      customerType:
+        String(record?.citizenship || '').toLowerCase() === 'company'
+          ? 'company'
+          : 'tourist',
+      createdAt: record?.created_at || record?.createdAt,
+      updatedAt: record?.updated_at || record?.updatedAt,
+    };
+  }
+
+  private resolveBookedDate(record: any): string {
+    return this.formatDateForInput(
+      record?.activity_date ||
+        record?.check_in_date ||
+        record?.receipt_created_at ||
+        record?.created_at ||
+        record?.updated_at ||
+        '',
+    );
+  }
+
+  private normalizeBookingType(value: string): BookingDetail['type'] | null {
+    switch (value) {
+      case 'activity':
+        return 'Activity';
+      case 'accommodation':
+        return 'Accommodation';
+      case 'package':
+        return 'Package';
+      default:
+        return null;
+    }
+  }
+
+  private resolveServiceName(record: any, type: BookingDetail['type']): string {
+    if (type === 'Activity') {
+      return String(
+        record?.product_name || record?.activity_name || 'Activity',
+      );
+    }
+
+    if (type === 'Accommodation') {
+      return String(
+        record?.product_name || record?.check_in_name || 'Accommodation',
+      );
+    }
+
+    const packageCompanies = Array.isArray(record?.package_companies)
+      ? record.package_companies
+      : [];
+    const packageNames = packageCompanies
+      .map((item: any) =>
+        String(item?.description || item?.referee_company || '').trim(),
+      )
+      .filter((name: string) => name.length > 0);
+
+    if (packageNames.length > 0) {
+      return packageNames.join(', ');
+    }
+
+    return String(record?.product_name || 'Package');
+  }
+
+  private normalizeStatus(value: string): BookingDetail['status'] {
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
+    if (normalized === 'booked') {
+      return 'pending';
+    }
+
+    if (normalized === 'canceled') {
+      return 'cancelled';
+    }
+
+    if (
+      [
+        'paid',
+        'pending',
+        'cancelled',
+        'confirmed',
+        'completed',
+        'rejected',
+      ].includes(normalized)
+    ) {
+      return normalized as BookingDetail['status'];
+    }
+
+    return 'pending';
+  }
+
+  private normalizeNationality(
+    value: any,
+  ): 'domestic' | 'international' | 'both' {
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
+    if (normalized === 'international') return 'international';
+    if (normalized === 'both') return 'both';
+    return 'domestic';
+  }
+
+  private toNumber(value: any): number {
+    const numberValue = Number(value);
+    return Number.isFinite(numberValue) ? numberValue : 0;
+  }
+
+  private formatTime(value: any): string | undefined {
+    const raw = String(value || '').trim();
+    if (!raw) {
+      return undefined;
+    }
+
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) {
+      return raw || undefined;
+    }
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  private formatDateForInput(value: any): string {
+    const raw = String(value || '').trim();
+    if (!raw) {
+      return '';
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+      return raw;
+    }
+
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) {
+      return raw;
+    }
+
+    return this.toDateKey(date);
   }
 
   private toDateKey(date: Date): string {

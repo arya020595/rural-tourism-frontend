@@ -102,7 +102,8 @@ export class UsersPage implements OnInit, OnDestroy {
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
   }
 
   private loadNotifications(): void {

@@ -1,0 +1,577 @@
+<form
+  class="booking-form"
+  [class.view-mode]="isViewMode"
+  autocomplete="off"
+  autocapitalize="off"
+  spellcheck="false"
+  novalidate
+  (ngSubmit)="submitForm()"
+>
+  <!-- Hidden trap fields to absorb browser autofill (name, phone, email) -->
+  <input
+    type="text"
+    name="given-name"
+    style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+    tabindex="-1"
+    autocomplete="off"
+  />
+  <input
+    type="tel"
+    name="tel-national"
+    style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+    tabindex="-1"
+    autocomplete="off"
+  />
+  <input
+    type="email"
+    name="email"
+    style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+    tabindex="-1"
+    autocomplete="off"
+  />
+
+  <section class="form-section">
+    <h3>{{ formTitle }}</h3>
+
+    <div class="radio-grid two-col customer-type-grid">
+      <label class="radio-card" [class.active]="customerType === 'tourist'">
+        <input
+          type="radio"
+          name="packageCustomerType"
+          value="tourist"
+          [(ngModel)]="customerType"
+          [disabled]="isViewMode"
+        />
+        <span>Pelancong</span>
+      </label>
+      <label class="radio-card" [class.active]="customerType === 'company'">
+        <input
+          type="radio"
+          name="packageCustomerType"
+          value="company"
+          [(ngModel)]="customerType"
+          [disabled]="isViewMode"
+        />
+        <span>Syarikat</span>
+      </label>
+    </div>
+
+    <div class="field-grid one-col">
+      <div class="field">
+        <label *ngIf="customerType === 'tourist'"
+          >3. Nama Penuh Pelancong/Tourist Full Name</label
+        >
+        <label *ngIf="customerType === 'company'"
+          >3. Nama Penuh Syarikat/Company Full Name</label
+        >
+        <input
+          type="text"
+          [(ngModel)]="fullName"
+          name="pkgF01"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
+          [placeholder]="
+            customerType === 'tourist'
+              ? 'Sila masukkan nama penuh pelancong/Please enter tourist full name'
+              : 'Sila masukkan nama penuh syarikat/Please enter company full name'
+          "
+          [readonly]="isViewMode"
+        />
+      </div>
+    </div>
+
+    <div class="field-grid two-col">
+      <div class="field">
+        <label>4. No. Telefon/Telephone No.</label>
+        <input
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="15"
+          [(ngModel)]="phone"
+          name="pkgF02"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
+          placeholder="Sila masukkan no. telefon/Please enter telephone no."
+          [readonly]="isViewMode"
+          (input)="onNumericInput('phone', $any($event.target).value)"
+          (keydown)="onNumericKeydown($event)"
+          (paste)="onNumericPaste('phone', $event)"
+        />
+      </div>
+
+      <div class="field">
+        <label>5. Emel/Email</label>
+        <input
+          type="text"
+          [(ngModel)]="email"
+          name="pkgF03"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
+          placeholder="Sila masukkan emel/Please enter email"
+          [readonly]="isViewMode"
+        />
+      </div>
+    </div>
+
+    <section class="form-section">
+      <h2 class="form-input-label">
+        6. Domestik/Antarabangsa<span class="required">*</span>
+      </h2>
+      <div class="radio-grid three-col">
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'domestic'"
+        >
+          <input
+            type="radio"
+            name="packageNationality"
+            value="domestic"
+            [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
+          />
+          <span>Domestik</span>
+        </label>
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'international'"
+        >
+          <input
+            type="radio"
+            name="packageNationality"
+            value="international"
+            [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
+          />
+          <span>Antarabangsa</span>
+        </label>
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'both'"
+        >
+          <input
+            type="radio"
+            name="packageNationality"
+            value="both"
+            [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
+          />
+          <span>Domestik/Antarabangsa</span>
+        </label>
+      </div>
+    </section>
+
+    <ng-container *ngIf="isMixedNationality; else singleNationalityLayout">
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >7(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            [(ngModel)]="domesticPax"
+            name="packageDomesticPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('domesticPax', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="field">
+          <label
+            >7(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
+              class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            [(ngModel)]="internationalPax"
+            name="packageInternationalPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="
+              onNumericInput('internationalPax', $any($event.target).value)
+            "
+          />
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>8. Tarikh/Date</label>
+          <div class="input-with-icon">
+            <input
+              #pkgBookingDateInput
+              type="date"
+              [(ngModel)]="bookingDate"
+              name="packageDateMixed"
+              [readonly]="isViewMode"
+            />
+            <ion-icon
+              name="calendar-clear-outline"
+              aria-hidden="true"
+              (click)="openDatePicker(pkgBookingDateInput)"
+            ></ion-icon>
+          </div>
+        </div>
+
+        <div class="field" aria-hidden="true"></div>
+      </div>
+
+      <!-- Package items: select company, price, description. Repeatable -->
+      <div class="package-items">
+        <label>9. Pakej/Package<span class="required">*</span></label>
+        <div *ngFor="let item of packageItems; let i = index">
+          <div class="field-grid two-col">
+            <div class="field">
+              <label>Company/Package</label>
+              <div class="search-dropdown-wrapper">
+                <input
+                  type="text"
+                  [value]="getCompanySearchText(i)"
+                  (input)="onCompanySearchChange(i, $any($event.target).value)"
+                  (focus)="onCompanySearchFocus(i)"
+                  (blur)="onCompanySearchBlur(i)"
+                  name="pkgS01_{{ i }}"
+                  placeholder="Pilih syarikat/Select company"
+                  [readonly]="isViewMode"
+                  class="search-input"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
+                />
+                <div
+                  class="search-dropdown"
+                  *ngIf="
+                    showCompanyDropdown[i] && getFilteredCompanies(i).length > 0
+                  "
+                >
+                  <div
+                    class="dropdown-item"
+                    *ngFor="let company of getFilteredCompanies(i)"
+                    (click)="selectCompany(i, company)"
+                  >
+                    {{ company.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Service/Servis</label>
+              <div class="search-dropdown-wrapper">
+                <input
+                  type="text"
+                  [value]="getServiceSearchText(i)"
+                  (input)="onServiceSearchChange(i, $any($event.target).value)"
+                  (focus)="onServiceSearchFocus(i)"
+                  (blur)="onServiceSearchBlur(i)"
+                  name="pkgS02_{{ i }}"
+                  placeholder="Pilih servis/Select service"
+                  [readonly]="isViewMode || !item.companyId"
+                  class="search-input"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
+                />
+                <div
+                  class="search-dropdown"
+                  *ngIf="
+                    showServiceDropdown[i] && getFilteredServices(i).length > 0
+                  "
+                >
+                  <div
+                    class="dropdown-item"
+                    *ngFor="let service of getFilteredServices(i)"
+                    (click)="selectService(i, service)"
+                  >
+                    {{ service.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-grid two-col">
+            <div class="field">
+              <label>Price (RM)</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                [(ngModel)]="item.price"
+                name="pkgS03_{{ i }}"
+                placeholder="RM"
+                [readonly]="isViewMode"
+                autocomplete="off"
+                autocorrect="off"
+                aria-autocomplete="none"
+                (input)="
+                  onNumericInputForItem(i, 'price', $any($event.target).value)
+                "
+                (keydown)="onNumericKeydown($event)"
+                (paste)="onNumericPasteForItem(i, 'price', $event)"
+              />
+            </div>
+
+            <div class="field price-field">
+              <label>&nbsp;</label>
+              <div class="price-row">
+                <button
+                  type="button"
+                  *ngIf="!isViewMode"
+                  (click)="removePackageItem(i)"
+                  class="remove-item"
+                  aria-label="Remove package item"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="add-more-wrap">
+          <button
+            type="button"
+            *ngIf="!isViewMode"
+            (click)="addPackageItem()"
+            class="add-more-btn"
+            aria-label="Add package item"
+          >
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add More</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>10. Nama Pengandali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="pkgF04"
+            placeholder="Sila isi nama pengandali/Enter operator name"
+            [readonly]="isViewMode"
+            autocomplete="off"
+            autocorrect="off"
+            aria-autocomplete="none"
+          />
+        </div>
+
+        <div class="field" aria-hidden="true"></div>
+      </div>
+    </ng-container>
+
+    <ng-template #singleNationalityLayout>
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >7. Bilangan Orang/No. of Pax<span class="required">*</span></label
+          >
+          <input
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            [(ngModel)]="paxCount"
+            name="packagePax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('paxCount', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="field">
+          <label>8. Tarikh/Date</label>
+          <div class="input-with-icon">
+            <input
+              #pkgBookingDateSingleInput
+              type="date"
+              [(ngModel)]="bookingDate"
+              name="packageDateSingle"
+              [readonly]="isViewMode"
+            />
+            <ion-icon
+              name="calendar-clear-outline"
+              aria-hidden="true"
+              (click)="openDatePicker(pkgBookingDateSingleInput)"
+            ></ion-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Package items for single-nationality layout -->
+      <div class="package-items">
+        <label>9. Pakej/Package<span class="required">*</span></label>
+        <div *ngFor="let item of packageItems; let i = index">
+          <div class="field-grid two-col">
+            <div class="field">
+              <label>Company/Package</label>
+              <div class="search-dropdown-wrapper">
+                <input
+                  type="text"
+                  [value]="getCompanySearchText(i)"
+                  (input)="onCompanySearchChange(i, $any($event.target).value)"
+                  (focus)="onCompanySearchFocus(i)"
+                  (blur)="onCompanySearchBlur(i)"
+                  name="pkgS04_{{ i }}"
+                  placeholder="Pilih syarikat/Select company"
+                  [readonly]="isViewMode"
+                  class="search-input"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
+                />
+                <div
+                  class="search-dropdown"
+                  *ngIf="
+                    showCompanyDropdown[i] && getFilteredCompanies(i).length > 0
+                  "
+                >
+                  <div
+                    class="dropdown-item"
+                    *ngFor="let company of getFilteredCompanies(i)"
+                    (click)="selectCompany(i, company)"
+                  >
+                    {{ company.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Service/Servis</label>
+              <div class="search-dropdown-wrapper">
+                <input
+                  type="text"
+                  [value]="getServiceSearchText(i)"
+                  (input)="onServiceSearchChange(i, $any($event.target).value)"
+                  (focus)="onServiceSearchFocus(i)"
+                  (blur)="onServiceSearchBlur(i)"
+                  name="pkgS05_{{ i }}"
+                  placeholder="Pilih servis/Select service"
+                  [readonly]="isViewMode || !item.companyId"
+                  class="search-input"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
+                />
+                <div
+                  class="search-dropdown"
+                  *ngIf="
+                    showServiceDropdown[i] && getFilteredServices(i).length > 0
+                  "
+                >
+                  <div
+                    class="dropdown-item"
+                    *ngFor="let service of getFilteredServices(i)"
+                    (click)="selectService(i, service)"
+                  >
+                    {{ service.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-grid two-col">
+            <div class="field">
+              <label>Price (RM)</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                [(ngModel)]="item.price"
+                name="pkgS06_{{ i }}"
+                placeholder="RM"
+                [readonly]="isViewMode"
+                autocomplete="off"
+                autocorrect="off"
+                aria-autocomplete="none"
+                (input)="
+                  onNumericInputForItem(i, 'price', $any($event.target).value)
+                "
+                (keydown)="onNumericKeydown($event)"
+                (paste)="onNumericPasteForItem(i, 'price', $event)"
+              />
+            </div>
+
+            <div class="field price-field">
+              <label>&nbsp;</label>
+              <div class="price-row">
+                <button
+                  type="button"
+                  *ngIf="!isViewMode"
+                  (click)="removePackageItem(i)"
+                  class="remove-item"
+                  aria-label="Remove package item"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="add-more-wrap">
+          <button
+            type="button"
+            *ngIf="!isViewMode"
+            (click)="addPackageItem()"
+            class="add-more-btn"
+            aria-label="Add package item"
+          >
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add More</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>10. Nama Pengandali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="pkgF05"
+            placeholder="Sila isi nama pengandali/Enter operator name"
+            [readonly]="isViewMode"
+            autocomplete="off"
+            autocorrect="off"
+            aria-autocomplete="none"
+          />
+        </div>
+
+        <div class="field" aria-hidden="true"></div>
+      </div>
+    </ng-template>
+
+    <div *ngIf="!isViewMode" class="action-row">
+      <button type="button" class="bottom-action cancel" (click)="onCancel()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        <span>Batal Tempahan/Cancel Booking</span>
+      </button>
+
+      <button type="submit" class="bottom-action submit">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span>{{ submitLabel }}</span>
+      </button>
+    </div>
+  </section>
+</form>

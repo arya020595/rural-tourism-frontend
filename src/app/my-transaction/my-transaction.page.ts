@@ -25,7 +25,10 @@ export class MyTransactionPage implements OnInit {
     package: '/operator/transactions/package',
   };
 
-  private readonly mockTransactionsByTab: Record<TransactionTab, MockTransaction[]> = {
+  private readonly mockTransactionsByTab: Record<
+    TransactionTab,
+    MockTransaction[]
+  > = {
     activity: [
       {
         id: 'ACT-001',
@@ -186,7 +189,10 @@ export class MyTransactionPage implements OnInit {
   }
 
   get visibleTransactions(): MockTransaction[] {
-    return this.mockTransactionsByTab[this.selectedTab].slice(0, this.defaultFetchSize);
+    return this.mockTransactionsByTab[this.selectedTab].slice(
+      0,
+      this.defaultFetchSize,
+    );
   }
 
   get activeTabLabel(): string {
@@ -199,7 +205,6 @@ export class MyTransactionPage implements OnInit {
         return 'Package';
     }
   }
-
 
   viewReceipt(transaction: MockTransaction): void {
     this.router.navigate(['/my-transaction/receipt'], {
@@ -246,7 +251,8 @@ export class MyTransactionPage implements OnInit {
       }
     }
 
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
   }
 
   private formatDateLabel(isoDate: string): string {

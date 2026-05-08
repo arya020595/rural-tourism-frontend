@@ -1,0 +1,140 @@
+<app-side-nav
+  [menuId]="'booking-edit-menu'"
+  [contentId]="'booking-edit-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="booking-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button
+        menu="booking-edit-menu"
+        class="menu-toggle"
+      ></ion-menu-button>
+    </ion-buttons>
+
+    <ion-buttons slot="end">
+      <ion-button class="notification-button" aria-label="Notifications">
+        <ion-icon
+          class="notification-bell"
+          slot="icon-only"
+          name="notifications"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="booking-edit-main-content">
+  <ion-alert
+    [isOpen]="isSuccessAlertOpen"
+    header="Booking Updated"
+    message="The booking was updated successfully."
+    [buttons]="successAlertButtons"
+  ></ion-alert>
+  <div class="surface-card">
+    <div class="booking-container">
+      <button type="button" class="back-link" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Kembali</span>
+      </button>
+
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1>Edit Booking Details - {{ booking?.id }}</h1>
+      </div>
+
+      <ng-container *ngIf="booking; else noBookingTemplate">
+        <div class="booking-form">
+          <section class="form-section disabled-section">
+            <h2 class="form-input-label">1. Select Type</h2>
+            <div class="radio-grid three-col">
+              <label
+                class="radio-card"
+                [class.checked]="selectedType === 'activity'"
+              >
+                <input
+                  type="radio"
+                  name="bookingType"
+                  value="activity"
+                  [checked]="selectedType === 'activity'"
+                  disabled
+                />
+                <span>Activity</span>
+              </label>
+              <label
+                class="radio-card"
+                [class.checked]="selectedType === 'accommodation'"
+              >
+                <input
+                  type="radio"
+                  name="bookingType"
+                  value="accommodation"
+                  [checked]="selectedType === 'accommodation'"
+                  disabled
+                />
+                <span>Accommodation</span>
+              </label>
+              <label
+                class="radio-card"
+                [class.checked]="selectedType === 'package'"
+              >
+                <input
+                  type="radio"
+                  name="bookingType"
+                  value="package"
+                  [checked]="selectedType === 'package'"
+                  disabled
+                />
+                <span>Package</span>
+              </label>
+            </div>
+          </section>
+
+          <ng-container [ngSwitch]="selectedType">
+            <app-activity-booking-form
+              *ngSwitchCase="'activity'"
+              [booking]="booking"
+              [mode]="'edit'"
+              (bookingCancel)="goBack()"
+              (bookingSubmit)="handleFormSubmit('activity', $event)"
+            ></app-activity-booking-form>
+
+            <app-accommodation-booking-form
+              *ngSwitchCase="'accommodation'"
+              [booking]="booking"
+              [mode]="'edit'"
+              (bookingCancel)="goBack()"
+              (bookingSubmit)="handleFormSubmit('accommodation', $event)"
+            ></app-accommodation-booking-form>
+
+            <app-package-booking-form
+              *ngSwitchCase="'package'"
+              [booking]="booking"
+              [mode]="'edit'"
+              (bookingCancel)="goBack()"
+              (bookingSubmit)="handleFormSubmit('package', $event)"
+            ></app-package-booking-form>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <ng-template #noBookingTemplate>
+        <div class="no-data-message">
+          <p>No booking data available for editing.</p>
+          <button type="button" class="bottom-action submit" (click)="goBack()">
+            <span>Kembali/Back to List</span>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</ion-content>

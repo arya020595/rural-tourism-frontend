@@ -76,7 +76,8 @@ export class MasterDataPage implements OnInit {
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
   }
 
   private createEmptyDraft(): MasterDataDraft {
@@ -87,7 +88,9 @@ export class MasterDataPage implements OnInit {
   }
 
   private normalizeProductType(value: unknown): 'activity' | 'accommodation' {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     return normalized === 'accommodation' ? 'accommodation' : 'activity';
   }
 
@@ -103,7 +106,11 @@ export class MasterDataPage implements OnInit {
     };
   }
 
-  private setPagination(page: number, totalItems: number, totalPages: number): void {
+  private setPagination(
+    page: number,
+    totalItems: number,
+    totalPages: number,
+  ): void {
     this.currentPage = page;
     this.totalItems = totalItems;
     this.totalPages = Math.max(1, totalPages);
@@ -149,7 +156,11 @@ export class MasterDataPage implements OnInit {
     }
 
     // Always show last few pages
-    for (let i = Math.max(rangeEnd + 1, totalPages - edgeSize + 1); i <= totalPages; i++) {
+    for (
+      let i = Math.max(rangeEnd + 1, totalPages - edgeSize + 1);
+      i <= totalPages;
+      i++
+    ) {
       if (!pages.includes(i)) {
         pages.push(i);
       }
@@ -174,36 +185,38 @@ export class MasterDataPage implements OnInit {
     this.isLoading = true;
     this.pageErrorMessage = '';
 
-    this.productService.getAllProducts({ page, per_page: this.pageSize }).subscribe({
-      next: (response) => {
-        const rows = this.extractRows(response).map((record, index) =>
-          this.mapRow(record, index),
-        );
-        const pagination = response?.pagination;
-        const totalPages = Math.max(1, pagination?.total_pages ?? 1);
-        const totalItems = pagination?.total ?? rows.length;
-        const resolvedPage = pagination?.page ?? page;
+    this.productService
+      .getAllProducts({ page, per_page: this.pageSize })
+      .subscribe({
+        next: (response) => {
+          const rows = this.extractRows(response).map((record, index) =>
+            this.mapRow(record, index),
+          );
+          const pagination = response?.pagination;
+          const totalPages = Math.max(1, pagination?.total_pages ?? 1);
+          const totalItems = pagination?.total ?? rows.length;
+          const resolvedPage = pagination?.page ?? page;
 
-        if (resolvedPage > totalPages && totalPages > 0) {
+          if (resolvedPage > totalPages && totalPages > 0) {
+            this.isLoading = false;
+            this.loadMasterData(totalPages);
+            return;
+          }
+
+          this.data = rows;
+          this.pagedData = rows;
+          this.setPagination(resolvedPage, totalItems, totalPages);
           this.isLoading = false;
-          this.loadMasterData(totalPages);
-          return;
-        }
-
-        this.data = rows;
-        this.pagedData = rows;
-        this.setPagination(resolvedPage, totalItems, totalPages);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.data = [];
-        this.pagedData = [];
-        this.setPagination(1, 0, 1);
-        this.pageErrorMessage =
-          error?.error?.message || 'Unable to load master data records.';
-        this.isLoading = false;
-      },
-    });
+        },
+        error: (error) => {
+          this.data = [];
+          this.pagedData = [];
+          this.setPagination(1, 0, 1);
+          this.pageErrorMessage =
+            error?.error?.message || 'Unable to load master data records.';
+          this.isLoading = false;
+        },
+      });
   }
 
   get startItem(): number {
@@ -213,7 +226,10 @@ export class MasterDataPage implements OnInit {
 
   get endItem(): number {
     if (this.totalItems === 0) return 0;
-    return Math.min(this.startItem + this.pagedData.length - 1, this.totalItems);
+    return Math.min(
+      this.startItem + this.pagedData.length - 1,
+      this.totalItems,
+    );
   }
 
   onPageSizeChange(): void {
@@ -315,7 +331,9 @@ export class MasterDataPage implements OnInit {
   }
 
   removePendingItem(tempId: number): void {
-    this.pendingItems = this.pendingItems.filter((item) => item.tempId !== tempId);
+    this.pendingItems = this.pendingItems.filter(
+      (item) => item.tempId !== tempId,
+    );
   }
 
   closeModal(): void {
@@ -329,7 +347,8 @@ export class MasterDataPage implements OnInit {
 
   async saveMasterData(): Promise<void> {
     if (this.modalMode === 'create' && this.pendingItems.length === 0) {
-      this.formErrorMessage = 'Add at least one master data item before saving.';
+      this.formErrorMessage =
+        'Add at least one master data item before saving.';
       return;
     }
 

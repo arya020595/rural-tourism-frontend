@@ -31,6 +31,12 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" id="booking-add-main-content">
+  <ion-alert
+    [isOpen]="isSuccessAlertOpen"
+    header="Booking Created"
+    message="The booking was created successfully."
+    [buttons]="successAlertButtons"
+  ></ion-alert>
   <div class="surface-card">
     <div class="booking-container">
       <button type="button" class="back-link" (click)="goBack()">
@@ -92,20 +98,20 @@
         <ng-container [ngSwitch]="selectedType">
           <app-activity-booking-form
             *ngSwitchCase="'activity'"
-            (cancel)="goBack()"
-            (submit)="handleFormSubmit('activity', $event)"
+            (bookingCancel)="goBack()"
+            (bookingSubmit)="handleFormSubmit('activity', $event)"
           ></app-activity-booking-form>
 
           <app-accommodation-booking-form
             *ngSwitchCase="'accommodation'"
-            (cancel)="goBack()"
-            (submit)="handleFormSubmit('accommodation', $event)"
+            (bookingCancel)="goBack()"
+            (bookingSubmit)="handleFormSubmit('accommodation', $event)"
           ></app-accommodation-booking-form>
 
           <app-package-booking-form
             *ngSwitchCase="'package'"
-            (cancel)="goBack()"
-            (submit)="handleFormSubmit('package', $event)"
+            (bookingCancel)="goBack()"
+            (bookingSubmit)="handleFormSubmit('package', $event)"
           ></app-package-booking-form>
         </ng-container>
       </div>
