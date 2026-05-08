@@ -47,6 +47,7 @@ BookingDetail (view-only)
 #### **booking-home.page.ts** - Major Refactor
 
 **Key Changes**:
+
 - ✅ **Pagination Implementation**: 10 rows per page with `pageSize = 10` constant
 - ✅ **Computed Properties**:
   - `pagedBookings`: Slices full booking array for current page
@@ -802,6 +803,7 @@ getPackageCompanies(): Observable<any> {
 ### Architecture
 
 **Client-Side Pagination** (not API-level) chosen because:
+
 - Calendar view needs full dataset (month calculations)
 - Booking count varies by filter/status
 - 10 rows per page simple for local slicing
@@ -873,38 +875,22 @@ goToPage(page: number): void {
 **Template (booking-home.page.html)**:
 
 ```html
-<app-booking-list-table
-  [bookings]="pagedBookings"
-  [currentPage]="currentPage"
-  [pageSize]="pageSize"
-  [totalBookings]="bookings.length"
-  [totalPages]="totalBookingPages"
-  (pageChange)="changeBookingPage($event)">
-</app-booking-list-table>
+<app-booking-list-table [bookings]="pagedBookings" [currentPage]="currentPage" [pageSize]="pageSize" [totalBookings]="bookings.length" [totalPages]="totalBookingPages" (pageChange)="changeBookingPage($event)"> </app-booking-list-table>
 ```
 
 **Footer (booking-list-table.component.html)**:
 
 ```html
 <div class="pagination">
-  <button class="page-btn prev" 
-    [disabled]="currentPage <= 1" 
-    (click)="goToPreviousPage()">Previous</button>
-  
+  <button class="page-btn prev" [disabled]="currentPage <= 1" (click)="goToPreviousPage()">Previous</button>
+
   <div class="page-number-group">
-    <button *ngFor="let page of pageNumbers" 
-      class="page-btn" 
-      [class.active]="page === currentPage" 
-      (click)="goToPage(page)">{{ page }}</button>
+    <button *ngFor="let page of pageNumbers" class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">{{ page }}</button>
   </div>
-  
-  <button class="page-btn next" 
-    [disabled]="currentPage >= totalPages" 
-    (click)="goToNextPage()">Next</button>
+
+  <button class="page-btn next" [disabled]="currentPage >= totalPages" (click)="goToNextPage()">Next</button>
 </div>
-<div class="entry-info">
-  Showing {{ startEntry }} to {{ endEntry }} out of {{ totalBookings }} entries
-</div>
+<div class="entry-info">Showing {{ startEntry }} to {{ endEntry }} out of {{ totalBookings }} entries</div>
 ```
 
 **Styling (booking-list-table.component.scss)**:
@@ -915,34 +901,34 @@ goToPage(page: number): void {
   align-items: center;
   flex-wrap: wrap;
   gap: 0;
-  
+
   .page-btn {
     border: 1px solid #ccc;
     background: #fff;
     padding: 8px 12px;
     cursor: pointer;
     font-size: 14px;
-    
+
     &:hover:not(:disabled) {
       background: #f5f5f5;
     }
-    
+
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     &.active {
       background: #015c2f;
       color: #fff;
       border-color: #015c2f;
     }
-    
+
     &:first-child {
       border-top-left-radius: 6px;
       border-bottom-left-radius: 6px;
     }
-    
+
     &:last-child {
       border-top-right-radius: 6px;
       border-bottom-right-radius: 6px;
@@ -964,6 +950,7 @@ goToPage(page: number): void {
 ### Receipt Capture & PDF Generation
 
 **Pages Implemented**:
+
 - `receipt.page.ts` / `receipt.page.html` - Accommodation receipts
 - `receipt-activity.page.ts` / `receipt-activity.page.html` - Activity receipts
 - `receipt-package.page.ts` / `receipt-package.page.html` - Package receipts
@@ -1038,24 +1025,24 @@ mapBookingToReceipt(booking: any): Receipt {
 async createCaptureClone(): Promise<HTMLElement> {
   const original = this.receiptElement.nativeElement;
   const clone = original.cloneNode(true) as HTMLElement;
-  
+
   // Apply capture-specific CSS
   clone.classList.add('receipt-capture-clone');
   clone.style.position = 'absolute';
   clone.style.left = '-9999px';
   clone.style.top = '-9999px';
   clone.style.width = '520px';
-  
+
   document.body.appendChild(clone);
   return clone;
 }
 
 async generateReceipt(): Promise<void> {
   const captureElement = await this.createCaptureClone();
-  
+
   // Wait for images
   await this.waitForImages(captureElement);
-  
+
   // Capture to image
   const canvas = await html2canvas(captureElement, {
     scale: 2,
@@ -1064,23 +1051,23 @@ async generateReceipt(): Promise<void> {
     backgroundColor: '#ffffff',
     imageTimeout: 15000,
   });
-  
+
   // Convert to blob
   canvas.toBlob(async (blob) => {
     // POST to backend
     const formData = new FormData();
     formData.append('image', blob, 'receipt.png');
     formData.append('booking_id', this.booking.id);
-    
+
     const response = await this.http.post(
       '/api/receipts/generate-pdf-from-image',
       formData
     ).toPromise();
-    
+
     this.pdfLink = response.fileUrl;
     this.qrCodeReady = true;
   });
-  
+
   // Cleanup
   document.body.removeChild(captureElement);
 }
@@ -1142,9 +1129,7 @@ async tryAutoGenerateReceipt(): Promise<void> {
     <div class="qr-code-container">
       <qrcode [qrdata]="pdfLink" [size]="200" [level]="'M'" [scale]="2"></qrcode>
     </div>
-    <div class="scan-instruction">
-      Scan QR code to view PDF receipt
-    </div>
+    <div class="scan-instruction">Scan QR code to view PDF receipt</div>
   </div>
 </ion-content>
 ```
@@ -1187,10 +1172,22 @@ async tryAutoGenerateReceipt(): Promise<void> {
     row-gap: 22px;
   }
 
-  .receipt-row--booked { grid-column: 1; grid-row: 1; }
-  .receipt-row--accommodation { grid-column: 2; grid-row: 1; }
-  .receipt-row--checkin { grid-column: 1; grid-row: 2; }
-  .receipt-row--checkout { grid-column: 2; grid-row: 2; }
+  .receipt-row--booked {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .receipt-row--accommodation {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .receipt-row--checkin {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .receipt-row--checkout {
+    grid-column: 2;
+    grid-row: 2;
+  }
   /* ... etc for all rows ... */
 
   .receipt-footer {
@@ -1209,7 +1206,7 @@ async tryAutoGenerateReceipt(): Promise<void> {
 .receipt-capture-clone {
   width: 520px !important;
   max-width: 520px !important;
-  
+
   .details-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -1217,8 +1214,14 @@ async tryAutoGenerateReceipt(): Promise<void> {
     row-gap: 16px !important;
   }
 
-  .receipt-row--booked { grid-column: 1 !important; grid-row: 1 !important; }
-  .receipt-row--accommodation { grid-column: 2 !important; grid-row: 1 !important; }
+  .receipt-row--booked {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  .receipt-row--accommodation {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
   /* ... ensure grid placement in all sizes ... */
 
   .receipt-footer {
@@ -1273,6 +1276,7 @@ async tryAutoGenerateReceipt(): Promise<void> {
 ## What's New in This Update (May 8)
 
 ✅ **Pagination Implementation**:
+
 - Client-side 10-row per page pagination
 - Previous/Next buttons with disabled states
 - Direct page number buttons (1, 2, 3, ...)
@@ -1280,6 +1284,7 @@ async tryAutoGenerateReceipt(): Promise<void> {
 - Supports unlimited bookings
 
 ✅ **Receipt PDF Generation**:
+
 - Auto-generation after component loads
 - Capture clone with 520px portrait sizing
 - Two-column grid layout (desktop) / single column (mobile)
@@ -1288,12 +1293,14 @@ async tryAutoGenerateReceipt(): Promise<void> {
 - Responsive styling with media queries
 
 ✅ **Booking Integration**:
+
 - Receipts load from booking state (navigation)
 - Fallback to API if state not available
 - Company info populated from CompanyService
 - User info used for "Issued By" section
 
 ✅ **Responsive Design**:
+
 - Receipt layout adapts to screen size
 - PDF capture uses portrait styling with !important overrides
 - Mobile: single-column details, vertical footer
