@@ -117,6 +117,8 @@ export class BookingAddPage implements OnInit {
     return {
       booking_type: 'activity',
       tourist_full_name: payload.fullName || '',
+      phone_number: payload.phone || '',
+      email: payload.email || '',
       citizenship: payload.nationality || 'domestic',
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
@@ -142,6 +144,8 @@ export class BookingAddPage implements OnInit {
     return {
       booking_type: 'accommodation',
       tourist_full_name: payload.fullName || '',
+      phone_number: payload.phone || '',
+      email: payload.email || '',
       citizenship: payload.nationality || 'domestic',
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
@@ -186,6 +190,8 @@ export class BookingAddPage implements OnInit {
     return {
       booking_type: 'package',
       tourist_full_name: payload.fullName || '',
+      phone_number: payload.phone || '',
+      email: payload.email || '',
       citizenship: payload.nationality || payload.customerType || 'domestic',
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
