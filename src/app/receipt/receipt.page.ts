@@ -285,35 +285,66 @@ export class ReceiptPage implements OnInit, AfterViewInit {
   private mapBookingToReceipt(record: any): any {
     const totalRooms =
       Number(record?.total_pax || 0) ||
-      Number(record?.no_of_pax_domestik || 0) +
-        Number(record?.no_of_pax_antarbangsa || 0);
+      Number(record?.domesticPax || record?.no_of_pax_domestik || 0) +
+        Number(record?.internationalPax || record?.no_of_pax_antarbangsa || 0);
+
+    const receiptId =
+      record?.numericId ?? record?.id ?? this.receiptId ?? undefined;
 
     return {
-      receipt_id: String(record?.id || this.receiptId || ''),
+      receipt_id: String(receiptId || ''),
       createdAt:
-        record?.receipt_created_at || record?.updated_at || record?.created_at,
-      company_id: Number(record?.company_id || 0) || null,
+        record?.receipt_created_at ||
+        record?.updated_at ||
+        record?.created_at ||
+        record?.updatedAt ||
+        record?.createdAt,
+      company_id: Number(record?.company_id ?? record?.companyId ?? 0) || null,
       guest_name: String(
         record?.tourist_full_name ||
+          record?.fullName ||
           record?.tourist_name ||
           record?.user_fullname ||
+          record?.userFullname ||
           '',
       ),
-      accommodation_name: String(record?.product_name || ''),
-      check_in_date: record?.check_in_date || null,
-      check_out_date: record?.check_out_date || null,
-      total_night: Number(record?.total_of_night || 0),
+      accommodation_name: String(
+        record?.product_name || record?.productName || record?.homestay || '',
+      ),
+      check_in_date: record?.check_in_date || record?.checkInDate || null,
+      check_out_date: record?.check_out_date || record?.checkOutDate || null,
+      total_night: Number(record?.total_of_night ?? record?.nights ?? 0),
       total_rooms: totalRooms,
       status: String(record?.status || 'paid'),
-      total_rm: Number(record?.total_price || 0),
-      company_name: String(record?.company_name || ''),
+      total_rm: Number(record?.total_price ?? record?.totalAmount ?? 0),
+      company_name: String(
+        record?.company_name ||
+          record?.companyName ||
+          record?.company?.company_name ||
+          '',
+      ),
       operator: {
         business_name: String(
-          record?.company_name || record?.operator_name || '',
+          record?.company_name ||
+            record?.companyName ||
+            record?.operator_name ||
+            record?.operatorName ||
+            '',
         ),
-        full_name: String(record?.operator_name || record?.user_fullname || ''),
+        full_name: String(
+          record?.operator_name ||
+            record?.operatorName ||
+            record?.user_fullname ||
+            record?.userFullname ||
+            '',
+        ),
         user_email: String(
-          record?.company_email || this.user?.user_email || '',
+          record?.company_email ||
+            record?.companyEmail ||
+            record?.operatorEmail ||
+            this.user?.user_email ||
+            this.user?.email ||
+            '',
         ),
       },
     };

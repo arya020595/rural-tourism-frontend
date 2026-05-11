@@ -265,16 +265,38 @@ export class ReceiptPackagePage implements OnInit {
       ? record.package_companies
       : [];
 
+    const receiptId =
+      record?.numericId ?? record?.id ?? this.receiptId ?? undefined;
+
     this.receipt = {
-      receipt_id: String(record?.id || this.receiptId || ''),
+      receipt_id: String(receiptId || ''),
       createdAt:
-        record?.receipt_created_at || record?.updated_at || record?.created_at,
+        record?.receipt_created_at ||
+        record?.updated_at ||
+        record?.created_at ||
+        record?.updatedAt ||
+        record?.createdAt,
       operator: {
         business_name: String(
-          record?.company_name || record?.operator_name || '',
+          record?.company_name ||
+            record?.companyName ||
+            record?.operator_name ||
+            record?.operatorName ||
+            '',
         ),
-        full_name: String(record?.operator_name || record?.user_fullname || ''),
-        user_email: String(this.user?.user_email || ''),
+        full_name: String(
+          record?.operator_name ||
+            record?.operatorName ||
+            record?.user_fullname ||
+            record?.userFullname ||
+            '',
+        ),
+        user_email: String(
+          this.user?.user_email ||
+            this.user?.email ||
+            record?.operatorEmail ||
+            '',
+        ),
       },
       package: packageItems.map((item: any) => ({
         packageDesc: String(item?.description || item?.referral_company || ''),

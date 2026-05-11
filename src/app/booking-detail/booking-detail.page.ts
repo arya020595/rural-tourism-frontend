@@ -186,6 +186,43 @@ export class BookingDetailPage implements OnInit {
     }
   }
 
+  async goToReceipt(): Promise<void> {
+    if (!this.booking) {
+      return;
+    }
+
+    const receiptId = this.booking.numericId ?? Number(this.booking.id);
+    if (!Number.isFinite(receiptId)) {
+      this.toastService.error('Receipt ID is not available for this booking.');
+      return;
+    }
+
+    if (this.booking.status !== 'paid') {
+      try {
+        await this.loadingService.show('Updating payment status...');
+        const response = await firstValueFrom(
+          this.bookingService.markBookingAsPaid(String(this.booking.id)),
+        );
+        const data = response?.data ?? response;
+        this.booking = data ? this.mapBookingToDetail(data) : this.booking;
+      } catch (error) {
+        await this.loadingService.hide();
+        const err = error as any;
+        this.toastService.error(
+          err?.error?.message || 'Failed to mark booking as paid.',
+        );
+        return;
+      } finally {
+        await this.loadingService.hide();
+      }
+    }
+
+    const receiptRoute = this.getReceiptRouteForBooking();
+    this.router.navigate([receiptRoute, receiptId], {
+      state: { booking: this.booking },
+    });
+  }
+
   async viewPaymentReceipt(): Promise<void> {
     if (this.isGeneratingPdf) {
       return;
