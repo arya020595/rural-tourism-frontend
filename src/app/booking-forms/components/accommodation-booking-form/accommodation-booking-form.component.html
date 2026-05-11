@@ -1,6 +1,37 @@
-<form class="booking-form" novalidate (ngSubmit)="submitForm()">
+<form
+  class="booking-form"
+  [class.view-mode]="isViewMode"
+  autocomplete="off"
+  autocapitalize="off"
+  spellcheck="false"
+  novalidate
+  (ngSubmit)="submitForm()"
+>
+  <!-- Hidden trap fields to absorb browser autofill (phone, email, name) -->
+  <input
+    type="text"
+    name="given-name"
+    style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+    tabindex="-1"
+    autocomplete="off"
+  />
+  <input
+    type="tel"
+    name="tel-national"
+    style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+    tabindex="-1"
+    autocomplete="off"
+  />
+  <input
+    type="email"
+    name="email"
+    style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+    tabindex="-1"
+    autocomplete="off"
+  />
+
   <section class="form-section">
-    <h3>New Accommodation Booking</h3>
+    <h3>{{ formTitle }}</h3>
 
     <div class="field-grid two-col">
       <div class="field">
@@ -11,11 +42,18 @@
         >
         <div class="input-with-icon">
           <input
-            type="text"
+            #accomCheckInInput
+            type="date"
             [(ngModel)]="checkInDate"
+            (ngModelChange)="onCheckInChange($event)"
             name="accommodationCheckInDate"
+            [readonly]="isViewMode"
           />
-          <ion-icon name="calendar-clear-outline"></ion-icon>
+          <ion-icon
+            name="calendar-clear-outline"
+            aria-hidden="true"
+            (click)="openDatePicker(accomCheckInInput)"
+          ></ion-icon>
         </div>
       </div>
 
@@ -27,11 +65,19 @@
         >
         <div class="input-with-icon">
           <input
-            type="text"
+            #accomCheckOutInput
+            type="date"
             [(ngModel)]="checkOutDate"
+            [min]="checkOutMin || null"
+            (ngModelChange)="onCheckOutChange($event)"
             name="accommodationCheckOutDate"
+            [readonly]="isViewMode"
           />
-          <ion-icon name="calendar-clear-outline"></ion-icon>
+          <ion-icon
+            name="calendar-clear-outline"
+            aria-hidden="true"
+            (click)="openDatePicker(accomCheckOutInput)"
+          ></ion-icon>
         </div>
       </div>
     </div>
@@ -42,8 +88,12 @@
         <input
           type="text"
           [(ngModel)]="fullName"
-          name="accommodationFullName"
+          name="acF01"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
           placeholder="Sila masukkan nama penuh pelancong/Please enter tourist full name"
+          [readonly]="isViewMode"
         />
       </div>
     </div>
@@ -53,9 +103,19 @@
         <label>5. No. Telefon/Telephone No.</label>
         <input
           type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="15"
           [(ngModel)]="phone"
-          name="accommodationPhone"
+          name="acF02"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
           placeholder="Sila masukkan no. telefon/Please enter telephone no."
+          [readonly]="isViewMode"
+          (input)="onNumericInput('phone', $any($event.target).value)"
+          (keydown)="onNumericKeydown($event)"
+          (paste)="onNumericPaste('phone', $event)"
         />
       </div>
 
@@ -64,8 +124,12 @@
         <input
           type="text"
           [(ngModel)]="email"
-          name="accommodationEmail"
+          name="acF03"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
           placeholder="Sila masukkan emel/Please enter email"
+          [readonly]="isViewMode"
         />
       </div>
     </div>
@@ -84,6 +148,7 @@
             name="accommodationNationality"
             value="domestic"
             [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
           />
           <span>Domestik</span>
         </label>
@@ -96,6 +161,7 @@
             name="accommodationNationality"
             value="international"
             [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
           />
           <span>Antarabangsa</span>
         </label>
@@ -108,6 +174,7 @@
             name="accommodationNationality"
             value="both"
             [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
           />
           <span>Domestik/Antarabangsa</span>
         </label>
@@ -123,10 +190,16 @@
             ></label
           >
           <input
-            type="text"
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
             [(ngModel)]="domesticPax"
             name="accommodationDomesticPax"
             placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('domesticPax', $any($event.target).value)"
           />
         </div>
 
@@ -138,10 +211,18 @@
             ></label
           >
           <input
-            type="text"
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
             [(ngModel)]="internationalPax"
             name="accommodationInternationalPax"
             placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="
+              onNumericInput('internationalPax', $any($event.target).value)
+            "
           />
         </div>
       </div>
@@ -154,21 +235,39 @@
             ></label
           >
           <input
-            type="text"
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
             [(ngModel)]="nights"
             name="accommodationNightsMixed"
             placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('nights', $any($event.target).value)"
           />
         </div>
 
         <div class="field">
           <label>10. Penginapan/Homestay<span class="required">*</span></label>
-          <input
-            type="text"
+          <select
+            class="field-input native-select"
             [(ngModel)]="homestay"
             name="accommodationHomestayMixed"
-            placeholder="Sila pilih penginapan/Select homestay"
-          />
+            [disabled]="isViewMode"
+            (ngModelChange)="onHomestayInput()"
+          >
+            <option value="" disabled hidden>Sila pilih penginapan</option>
+            <option
+              *ngFor="let option of accommodationOptions"
+              [value]="option"
+            >
+              {{ option }}
+            </option>
+          </select>
+          <div class="field-error" *ngIf="homestaySelectionError">
+            {{ homestaySelectionError }}
+          </div>
         </div>
       </div>
 
@@ -176,10 +275,16 @@
         <div class="field">
           <label>11. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
-            type="text"
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
             [(ngModel)]="total"
             name="accommodationTotalMixed"
             placeholder="Sila isi jumlah bayaran/Please insert total payment"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('total', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('total', $event)"
           />
         </div>
 
@@ -190,6 +295,7 @@
             [(ngModel)]="operatorName"
             name="accommodationOperatorMixed"
             placeholder="Sila isi nama pengandali/Enter operator name"
+            [readonly]="isViewMode"
           />
         </div>
       </div>
@@ -202,10 +308,16 @@
             >8. Bilangan Orang/No. of Pax<span class="required">*</span></label
           >
           <input
-            type="text"
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
             [(ngModel)]="paxCount"
             name="accommodationPax"
             placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('paxCount', $any($event.target).value)"
           />
         </div>
 
@@ -216,10 +328,16 @@
             ></label
           >
           <input
-            type="text"
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
             [(ngModel)]="nights"
             name="accommodationNightsSingle"
             placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('nights', $any($event.target).value)"
           />
         </div>
       </div>
@@ -227,39 +345,60 @@
       <div class="field-grid two-col">
         <div class="field">
           <label>10. Penginapan/Homestay<span class="required">*</span></label>
-          <input
-            type="text"
+          <select
+            class="field-input native-select"
             [(ngModel)]="homestay"
             name="accommodationHomestaySingle"
-            placeholder="Sila pilih penginapan/Select homestay"
-          />
+            [disabled]="isViewMode"
+            (ngModelChange)="onHomestayInput()"
+          >
+            <option value="" disabled hidden>Sila pilih penginapan</option>
+            <option
+              *ngFor="let option of accommodationOptions"
+              [value]="option"
+            >
+              {{ option }}
+            </option>
+          </select>
+          <div class="field-error" *ngIf="homestaySelectionError">
+            {{ homestaySelectionError }}
+          </div>
         </div>
 
         <div class="field">
           <label>11. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
-            type="text"
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
             [(ngModel)]="total"
             name="accommodationTotalSingle"
             placeholder="Sila isi jumlah bayaran/Please insert total payment"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('total', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('total', $event)"
           />
         </div>
       </div>
 
-      <div class="field-grid one-col">
-        <div class="field half-width-field">
+      <div class="field-grid two-col">
+        <div class="field">
           <label>12. Nama Pengandali/Operator Name</label>
           <input
             type="text"
             [(ngModel)]="operatorName"
             name="accommodationOperatorSingle"
             placeholder="Sila isi nama pengandali/Enter operator name"
+            [readonly]="isViewMode"
           />
         </div>
+
+        <div class="field" aria-hidden="true"></div>
       </div>
     </ng-template>
 
-    <div class="action-row">
+    <div *ngIf="!isViewMode" class="action-row">
       <button type="button" class="bottom-action cancel" (click)="onCancel()">
         <ion-icon name="close-circle-outline"></ion-icon>
         <span>Batal Tempahan/Cancel Booking</span>
@@ -267,7 +406,7 @@
 
       <button type="submit" class="bottom-action submit">
         <ion-icon name="paper-plane-outline"></ion-icon>
-        <span>Hantar Tempahan/Submit Booking</span>
+        <span>{{ submitLabel }}</span>
       </button>
     </div>
   </section>

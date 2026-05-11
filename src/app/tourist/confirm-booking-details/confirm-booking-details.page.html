@@ -75,6 +75,12 @@
 </ion-content> -->
 
 <ion-content [fullscreen]="true">
+  <ion-alert
+    [isOpen]="isSuccessAlertOpen"
+    header="Booking Successful!"
+    message="Your booking has been confirmed!"
+    [buttons]="successAlertButtons"
+  ></ion-alert>
   <!-- Close Button -->
   <ion-button class="close-btn" fill="clear" (click)="confirmCancel()">
     <ion-icon slot="icon-only" name="close"></ion-icon>

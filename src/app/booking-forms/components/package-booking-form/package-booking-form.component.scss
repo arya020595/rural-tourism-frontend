@@ -1,0 +1,113 @@
+@import '../../booking-form-base';
+
+.package-items {
+	margin-top: 12px;
+}
+
+.package-items > label {
+	display: block;
+	margin-bottom: 8px;
+	color: #04552f;
+	font-weight: 700;
+}
+
+.package-items .price-field {
+	/* let select take remaining space while price stays compact */
+}
+
+.package-items .price-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.package-items .price-row input {
+	width: 120px;
+}
+
+.remove-item {
+	background: #f31212;
+	border: none;
+	color: #fff;
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.add-more-wrap {
+	margin-top: 8px;
+}
+
+.add-more-btn {
+	background: #0b6a3e;
+	color: #fff;
+	border: none;
+	border-radius: 12px;
+	padding: 10px 14px;
+	display: inline-flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.add-more-btn ion-icon {
+	font-size: 20px;
+}
+
+.search-dropdown-wrapper {
+	position: relative;
+	width: 100%;
+}
+
+.search-input {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 14px;
+
+	&:focus {
+		outline: none;
+		border-color: #0b6a3e;
+		box-shadow: 0 0 0 3px rgba(11, 106, 62, 0.1);
+	}
+
+	&:disabled {
+		background-color: #f5f5f5;
+		cursor: not-allowed;
+	}
+}
+
+.search-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	max-height: 180px;
+	overflow-y: auto;
+	z-index: 10;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+	padding: 10px 12px;
+	cursor: pointer;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+	transition: background-color 0.2s;
+
+	&:last-child {
+		border-bottom: none;
+	}
+
+	&:hover {
+		background-color: #e8f5e9;
+		color: #0b6a3e;
+	}
+}

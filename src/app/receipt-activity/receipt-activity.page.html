@@ -1,137 +1,102 @@
-<!-- <ion-header class="custom-header">
-  
-    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%;">
-      <ion-back-button text="">
-      </ion-back-button>
-    </ion-buttons>
-  
-</ion-header> -->
-
-<ion-content >
-
+<ion-content>
   <ion-header>
-    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%;">
-      <ion-back-button text="">
-      </ion-back-button>
+    <ion-buttons slot="start" style="padding-left: 3%; padding-top: 2%">
+      <ion-back-button text=""></ion-back-button>
     </ion-buttons>
-</ion-header>
+  </ion-header>
 
-<div id="container">
-  <div #receiptContent >
-    <ion-card   class="main-Container">
-    
-      <ion-card-header class="card-header">
-        <ion-img class="logo" src="../../assets/icon/Feel-Sabah-North-Borneo.png"></ion-img>
-        <div class="date-container">{{receipt?.createdAt | date: 'dd-MMM-yyyy'}}</div>
-        <div class="right-content"><p>E-Resit/Receipt</p></div>
-        <div class="right-content"><p>{{receipt?.receipt_id}}</p></div>
-        <!-- <div class="date-container">22 Okt 2023</div> -->
-      </ion-card-header>
-  
-    
-      <ion-card-content id="form">
+  <div id="container">
+    <div #receiptContent class="receipt-card-wrapper">
+      <div class="receipt-card">
+        <div class="receipt-header">
+          <div class="header-logos">
+            <img
+              class="logo"
+              src="../../assets/icon/explore_sabah-without_bg.png"
+              alt="Explore Sabah logo"
+            />
+            <div class="logo-divider"></div>
+            <img class="logo" [src]="companyLogoUrl" alt="Company logo" />
+          </div>
+          <div class="receipt-date">
+            {{ receipt?.createdAt | date: 'dd-MMM-yyyy' }}
+          </div>
+        </div>
 
-        <ion-list class="details">        
-          NAMA PERNIAGAAN/BUSINESS NAME
-          <p>{{user?.full_name}}</p>
-          <!-- <p>Kiulu Farmstay</p> -->
-        </ion-list>
-        
-        <ion-list class="details">        
-          AKTIVITI/ACTIVITY
-          <p>{{receipt?.activity_name}}</p>
-          <!-- <p>Kiulu Farmstay</p> -->
-        </ion-list>
-        
-        <ion-list class="details">        
-          BILANGAN ORANG/TOTAL PAX
-          <p>{{receipt?.pax}} Orang/People</p>
-          <!-- <p>5 Orang/People</p> -->
-        </ion-list>
+        <div class="receipt-body">
+          <div class="details-grid">
+            <div class="receipt-row receipt-row--booked">
+              <div class="row-label">DITEMPAH OLEH/BOOKED BY</div>
+              <div class="row-value">{{ bookedByName }}</div>
+            </div>
 
-        <ion-list class="details">        
-          LOKASI/LOCATION
-          <p>{{receipt?.location}}</p>
-          <!-- <p>{{user?.district}}</p> -->
-          <!-- <p>Kiulu</p> -->
-        </ion-list>
-        
-        <ion-list class="details" style=" margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center">        
-          <p style="font-size: 12px; color: #555; font-weight: lighter;">Dikeluarkan Oleh/Issued by: </p> 
-          
-           <p
-           style="font-size: 14px;
-           font-family: 'Roboto';
-           font-weight: bold;
-           color: rgb(75, 75, 75);"
-           >{{ user?.full_name }}
-          </p>
-           <!-- <p>5 Orang/People</p> -->
-         </ion-list>
+            <div class="receipt-row receipt-row--activity">
+              <div class="row-label">AKTIVITI/ACTIVITY</div>
+              <div class="row-value">{{ receipt?.activity_name || 'N/A' }}</div>
+            </div>
 
-         <ion-list class="details" style=" margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center">        
-          <p style="font-size: 12px; color: #555; font-weight: lighter;">Alamat E-mel/Email Address: </p> 
-          
-           <p
-           style="font-size: 14px;
-           font-family: 'Roboto';
-           font-weight: bold;
-           color: rgb(75, 75, 75);"
-           >{{ user?.user_email }}</p>
-           <!-- <p>5 Orang/People</p> -->
-         </ion-list>
-      
-  
-      </ion-card-content>
-  
-      <!-- Bottom section with total amount -->
-      <div class="receipt-footer">
-        <div class="receipt-total">
-          <span class="totalAmt">Jumlah/Total (RM)</span>
-          <span class="amount">{{receipt?.total_rm | number: '1.2-2'}}</span>
-          <!-- <span class="amount">$ 222</span> -->
+            <div class="receipt-row receipt-row--pax">
+              <div class="row-label">BILANGAN ORANG/TOTAL PAX</div>
+              <div class="row-value">{{ receipt?.pax || 0 }} ORANG</div>
+            </div>
+
+            <div class="receipt-row receipt-row--company">
+              <div class="row-label">NAMA PERNIAGAAN/BUSINESS NAME</div>
+              <div class="row-value">{{ companyName }}</div>
+            </div>
+
+            <div class="receipt-row receipt-row--location">
+              <div class="row-label">LOKASI/LOCATION</div>
+              <div class="row-value">{{ companyLocation }}</div>
+            </div>
+
+            <div class="receipt-row receipt-row--status">
+              <div class="row-label">STATUS PEMBAYARAN/PAYMENT STATUS</div>
+              <div class="row-value">
+                {{ (receipt?.status || 'PAID') | uppercase }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="receipt-footer">
+          <div class="issued-block">
+            <div class="row-label">DIKELUARKAN OLEH/ISSUED BY:</div>
+            <div class="issued-name">{{ companyName }}</div>
+            <div class="issued-email">{{ companyEmail }}</div>
+          </div>
+
+          <div class="total-block">
+            <div class="total-label">JUMLAH/TOTAL:</div>
+            <div class="total-amount">
+              RM {{ receipt?.total_rm | number: '1.2-2' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="receipt-qr-section" *ngIf="qrCodeReady && pdfLink">
+          <div class="qr-text">
+            <span class="qr-ms"
+              >Imbas di sini untuk mendapatkan resit anda</span
+            >
+            <i class="qr-en">Scan here to get your receipt</i>
+          </div>
+          <div class="qr-code-container">
+            <qrcode [qrdata]="pdfLink"></qrcode>
+          </div>
         </div>
       </div>
+    </div>
 
-      
-
-      <!-- <div *ngIf="pdfUrl">
-        <qrcode [qrdata]="pdfUrl" [size]="256" [level]="'M'"></qrcode>
-      </div> -->
-  
-  
-      <div class="qr-section" *ngIf="qrCodeReady">
-        <ion-list>        
-          Imbas di sini untuk mendapatkan resit anda <br>
-          Scan here to get your receipt
-          <!-- <p>{{receipt.total_night}} Malam/Nights</p> -->
-        </ion-list>
-        <div >
-          <qrcode [qrdata]="pdfLink"></qrcode>
-        </div>
-       
-      </div>
-
-      <div class="qr-btn" *ngIf="!qrCodeReady">
-        <ion-button shape="round" mode="ios"  fill="outline" id="open-loading" style="margin-left: 15px; margin-right: 15px;"  (click)="generateReceipt()">E-Resit/Receipt</ion-button>
-        <ion-loading  mode="ios" trigger="open-loading" message="Generating Receipt..." duration="3000"></ion-loading>
-      </div>
-
-      
-      
-      
-    </ion-card>
+    <div class="receipt-footer-button">
+      <ion-button
+        class="btn-back"
+        mode="ios"
+        expand="block"
+        [routerLink]="['/home']"
+      >
+        Kembali Ke 'E-Resit'
+      </ion-button>
+    </div>
   </div>
-
-
-  <ion-button class="btn-home"  mode="ios" expand="block" [routerLink]="['/home']">Laman Utama / Homepage</ion-button>
-  
- 
-
-
-
-</div>
-  
- 
-  
 </ion-content>

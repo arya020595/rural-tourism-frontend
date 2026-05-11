@@ -67,7 +67,8 @@ export class HomePage implements OnInit {
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
   }
 
   onMenuItemTap(item: MenuItem): void {

@@ -26,6 +26,8 @@
               type="button"
               class="icon-btn edit"
               aria-label="Edit booking"
+              [disabled]="booking.status !== 'pending'"
+              (click)="onEditBooking(booking)"
             >
               <ion-icon name="create"></ion-icon>
             </button>
@@ -45,10 +47,17 @@
         <td>
           <span
             class="status-pill"
-            [class.paid]="booking.status === 'Paid'"
-            [class.pending]="booking.status !== 'Paid'"
+            [class.paid]="booking.status === 'paid'"
+            [class.pending]="booking.status === 'pending'"
+            [class.cancelled]="booking.status === 'cancelled'"
           >
-            {{ booking.status === "Paid" ? "Paid" : "Booked" }}
+            {{
+              booking.status === "paid"
+                ? "Paid"
+                : booking.status === "cancelled"
+                  ? "Cancelled"
+                  : "Pending"
+            }}
           </span>
         </td>
       </tr>
@@ -59,19 +68,44 @@
 <div class="table-footer">
   <div class="entries-control">
     <span>Show</span>
-    <select>
-      <option selected>10</option>
+    <select [value]="pageSize" disabled>
+      <option [value]="10">10</option>
     </select>
     <span>entries</span>
   </div>
 
   <div class="entries-summary">
-    Showing 1 to 10 out of {{ bookings.length }} entries
+    Showing {{ startEntry }} to {{ endEntry }} out of
+    {{ totalBookings }} entries
   </div>
 
   <div class="pagination">
-    <button type="button" class="page-btn">&laquo; Previous</button>
-    <button type="button" class="page-btn active">1</button>
-    <button type="button" class="page-btn">Next &raquo;</button>
+    <button
+      type="button"
+      class="page-btn"
+      (click)="goToPreviousPage()"
+      [disabled]="currentPage === 1"
+    >
+      &laquo; Previous
+    </button>
+    <div class="page-number-group">
+      <button
+        type="button"
+        class="page-btn"
+        *ngFor="let page of pageNumbers; trackBy: trackByPage"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    <button
+      type="button"
+      class="page-btn"
+      (click)="goToNextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next &raquo;
+    </button>
   </div>
 </div>

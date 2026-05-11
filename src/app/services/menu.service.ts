@@ -10,15 +10,28 @@ export interface MenuItem {
   action?: 'logout' | 'feature-unavailable';
 }
 
-export type MenuContext = 'admin' | 'operator' | 'tourist' | 'association';
+export type MenuContext =
+  | 'superadmin'
+  | 'operator_admin'
+  | 'operator_staff'
+  | 'tourist'
+  | 'association';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MenuService {
   private readonly menuItemsByContext: Record<MenuContext, MenuItem[]> = {
-    admin: [],
-    operator: [
+    superadmin: [
+      {
+        id: 'master-data',
+        label: 'Data Induk/Master Data',
+        icon: 'list-outline',
+        route: '/master-data',
+        permission: 'product:read',
+      },
+    ],
+    operator_admin: [
       {
         id: 'company-profile',
         label: 'Profil Syarikat/Company Profile',
@@ -51,6 +64,27 @@ export class MenuService {
         icon: 'people-outline',
         route: '/users',
         permission: 'user:read',
+      },
+    ],
+    operator_staff: [
+      {
+        id: 'company-profile',
+        label: 'Profil Syarikat/Company Profile',
+        icon: 'business-outline',
+        route: '/company-profile',
+        permission: 'profile:read',
+      },
+      {
+        id: 'booking-home',
+        label: 'Booking/Tempahan',
+        icon: 'calendar-outline',
+        route: '/booking-home',
+      },
+      {
+        id: 'my-transaction',
+        label: 'My Transaksi / Transaksi',
+        icon: 'receipt-outline',
+        route: '/my-transaction',
       },
     ],
     tourist: [

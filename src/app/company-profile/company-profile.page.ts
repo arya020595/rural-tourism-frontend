@@ -191,7 +191,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
   }
 
   private loadAssociations(): void {
