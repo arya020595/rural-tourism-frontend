@@ -57,23 +57,6 @@
         </div>
       </div>
 
-      <div class="pdf-button-row">
-        <button
-          type="button"
-          class="pdf-button"
-          (click)="viewPaymentReceipt()"
-          [disabled]="isGeneratingPdf || !booking?.numericId"
-        >
-          <ion-spinner
-            *ngIf="isGeneratingPdf"
-            name="crescent"
-            class="pdf-spinner"
-          ></ion-spinner>
-          <ion-icon *ngIf="!isGeneratingPdf" name="document-text-outline"></ion-icon>
-          <span>{{ isGeneratingPdf ? 'Menjana PDF...' : 'Menjana PDF/Generate PDF' }}</span>
-        </button>
-      </div>
-
       <ng-container *ngIf="booking; else noBookingTemplate">
         <div
           class="booking-form view-mode"
@@ -86,8 +69,14 @@
                 *ngIf="booking?.status !== 'cancelled'"
                 type="button"
                 class="pdf-button"
-                (click)="generatePdf()"
+                (click)="viewPaymentReceipt()"
+                [disabled]="isGeneratingPdf || !booking.numericId"
               >
+                <ion-spinner
+                  *ngIf="isGeneratingPdf"
+                  name="crescent"
+                  class="pdf-spinner"
+                ></ion-spinner>
                 <ion-icon name="document-text-outline"></ion-icon>
                 <span>Manjana PDF/Generate PDF</span>
               </button>

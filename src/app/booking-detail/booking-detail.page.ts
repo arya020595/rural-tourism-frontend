@@ -93,23 +93,27 @@ export class BookingDetailPage implements OnInit {
           text: 'Yes, Cancel It',
           handler: async () => {
             await this.loadingService.show('Cancelling booking...');
-            this.bookingService.cancelBooking(String(this.booking!.id)).subscribe({
-              next: async () => {
-                this.booking = {
-                  ...this.booking!,
-                  status: 'cancelled',
-                };
-                await this.loadingService.hide();
-                await this.toastService.success('Booking cancelled successfully');
-                this.goBack();
-              },
-              error: async (error) => {
-                await this.loadingService.hide();
-                await this.toastService.error(
-                  error?.error?.message || 'Failed to cancel booking',
-                );
-              },
-            });
+            this.bookingService
+              .cancelBooking(String(this.booking!.id))
+              .subscribe({
+                next: async () => {
+                  this.booking = {
+                    ...this.booking!,
+                    status: 'cancelled',
+                  };
+                  await this.loadingService.hide();
+                  await this.toastService.success(
+                    'Booking cancelled successfully',
+                  );
+                  this.goBack();
+                },
+                error: async (error) => {
+                  await this.loadingService.hide();
+                  await this.toastService.error(
+                    error?.error?.message || 'Failed to cancel booking',
+                  );
+                },
+              });
           },
         },
       ],
@@ -155,7 +159,7 @@ export class BookingDetailPage implements OnInit {
   get bookingMode(): 'view' {
     return 'view';
   }
-  
+
   get bookingType(): 'activity' | 'accommodation' | 'package' | null {
     if (!this.booking) {
       return null;
@@ -270,9 +274,13 @@ export class BookingDetailPage implements OnInit {
         : bookingType === 'package'
           ? 'Package'
           : 'Activity';
+    const numericIdValue = Number(
+      record?.numeric_id ?? record?.numericId ?? record?.id ?? undefined,
+    );
 
     return {
       id: String(record?.id || ''),
+      numericId: Number.isFinite(numericIdValue) ? numericIdValue : undefined,
       bookedDate: String(
         record?.activity_date ||
           record?.check_in_date ||
