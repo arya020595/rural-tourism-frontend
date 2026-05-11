@@ -162,9 +162,11 @@ ion-content {
   background-color: #1e3a8a;
 }
 
-    &:hover {
-      background-color: #1e3a8a;
-    }
+.pdf-button .pdf-spinner {
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+}
 
 .pdf-button:disabled {
   background-color: #6b8cda;
