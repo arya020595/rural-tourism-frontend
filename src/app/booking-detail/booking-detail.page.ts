@@ -7,9 +7,13 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
-import { BookingService } from '../services/booking.service';
-import { MenuItem, MenuService } from '../services/menu.service';
+import { firstValueFrom } from 'rxjs';
 import { BookingDetail } from '../booking-home/booking-home.models';
+import { BookingStateService } from '../services/booking-state.service';
+import { BookingService } from '../services/booking.service';
+import { LoadingService } from '../services/loading.service';
+import { MenuItem, MenuService } from '../services/menu.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-booking-detail',
@@ -20,6 +24,7 @@ export class BookingDetailPage implements OnInit {
   user: any = null;
   menuItems: MenuItem[] = [];
   booking: BookingDetail | null = null;
+  isGeneratingPdf = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -28,12 +33,22 @@ export class BookingDetailPage implements OnInit {
     private menuService: MenuService,
     private authService: AuthService,
     private bookingService: BookingService,
-    private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController,
-    private toastCtrl: ToastController,
-  ) {}
+    private bookingStateService: BookingStateService,
+    private loadingService: LoadingService,
+    private toastService: ToastService,
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras?.state?.['booking']) {
+      this.booking = navigation.extras.state['booking'];
+    }
+  }
 
   ngOnInit(): void {
+    // Fall back to BookingStateService if router navigation state was lost
+    // (common in Ionic lazy-loaded pages)
+    if (!this.booking) {
+      this.booking = this.bookingStateService.get();
+    }
     this.loadUser();
     this.loadBooking();
   }
@@ -59,59 +74,6 @@ export class BookingDetailPage implements OnInit {
     this.router.navigate(['/booking-home']);
   }
 
-  cancelBooking(): void {
-    if (!this.booking) {
-      return;
-    }
-
-    this.alertCtrl
-      .create({
-        header: 'Cancel Booking',
-        message: 'Are you sure you want to cancel this booking?',
-        buttons: [
-          {
-            text: 'No',
-            role: 'cancel',
-          },
-          {
-            text: 'Yes, Cancel It',
-            handler: async () => {
-              const loading = await this.loadingCtrl.create({
-                message: 'Cancelling booking...',
-              });
-              await loading.present();
-
-              this.bookingService
-                .cancelBooking(String(this.booking!.id))
-                .subscribe({
-                  next: async (response) => {
-                    await loading.dismiss();
-                    const toast = await this.toastCtrl.create({
-                      message: 'Booking cancelled successfully',
-                      duration: 2000,
-                      color: 'success',
-                    });
-                    await toast.present();
-                    this.goBack();
-                  },
-                  error: async (error) => {
-                    await loading.dismiss();
-                    const toast = await this.toastCtrl.create({
-                      message:
-                        error?.error?.message || 'Failed to cancel booking',
-                      duration: 2000,
-                      color: 'danger',
-                    });
-                    await toast.present();
-                  },
-                });
-            },
-          },
-        ],
-      })
-      .then((alert) => alert.present());
-  }
-
   editBooking(): void {
     if (!this.booking || this.booking.status !== 'pending') {
       return;
@@ -119,42 +81,6 @@ export class BookingDetailPage implements OnInit {
 
     this.router.navigate(['/booking-home/edit', this.booking.id], {
       state: { booking: this.booking },
-    });
-  }
-
-  async viewPaymentReceipt(): Promise<void> {
-    if (!this.booking) {
-      return;
-    }
-
-    const loading = await this.loadingCtrl.create({
-      message: 'Processing payment...',
-    });
-    await loading.present();
-
-    this.bookingService.markBookingAsPaid(String(this.booking.id)).subscribe({
-      next: async (response) => {
-        await loading.dismiss();
-        const updatedBooking = response?.data ?? response ?? this.booking;
-        this.booking = {
-          ...this.booking!,
-          status: 'paid',
-        };
-
-        const targetRoute = this.getReceiptRouteForBooking();
-        await this.router.navigate([targetRoute, this.booking.id], {
-          state: { booking: updatedBooking },
-        });
-      },
-      error: async (error) => {
-        await loading.dismiss();
-        const toast = await this.toastCtrl.create({
-          message: error?.error?.message || 'Failed to process payment',
-          duration: 2000,
-          color: 'danger',
-        });
-        await toast.present();
-      },
     });
   }
 
@@ -185,7 +111,7 @@ export class BookingDetailPage implements OnInit {
   get bookingMode(): 'view' {
     return 'view';
   }
-
+  
   get bookingType(): 'activity' | 'accommodation' | 'package' | null {
     if (!this.booking) {
       return null;
@@ -209,6 +135,42 @@ export class BookingDetailPage implements OnInit {
         return '/receipt-package';
       default:
         return '/receipt-activity';
+    }
+  }
+
+  async viewPaymentReceipt(): Promise<void> {
+    if (this.isGeneratingPdf) {
+      return;
+    }
+    if (!this.booking?.numericId) {
+      this.toastService.error('PDF receipt is not available for this booking.');
+      return;
+    }
+
+    this.isGeneratingPdf = true;
+    try {
+      await this.loadingService.show('Menjana PDF / Generating PDF...');
+      const blob = await firstValueFrom(
+        this.bookingService.downloadBookingPdf(this.booking.numericId),
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `booking-${this.booking.id ?? this.booking.numericId}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(anchor);
+      }, 100);
+    } catch (err) {
+      console.error('Failed to download booking PDF:', err);
+      this.toastService.error(
+        'Failed to download the booking PDF. Please try again.',
+      );
+    } finally {
+      await this.loadingService.hide();
+      this.isGeneratingPdf = false;
     }
   }
 
