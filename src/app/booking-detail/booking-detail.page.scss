@@ -162,7 +162,6 @@ ion-content {
   background-color: #1e3a8a;
 }
 
-// Remove PDF button from title-actions since it's now in pdf-button-row
 .title-actions .pdf-button {
   display: none;
 }
@@ -174,7 +173,6 @@ ion-content {
   }
 }
 
-// Greyed out section styling for view-only mode
 .disabled-section {
   input,
   select {
@@ -231,7 +229,6 @@ ion-content {
   }
 }
 
-// Deep selector for component-scoped styles
 ::ng-deep .disabled-section {
   input,
   select {
@@ -272,7 +269,6 @@ ion-content {
     background: #e8e8e8 !important;
     border-color: #bbb !important;
   }
-
 }
 
 .no-data-message {
@@ -287,7 +283,6 @@ ion-content {
   }
 }
 
-// Readonly input styling (for Booked status or normal view)
 .booking-form:not(.disabled-section) .field input[readonly],
 .booking-form:not(.disabled-section) .field select[readonly] {
   background-color: #f7f7f7;
@@ -296,14 +291,12 @@ ion-content {
   border: 1px solid #c9c9c9;
 }
 
-// Required field asterisk
 .required {
   color: #f31212;
   font-weight: bold;
   margin-left: 2px;
 }
 
-// Action rows
 .action-row {
   display: grid;
   gap: 14px 20px;
@@ -313,7 +306,6 @@ ion-content {
   border-top: 1px solid #dadada;
 }
 
-// 3-button layout (for Pending/Booked status)
 .action-row.action-row-three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 
@@ -328,7 +320,6 @@ ion-content {
   }
 }
 
-// Single centered button layout (for Paid status)
 .action-row.action-row-single-center {
   grid-template-columns: 1fr;
   display: flex;
@@ -340,7 +331,6 @@ ion-content {
   }
 }
 
-// Mobile responsive
 @media (max-width: 992px) {
   .back-link,
   .title-row h1 {
