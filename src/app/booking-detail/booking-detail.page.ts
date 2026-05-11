@@ -36,6 +36,8 @@ export class BookingDetailPage implements OnInit {
     private bookingStateService: BookingStateService,
     private loadingService: LoadingService,
     private toastService: ToastService,
+    private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['booking']) {
@@ -72,6 +74,48 @@ export class BookingDetailPage implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/booking-home']);
+  }
+
+  async cancelBooking(): Promise<void> {
+    if (!this.booking) {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Cancel Booking',
+      message: 'Are you sure you want to cancel this booking?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+        },
+        {
+          text: 'Yes, Cancel It',
+          handler: async () => {
+            await this.loadingService.show('Cancelling booking...');
+            this.bookingService.cancelBooking(String(this.booking!.id)).subscribe({
+              next: async () => {
+                this.booking = {
+                  ...this.booking!,
+                  status: 'cancelled',
+                };
+                await this.loadingService.hide();
+                await this.toastService.success('Booking cancelled successfully');
+                this.goBack();
+              },
+              error: async (error) => {
+                await this.loadingService.hide();
+                await this.toastService.error(
+                  error?.error?.message || 'Failed to cancel booking',
+                );
+              },
+            });
+          },
+        },
+      ],
+    });
+
+    await alert.present();
   }
 
   editBooking(): void {
