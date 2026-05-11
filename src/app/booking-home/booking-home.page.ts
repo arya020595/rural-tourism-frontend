@@ -6,6 +6,7 @@ import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { BookingRow, BookingDetail } from './booking-home.models';
 import { firstValueFrom } from 'rxjs';
+import { BookingStateService } from '../services/booking-state.service';
 
 interface CalendarCell {
   key: string | null;
@@ -49,6 +50,7 @@ export class BookingHomePage implements OnInit {
     private bookingService: BookingService,
     private router: Router,
     private navCtrl: NavController,
+    private bookingStateService: BookingStateService,
   ) {}
 
   ngOnInit(): void {
@@ -96,6 +98,7 @@ export class BookingHomePage implements OnInit {
   }
 
   viewBookingDetails(booking: BookingDetail): void {
+    this.bookingStateService.set(booking);
     this.router.navigate(['/booking-home/detail', booking.id], {
       state: { booking },
     });

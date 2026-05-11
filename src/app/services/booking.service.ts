@@ -178,4 +178,12 @@ export class BookingService {
       {},
     );
   }
+
+  // ── PDF ──────────────────────────────────────────────────────────
+
+  downloadBookingPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/bookings/${id}/pdf`, {
+      responseType: 'blob',
+    });
+  }
 }
