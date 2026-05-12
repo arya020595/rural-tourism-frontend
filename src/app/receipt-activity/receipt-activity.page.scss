@@ -12,6 +12,42 @@ ion-content {
   justify-content: center;
 }
 
+/* Match receipt module PDF sizing for capture clone */
+.receipt-capture-clone {
+  width: 520px !important;
+  max-width: 520px !important;
+}
+
+.receipt-capture-clone .receipt-card {
+  width: 520px !important;
+  padding: 22px 20px 18px !important;
+}
+
+.receipt-capture-clone .logo {
+  height: 44px !important;
+  max-width: 140px !important;
+}
+
+.receipt-capture-clone .receipt-date {
+  font-size: 14px !important;
+}
+
+.receipt-capture-clone .row-value {
+  font-size: 15px !important;
+}
+
+.receipt-capture-clone .issued-name {
+  font-size: 17px !important;
+}
+
+.receipt-capture-clone .issued-email {
+  font-size: 12px !important;
+}
+
+.receipt-capture-clone .total-amount {
+  font-size: 20px !important;
+}
+
 .receipt-card-wrapper {
   width: 100%;
   max-width: 1120px;
@@ -41,8 +77,9 @@ ion-content {
 
 .logo {
   object-fit: contain;
-  width: 90px;
-  height: 44px;
+  width: auto;
+  height: 52px;
+  max-width: 160px;
   display: block;
 }
 
@@ -53,7 +90,7 @@ ion-content {
 }
 
 .receipt-date {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   color: #222;
   text-transform: uppercase;
@@ -227,12 +264,13 @@ qrcode {
   }
 
   .logo {
-    width: 76px;
-    height: 36px;
+    width: auto;
+    height: 44px;
+    max-width: 140px;
   }
 
   .receipt-date {
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 0;
   }
 

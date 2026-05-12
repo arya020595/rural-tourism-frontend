@@ -68,7 +68,15 @@
         </button>
       </div>
 
-      <div class="card-grid">
+      <div *ngIf="isLoading" class="loading-state">
+        Loading transactions...
+      </div>
+
+      <div *ngIf="!isLoading && visibleTransactions.length === 0" class="empty-state">
+        No paid transactions found.
+      </div>
+
+      <div class="card-grid" *ngIf="!isLoading && visibleTransactions.length > 0">
         <article class="transaction-card" *ngFor="let trx of visibleTransactions">
           <h3>{{ trx.title }}</h3>
 
@@ -76,14 +84,14 @@
             <div class="trx-meta">
               <p><strong>Name:</strong> {{ trx.name }}</p>
               <p><strong>Date:</strong> {{ trx.date }}</p>
-              <p><strong>Time:</strong> {{ trx.time }}</p>
+              <p *ngIf="trx.time"><strong>Time:</strong> {{ trx.time }}</p>
+              <p *ngIf="trx.checkInDate"><strong>Check-in:</strong> {{ trx.checkInDate }}</p>
+              <p *ngIf="trx.checkOutDate"><strong>Check-out:</strong> {{ trx.checkOutDate }}</p>
               <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
               <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
               <p class="status-line">
                 <strong>Status:</strong>
-                <span class="status-pill" [class.paid]="getStatusClass(trx.status) === 'paid'" [class.void]="getStatusClass(trx.status) === 'void'" [class.booked]="getStatusClass(trx.status) === 'booked'">
-                  {{ trx.status }}
-                </span>
+                <span class="status-pill paid">Paid</span>
               </p>
             </div>
 
@@ -95,28 +103,37 @@
         </article>
       </div>
 
-      <div class="table-footer">
+      <div class="table-footer" *ngIf="!isLoading && filteredTransactions.length > 0">
         <div class="entries-control">
           <span>Show</span>
-          <select>
-            <option selected>10</option>
+          <select [value]="pageSize" disabled>
+            <option [value]="6">6</option>
           </select>
           <span>entries</span>
         </div>
 
         <div class="entries-summary">
-          Showing 1 to {{ visibleTransactions.length }} out of {{ visibleTransactions.length }} entries ({{ activeTabLabel }})
+          Showing {{ startEntry }} to {{ endEntry }} out of {{ filteredTransactions.length }} entries ({{ activeTabLabel }})
         </div>
 
         <div class="pagination">
-          <button type="button" class="page-btn">&laquo; Previous</button>
-          <button type="button" class="page-btn active">1</button>
-          <button type="button" class="page-btn">2</button>
-          <button type="button" class="page-btn">3</button>
-          <button type="button" class="page-btn">...</button>
-          <button type="button" class="page-btn">19</button>
-          <button type="button" class="page-btn">20</button>
-          <button type="button" class="page-btn">Next &raquo;</button>
+          <button type="button" class="page-btn" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+            &laquo; Previous
+          </button>
+          <div class="page-number-group">
+            <button
+              type="button"
+              class="page-btn"
+              *ngFor="let page of pageNumbers"
+              [class.active]="page === currentPage"
+              (click)="changePage(page)"
+            >
+              {{ page }}
+            </button>
+          </div>
+          <button type="button" class="page-btn" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            Next &raquo;
+          </button>
         </div>
       </div>
     </div>

@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
+import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
-import { MockTransaction, TransactionTab } from './my-transaction.models';
+import { Transaction, TransactionTab } from './my-transaction.models';
 
 @Component({
   selector: 'app-my-transaction',
@@ -17,130 +18,30 @@ export class MyTransactionPage implements OnInit {
   selectedTab: TransactionTab = 'activity';
   selectedDateIso: string = this.toIsoDate(new Date());
   isDateModalOpen = false;
+  isLoading = false;
 
-  readonly defaultFetchSize = 3;
-  readonly apiPathByTab: Record<TransactionTab, string> = {
-    activity: '/operator/transactions/activity',
-    accommodation: '/operator/transactions/accommodation',
-    package: '/operator/transactions/package',
-  };
+  readonly pageSize = 6;
+  currentPage = 1;
 
-  private readonly mockTransactionsByTab: Record<
-    TransactionTab,
-    MockTransaction[]
-  > = {
-    activity: [
-      {
-        id: 'ACT-001',
-        title: 'Mount Kinabalu Climbing',
-        name: 'Muhammad Amiirul Hamizan Bin Haji Alimarjafri',
-        date: 'Jan 27, 2026',
-        time: '07:00 - 08:00',
-        pax: 1,
-        totalPrice: 40,
-        status: 'Paid',
-      },
-      {
-        id: 'ACT-002',
-        title: 'Kiulu River Tubing',
-        name: 'Siti Nur Aina',
-        date: 'Jan 28, 2026',
-        time: '09:00 - 10:00',
-        pax: 2,
-        totalPrice: 80,
-        status: 'Booked',
-      },
-      {
-        id: 'ACT-003',
-        title: 'Jungle Trekking Experience',
-        name: 'Aiman Hakim',
-        date: 'Jan 30, 2026',
-        time: '08:30 - 11:30',
-        pax: 4,
-        totalPrice: 220,
-        status: 'Paid',
-      },
-    ],
-    accommodation: [
-      {
-        id: 'ACC-001',
-        title: 'Kiulu Water Rafting Stay',
-        name: 'Hanani Rasyiqah',
-        date: 'Jan 27, 2026',
-        time: '10:00 - 11:00',
-        pax: 5,
-        totalPrice: 120,
-        status: 'Paid',
-      },
-      {
-        id: 'ACC-002',
-        title: 'Ranau Highland Homestay',
-        name: 'Ahmad Fakhrul',
-        date: 'Jan 28, 2026',
-        time: '14:00 - 15:00',
-        pax: 3,
-        totalPrice: 150,
-        status: 'Booked',
-      },
-      {
-        id: 'ACC-003',
-        title: 'Kiulu Farmstay Chalet',
-        name: 'Nur Atikah',
-        date: 'Jan 29, 2026',
-        time: '13:00 - 14:00',
-        pax: 2,
-        totalPrice: 95,
-        status: 'Paid',
-      },
-    ],
-    package: [
-      {
-        id: 'PKG-001',
-        title: 'Firefly Watching',
-        name: 'Azri Nizam',
-        date: 'Jan 29, 2026',
-        time: '12:00 - 13:00',
-        pax: 5,
-        totalPrice: 120,
-        status: 'Void',
-      },
-      {
-        id: 'PKG-002',
-        title: 'Kiulu Water Rafting & Hiking',
-        name: 'Rina Mardhiah',
-        date: 'Jan 30, 2026',
-        time: '10:00 - 16:00',
-        pax: 4,
-        totalPrice: 320,
-        status: 'Paid',
-      },
-      {
-        id: 'PKG-003',
-        title: 'Cultural Village + ATV Adventure',
-        name: 'Syafiq Adli',
-        date: 'Jan 31, 2026',
-        time: '08:00 - 17:00',
-        pax: 6,
-        totalPrice: 560,
-        status: 'Booked',
-      },
-    ],
-  };
+  private allTransactions: Transaction[] = [];
 
   constructor(
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
+    private bookingService: BookingService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.loadUser();
+    this.loadTransactions();
   }
 
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'my-transaction-menu');
     this.loadUser();
+    this.loadTransactions();
   }
 
   onMenuItemTap(_item: MenuItem): void {
@@ -156,8 +57,7 @@ export class MyTransactionPage implements OnInit {
 
   selectTab(tab: TransactionTab): void {
     this.selectedTab = tab;
-    // TODO: replace with API call per tab using this.apiPathByTab[tab]
-    // this.fetchTransactionsByTab(tab, 1, this.defaultFetchSize);
+    this.currentPage = 1;
   }
 
   openDatePicker(): void {
@@ -170,73 +70,151 @@ export class MyTransactionPage implements OnInit {
 
   applyDateSelection(): void {
     this.isDateModalOpen = false;
-    // TODO: fetch with selected date filter once API is wired.
-    // this.fetchTransactionsByTab(this.selectedTab, 1, this.defaultFetchSize);
+    this.currentPage = 1;
   }
 
   onResetDate(): void {
     this.selectedDateIso = this.toIsoDate(new Date());
-    // TODO: fetch with today's date once API is wired.
-    // this.fetchTransactionsByTab(this.selectedTab, 1, this.defaultFetchSize);
+    this.currentPage = 1;
   }
 
   get selectedDateLabel(): string {
     if (this.selectedDateIso === this.toIsoDate(new Date())) {
       return 'Select Date';
     }
-
     return this.formatDateLabel(this.selectedDateIso);
   }
 
-  get visibleTransactions(): MockTransaction[] {
-    return this.mockTransactionsByTab[this.selectedTab].slice(
-      0,
-      this.defaultFetchSize,
+  get filteredTransactions(): Transaction[] {
+    let list = this.allTransactions.filter(
+      (t) => t.bookingType === this.selectedTab,
     );
+
+    if (this.selectedDateIso !== this.toIsoDate(new Date())) {
+      list = list.filter((t) => t.date.slice(0, 10) === this.selectedDateIso);
+    }
+
+    return list;
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredTransactions.length / this.pageSize));
+  }
+
+  get visibleTransactions(): Transaction[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredTransactions.slice(start, start + this.pageSize);
+  }
+
+  get startEntry(): number {
+    if (this.filteredTransactions.length === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endEntry(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredTransactions.length);
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   get activeTabLabel(): string {
     switch (this.selectedTab) {
-      case 'activity':
-        return 'Activity';
-      case 'accommodation':
-        return 'Accommodation';
-      default:
-        return 'Package';
+      case 'activity': return 'Activity';
+      case 'accommodation': return 'Accommodation';
+      default: return 'Package';
     }
   }
 
-  viewReceipt(transaction: MockTransaction): void {
-    this.router.navigate(['/my-transaction/receipt'], {
-      state: {
-        transaction,
-        tab: this.selectedTab,
+  changePage(page: number): void {
+    const next = Math.min(Math.max(1, page), this.totalPages);
+    if (next !== this.currentPage) {
+      this.currentPage = next;
+    }
+  }
+
+  viewReceipt(transaction: Transaction): void {
+    const id = transaction.numericId ?? Number(transaction.id);
+    const route = this.getReceiptRoute(transaction.bookingType);
+    // Pass the raw API response so receipt pages can map all fields correctly
+    this.router.navigate([route, id], { state: { booking: transaction._raw ?? transaction } });
+  }
+
+  private getReceiptRoute(type: TransactionTab): string {
+    switch (type) {
+      case 'accommodation': return '/receipt';
+      case 'package': return '/receipt-package';
+      default: return '/receipt-activity';
+    }
+  }
+
+  private loadTransactions(): void {
+    this.isLoading = true;
+
+    let operatorId: string | undefined;
+    try {
+      const raw = JSON.parse(localStorage.getItem('user') || 'null');
+      operatorId = String(
+        this.authService.currentUser?.id ?? raw?.id ?? ''
+      ) || undefined;
+    } catch { /* ignore */ }
+
+    this.bookingService.getBookings({ status: 'paid', per_page: 1000, user_id: operatorId }).subscribe({
+      next: (res: any) => {
+        const raw: any[] = Array.isArray(res?.data) ? res.data : [];
+        this.allTransactions = raw.map((b) => this.mapToTransaction(b));
+        this.currentPage = 1;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('[MyTransaction] API error:', err);
+        this.allTransactions = [];
+        this.isLoading = false;
       },
     });
   }
 
-  getStatusClass(status: MockTransaction['status']): string {
-    switch (status) {
-      case 'Paid':
-        return 'paid';
-      case 'Void':
-        return 'void';
-      default:
-        return 'booked';
-    }
+  private mapToTransaction(b: any): Transaction {
+    const bookingType = String(b.booking_type || '').toLowerCase() as TransactionTab;
+    const validType: TransactionTab =
+      bookingType === 'accommodation' ? 'accommodation'
+      : bookingType === 'package' ? 'package'
+      : 'activity';
+
+    const date = (
+      b.activity_date ||
+      b.check_in_date ||
+      b.receipt_created_at ||
+      b.created_at ||
+      ''
+    ).slice(0, 10);
+
+    const pax = Number(b.no_of_pax_domestik || 0) + Number(b.no_of_pax_antarbangsa || 0);
+
+    return {
+      id: b.id,
+      title: b.product_name || 'Booking',
+      name: b.tourist_full_name || '',
+      date,
+      time: b.activity_date ? this.extractTime(b.activity_date) : undefined,
+      pax,
+      totalPrice: Number(b.total_price || 0),
+      status: 'Paid',
+      bookingType: validType,
+      numericId: Number(b.id),
+      checkInDate: validType === 'accommodation' ? (b.check_in_date || '').slice(0, 10) : undefined,
+      checkOutDate: validType === 'accommodation' ? (b.check_out_date || '').slice(0, 10) : undefined,
+      _raw: b,
+    };
   }
 
-  private fetchTransactionsByTab(
-    tab: TransactionTab,
-    page: number,
-    limit: number,
-  ): void {
-    // Placeholder for future API integration.
-    // Expected request shape:
-    // GET `${this.apiPathByTab[tab]}?page=${page}&limit=${limit}`
-    void tab;
-    void page;
-    void limit;
+  private extractTime(dateStr: string): string | undefined {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return undefined;
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    return `${h}:${m}`;
   }
 
   private loadUser(): void {
@@ -257,10 +235,7 @@ export class MyTransactionPage implements OnInit {
 
   private formatDateLabel(isoDate: string): string {
     const parsed = new Date(isoDate);
-    if (Number.isNaN(parsed.getTime())) {
-      return isoDate;
-    }
-
+    if (Number.isNaN(parsed.getTime())) return isoDate;
     return parsed.toLocaleDateString('en-US', {
       month: 'short',
       day: '2-digit',

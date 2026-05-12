@@ -53,7 +53,7 @@ ion-content {
   display: block !important;
 }
 .receipt-capture-clone .row-value { font-size: 15px !important; }
-.receipt-capture-clone .receipt-date { font-size: 16px !important; }
+.receipt-capture-clone .receipt-date { font-size: 14px !important; }
 .receipt-capture-clone .total-amount { font-size: 20px !important; }
 
 .receipt-card-wrapper {
@@ -85,8 +85,9 @@ ion-content {
 
 .logo {
   object-fit: contain;
-  width: 90px;
-  height: 44px;
+  width: auto;
+  height: 52px;
+  max-width: 160px;
   display: block;
 }
 
@@ -97,7 +98,7 @@ ion-content {
 }
 
 .receipt-date {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   color: #222;
   text-transform: uppercase;
@@ -293,12 +294,13 @@ qrcode {
   }
 
   .logo {
-    width: 76px;
-    height: 36px;
+    width: auto;
+    height: 44px;
+    max-width: 140px;
   }
 
   .receipt-date {
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 0;
   }
 

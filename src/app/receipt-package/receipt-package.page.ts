@@ -10,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import html2canvas from 'html2canvas'; // Import html2canvas
 import { environment } from '../../environments/environment';
 import { BookingService } from '../services/booking.service';
+import { CompanyService } from '../services/company.service';
 import { FormService } from '../services/form.service';
 import { UserService } from '../services/user.service';
 
@@ -28,6 +29,8 @@ export class ReceiptPackagePage implements OnInit {
   localAPI = 'http://localhost:3000';
   uid: any; // Store the user ID
   user: any; // Object to hold user data
+  companyProfile: any = null;
+  private loadedCompanyId: number | null = null;
   packageDescArray: string[] = [];
   totalRM: number = 0;
   private userReady = false;
@@ -39,6 +42,7 @@ export class ReceiptPackagePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private userService: UserService,
     private bookingService: BookingService,
+    private companyService: CompanyService,
     private formService: FormService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -71,15 +75,11 @@ export class ReceiptPackagePage implements OnInit {
   loadUser() {
     if (this.uid) {
       this.userService.getUserByID(this.uid).subscribe(
-        (data) => {
-          this.user = data;
+        (response) => {
+          this.user = this.unwrapPayload(response);
+          this.loadCompanyProfile(this.user?.company_id);
           this.userReady = true;
-          if (this.receipt?.operator) {
-            this.receipt.operator.user_email =
-              this.user?.user_email || this.receipt.operator.user_email || '';
-          }
           this.tryAutoGenerateReceipt();
-          // console.log(data);
         },
         (error) => {
           console.log(error);
@@ -99,7 +99,11 @@ export class ReceiptPackagePage implements OnInit {
     if (this.receiptId) {
       const stateBooking = history.state?.['booking'] ?? null;
       if (stateBooking) {
-        this.applyBookingReceipt(stateBooking);
+        this.receipt = this.mapBookingToReceipt(stateBooking);
+        this.loadCompanyProfile(this.receipt?.company_id);
+        this.syncPackageSummary();
+        this.receiptReady = true;
+        this.tryAutoGenerateReceipt();
         return;
       }
 
@@ -107,7 +111,11 @@ export class ReceiptPackagePage implements OnInit {
         (response) => {
           const data = response.data || response;
           if (data?.booking_type) {
-            this.applyBookingReceipt(data);
+            this.receipt = this.mapBookingToReceipt(data);
+            this.loadCompanyProfile(this.receipt?.company_id);
+            this.syncPackageSummary();
+            this.receiptReady = true;
+            this.tryAutoGenerateReceipt();
             return;
           }
 
@@ -152,11 +160,29 @@ export class ReceiptPackagePage implements OnInit {
   }
 
   // Method to generate the receipt PDF
-  generateReceipt() {
-    const receiptElement = this.receiptContent.nativeElement; // Get the receipt content element
+  async generateReceipt() {
+    const receiptElement = this.receiptContent?.nativeElement as
+      | HTMLElement
+      | undefined;
+    if (!receiptElement) {
+      alert('Error Generating PDF');
+      console.error('Receipt element not found for capture');
+      return;
+    }
 
-    // Use html2canvas to capture a screenshot of the element
-    html2canvas(receiptElement, {
+    const captureElement = this.createCaptureClone(receiptElement);
+    document.body.appendChild(captureElement);
+
+    try {
+      await this.waitForImages(captureElement);
+    } catch (waitError) {
+      console.warn(
+        'Image wait timed out, continuing capture anyway',
+        waitError,
+      );
+    }
+
+    html2canvas(captureElement, {
       ignoreElements: (element) => {
         const tag = String(element?.tagName || '').toLowerCase();
         return (
@@ -173,42 +199,51 @@ export class ReceiptPackagePage implements OnInit {
       allowTaint: true,
       backgroundColor: '#ffffff',
       scale: 2,
+      imageTimeout: 15000,
     })
+      .finally(() => {
+        captureElement.remove();
+      })
       .then((canvas) => {
         canvas.toBlob((blob) => {
           if (blob) {
-            // Prepare FormData to send the image file to the backend
             const formData = new FormData();
-            formData.append('receiptImage', blob, 'receipt.png'); // Append Blob as file
-            formData.append('receiptId', this.receiptId); // append receipt id as req
+            formData.append('receiptImage', blob, 'receipt.png');
+            formData.append('receiptId', this.receiptId);
 
-            // Send the formData to the backend API to generate the PDF
             this.formService.generatePdfFromImage(formData).subscribe(
               (response: any) => {
                 if (response.success) {
-                  this.pdfUrl = response.fileUrl; // Save the returned PDF URL
-                  this.generateQR(); // generate the QR Code
+                  this.pdfUrl = response.fileUrl;
+                  this.generateQR();
                   console.log('PDF URL:', this.pdfUrl);
-                  // give the pdf url here
                 } else {
                   alert('Error Generating PDF');
-                  console.error('Failed to generate PDF');
+                  console.error('Failed to generate PDF', response);
                 }
               },
               (error) => {
                 alert('Error Generating PDF');
-                console.error('Error generating PDF', error);
+                console.error('Error generating PDF', {
+                  status: error?.status,
+                  message: error?.message,
+                  error: error?.error,
+                });
               },
             );
           } else {
             alert('Error Generating PDF');
             console.error('Failed to capture canvas as Blob');
           }
-        }, 'image/png'); // Convert the canvas to a Blob in PNG format
+        }, 'image/png');
       })
       .catch((error) => {
         alert('Error Generating PDF');
-        console.error('Error capturing receipt:', error);
+        console.error('Error capturing receipt:', {
+          message: error?.message,
+          stack: error?.stack,
+          error,
+        });
       });
   }
 
@@ -217,6 +252,8 @@ export class ReceiptPackagePage implements OnInit {
       (response) => {
         const data = response.data || response;
         this.receipt = data;
+        this.receipt.customer_type =
+          this.receipt.customer_type || this.receipt.customerType || 'tourist';
         this.packageDescArray = [];
         this.totalRM = 0;
         console.log('Receipt data:', this.receipt);
@@ -260,15 +297,20 @@ export class ReceiptPackagePage implements OnInit {
     );
   }
 
-  private applyBookingReceipt(record: any): void {
+  private mapBookingToReceipt(record: any): any {
     const packageItems = Array.isArray(record?.package_companies)
       ? record.package_companies
       : [];
 
+    const totalPax =
+      Number(record?.total_pax || 0) ||
+      Number(record?.domesticPax || record?.no_of_pax_domestik || 0) +
+        Number(record?.internationalPax || record?.no_of_pax_antarbangsa || 0);
+
     const receiptId =
       record?.numericId ?? record?.id ?? this.receiptId ?? undefined;
 
-    this.receipt = {
+    return {
       receipt_id: String(receiptId || ''),
       createdAt:
         record?.receipt_created_at ||
@@ -276,6 +318,34 @@ export class ReceiptPackagePage implements OnInit {
         record?.created_at ||
         record?.updatedAt ||
         record?.createdAt,
+      company_id: Number(record?.company_id ?? record?.companyId ?? 0) || null,
+      customer_type: String(
+        record?.customer_type || record?.customerType || 'tourist',
+      )
+        .toLowerCase()
+        .trim(),
+      guest_name: String(
+        record?.tourist_full_name ||
+          record?.fullName ||
+          record?.tourist_name ||
+          record?.user_fullname ||
+          record?.userFullname ||
+          '',
+      ),
+      pax: totalPax,
+      status: String(record?.status || 'paid'),
+      total_rm: Number(record?.total_price ?? record?.totalAmount ?? 0),
+      package_items: packageItems.map((item: any, index: number) => ({
+        description: String(
+          item?.description ||
+            item?.service_name ||
+            item?.serviceName ||
+            item?.referral_company ||
+            item?.referee_company ||
+            `Item ${index + 1}`,
+        ),
+        per_price: Number(item?.per_price || item?.perPrice || 0),
+      })),
       operator: {
         business_name: String(
           record?.company_name ||
@@ -298,23 +368,180 @@ export class ReceiptPackagePage implements OnInit {
             '',
         ),
       },
-      package: packageItems.map((item: any) => ({
-        packageDesc: String(item?.description || item?.referral_company || ''),
-        total_rm: Number(item?.per_price || 0),
-      })),
     };
+  }
 
-    this.packageDescArray = packageItems.map((item: any, index: number) =>
-      String(
-        item?.description || item?.referral_company || `Item ${index + 1}`,
-      ),
+  private syncPackageSummary(): void {
+    const items = Array.isArray(this.receipt?.package_items)
+      ? this.receipt.package_items
+      : [];
+
+    this.packageDescArray = items.map((item: any, index: number) =>
+      String(item?.description || `Item ${index + 1}`),
     );
-    this.totalRM = packageItems.reduce(
-      (sum: number, item: any) => sum + Number(item?.per_price || 0),
-      0,
+    const bookingTotal = Number(this.receipt?.total_rm ?? 0);
+    this.totalRM =
+      Number.isFinite(bookingTotal) && bookingTotal > 0
+        ? bookingTotal
+        : items.reduce(
+            (sum: number, item: any) => sum + Number(item?.per_price || 0),
+            0,
+          );
+  }
+
+  get customerType(): string {
+    return String(
+      this.receipt?.customer_type || this.receipt?.customerType || 'tourist',
+    )
+      .toLowerCase()
+      .trim();
+  }
+
+  get bookedByLabel(): string {
+    return this.customerType === 'company'
+      ? 'NAMA SYARIKAT/COMPANY NAME'
+      : 'DITEMPAH OLEH/BOOKED BY';
+  }
+
+  get bookedByName(): string {
+    return String(
+      this.receipt?.guest_name ||
+        this.receipt?.tourist_full_name ||
+        this.receipt?.tourist_name ||
+        'N/A',
     );
-    this.receiptReady = true;
-    this.tryAutoGenerateReceipt();
+  }
+
+  get companyName(): string {
+    return String(
+      this.companyProfile?.company_name ||
+        this.receipt?.company_name ||
+        this.user?.business_name ||
+        this.user?.company?.company_name ||
+        this.receipt?.operator?.business_name ||
+        'N/A',
+    );
+  }
+
+  get companyEmail(): string {
+    return String(
+      this.companyProfile?.email ||
+        this.user?.company?.email ||
+        this.user?.user_email ||
+        this.user?.email ||
+        this.receipt?.operator?.user_email ||
+        'N/A',
+    );
+  }
+
+  get companyLogoUrl(): string {
+    const source =
+      this.companyProfile?.operator_logo_image ||
+      this.user?.company_logo ||
+      this.user?.company?.operator_logo_image ||
+      '';
+    return this.resolveImageSource(source, '../../assets/icon/RuralT Logo.png');
+  }
+
+  private unwrapPayload(response: any): any {
+    return response?.data || response;
+  }
+
+  private loadCompanyProfile(companyId: any): void {
+    const normalizedId = Number(companyId);
+    if (!Number.isInteger(normalizedId) || normalizedId <= 0) {
+      return;
+    }
+    if (this.loadedCompanyId === normalizedId) {
+      return;
+    }
+
+    this.loadedCompanyId = normalizedId;
+    this.companyService.getCompanyById(normalizedId).subscribe(
+      (response) => {
+        this.companyProfile = this.unwrapPayload(response);
+      },
+      (error) => {
+        console.error('Error loading company profile:', error);
+      },
+    );
+  }
+
+  private resolveImageSource(source: string, fallback: string): string {
+    const value = String(source || '').trim();
+    if (!value) return fallback;
+    if (
+      value.startsWith('http://') ||
+      value.startsWith('https://') ||
+      value.startsWith('data:') ||
+      value.startsWith('blob:')
+    ) {
+      return value;
+    }
+    if (value.startsWith('/')) {
+      return `${this.testAPI}${value}`;
+    }
+    if (value.includes('/')) {
+      return `${this.testAPI}/${value.replace(/^\/+/, '')}`;
+    }
+    return `data:image/png;base64,${value}`;
+  }
+
+  private createCaptureClone(sourceElement: HTMLElement): HTMLElement {
+    const clone = sourceElement.cloneNode(true) as HTMLElement;
+    clone.classList.add('receipt-capture-clone');
+    clone.style.position = 'fixed';
+    clone.style.left = '-10000px';
+    clone.style.top = '0';
+    clone.style.width = '520px';
+    clone.style.pointerEvents = 'none';
+    clone.style.opacity = '1';
+
+    clone
+      .querySelectorAll('ion-button, qrcode, ion-header, ion-content')
+      .forEach((el) => {
+        el.remove();
+      });
+
+    clone.querySelectorAll('img').forEach((img) => {
+      const source = (img as HTMLImageElement).getAttribute('src') || '';
+      if (source) {
+        (img as HTMLImageElement).crossOrigin = 'anonymous';
+      }
+    });
+
+    const footerButton = clone.querySelector('.receipt-footer-button');
+    if (footerButton) {
+      footerButton.remove();
+    }
+
+    return clone;
+  }
+
+  private waitForImages(container: HTMLElement): Promise<void> {
+    const images = Array.from(
+      container.querySelectorAll('img'),
+    ) as HTMLImageElement[];
+    if (images.length === 0) {
+      return Promise.resolve();
+    }
+
+    return Promise.race([
+      Promise.all(
+        images.map(
+          (img) =>
+            new Promise<void>((resolve) => {
+              if (img.complete && img.naturalWidth > 0) {
+                resolve();
+                return;
+              }
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }),
+        ),
+      ).then(() => undefined),
+      new Promise<void>((resolve) => setTimeout(resolve, 5000)),
+    ]);
   }
 
   private tryAutoGenerateReceipt(): void {
