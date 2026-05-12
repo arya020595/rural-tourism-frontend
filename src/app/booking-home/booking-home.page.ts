@@ -407,7 +407,9 @@ export class BookingHomePage implements OnInit {
       packagePrice:
         type === 'Package' ? this.toNumber(record?.total_price) : undefined,
       customerType:
-        String(record?.citizenship || '').toLowerCase() === 'company'
+        String(record?.customer_type || record?.customerType || '')
+          .toLowerCase()
+          .trim() === 'company'
           ? 'company'
           : 'tourist',
       createdAt: record?.created_at || record?.createdAt,

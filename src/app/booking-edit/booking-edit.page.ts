@@ -218,7 +218,9 @@ export class BookingEditPage implements OnInit {
       packagePrice:
         type === 'Package' ? Number(record?.total_price || 0) : undefined,
       customerType:
-        String(record?.citizenship || '').toLowerCase() === 'company'
+        String(record?.customer_type || record?.customerType || '')
+          .toLowerCase()
+          .trim() === 'company'
           ? 'company'
           : 'tourist',
       createdAt: record?.created_at || record?.createdAt,
@@ -271,6 +273,7 @@ export class BookingEditPage implements OnInit {
 
     return {
       booking_type: 'activity',
+      customer_type: 'tourist',
       tourist_full_name: payload.fullName || '',
       phone_number: payload.phone || '',
       email: payload.email || '',
@@ -300,6 +303,7 @@ export class BookingEditPage implements OnInit {
 
     return {
       booking_type: 'accommodation',
+      customer_type: 'tourist',
       tourist_full_name: payload.fullName || '',
       phone_number: payload.phone || '',
       email: payload.email || '',
@@ -346,10 +350,11 @@ export class BookingEditPage implements OnInit {
 
     return {
       booking_type: 'package',
+      customer_type: payload.customerType || 'tourist',
       tourist_full_name: payload.fullName || '',
       phone_number: payload.phone || '',
       email: payload.email || '',
-      citizenship: payload.nationality || payload.customerType || 'domestic',
+      citizenship: payload.nationality || 'domestic',
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
       total_price: totalPrice,
