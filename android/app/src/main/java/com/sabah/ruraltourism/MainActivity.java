@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.sabah.ruraltourism;
 
 import com.getcapacitor.BridgeActivity;
 

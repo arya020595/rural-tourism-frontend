@@ -11,7 +11,13 @@
     "watch": "ionic build --watch --configuration development",
     "test": "ionic test",
     "lint": "ionic lint",
-    "new": "ionic generate page"
+    "new": "ionic generate page",
+    "android:build:native": "ionic build --configuration=native",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:release": "cd android && (gradlew.bat bundleRelease || ./gradlew bundleRelease)",
+    "android:apk": "cd android && (gradlew.bat assembleRelease || ./gradlew assembleRelease)",
+    "full-release": "npm run android:build:native && npm run android:sync"
   },
   "private": true,
   "dependencies": {
