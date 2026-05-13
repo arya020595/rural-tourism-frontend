@@ -1,0 +1,65 @@
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Receipt ID</th>
+        <th>Booked By</th>
+        <th>Service Name</th>
+        <th>Type</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of receipts">
+        <td class="icon-cell">
+          <ion-icon name="information-circle"></ion-icon>
+        </td>
+        <td>{{ row.receiptId }}</td>
+        <td>{{ row.bookedBy }}</td>
+        <td>{{ row.serviceName }}</td>
+        <td>{{ row.type }}</td>
+        <td>{{ row.createdAt }}</td>
+      </tr>
+      <tr *ngIf="receipts.length === 0">
+        <td colspan="6">No data available</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="table-footer">
+  <div class="entries-control">
+    <span>Show</span>
+    <select [value]="meta.per_page" (change)="onPageSizeChange($any($event.target).value)">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+    </select>
+    <span>entries</span>
+  </div>
+
+  <div class="entries-summary">
+    Showing {{ (meta.page - 1) * meta.per_page + (receipts.length ? 1 : 0) }} to
+    {{ (meta.page - 1) * meta.per_page + receipts.length }} out of {{ meta.total }} entries
+  </div>
+
+  <div class="pagination">
+    <button type="button" class="page-btn" (click)="onChangePage(meta.page - 1)">&laquo; Previous</button>
+    <ng-container *ngFor="let item of paginationItems">
+      <button
+        *ngIf="item !== '...'; else ellipsisItem"
+        type="button"
+        class="page-btn"
+        [class.active]="item === meta.page"
+        (click)="onChangePage(item)"
+      >
+        {{ item }}
+      </button>
+      <ng-template #ellipsisItem>
+        <button type="button" class="page-btn" disabled>...</button>
+      </ng-template>
+    </ng-container>
+    <button type="button" class="page-btn" (click)="onChangePage(meta.page + 1)">Next &raquo;</button>
+  </div>
+</div>

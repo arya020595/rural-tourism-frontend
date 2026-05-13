@@ -129,6 +129,8 @@ export class BookingService {
     per_page?: number;
     booking_type?: string;
     status?: string;
+    start_date?: string;
+    end_date?: string;
     user_id?: string | number;
     company_id?: string | number;
     search?: string;
@@ -149,6 +151,14 @@ export class BookingService {
 
     if (params?.status) {
       httpParams = httpParams.set('status', params.status);
+    }
+
+    if (params?.start_date) {
+      httpParams = httpParams.set('start_date', params.start_date);
+    }
+
+    if (params?.end_date) {
+      httpParams = httpParams.set('end_date', params.end_date);
     }
 
     if (params?.user_id !== undefined) {
