@@ -9,7 +9,6 @@ import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
-import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-e-receipt',
@@ -25,7 +24,6 @@ export class EReceiptPage implements OnInit {
   pendingBookingsCount: number = 0;
 
   constructor(
-    private userService: UserService,
     private bookingService: BookingService,
     private menuCtrl: MenuController,
     private router: Router,
@@ -49,31 +47,28 @@ export class EReceiptPage implements OnInit {
   }
 
   private loadUserData(): void {
-    this.uid = localStorage.getItem('uid');
-    const storedUser = localStorage.getItem('user');
-    this.user = storedUser ? JSON.parse(storedUser) : null;
+    this.uid = this.authService.getUserId();
+    this.user = this.authService.currentUser;
     this.refreshMenuItems();
 
-    if (!this.uid) {
+    if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
       return;
     }
 
-    this.loadUser();
-    this.loadNotifications();
-    this.updatePendingBookingsCount();
+    this.loadCurrentSessionUser();
   }
 
-  private loadUser(): void {
-    if (!this.uid) return;
-
-    this.userService.getUserByID(this.uid).subscribe({
-      next: (data: any) => {
-        this.authService.syncUserProfile(data);
-        this.user = this.authService.currentUser || data;
+  private loadCurrentSessionUser(): void {
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
         this.refreshMenuItems();
+        this.loadNotifications();
+        this.updatePendingBookingsCount();
       },
-      error: (err: any) => console.error('Error loading user:', err),
+      error: (err: any) => console.error('Error loading session user:', err),
     });
   }
 

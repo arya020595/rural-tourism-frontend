@@ -12,7 +12,7 @@ import { environment } from '../../environments/environment';
 import { BookingService } from '../services/booking.service';
 import { CompanyService } from '../services/company.service';
 import { FormService } from '../services/form.service';
-import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-receipt-package',
@@ -40,7 +40,7 @@ export class ReceiptPackagePage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private userService: UserService,
+    private authService: AuthService,
     private bookingService: BookingService,
     private companyService: CompanyService,
     private formService: FormService,
@@ -48,7 +48,7 @@ export class ReceiptPackagePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.uid = localStorage.getItem('uid'); // Retrieve user ID from local storage
+    this.uid = this.authService.getUserId();
     this.activatedRoute.params.subscribe((params) => {
       this.receiptId = params['receipt_id'];
 
@@ -73,25 +73,20 @@ export class ReceiptPackagePage implements OnInit {
   }
 
   loadUser() {
-    if (this.uid) {
-      this.userService.getUserByID(this.uid).subscribe(
-        (response) => {
-          this.user = this.unwrapPayload(response);
-          this.loadCompanyProfile(this.user?.company_id);
-          this.userReady = true;
-          this.tryAutoGenerateReceipt();
-        },
-        (error) => {
-          console.log(error);
-          this.userReady = true;
-          this.tryAutoGenerateReceipt();
-        },
-      );
-    } else {
-      console.log('uid not found in storage');
-      this.userReady = true;
-      this.tryAutoGenerateReceipt();
-    }
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
+        this.loadCompanyProfile(this.user?.company_id);
+        this.userReady = true;
+        this.tryAutoGenerateReceipt();
+      },
+      error: (error) => {
+        console.log(error);
+        this.userReady = true;
+        this.tryAutoGenerateReceipt();
+      },
+    });
   }
 
   //get receipt details

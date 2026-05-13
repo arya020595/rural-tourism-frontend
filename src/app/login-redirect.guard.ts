@@ -20,5 +20,5 @@ export const loginRedirectGuard: CanActivateFn = () => {
     return router.createUrlTree(['/association/dashboard']);
   }
 
-  return router.createUrlTree(['/company-profile']);
+  return router.createUrlTree(['/home']);
 };

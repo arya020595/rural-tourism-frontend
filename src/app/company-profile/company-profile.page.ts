@@ -181,13 +181,31 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.user = this.authService.currentUser;
     this.refreshMenuItems();
 
-    if (!this.uid) {
+    if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
       return;
     }
 
-    this.loadProfile(this.uid);
-    this.loadNotifications();
+    this.loadCurrentSessionUser();
+  }
+
+  private loadCurrentSessionUser(): void {
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
+        if (!this.uid) {
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.refreshMenuItems();
+        this.loadProfile(this.uid);
+        this.loadNotifications();
+      },
+      error: () => {
+        this.router.navigate(['/login']);
+      },
+    });
   }
 
   private refreshMenuItems(): void {

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { AuthService } from './services/auth.service';
-import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +15,6 @@ export class AppComponent implements OnInit {
   constructor(
     private platform: Platform,
     private router: Router,
-    private userService: UserService,
     private authService: AuthService,
   ) {}
 
@@ -43,25 +41,23 @@ export class AppComponent implements OnInit {
   }
 
   private loadUserData(): void {
-    this.uid = localStorage.getItem('uid');
+    this.uid = this.authService.getUserId();
+    this.user = this.authService.currentUser;
 
-    const storedUser = localStorage.getItem('user');
-    this.user = storedUser ? JSON.parse(storedUser) : null;
+    if (!this.authService.isAuthenticated) {
+      return;
+    }
 
-    if (!this.uid) return;
-
-    this.loadUser();
+    this.loadCurrentSessionUser();
   }
 
-  private loadUser(): void {
-    if (!this.uid) return;
-
-    this.userService.getUserByID(this.uid).subscribe({
-      next: (data: any) => {
-        this.authService.syncUserProfile(data);
-        this.user = this.authService.currentUser || data;
+  private loadCurrentSessionUser(): void {
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
       },
-      error: (err: any) => console.error('Error loading user:', err),
+      error: (err: any) => console.error('Error loading session user:', err),
     });
   }
 
