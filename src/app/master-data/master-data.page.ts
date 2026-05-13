@@ -202,7 +202,11 @@ export class MasterDataPage implements OnInit {
             1,
             Math.ceil(totalItems / this.pageSize),
           );
-          const resolvedPage = this.clampPage(pagination?.page ?? page);
+          const requestedPage = pagination?.page ?? page;
+          const resolvedPage = Math.min(
+            Math.max(1, requestedPage),
+            totalPages,
+          );
 
           if (resolvedPage > totalPages && totalPages > 0) {
             this.isLoading = false;
