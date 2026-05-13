@@ -152,15 +152,7 @@ export class MyTransactionPage implements OnInit {
   private loadTransactions(): void {
     this.isLoading = true;
 
-    let operatorId: string | undefined;
-    try {
-      const raw = JSON.parse(localStorage.getItem('user') || 'null');
-      operatorId = String(
-        this.authService.currentUser?.id ?? raw?.id ?? ''
-      ) || undefined;
-    } catch { /* ignore */ }
-
-    this.bookingService.getBookings({ status: 'paid', per_page: 1000, user_id: operatorId }).subscribe({
+    this.bookingService.getBookings({ status: 'paid', per_page: 1000 }).subscribe({
       next: (res: any) => {
         const raw: any[] = Array.isArray(res?.data) ? res.data : [];
         this.allTransactions = raw.map((b) => this.mapToTransaction(b));

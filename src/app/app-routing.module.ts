@@ -278,6 +278,18 @@ const routes: Routes = [
     },
   },
   {
+    path: 'e-receipt/add/:type',
+    loadChildren: () =>
+      import('./ereceipt-add/ereceipt-add.module').then(
+        (m) => m.EreceiptAddPageModule,
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['receipt:create'],
+    },
+  },
+  {
     path: 'tourist/faq',
     loadChildren: () =>
       import('./tourist/faq/faq.module').then((m) => m.FaqPageModule),
