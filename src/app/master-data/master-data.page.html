@@ -28,6 +28,7 @@
  </ion-header>
 
 <ion-content [fullscreen]="true" id="master-data-content">
+  <div class="surface-card">
   <div class="master-page">
     <div class="logo-row">
       <app-header-logo></app-header-logo>
@@ -38,17 +39,18 @@
     </div>
 
     <div class="top-actions">
-      <ion-button class="add-btn" (click)="openAddModal()">
-        <ion-icon name="add-circle" slot="start"></ion-icon>
-        Tambah/Add
-      </ion-button>
-    </div>
+      <button type="button" class="top-action add" (click)="openAddModal()">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <span>Tambah/Add</span>
+      </button>
+    </div>  
 
     <div class="page-message page-error" *ngIf="pageErrorMessage">
       {{ pageErrorMessage }}
     </div>
 
     <div class="table-card">
+      <div class="table-wrapper">
       <table class="master-table">
         <thead>
           <tr>
@@ -86,6 +88,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div class="table-footer">
         <div class="left-tools">
@@ -107,25 +110,28 @@
           Showing {{ startItem }} to {{ endItem }} out of {{ totalItems }} entries
         </div>
 
-        <div class="right-pagination">
-          <ion-button class="pagination-prev" size="small" fill="outline" (click)="prevPage()" [disabled]="currentPage === 1">
-            Previous
-          </ion-button>
+        <div class="pagination">
+          <button type="button" class="page-btn nav-btn" (click)="prevPage()">
+            &laquo; Previous
+          </button>
 
-          <ion-button
-            *ngFor="let p of visiblePages"
-            [class]="p === '...' ? 'pagination-ellipsis' : 'pagination-page'"
-            size="small"
-            [fill]="p === currentPage ? 'solid' : 'outline'"
-            [disabled]="p === '...'"
-            (click)="onPageClick(p)"
-          >
-            {{ p }}
-          </ion-button>
+          <div class="page-number-group">
+            <button
+              type="button"
+              class="page-btn"
+              *ngFor="let p of visiblePages; trackBy: trackByPage"
+              [class.active]="p === currentPage"
+              [class.ellipsis]="p === '...'"
+              [disabled]="p === '...'"
+              (click)="onPageClick(p)"
+            >
+              {{ p }}
+            </button>
+          </div>
 
-          <ion-button class="pagination-next" size="small" fill="outline" (click)="nextPage()" [disabled]="currentPage === totalPages">
-            Next
-          </ion-button>
+          <button type="button" class="page-btn nav-btn" (click)="nextPage()">
+            Next &raquo;
+          </button>
         </div>
       </div>
     </div>
@@ -268,5 +274,6 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </ion-content>
