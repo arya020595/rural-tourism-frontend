@@ -59,6 +59,13 @@ export class MenuService {
         route: '/my-transaction',
       },
       {
+        id: 'e-receipt',
+        label: 'E-Receipt',
+        icon: 'document-text-outline',
+        route: '/e-receipt',
+        permission: 'receipt:create',
+      },
+      {
         id: 'users',
         label: 'Users / Pengguna',
         icon: 'people-outline',
