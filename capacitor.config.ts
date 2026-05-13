@@ -2,10 +2,14 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.sabah.ruraltourism',
-  appName: 'Rural Tourism Sabah',
+  appName: 'RUTeC',
   webDir: 'www',
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',
+    cleartext: true,
+  },
+  android: {
+    allowMixedContent: true,
   },
 };
 
