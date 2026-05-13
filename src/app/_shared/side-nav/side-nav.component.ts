@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuItem } from '../../services/menu.service';
 
 @Component({
@@ -35,6 +36,8 @@ export class SideNavComponent {
   @Output() menuItemTap = new EventEmitter<MenuItem>();
   @Output() logoutTap = new EventEmitter<void>();
 
+  constructor(private router: Router) {}
+
   get showGuestPanel(): boolean {
     return this.guestMode && !this.user;
   }
@@ -69,5 +72,20 @@ export class SideNavComponent {
   getBadgeCount(itemId: string): number {
     const count = this.badgeCounts[itemId];
     return typeof count === 'number' && count > 0 ? count : 0;
+  }
+
+  isActiveItem(item: MenuItem): boolean {
+    if (!item.route) {
+      return false;
+    }
+
+    const currentUrl = this.router.url.split('?')[0];
+    const target = item.route;
+
+    if (target === '/home') {
+      return currentUrl === '/home';
+    }
+
+    return currentUrl === target || currentUrl.startsWith(`${target}/`);
   }
 }
