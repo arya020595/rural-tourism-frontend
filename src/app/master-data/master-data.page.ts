@@ -117,6 +117,10 @@ export class MasterDataPage implements OnInit {
     this.visiblePages = this.getVisiblePages();
   }
 
+  private clampPage(page: number): number {
+    return Math.min(Math.max(1, page), this.totalPages);
+  }
+
   private getVisiblePages(): (number | string)[] {
     const pages: (number | string)[] = [];
     const totalPages = this.totalPages;
@@ -192,10 +196,17 @@ export class MasterDataPage implements OnInit {
           const rows = this.extractRows(response).map((record, index) =>
             this.mapRow(record, index),
           );
-          const pagination = response?.pagination;
-          const totalPages = Math.max(1, pagination?.total_pages ?? 1);
+          const pagination = response?.meta;
           const totalItems = pagination?.total ?? rows.length;
-          const resolvedPage = pagination?.page ?? page;
+          const totalPages = Math.max(
+            1,
+            Math.ceil(totalItems / this.pageSize),
+          );
+          const requestedPage = pagination?.page ?? page;
+          const resolvedPage = Math.min(
+            Math.max(1, requestedPage),
+            totalPages,
+          );
 
           if (resolvedPage > totalPages && totalPages > 0) {
             this.isLoading = false;
@@ -238,7 +249,7 @@ export class MasterDataPage implements OnInit {
   }
 
   goToPage(page: number): void {
-    this.loadMasterData(page);
+    this.loadMasterData(this.clampPage(page));
   }
 
   onPageClick(page: number | string): void {
@@ -247,16 +258,16 @@ export class MasterDataPage implements OnInit {
     }
   }
 
+  trackByPage(index: number, page: number | string): number | string {
+    return typeof page === 'number' ? page : `ellipsis-${index}`;
+  }
+
   prevPage(): void {
-    if (this.currentPage > 1) {
-      this.loadMasterData(this.currentPage - 1);
-    }
+    this.loadMasterData(this.clampPage(this.currentPage - 1));
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.loadMasterData(this.currentPage + 1);
-    }
+    this.loadMasterData(this.clampPage(this.currentPage + 1));
   }
 
   openAddModal(): void {
