@@ -258,8 +258,8 @@ export class MasterDataPage implements OnInit {
     }
   }
 
-  trackByPage(_index: number, page: number | string): number | string {
-    return page;
+  trackByPage(index: number, page: number | string): number | string {
+    return typeof page === 'number' ? page : `ellipsis-${index}`;
   }
 
   prevPage(): void {
