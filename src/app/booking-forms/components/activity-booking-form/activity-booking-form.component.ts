@@ -170,11 +170,14 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
       return;
     }
 
+    const cacheKey = `products_cache_${companyId}`;
+
     this.productService
       .getProductsByCompany(companyId, { page: 1, per_page: 1000 })
       .subscribe({
         next: (response) => {
           const products = Array.isArray(response?.data) ? response.data : [];
+          localStorage.setItem(cacheKey, JSON.stringify(products));
           const names = products
             .filter((item: any) => item?.product_type === 'activity')
             .map((item: any) => String(item?.name || '').trim())
@@ -183,7 +186,13 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
           this.activityOptions = this.uniqueSorted(names);
         },
         error: () => {
-          this.activityOptions = [];
+          const cached = localStorage.getItem(cacheKey);
+          const products = cached ? JSON.parse(cached) : [];
+          const names = products
+            .filter((item: any) => item?.product_type === 'activity')
+            .map((item: any) => String(item?.name || '').trim())
+            .filter((name: string) => name.length > 0);
+          this.activityOptions = this.uniqueSorted(names);
         },
       });
   }

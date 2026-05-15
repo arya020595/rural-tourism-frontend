@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NetworkService } from '../services/network.service';
+import { OfflineQueueService } from '../services/offline-queue.service';
 import { ProductService } from '../services/product.service';
+import { SyncService } from '../services/sync.service';
 
 @Component({
   selector: 'app-ereceipt-add',
@@ -34,6 +37,10 @@ export class EreceiptAddPage implements OnInit {
     private authService: AuthService,
     private bookingService: BookingService,
     private productService: ProductService,
+    private offlineQueue: OfflineQueueService,
+    private syncService: SyncService,
+    private networkService: NetworkService,
+    private toastCtrl: ToastController,
   ) {}
 
   ngOnInit(): void {
@@ -68,17 +75,41 @@ export class EreceiptAddPage implements OnInit {
         operatorCompanyId,
       );
 
-      const response = await firstValueFrom(
-        this.bookingService.createUnifiedBooking(createPayload),
-      );
+      // Write to queue first — data is safe before any network call
+      const idempotencyKey = await this.offlineQueue.enqueueCreate(createPayload);
 
-      const booking = response?.data ?? response;
-      const bookingId = booking?.id;
+      // Also write into booking_cache so it shows in booking-home while offline
+      if (!this.networkService.isOnline) {
+        await this.offlineQueue.cacheBookings([{
+          ...createPayload,
+          id: idempotencyKey,
+          status: 'paid',
+          created_at: new Date().toISOString(),
+        }]);
+      }
 
-      this.navigateToReceipt(formType, bookingId, booking);
+      if (this.networkService.isOnline) {
+        // Attempt immediate sync so receipt page can get a real server ID
+        await this.syncService.triggerSync();
+      } else {
+        await this.showToast(
+          'No internet. Receipt saved locally — QR will appear once synced.',
+          'warning',
+        );
+      }
+
+      // Navigate immediately with local data — receipt page handles QR pending state
+      this.navigateToReceipt(formType, idempotencyKey, {
+        ...createPayload,
+        idempotency_key: idempotencyKey,
+        _isLocalOnly: !this.networkService.isOnline,
+      });
     } catch (error: any) {
-      console.error('[ereceipt-add] failed to create booking', error);
-      alert(error?.error?.message || 'Failed to create e-receipt booking.');
+      console.error('[ereceipt-add] failed to queue booking', error);
+      await this.showToast(
+        error?.error?.message || 'Failed to save e-receipt booking.',
+        'danger',
+      );
     } finally {
       this.isSubmitting = false;
     }
@@ -86,13 +117,13 @@ export class EreceiptAddPage implements OnInit {
 
   private navigateToReceipt(
     formType: string,
-    bookingId: number,
+    localRef: string,
     booking: any,
   ): void {
-    const state = { booking };
+    const state = { booking, idempotency_key: booking.idempotency_key };
 
     if (formType === 'activity') {
-      this.navCtrl.navigateForward(`/receipt-activity/${bookingId}`, {
+      this.navCtrl.navigateForward(`/receipt-activity/${localRef}`, {
         state,
         replaceUrl: true,
       });
@@ -100,7 +131,7 @@ export class EreceiptAddPage implements OnInit {
     }
 
     if (formType === 'accommodation') {
-      this.navCtrl.navigateForward(`/receipt/${bookingId}`, {
+      this.navCtrl.navigateForward(`/receipt/${localRef}`, {
         state,
         replaceUrl: true,
       });
@@ -108,11 +139,21 @@ export class EreceiptAddPage implements OnInit {
     }
 
     if (formType === 'package') {
-      this.navCtrl.navigateForward(`/receipt-package/${bookingId}`, {
+      this.navCtrl.navigateForward(`/receipt-package/${localRef}`, {
         state,
         replaceUrl: true,
       });
     }
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 
   private async buildCreatePayload(
@@ -245,22 +286,38 @@ export class EreceiptAddPage implements OnInit {
       throw new Error('Please select a product from the list.');
     }
 
-    const response = await firstValueFrom(
-      this.productService.getProductsByLocation({ page: 1, per_page: 1000 }),
-    );
-    const products = Array.isArray(response?.data) ? response.data : [];
-    const match = products.find((item: any) => {
-      return (
-        item?.product_type === productType &&
-        String(item?.name || '').trim().toLowerCase() === normalizedName
+    const findInList = (products: any[]) =>
+      products.find(
+        (item: any) =>
+          item?.product_type === productType &&
+          String(item?.name || '').trim().toLowerCase() === normalizedName,
       );
-    });
 
-    if (!match?.id) {
-      throw new Error('Selected product was not found. Please pick from list.');
+    try {
+      const response = await firstValueFrom(
+        this.productService.getProductsByLocation({ page: 1, per_page: 1000 }),
+      );
+      const products = Array.isArray(response?.data) ? response.data : [];
+      const match = findInList(products);
+      if (match?.id) {
+        return { id: Number(match.id), name: String(match.name || '').trim() };
+      }
+    } catch {
+      // offline — fall through to local cache
     }
 
-    return { id: Number(match.id), name: String(match.name || '').trim() };
+    const companyId = this.authService.currentUser?.company_id;
+    if (companyId) {
+      const cached = localStorage.getItem(`products_cache_${companyId}`);
+      if (cached) {
+        const match = findInList(JSON.parse(cached));
+        if (match?.id) {
+          return { id: Number(match.id), name: String(match.name || '').trim() };
+        }
+      }
+    }
+
+    throw new Error('Selected product was not found. Please pick from list.');
   }
 
   private resolveDomesticPax(payload: any): number {

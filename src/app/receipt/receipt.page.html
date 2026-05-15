@@ -12,7 +12,7 @@
           <div class="header-logos">
             <img
               class="logo"
-              src="../../assets/icon/explore_sabah-without_bg.png"
+              [src]="exploreSabahLogoSrc"
               alt="Explore Sabah logo"
             />
             <div class="logo-divider"></div>
@@ -91,17 +91,28 @@
           </div>
         </div>
 
-        <div class="receipt-qr-section" *ngIf="qrCodeReady && pdfLink">
-          <div class="qr-text">
-            <span class="qr-ms"
-              >Imbas di sini untuk mendapatkan resit anda</span
-            >
-            <i class="qr-en">Scan here to get your receipt</i>
+        <ng-container *ngIf="!isLocalOnly; else qrPendingReceipt">
+          <div class="receipt-qr-section" *ngIf="qrCodeReady && pdfLink">
+            <div class="qr-text">
+              <span class="qr-ms"
+                >Imbas di sini untuk mendapatkan resit anda</span
+              >
+              <i class="qr-en">Scan here to get your receipt</i>
+            </div>
+            <div class="qr-code-container">
+              <qrcode [qrdata]="pdfLink"></qrcode>
+            </div>
           </div>
-          <div class="qr-code-container">
-            <qrcode [qrdata]="pdfLink"></qrcode>
-          </div>
-        </div>
+        </ng-container>
+
+        <ng-template #qrPendingReceipt>
+          <ion-item color="warning" lines="none" style="margin: 12px 0; border-radius: 8px;">
+            <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+            <ion-label class="ion-text-wrap">
+              QR code will be available once booking is confirmed online. / Kod QR akan tersedia setelah tempahan disahkan dalam talian.
+            </ion-label>
+          </ion-item>
+        </ng-template>
       </div>
     </div>
 
@@ -110,7 +121,7 @@
         class="btn-back"
         mode="ios"
         expand="block"
-        [routerLink]="['/my-transaction']"
+        (click)="goBack()"
       >
         Kembali Ke Transaksi
       </ion-button>

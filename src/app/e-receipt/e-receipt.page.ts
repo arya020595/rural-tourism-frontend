@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NetworkService } from '../services/network.service';
 import {
   Notification,
   NotificationService,
@@ -23,6 +24,14 @@ export class EReceiptPage implements OnInit {
   unreadCount: number = 0;
   notifications: Notification[] = [];
   pendingBookingsCount: number = 0;
+  isOffline = false;
+
+  activityBgSrc = '';
+  accomBgSrc = '';
+  packageBgSrc = '';
+  treeIconSrc = 'assets/icon/tree.png';
+  houseIconSrc = 'assets/icon/house.png';
+  packageIconSrc = 'assets/icon/pakej-removebg-preview.png';
 
   constructor(
     private userService: UserService,
@@ -30,6 +39,7 @@ export class EReceiptPage implements OnInit {
     private menuCtrl: MenuController,
     private router: Router,
     private toastController: ToastController,
+    private networkService: NetworkService,
     private notificationService: NotificationService,
     private menuService: MenuService,
     private authService: AuthService,
@@ -38,9 +48,48 @@ export class EReceiptPage implements OnInit {
   ngOnInit(): void {
     this.loadUserData();
 
+    this.isOffline = !this.networkService.isOnline;
+    this.networkService.isOnline$.subscribe((online) => {
+      this.isOffline = !online;
+    });
+
     this.notificationService.unreadCount$.subscribe((count) => {
       this.unreadCount = count;
     });
+
+    void this.loadBgImages();
+  }
+
+  private async loadBgImages(): Promise<void> {
+    const assets = [
+      { key: 'activityBgSrc' as const, path: 'assets/mountain.jpg' },
+      { key: 'accomBgSrc' as const, path: 'assets/accom.jpg' },
+      { key: 'packageBgSrc' as const, path: 'assets/package.jpg' },
+      { key: 'treeIconSrc' as const, path: 'assets/icon/tree.png' },
+      { key: 'houseIconSrc' as const, path: 'assets/icon/house.png' },
+      { key: 'packageIconSrc' as const, path: 'assets/icon/pakej-removebg-preview.png' },
+    ];
+
+    let cache: Cache | null = null;
+    try {
+      cache = await caches.open('prewarm-assets-v1');
+    } catch {
+      // Cache API unavailable
+    }
+
+    for (const asset of assets) {
+      try {
+        const cached = cache ? await cache.match(asset.path) : null;
+        if (cached) {
+          const blob = await cached.blob();
+          this[asset.key] = URL.createObjectURL(blob);
+        } else {
+          this[asset.key] = asset.path;
+        }
+      } catch {
+        this[asset.key] = asset.path;
+      }
+    }
   }
 
   ionViewWillEnter(): void {

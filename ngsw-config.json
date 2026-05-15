@@ -17,6 +17,37 @@
       }
     },
     {
+      "name": "critical-icons",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/icon/tree.png",
+          "/assets/icon/house.png",
+          "/assets/icon/pakej-removebg-preview.png",
+          "/assets/icon/RuralT Logo.png",
+          "/assets/icon/explore_sabah-without_bg.png",
+          "/assets/icon/*.png",
+          "/assets/mountain.jpg",
+          "/assets/accom.jpg",
+          "/assets/package.jpg",
+          "/assets/*.jpg",
+          "/assets/*.jpeg",
+          "/assets/*.png"
+        ]
+      }
+    },
+    {
+      "name": "ionicons",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/svg/**/*.svg"
+        ]
+      }
+    },
+    {
       "name": "assets",
       "installMode": "lazy",
       "updateMode": "prefetch",

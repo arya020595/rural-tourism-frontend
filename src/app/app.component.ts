@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { AuthService } from './services/auth.service';
+import { NetworkService } from './services/network.service';
+import { OfflineQueueService } from './services/offline-queue.service';
+import { SyncService } from './services/sync.service';
 import { UserService } from './services/user.service';
 
 @Component({
@@ -18,10 +21,21 @@ export class AppComponent implements OnInit {
     private router: Router,
     private userService: UserService,
     private authService: AuthService,
+    private networkService: NetworkService,
+    private syncService: SyncService,
+    private offlineQueue: OfflineQueueService,
   ) {}
 
   ngOnInit() {
-    this.platform.ready().then(() => {
+    this.platform.ready().then(async () => {
+      const isAvailable = await this.offlineQueue.isAvailable();
+      if (isAvailable) {
+        await this.networkService.initialize();
+        await this.syncService.initialize();
+      } else {
+        console.warn('IndexedDB unavailable — offline mode disabled');
+      }
+
       this.loadUserData();
       this.applyStandaloneClass();
 

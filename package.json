@@ -5,7 +5,7 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ionic",
-    "start": "ionic serve --lab",
+    "start": "ionic serve",
     "serveProd": "ionic serve --prod",
     "build": "ionic build",
     "watch": "ionic build --watch --configuration development",
@@ -36,6 +36,7 @@
     "@capacitor/core": "^7.2.0",
     "@capacitor/haptics": "6.0.1",
     "@capacitor/keyboard": "6.0.2",
+    "@capacitor/network": "^7.0.4",
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
     "@ionic/cli": "^7.2.0",
@@ -43,6 +44,7 @@
     "@sweetalert2/ngx-sweetalert2": "^14.1.1",
     "angularx-qrcode": "^18.0.2",
     "compressorjs": "^1.2.1",
+    "dexie": "^4.4.2",
     "html2canvas": "^1.4.1",
     "ion7-calendar": "^3.6.29",
     "ionicons": "^7.0.0",
@@ -52,6 +54,7 @@
     "sweetalert2": "^11.26.17",
     "swiper": "^11.2.10",
     "tslib": "^2.3.0",
+    "uuid": "^14.0.0",
     "zone.js": "~0.14.2"
   },
   "devDependencies": {
@@ -68,6 +71,7 @@
     "@capacitor/cli": "^7.2.0",
     "@ionic/angular-toolkit": "^11.0.1",
     "@types/jasmine": "~5.1.0",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.57.0",

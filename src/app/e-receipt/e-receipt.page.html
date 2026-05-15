@@ -29,6 +29,11 @@
 
 <ion-content [fullscreen]="true" id="e-receipt-main-content">
 
+  <ion-item color="medium" *ngIf="isOffline" lines="none">
+    <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
+    <ion-label>You are offline. Showing last synced bookings.</ion-label>
+  </ion-item>
+
   <!-- ── DESKTOP view ── -->
   <div class="surface-card desktop-only">
     <div class="page-container">
@@ -41,24 +46,27 @@
       </div>
 
       <div class="receipt-grid">
-        <div class="receipt-tile tile-activity" [routerLink]="['/e-receipt/add/activity']">
+        <div class="receipt-tile" [routerLink]="['/e-receipt/add/activity']">
+          <img [src]="activityBgSrc" class="tile-bg" alt="" />
           <div class="tile-label">
             <ion-card-title class="card-texts">Aktiviti<br />Tarikan</ion-card-title>
-            <img src="../../assets/icon/tree.png" class="tile-icon" />
+            <img [src]="treeIconSrc" class="tile-icon" />
           </div>
         </div>
 
-        <div class="receipt-tile tile-accom" [routerLink]="['/e-receipt/add/accommodation']">
+        <div class="receipt-tile" [routerLink]="['/e-receipt/add/accommodation']">
+          <img [src]="accomBgSrc" class="tile-bg" alt="" />
           <div class="tile-label">
             <ion-card-title class="card-texts">Tempat<br />Penginapan</ion-card-title>
-            <img src="../../assets/icon/house.png" class="tile-icon" />
+            <img [src]="houseIconSrc" class="tile-icon" />
           </div>
         </div>
 
-        <div class="receipt-tile tile-package" [routerLink]="['/e-receipt/add/package']">
+        <div class="receipt-tile" [routerLink]="['/e-receipt/add/package']">
+          <img [src]="packageBgSrc" class="tile-bg" alt="" />
           <div class="tile-label">
             <ion-card-title class="card-texts">Pakej<br />Pelancongan</ion-card-title>
-            <img src="../../assets/icon/pakej-removebg-preview.png" class="tile-icon" />
+            <img [src]="packageIconSrc" class="tile-icon" />
           </div>
         </div>
       </div>
@@ -75,28 +83,31 @@
 
     <ion-card-content style="margin-top: 15%; padding-left: 0%; padding-right: 0%">
       <ion-card class="custom-card" [routerLink]="['/e-receipt/add/activity']">
+        <img [src]="activityBgSrc" class="card-bg" alt="" />
         <ion-row class="cards">
           <div style="display: flex; flex-direction: row">
             <ion-card-title class="card-texts">Aktiviti<br />Tarikan</ion-card-title>
-            <img src="../../assets/icon/tree.png" class="tree" />
+            <img [src]="treeIconSrc" class="tree" />
           </div>
         </ion-row>
       </ion-card>
 
       <ion-card class="custom-card2" style="margin-top: 5%" [routerLink]="['/e-receipt/add/accommodation']">
+        <img [src]="accomBgSrc" class="card-bg" alt="" />
         <ion-row class="cards">
           <div style="display: flex; flex-direction: row">
             <ion-card-title class="card-texts">Tempat <br />Penginapan</ion-card-title>
-            <img src="../../assets/icon/house.png" class="house" />
+            <img [src]="houseIconSrc" class="house" />
           </div>
         </ion-row>
       </ion-card>
 
       <ion-card class="custom-card3" style="margin-top: 5%" [routerLink]="['/e-receipt/add/package']">
+        <img [src]="packageBgSrc" class="card-bg" alt="" />
         <ion-row class="cards">
           <div style="display: flex; flex-direction: row">
             <ion-card-title class="card-texts">Pakej <br />Pelancongan</ion-card-title>
-            <img src="../../assets/icon/pakej-removebg-preview.png" class="house" />
+            <img [src]="packageIconSrc" class="house" />
           </div>
         </ion-row>
       </ion-card>

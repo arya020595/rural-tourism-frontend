@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { BookingDetail } from '../booking-home.models';
+import { QueueStatus } from '../../services/offline-queue.service';
 
 @Component({
   selector: 'app-booking-list-table',
@@ -12,12 +13,43 @@ export class BookingListTableComponent {
   @Input() pageSize = 10;
   @Input() totalBookings = 0;
   @Input() totalPages = 1;
+  @Input() queueStatusMap: Record<string, QueueStatus> = {};
+  @Input() statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
   @Output() viewDetails = new EventEmitter<BookingDetail>();
   @Output() editBooking = new EventEmitter<BookingDetail>();
   @Output() pageChange = new EventEmitter<number>();
+  @Output() statusFilterChange = new EventEmitter<void>();
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  getSyncStatus(booking: BookingDetail): QueueStatus | null {
+    return this.queueStatusMap[String(booking.id)] ?? null;
+  }
+
+  syncDotColor(status: QueueStatus): string {
+    switch (status) {
+      case 'pending': return '#9e9e9e';
+      case 'syncing': return '#2196f3';
+      case 'synced': return '#4caf50';
+      case 'failed': return '#ff9800';
+      case 'conflict': return '#f44336';
+      case 'permanently_failed': return '#f44336';
+      default: return '#9e9e9e';
+    }
+  }
+
+  syncDotLabel(status: QueueStatus): string {
+    switch (status) {
+      case 'pending': return 'Pending sync';
+      case 'syncing': return 'Syncing...';
+      case 'synced': return 'Synced';
+      case 'failed': return 'Sync failed';
+      case 'conflict': return 'Conflict';
+      case 'permanently_failed': return 'Failed';
+      default: return '';
+    }
   }
 
   formatDate(isoDate: string): string {
@@ -28,6 +60,19 @@ export class BookingListTableComponent {
     }
 
     return `${day}-${month}-${year}`;
+  }
+
+  get statusFilterLabel(): string {
+    switch (this.statusFilter) {
+      case 'pending': return 'Pending ▲';
+      case 'paid': return 'Paid ▲';
+      case 'cancelled': return 'Cancelled ▲';
+      default: return 'Status ⇅';
+    }
+  }
+
+  onStatusFilterClick(): void {
+    this.statusFilterChange.emit();
   }
 
   onViewDetails(booking: BookingDetail): void {

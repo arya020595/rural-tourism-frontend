@@ -1,12 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { MenuItem } from '../../services/menu.service';
+import { NetworkService } from '../../services/network.service';
 
 @Component({
   selector: 'app-side-nav',
   templateUrl: './side-nav.component.html',
   styleUrls: ['./side-nav.component.scss'],
 })
-export class SideNavComponent {
+export class SideNavComponent implements OnInit, OnDestroy {
   @Input() menuId = 'main-menu';
   @Input() contentId = 'main-content';
   @Input() menuType: 'overlay' | 'push' | 'reveal' = 'overlay';
@@ -34,6 +36,29 @@ export class SideNavComponent {
 
   @Output() menuItemTap = new EventEmitter<MenuItem>();
   @Output() logoutTap = new EventEmitter<void>();
+
+  isOnline = true;
+  private networkSub: Subscription | null = null;
+
+  constructor(
+    private networkService: NetworkService,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone,
+  ) {}
+
+  ngOnInit(): void {
+    this.isOnline = this.networkService.isOnline;
+    this.networkSub = this.networkService.isOnline$.subscribe((online) => {
+      this.zone.run(() => {
+        this.isOnline = online;
+        this.cdr.detectChanges();
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.networkSub?.unsubscribe();
+  }
 
   get showGuestPanel(): boolean {
     return this.guestMode && !this.user;
