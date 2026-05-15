@@ -354,27 +354,50 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   private loadCompanies(): void {
+    const cacheKey = 'package_companies_cache';
+
+    const applyCompanies = (data: any[]) => {
+      this.companies = data
+        .map((company: any) => ({
+          id: Number(company.id),
+          name: String(company.company_name || company.name || '').trim(),
+        }))
+        .filter(
+          (company: { id: number; name: string }) =>
+            Number.isInteger(company.id) && company.id > 0 && !!company.name,
+        );
+      for (let i = 0; i < this.packageItems.length; i++) {
+        if (!this.filteredCompanies[i]) {
+          this.filteredCompanies[i] = [...this.companies];
+        }
+      }
+    };
+
     this.companyService.getPackageCompanies().subscribe({
       next: (response) => {
         const data = Array.isArray(response?.data) ? response.data : [];
-        this.companies = data
-          .map((company: any) => ({
-            id: Number(company.id),
-            name: String(company.company_name || company.name || '').trim(),
-          }))
-          .filter(
-            (company: { id: number; name: string }) =>
-              Number.isInteger(company.id) && company.id > 0 && !!company.name,
-          );
-        // Initialize filtered companies for existing items
-        for (let i = 0; i < this.packageItems.length; i++) {
-          if (!this.filteredCompanies[i]) {
-            this.filteredCompanies[i] = [...this.companies];
-          }
-        }
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        applyCompanies(data);
+        // Pre-fetch and cache products for all companies while online
+        data.forEach((company: any) => {
+          const id = Number(company.id);
+          if (!id) return;
+          const productCacheKey = `products_cache_${id}`;
+          if (localStorage.getItem(productCacheKey)) return; // already cached
+          this.productService
+            .getProductsByCompany(id, { page: 1, per_page: 1000 })
+            .subscribe({
+              next: (res) => {
+                const products = Array.isArray(res?.data) ? res.data : [];
+                localStorage.setItem(productCacheKey, JSON.stringify(products));
+              },
+              error: () => {},
+            });
+        });
       },
       error: () => {
-        this.companies = [];
+        const cached = localStorage.getItem(cacheKey);
+        applyCompanies(cached ? JSON.parse(cached) : []);
       },
     });
   }
@@ -393,41 +416,43 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       return;
     }
 
+    const cacheKey = `products_cache_${companyId}`;
+
+    const applyProducts = (data: any[]) => {
+      const services = data
+        .map((product: any) => ({
+          id: Number(product.id),
+          name: String(product.name || '').trim(),
+        }))
+        .filter(
+          (service: { id: number; name: string }) =>
+            Number.isInteger(service.id) &&
+            service.id > 0 &&
+            !!service.name,
+        );
+
+      this.serviceOptionsByCompanyId = {
+        ...this.serviceOptionsByCompanyId,
+        [companyId]: services,
+      };
+
+      if (itemIndex !== undefined) {
+        this.filteredServices[itemIndex] = [...services];
+      }
+    };
+
     this.productService
       .getProductsByCompany(companyId, { page: 1, per_page: 1000 })
       .subscribe({
         next: (response) => {
           const data = Array.isArray(response?.data) ? response.data : [];
-          const services = data
-            .map((product: any) => ({
-              id: Number(product.id),
-              name: String(product.name || '').trim(),
-            }))
-            .filter(
-              (service: { id: number; name: string }) =>
-                Number.isInteger(service.id) &&
-                service.id > 0 &&
-                !!service.name,
-            );
-
-          this.serviceOptionsByCompanyId = {
-            ...this.serviceOptionsByCompanyId,
-            [companyId]: services,
-          };
-
-          if (itemIndex !== undefined) {
-            this.filteredServices[itemIndex] = [...services];
-          }
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+          applyProducts(data);
         },
         error: () => {
-          this.serviceOptionsByCompanyId = {
-            ...this.serviceOptionsByCompanyId,
-            [companyId]: [],
-          };
-
-          if (itemIndex !== undefined) {
-            this.filteredServices[itemIndex] = [];
-          }
+          const cached = localStorage.getItem(cacheKey);
+          const data = cached ? JSON.parse(cached) : [];
+          applyProducts(data);
         },
       });
   }

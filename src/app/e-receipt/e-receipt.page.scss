@@ -91,27 +91,20 @@ ion-content {
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
   height: 240px;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   }
+}
 
-  &.tile-activity {
-    background-image: url(../../assets/mountain.jpg);
-    background-position: center -60px;
-  }
-
-  &.tile-accom {
-    background-image: url(../../assets/accom.jpg);
-  }
-
-  &.tile-package {
-    background-image: url(../../assets/package.jpg);
-  }
+.tile-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .tile-label {
@@ -169,10 +162,7 @@ ion-content {
   height: 30vh;
   border-radius: 30px;
   position: relative;
-  background-image: url(../../assets/mountain.jpg);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center -60px;
+  overflow: hidden;
   margin-top: -100px;
 }
 
@@ -183,9 +173,7 @@ ion-content {
   height: 30vh;
   border-radius: 30px;
   position: relative;
-  background-image: url(../../assets/accom.jpg);
-  background-size: cover;
-  background-repeat: no-repeat;
+  overflow: hidden;
   margin-top: -100px;
 }
 
@@ -196,10 +184,17 @@ ion-content {
   height: 30vh;
   border-radius: 30px;
   position: relative;
-  background-image: url(../../assets/package.jpg);
-  background-size: cover;
-  background-repeat: no-repeat;
+  overflow: hidden;
   margin-top: -100px;
+}
+
+.card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .cards {

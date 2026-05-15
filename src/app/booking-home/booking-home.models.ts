@@ -43,6 +43,9 @@ export interface BookingDetail extends BookingRow {
   customerType?: 'tourist' | 'company';
   package_companies?: any[];
 
+  // Offline sync fields
+  version?: number;
+
   // UI fields
   createdAt?: string;
   updatedAt?: string;

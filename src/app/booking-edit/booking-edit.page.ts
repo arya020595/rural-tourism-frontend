@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
+import { NetworkService } from '../services/network.service';
+import { OfflineQueueService } from '../services/offline-queue.service';
 import { ProductService } from '../services/product.service';
+import { SyncService } from '../services/sync.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { BookingDetail } from '../booking-home/booking-home.models';
 
@@ -39,6 +42,10 @@ export class BookingEditPage implements OnInit {
     private authService: AuthService,
     private bookingService: BookingService,
     private productService: ProductService,
+    private offlineQueue: OfflineQueueService,
+    private syncService: SyncService,
+    private networkService: NetworkService,
+    private toastCtrl: ToastController,
     private navCtrl: NavController,
   ) {}
 
@@ -60,30 +67,61 @@ export class BookingEditPage implements OnInit {
       return;
     }
 
+    const numericId = this.booking.numericId ?? Number(this.booking.id);
+    if (!Number.isFinite(numericId) || numericId <= 0) {
+      await this.showToast('Cannot edit — booking has no server ID yet.', 'warning');
+      return;
+    }
+
     this.isSubmitting = true;
 
     try {
       const updatePayload = await this.buildUpdatePayload(formType, payload);
-      const response = await firstValueFrom(
-        this.bookingService.updateBooking(this.booking.id, updatePayload),
-      );
+      const baseVersion = this.booking.version ?? 0;
 
-      console.log(`[booking-edit] ${formType} updated`, response);
+      await this.offlineQueue.enqueueEdit(numericId, updatePayload, baseVersion);
+
+      // Update booking_cache immediately so booking-home reflects the edit offline
+      if (!this.networkService.isOnline) {
+        const cached = await this.offlineQueue.getCachedBookings();
+        const existing = cached.find(
+          (b: any) => Number(b.id) === numericId || Number(b.numericId) === numericId,
+        );
+        if (existing) {
+          await this.offlineQueue.cacheBookings([{ ...existing, ...updatePayload }]);
+        }
+      }
+
+      if (this.networkService.isOnline) {
+        await this.syncService.triggerSync();
+        await this.showToast('Booking updated successfully', 'success');
+      } else {
+        await this.showToast(
+          'No internet. Edit saved locally — will sync when online.',
+          'warning',
+        );
+      }
+
       this.isSuccessAlertOpen = true;
     } catch (error: any) {
-      console.error(
-        `[booking-edit] failed to update ${formType} booking`,
-        error,
+      console.error(`[booking-edit] failed to queue ${formType} edit`, error);
+      await this.showToast(
+        error?.error?.message || error?.message || 'Failed to save edit. Please try again.',
+        'danger',
       );
-      const backendErrors = Array.isArray(error?.error?.errors)
-        ? error.error.errors.join('\n')
-        : '';
-      const message =
-        error?.error?.message || error?.message || 'Failed to update booking.';
-      alert(backendErrors ? `${message}\n\n${backendErrors}` : message);
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 
   onMenuItemTap(_item: MenuItem): void {
@@ -228,6 +266,8 @@ export class BookingEditPage implements OnInit {
       package_companies: Array.isArray(record?.package_companies)
         ? record.package_companies
         : [],
+      version:
+        record?.version !== undefined ? Number(record.version) : undefined,
     };
   }
 

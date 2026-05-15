@@ -7,7 +7,11 @@
         <th>Booked Date</th>
         <th>Service Name</th>
         <th>Type</th>
-        <th>Status</th>
+        <th>
+          <button type="button" class="status-filter-btn" (click)="onStatusFilterClick()">
+            {{ statusFilterLabel }}
+          </button>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -59,6 +63,18 @@
                   : "Pending"
             }}
           </span>
+          <ng-container *ngIf="getSyncStatus(booking) as syncStatus">
+            <div
+              class="sync-dot-row"
+              [title]="syncDotLabel(syncStatus)"
+            >
+              <span
+                class="sync-dot"
+                [style.background]="syncDotColor(syncStatus)"
+              ></span>
+              <span class="sync-dot-label">{{ syncDotLabel(syncStatus) }}</span>
+            </div>
+          </ng-container>
         </td>
       </tr>
     </tbody>

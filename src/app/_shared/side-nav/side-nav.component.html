@@ -53,23 +53,25 @@
         <p style="margin-top: 2%">{{ displayEmail }}</p>
       </div>
 
-      <ion-item
-        class="item-nav"
-        detail="false"
-        lines="none"
-        mode="ios"
-        menuClose
-        *ngFor="let item of menuItems; trackBy: trackMenuItem"
-        [routerLink]="item.route || null"
-        (click)="onMenuItemTap(item)"
-      >
-        <ion-icon [name]="item.icon" slot="start"></ion-icon>
-        <ion-text>{{ item.label }}</ion-text>
+      <ng-container *ngFor="let item of menuItems; trackBy: trackMenuItem">
+        <ion-item
+          *ngIf="isOnline || item.offlineCapable"
+          class="item-nav"
+          detail="false"
+          lines="none"
+          mode="ios"
+          menuClose
+          [routerLink]="item.route || null"
+          (click)="onMenuItemTap(item)"
+        >
+          <ion-icon [name]="item.icon" slot="start"></ion-icon>
+          <ion-text>{{ item.label }}</ion-text>
 
-        <ion-badge *ngIf="getBadgeCount(item.id) > 0" color="danger" slot="end">
-          {{ getBadgeCount(item.id) }}
-        </ion-badge>
-      </ion-item>
+          <ion-badge *ngIf="getBadgeCount(item.id) > 0" color="danger" slot="end">
+            {{ getBadgeCount(item.id) }}
+          </ion-badge>
+        </ion-item>
+      </ng-container>
 
       <ion-item
         (click)="onLogoutTap()"

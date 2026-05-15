@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, ToastController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NetworkService } from '../services/network.service';
+import { OfflineQueueService } from '../services/offline-queue.service';
 import { ProductService } from '../services/product.service';
+import { SyncService } from '../services/sync.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -35,6 +38,10 @@ export class BookingAddPage implements OnInit {
     private authService: AuthService,
     private bookingService: BookingService,
     private productService: ProductService,
+    private offlineQueue: OfflineQueueService,
+    private syncService: SyncService,
+    private networkService: NetworkService,
+    private toastController: ToastController,
   ) {}
 
   ngOnInit(): void {
@@ -47,10 +54,7 @@ export class BookingAddPage implements OnInit {
   }
 
   async handleFormSubmit(formType: string, payload: any): Promise<void> {
-    if (this.isSubmitting) {
-      return;
-    }
-
+    if (this.isSubmitting) return;
     this.isSubmitting = true;
 
     try {
@@ -67,22 +71,49 @@ export class BookingAddPage implements OnInit {
         operatorCompanyId,
       );
 
-      const response = await firstValueFrom(
-        this.bookingService.createUnifiedBooking(createPayload),
-      );
+      // Write to queue first — data is safe before any network call
+      const idempotencyKey = await this.offlineQueue.enqueueCreate(createPayload);
 
-      console.log(`[booking-add] ${formType} created`, response);
-      // Show registration-style success popup, navigate when user confirms
+      // Also write into booking_cache so it shows in booking-home while offline
+      if (!this.networkService.isOnline) {
+        await this.offlineQueue.cacheBookings([{
+          ...createPayload,
+          id: idempotencyKey,
+          status: 'pending',
+          created_at: new Date().toISOString(),
+        }]);
+      }
+
+      if (this.networkService.isOnline) {
+        await this.syncService.triggerSync();
+        await this.showToast('Booking submitted successfully', 'success');
+      } else {
+        await this.showToast(
+          'No internet. Booking saved locally — will sync when online.',
+          'warning',
+        );
+      }
+
       this.isSuccessAlertOpen = true;
     } catch (error: any) {
-      console.error(
-        `[booking-add] failed to create ${formType} booking`,
-        error,
+      console.error(`[booking-add] failed to queue ${formType} booking`, error);
+      await this.showToast(
+        error?.error?.message || 'Failed to save booking. Please try again.',
+        'danger',
       );
-      alert(error?.error?.message || 'Failed to create booking.');
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 
   private async buildCreatePayload(
@@ -220,27 +251,45 @@ export class BookingAddPage implements OnInit {
       throw new Error('Please select a product from the list.');
     }
 
-    const response = await firstValueFrom(
-      this.productService.getProductsByLocation({ page: 1, per_page: 1000 }),
-    );
-    const products = Array.isArray(response?.data) ? response.data : [];
-    const match = products.find((item: any) => {
-      const matchesType = item?.product_type === productType;
-      const matchesName =
-        String(item?.name || '')
-          .trim()
-          .toLowerCase() === normalizedName;
-      return matchesType && matchesName;
-    });
+    const findInList = (products: any[]) =>
+      products.find((item: any) => {
+        const matchesType = item?.product_type === productType;
+        const matchesName =
+          String(item?.name || '')
+            .trim()
+            .toLowerCase() === normalizedName;
+        return matchesType && matchesName;
+      });
 
-    if (!match?.id) {
-      throw new Error('Selected product was not found. Please pick from list.');
+    try {
+      const response = await firstValueFrom(
+        this.productService.getProductsByLocation({ page: 1, per_page: 1000 }),
+      );
+      const products = Array.isArray(response?.data) ? response.data : [];
+      const match = findInList(products);
+      if (match?.id) {
+        return { id: Number(match.id), name: String(match.name || '').trim() };
+      }
+    } catch {
+      // offline — fall through to local cache
     }
 
-    return {
-      id: Number(match.id),
-      name: String(match.name || '').trim(),
-    };
+    // Fall back to per-company product cache
+    const companyId = this.authService.currentUser?.company_id;
+    if (companyId) {
+      const cached = localStorage.getItem(`products_cache_${companyId}`);
+      if (cached) {
+        const match = findInList(JSON.parse(cached));
+        if (match?.id) {
+          return {
+            id: Number(match.id),
+            name: String(match.name || '').trim(),
+          };
+        }
+      }
+    }
+
+    throw new Error('Selected product was not found. Please pick from list.');
   }
 
   private resolveDomesticPax(payload: any): number {
