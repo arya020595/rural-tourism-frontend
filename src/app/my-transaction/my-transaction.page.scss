@@ -361,6 +361,18 @@ ion-content {
   }
 }
 
+.package-list {
+  list-style: disc;
+  margin: 2px 0 8px 18px;
+  padding: 0;
+  color: #686868;
+  font-size: 19px;
+}
+
+.package-list li {
+  margin-bottom: 2px;
+}
+
 .loading-state,
 .empty-state {
   text-align: center;

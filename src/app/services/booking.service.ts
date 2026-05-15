@@ -166,6 +166,30 @@ export class BookingService {
     return this.http.get(`${this.apiUrl}/bookings`, { params: httpParams });
   }
 
+  getPackageBookings(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    search?: string;
+  }): Observable<any> {
+    let httpParams = new HttpParams();
+
+    if (params?.page !== undefined) {
+      httpParams = httpParams.set('page', String(params.page));
+    }
+    if (params?.per_page !== undefined) {
+      httpParams = httpParams.set('per_page', String(params.per_page));
+    }
+    if (params?.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params?.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get(`${this.apiUrl}/bookings/packages`, { params: httpParams });
+  }
+
   // ── Tourist user management ──────────────────────────────────────
 
   getAllTouristUsers(): Observable<any> {
