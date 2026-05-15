@@ -1,5 +1,16 @@
 export type TransactionTab = 'activity' | 'accommodation' | 'package';
 
+export interface PackageCompany {
+  id: number;
+  booking_package_id: number;
+  referrer_id: number;
+  referral_company: string;
+  referee_id: number;
+  referee_company: string;
+  description: string;
+  per_price: number;
+}
+
 export interface Transaction {
   id: string | number;
   title: string;
@@ -13,5 +24,12 @@ export interface Transaction {
   numericId?: number;
   checkInDate?: string;
   checkOutDate?: string;
-  _raw?: any; // original API response for receipt navigation
+  // Company A (booking creator) package view
+  packageCompanies?: PackageCompany[];
+  // Company B (referee) package view
+  isReferral?: boolean;
+  packageName?: string;
+  referralBy?: string;
+  perPrice?: number;
+  _raw?: any;
 }
