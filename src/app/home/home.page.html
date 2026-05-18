@@ -19,27 +19,12 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button
-        (click)="goToNotifications()"
-        class="notification-button"
-        *hasPermission="'booking:read'"
-      >
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-        <ion-badge
-          *ngIf="unreadCount > 0"
-          color="danger"
-          class="notification-badge"
-        >
-          {{ unreadCount }}
-        </ion-badge>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="home-main-content">
   <ion-card class="main-Container ion-no-margin">
@@ -82,3 +67,4 @@
     </ion-card-content>
   </ion-card>
 </ion-content>
+

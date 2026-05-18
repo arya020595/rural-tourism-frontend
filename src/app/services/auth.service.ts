@@ -303,6 +303,14 @@ export class AuthService {
       username: profile.username || currentUser?.username || '',
     } as User;
 
+    // Strip large binary fields before persisting — company logo is fetched
+    // separately via CompanyService and must not bloat localStorage.
+    const mergedAny = mergedUser as any;
+    if (mergedAny.company?.operator_logo_image) {
+      const { operator_logo_image: _logo, ...rest } = mergedAny.company;
+      mergedAny.company = rest;
+    }
+
     const token = this.storage.getToken();
     if (!token) {
       return;
