@@ -166,4 +166,61 @@ export class StorageService {
   isTouristLoggedIn(): boolean {
     return !!this.getTouristUserId() || !!this.getUser();
   }
+
+  // ========== IndexedDB — large binary storage ==========
+  // Used for assets that exceed localStorage's 5 MB quota (e.g. company logo).
+
+  private openLogoDb(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('rt-assets', 1);
+      req.onupgradeneeded = (e) => {
+        (e.target as IDBOpenDBRequest).result.createObjectStore('logos');
+      };
+      req.onsuccess = (e) => resolve((e.target as IDBOpenDBRequest).result);
+      req.onerror = (e) => reject((e.target as IDBOpenDBRequest).error);
+    });
+  }
+
+  async setCompanyLogo(companyId: string | number, logo: string): Promise<void> {
+    try {
+      const db = await this.openLogoDb();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction('logos', 'readwrite');
+        tx.objectStore('logos').put(logo, String(companyId));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (error) {
+      console.error('Error saving company logo to IndexedDB', error);
+    }
+  }
+
+  async getCompanyLogo(companyId: string | number): Promise<string | null> {
+    try {
+      const db = await this.openLogoDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('logos', 'readonly');
+        const req = tx.objectStore('logos').get(String(companyId));
+        req.onsuccess = () => resolve((req.result as string) ?? null);
+        req.onerror = () => reject(req.error);
+      });
+    } catch (error) {
+      console.error('Error reading company logo from IndexedDB', error);
+      return null;
+    }
+  }
+
+  async clearCompanyLogo(companyId: string | number): Promise<void> {
+    try {
+      const db = await this.openLogoDb();
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction('logos', 'readwrite');
+        tx.objectStore('logos').delete(String(companyId));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (error) {
+      console.error('Error clearing company logo from IndexedDB', error);
+    }
+  }
 }

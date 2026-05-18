@@ -28,16 +28,12 @@
         <ion-badge color="warning">{{ count }}</ion-badge>
       </ion-button>
 
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="booking-main-content">
   <!-- Failed/conflict sync banner -->
@@ -156,11 +152,11 @@
             <div class="legend-list">
               <div class="legend-item">
                 <span class="legend-box booked"></span>
-                <span>Booked</span>
+                <span>Booked/Deposit</span>
               </div>
               <div class="legend-item">
                 <span class="legend-box paid"></span>
-                <span>Paid</span>
+                <span>Booked/Paid</span>
               </div>
             </div>
           </div>
@@ -182,8 +178,9 @@
                 *ngFor="let booking of selectedDateBookings"
                 [class.paid]="getBookingStatusClass(booking) === 'paid'"
                 [class.pending]="getBookingStatusClass(booking) === 'pending'"
+                (click)="viewBookingDetails(booking)"
               >
-                <div class="booking-chip-title">{{ booking.serviceName }}</div>
+                <div class="booking-chip-title">{{ booking.serviceName }} <span class="booking-chip-id">(#{{ booking.id }})</span></div>
                 <div class="booking-chip-meta">
                   {{ booking.type }} - {{ getBookingStatusText(booking) }}
                 </div>

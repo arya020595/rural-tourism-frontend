@@ -34,6 +34,13 @@ export class MenuService {
     ],
     operator_admin: [
       {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: 'grid-outline',
+        route: '/home',
+        permission: 'dashboard:read',
+      },
+      {
         id: 'company-profile',
         label: 'Profil Syarikat/Company Profile',
         icon: 'business-outline',

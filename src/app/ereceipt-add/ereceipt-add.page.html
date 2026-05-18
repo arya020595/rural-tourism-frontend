@@ -15,12 +15,12 @@
       <ion-menu-button menu="ereceipt-add-menu" class="menu-toggle"></ion-menu-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="ereceipt-add-main-content">
   <div class="surface-card">

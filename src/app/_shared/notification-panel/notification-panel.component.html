@@ -1,0 +1,63 @@
+<!-- Desktop slide-in panel — hidden on mobile via CSS media query -->
+<div
+  class="notif-panel-overlay"
+  [class.open]="isOpen"
+  (click)="close()"
+></div>
+
+<div class="notif-panel" [class.open]="isOpen">
+  <div class="notif-panel-header">
+    <div class="notif-panel-logos">
+      <img
+        *ngIf="companyLogoUrl"
+        [src]="companyLogoUrl"
+        alt="Company Logo"
+        class="notif-logo"
+      />
+      <div *ngIf="!companyLogoUrl" class="notif-logo-placeholder">
+        <ion-icon name="business-outline"></ion-icon>
+      </div>
+      <div class="notif-logo-divider"></div>
+      <img
+        src="assets/icon/explore_sabah-without_bg.png"
+        alt="Explore Sabah"
+        class="notif-logo"
+      />
+    </div>
+    <ion-button fill="clear" class="notif-panel-close" (click)="close()">
+      <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <div class="notif-panel-title-row">
+    <h3 class="notif-panel-title">Notifications</h3>
+    <button
+      *ngIf="hasUnread"
+      class="notif-mark-all-btn"
+      (click)="markAllAsRead()"
+    >
+      Mark all read
+    </button>
+  </div>
+  <div class="notif-panel-divider"></div>
+
+  <div class="notif-panel-list" *ngIf="notifications.length > 0">
+    <div
+      *ngFor="let notification of notifications"
+      class="notif-panel-item"
+      [class.unread]="!notification.read"
+      (click)="markAsRead(notification)"
+    >
+      <div class="notif-panel-avatar">{{ getAvatarLetter(notification) }}</div>
+      <div class="notif-panel-content">
+        <p class="notif-panel-message">{{ notification.message }}</p>
+        <small class="notif-panel-time">{{ timeAgo(notification.createdAt) }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="notif-panel-empty" *ngIf="notifications.length === 0">
+    <ion-icon name="notifications-off-outline"></ion-icon>
+    <p>No new notifications yet...</p>
+  </div>
+</div>

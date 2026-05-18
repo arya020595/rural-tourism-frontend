@@ -7,10 +7,6 @@ import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
 import { CompanyService } from '../services/company.service';
 import { MenuItem, MenuService } from '../services/menu.service';
-import {
-  Notification,
-  NotificationService,
-} from '../services/notification.service';
 import { UserService } from '../services/user.service';
 
 type DocumentField =
@@ -49,9 +45,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   uid: string | null = null;
   user: any = null;
   menuItems: MenuItem[] = [];
-  unreadCount = 0;
-  notifications: Notification[] = [];
-
   isLoading = true;
   isEditing = false;
   isSaving = false;
@@ -95,7 +88,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     private authService: AuthService,
     private menuCtrl: MenuController,
     private menuService: MenuService,
-    private notificationService: NotificationService,
     private router: Router,
     private toastController: ToastController,
   ) {}
@@ -103,9 +95,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadAssociations();
     this.loadUserData();
-    this.notificationService.unreadCount$.subscribe((count) => {
-      this.unreadCount = count;
-    });
   }
 
   ngOnDestroy(): void {
@@ -187,7 +176,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     this.loadProfile(this.uid);
-    this.loadNotifications();
   }
 
   private refreshMenuItems(): void {
@@ -802,39 +790,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   trackMenuItem(_index: number, item: MenuItem): string {
     return item.id;
-  }
-
-  private loadNotifications(): void {
-    if (!this.uid) {
-      return;
-    }
-
-    this.notificationService.getNotifications(this.uid).subscribe({
-      next: (notifications: Notification[]) => {
-        this.notifications = notifications;
-      },
-      error: () => {
-        // No-op because notification errors should not block this page.
-      },
-    });
-  }
-
-  goToNotifications(): void {
-    if (!this.uid) {
-      return;
-    }
-
-    this.router.navigate(['/notifications']);
-    this.notificationService.markAllAsRead(this.uid).subscribe({
-      next: () => {
-        this.notifications.forEach((notification) => {
-          notification.read = true;
-        });
-      },
-      error: () => {
-        // No-op for non-blocking notification updates.
-      },
-    });
   }
 
   closeMenu(): void {

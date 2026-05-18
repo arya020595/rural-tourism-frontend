@@ -17,15 +17,12 @@
       <ion-menu-button menu="e-receipt-menu" class="menu-toggle"></ion-menu-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button (click)="goToNotifications()" class="notification-button">
-        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
-        <ion-badge *ngIf="unreadCount > 0" color="danger" class="notification-badge">
-          {{ unreadCount }}
-        </ion-badge>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="e-receipt-main-content">
 
