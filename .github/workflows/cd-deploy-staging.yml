@@ -1,25 +1,25 @@
 # ============================================
-# Rural Tourism Frontend - CD Deploy
+# Rural Tourism Frontend - CD Deploy Staging
 # ============================================
-# Deploy to production server via SSH
-# Triggered after CD Build succeeds on main branch
+# Deploy to staging server via SSH
+# Triggered after CD Build succeeds on develop branch
 
-name: CD Deploy
+name: CD Deploy Staging
 
 on:
   workflow_run:
     workflows: ["CD Build"]
     types: [completed]
-    branches: [main]
+    branches: [develop]
 
 permissions:
   packages: read
 
 jobs:
-  deploy:
+  deploy-staging:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success'
-    environment: production
+    environment: staging
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
 
-      - name: Notify Slack - Deployment Starting
+      - name: Notify Slack - Staging Deployment Starting
         run: |
           set -e
 
@@ -48,9 +48,9 @@ jobs:
             --arg msg "$COMMIT_MSG" \
             --arg runurl "$RUN_URL" \
             '{
-              text: ":rocket: Frontend deployment started",
+              text: ":building_construction: Frontend staging deployment started",
               blocks: [
-                { type: "header", text: { type: "plain_text", text: "🚀 Frontend Deployment Started" } },
+                { type: "header", text: { type: "plain_text", text: "🏗️ [Staging] Frontend Deployment Started" } },
                 { type: "section", fields: [
                     { type: "mrkdwn", text: ("*Repository:*\n" + $repo) },
                     { type: "mrkdwn", text: ("*Branch:*\n" + $branch) },
@@ -67,7 +67,8 @@ jobs:
             }')
           echo "$payload" | curl -s -X POST -H 'Content-type: application/json' -d @- "$SLACK_WEBHOOK_URL" || echo "Warning: Failed to send Slack notification"
           echo "Sent Slack start notification"
-      - name: Deploy to server via SSH
+
+      - name: Deploy to staging via SSH
         uses: appleboy/ssh-action@v1
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,19 +77,22 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          timeout: 60s
+          command_timeout: 10m
           envs: GHCR_TOKEN,GITHUB_ACTOR
           script: |
             set -e
-            cd ~/st_rural_tourism
+            cd ~/st_rural_tourism_staging
 
             # Login to GHCR
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 
-            # Pull latest frontend image
-            docker compose pull frontend
+            # Pull develop-tagged frontend image
+            docker compose pull frontend_staging
 
-            # Restart frontend
-            docker compose up -d frontend
+            # Restart frontend staging
+            docker compose up -d frontend_staging
 
             # Clean up old images
             docker image prune -f
@@ -97,7 +101,7 @@ jobs:
             sleep 5
             docker compose ps
 
-      - name: Notify Slack - Deployment Result
+      - name: Notify Slack - Staging Deployment Result
         if: always()
         run: |
           set -e
@@ -114,11 +118,11 @@ jobs:
           COMMIT_MSG=$(echo ${{ toJson(github.event.workflow_run.head_commit.message || 'Manual dispatch') }} | sed 's/\\n/\n/g')
 
           if [ "$STATUS" = "success" ]; then
-            TITLE="✅ Frontend Deployment Succeeded"
+            TITLE="✅ [Staging] Frontend Deployment Succeeded"
             RESULT_LINE="*Result:* Success"
             COLOR="#2eb886"
           else
-            TITLE="❌ Frontend Deployment Failed"
+            TITLE="❌ [Staging] Frontend Deployment Failed"
             RESULT_LINE="*Result:* Failure"
             COLOR="#e01e5a"
           fi
