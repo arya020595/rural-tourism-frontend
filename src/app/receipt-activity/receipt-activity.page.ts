@@ -22,8 +22,7 @@ export class ReceiptActivityPage implements OnInit {
   receipt: any;
   pdfUrl: string = '';
 
-  testAPI = environment.API;
-  localAPI = 'http://localhost:3000';
+  localAPI = environment.API;
   uid: any; // Store the user ID
   user: any; // Object to hold user data
 
@@ -98,7 +97,7 @@ export class ReceiptActivityPage implements OnInit {
     if (this.pdfUrl) {
       this.qrCodeReady = true;
       this.cdr.detectChanges();
-      this.pdfLink = this.testAPI + this.pdfUrl;
+      this.pdfLink = this.localAPI + this.pdfUrl;
       // this.pdfLink = this.localAPI+this.pdfUrl
       console.log('Generating QR code with URL:', this.pdfLink);
     } else {

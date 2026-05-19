@@ -26,7 +26,6 @@ export class ViewReceiptPage implements OnInit {
   pdfUrl: string = '';
 
   testAPI = environment.API;
-  localAPI = 'http://localhost:3000';
   uid: any;
   user: any;
   packageDescArray: string[] = [];
