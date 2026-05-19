@@ -20,6 +20,7 @@ export interface TrendChartItem {
 }
 
 export interface ReceiptListItem {
+  bookingId?: string;
   receiptId: string;
   bookedBy: string;
   serviceName: string;

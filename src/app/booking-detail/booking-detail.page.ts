@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   MenuController,
   AlertController,
-  LoadingController,
   ToastController,
+  NavController,
 } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
@@ -28,10 +28,12 @@ export class BookingDetailPage implements OnInit {
   booking: BookingDetail | null = null;
   isGeneratingPdf = false;
   isOffline = false;
+  private fromDashboard = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private navCtrl: NavController,
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
@@ -51,6 +53,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fromDashboard = this.route.snapshot.queryParamMap.get('from') === 'dashboard';
     // Fall back to BookingStateService if router navigation state was lost
     // (common in Ionic lazy-loaded pages)
     if (!this.booking) {
@@ -78,7 +81,12 @@ export class BookingDetailPage implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/booking-home']);
+    if (window.history.length > 1) {
+      this.navCtrl.back();
+      return;
+    }
+
+    this.navCtrl.navigateRoot(this.fromDashboard ? '/home' : '/booking-home');
   }
 
   async cancelBooking(): Promise<void> {
