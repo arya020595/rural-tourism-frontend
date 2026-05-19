@@ -6,9 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'www',
   server: {
     androidScheme: 'http',
+    // Allow HTTP for staging — REMOVE before Play Store release
     cleartext: true,
   },
   android: {
+    // Allow HTTP mixed content for staging — REMOVE before Play Store release
     allowMixedContent: true,
   },
 };
