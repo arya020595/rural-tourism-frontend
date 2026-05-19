@@ -8,17 +8,38 @@ export interface MenuItem {
   route?: string;
   permission?: string | string[];
   action?: 'logout' | 'feature-unavailable';
+  offlineCapable?: boolean;
 }
 
-export type MenuContext = 'admin' | 'operator' | 'tourist' | 'association';
+export type MenuContext =
+  | 'superadmin'
+  | 'operator_admin'
+  | 'operator_staff'
+  | 'tourist'
+  | 'association';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MenuService {
   private readonly menuItemsByContext: Record<MenuContext, MenuItem[]> = {
-    admin: [],
-    operator: [
+    superadmin: [
+      {
+        id: 'master-data',
+        label: 'Data Induk/Master Data',
+        icon: 'list-outline',
+        route: '/master-data',
+        permission: 'product:read',
+      },
+    ],
+    operator_admin: [
+      {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: 'grid-outline',
+        route: '/home',
+        permission: 'dashboard:read',
+      },
       {
         id: 'company-profile',
         label: 'Profil Syarikat/Company Profile',
@@ -38,6 +59,7 @@ export class MenuService {
         label: 'Booking/Tempahan',
         icon: 'calendar-outline',
         route: '/booking-home',
+        offlineCapable: true,
       },
       {
         id: 'my-transaction',
@@ -46,11 +68,48 @@ export class MenuService {
         route: '/my-transaction',
       },
       {
+        id: 'e-receipt',
+        label: 'E-Receipt',
+        icon: 'document-text-outline',
+        route: '/e-receipt',
+        permission: 'receipt:create',
+        offlineCapable: true,
+      },
+      {
         id: 'users',
         label: 'Users / Pengguna',
         icon: 'people-outline',
         route: '/users',
         permission: 'user:read',
+      },
+    ],
+    operator_staff: [
+      {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: 'speedometer-outline',
+        route: '/home',
+        permission: 'booking:read',
+      },
+      {
+        id: 'company-profile',
+        label: 'Profil Syarikat/Company Profile',
+        icon: 'business-outline',
+        route: '/company-profile',
+        permission: 'profile:read',
+      },
+      {
+        id: 'booking-home',
+        label: 'Booking/Tempahan',
+        icon: 'calendar-outline',
+        route: '/booking-home',
+        offlineCapable: true,
+      },
+      {
+        id: 'my-transaction',
+        label: 'My Transaksi / Transaksi',
+        icon: 'receipt-outline',
+        route: '/my-transaction',
       },
     ],
     tourist: [

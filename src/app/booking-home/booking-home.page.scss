@@ -176,9 +176,30 @@ ion-content {
   color: #131313;
 }
 
+.day-cell.pending {
+  background: #ff9600;
+  color: #131313;
+}
+
 .day-cell.selected {
   background: #a6c8e4;
   color: #101010;
+}
+
+/* Status colors override selected state */
+.day-cell.selected.paid {
+  background: #015c2f !important;
+  color: #ffffff !important;
+}
+
+.day-cell.selected.booked {
+  background: #ff9600 !important;
+  color: #131313 !important;
+}
+
+.day-cell.selected.pending {
+  background: #ff9600 !important;
+  color: #131313 !important;
 }
 
 .booking-dot {
@@ -255,11 +276,33 @@ ion-content {
   color: #04552f;
   border-bottom: 1px solid #d7d7d7;
   padding-bottom: 8px;
+
+.date-label.paid {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-bottom: none;
+}
+
+.date-label.pending {
+  background-color: #ffe5cc;
+  color: #d97706;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-bottom: none;
+}
 }
 
 .booking-chip {
   border-radius: 0;
   padding: 12px 14px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover {
+    filter: brightness(1.12);
+  }
 }
 
 .booking-chip.paid {
@@ -272,10 +315,21 @@ ion-content {
   color: #111111;
 }
 
+.booking-chip.pending {
+  background: #ff9600;
+  color: #111111;
+}
+
 .booking-chip-title {
   font-size: 20px;
   font-weight: 800;
   margin-bottom: 4px;
+
+  .booking-chip-id {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.75;
+  }
 }
 
 .booking-chip-meta {

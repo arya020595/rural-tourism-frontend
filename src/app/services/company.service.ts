@@ -15,4 +15,12 @@ export class CompanyService {
   ): Observable<any> {
     return this.http.put(`${this.apiUrl}/companies/${company_id}`, payload);
   }
+
+  getPackageCompanies(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/companies/package-options`);
+  }
+
+  getCompanyById(company_id: string | number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/companies/${company_id}`);
+  }
 }

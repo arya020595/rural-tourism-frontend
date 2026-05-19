@@ -49,6 +49,10 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
     return value.length > 100 && /^[A-Za-z0-9+/=\r\n]+$/.test(value);
   }
 
+  get exploreSabahLogoSrc(): string {
+    return localStorage.getItem('explore_sabah_logo') || 'assets/icon/explore_sabah-without_bg.png';
+  }
+
   get companyLogoSrc(): string {
     const logo =
       this.user?.company_logo ||

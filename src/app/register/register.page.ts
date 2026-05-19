@@ -101,7 +101,7 @@ export class RegisterPage implements OnInit {
   loadAssociations() {
     this.associationService.getAssociationList().subscribe({
       next: (res) => {
-        this.associations = res || [];
+        this.associations = Array.isArray(res?.data) ? res.data : [];
       },
       error: () => {
         this.showError('Failed to load association list.');
@@ -186,13 +186,12 @@ export class RegisterPage implements OnInit {
   }
 
   private isValidStaffCount(value: string | number): boolean {
-    const normalized = `${value ?? ''}`.trim();
-
-    if (normalized.length === 0) {
-      return false;
+    if (value === null || value === undefined || value === '') {
+      return true;
     }
 
-    return /^\d+$/.test(normalized);
+    const numericValue = Number(value);
+    return Number.isInteger(numericValue) && numericValue >= 0;
   }
 
   goToSection2() {

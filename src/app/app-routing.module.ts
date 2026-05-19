@@ -232,6 +232,26 @@ const routes: Routes = [
     },
   },
   {
+    path: 'booking-home/edit/:id',
+    loadChildren: () =>
+      import('./booking-edit/booking-edit.module').then(
+        (m) => m.BookingEditPageModule,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'booking-home/conflict-resolve',
+    loadChildren: () =>
+      import('./conflict-resolve/conflict-resolve.module').then(
+        (m) => m.ConflictResolvePageModule,
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:update'],
+    },
+  },
+  {
     path: 'about',
     loadChildren: () =>
       import('./about/about.module').then((m) => m.AboutPageModule),
@@ -267,6 +287,18 @@ const routes: Routes = [
     data: {
       loginRole: 'operator_admin',
       permissions: ['booking:read'],
+    },
+  },
+  {
+    path: 'e-receipt/add/:type',
+    loadChildren: () =>
+      import('./ereceipt-add/ereceipt-add.module').then(
+        (m) => m.EreceiptAddPageModule,
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['receipt:create'],
     },
   },
   {

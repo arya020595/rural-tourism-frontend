@@ -15,27 +15,12 @@
       <ion-menu-button menu="users-menu" class="menu-toggle"></ion-menu-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button
-        class="notification-button"
-        (click)="goToNotifications()"
-        *hasPermission="'booking:read'"
-      >
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-        <ion-badge
-          *ngIf="unreadCount > 0"
-          color="danger"
-          class="notification-badge"
-        >
-          {{ unreadCount }}
-        </ion-badge>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="users-main-content" class="um-content">
   <!-- ── Shared header logo ────────────────────────────────────────────── -->

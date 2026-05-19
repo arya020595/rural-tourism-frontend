@@ -7,9 +7,9 @@ import { IonicModule } from '@ionic/angular';
 import { SharedModule } from '../_shared/shared.module';
 import { BookingAddPageRoutingModule } from './booking-add-routing.module';
 import { BookingAddPage } from './booking-add.page';
-import { AccommodationBookingFormComponent } from './components/accommodation-booking-form/accommodation-booking-form.component';
-import { ActivityBookingFormComponent } from './components/activity-booking-form/activity-booking-form.component';
-import { PackageBookingFormComponent } from './components/package-booking-form/package-booking-form.component';
+import { ActivityBookingFormComponent } from '../booking-forms/components/activity-booking-form/activity-booking-form.component';
+import { AccommodationBookingFormComponent } from '../booking-forms/components/accommodation-booking-form/accommodation-booking-form.component';
+import { PackageBookingFormComponent } from '../booking-forms/components/package-booking-form/package-booking-form.component';
 
 @NgModule({
   imports: [
@@ -17,13 +17,11 @@ import { PackageBookingFormComponent } from './components/package-booking-form/p
     FormsModule,
     IonicModule,
     SharedModule,
-    BookingAddPageRoutingModule,
-  ],
-  declarations: [
-    BookingAddPage,
     ActivityBookingFormComponent,
     AccommodationBookingFormComponent,
     PackageBookingFormComponent,
+    BookingAddPageRoutingModule,
   ],
+  declarations: [BookingAddPage],
 })
 export class BookingAddPageModule {}

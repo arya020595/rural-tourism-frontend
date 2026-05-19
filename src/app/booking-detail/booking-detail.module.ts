@@ -6,11 +6,11 @@ import { IonicModule } from '@ionic/angular';
 
 import { BookingDetailPageRoutingModule } from './booking-detail-routing.module';
 import { SharedModule } from '../_shared/shared.module';
+import { ActivityBookingFormComponent } from '../booking-forms/components/activity-booking-form/activity-booking-form.component';
+import { AccommodationBookingFormComponent } from '../booking-forms/components/accommodation-booking-form/accommodation-booking-form.component';
+import { PackageBookingFormComponent } from '../booking-forms/components/package-booking-form/package-booking-form.component';
 
 import { BookingDetailPage } from './booking-detail.page';
-import { ActivityBookingDetailComponent } from './components/activity-booking-detail/activity-booking-detail.component';
-import { AccommodationBookingDetailComponent } from './components/accommodation-booking-detail/accommodation-booking-detail.component';
-import { PackageBookingDetailComponent } from './components/package-booking-detail/package-booking-detail.component';
 
 @NgModule({
   imports: [
@@ -19,12 +19,10 @@ import { PackageBookingDetailComponent } from './components/package-booking-deta
     IonicModule,
     BookingDetailPageRoutingModule,
     SharedModule,
+    ActivityBookingFormComponent,
+    AccommodationBookingFormComponent,
+    PackageBookingFormComponent,
   ],
-  declarations: [
-    BookingDetailPage,
-    ActivityBookingDetailComponent,
-    AccommodationBookingDetailComponent,
-    PackageBookingDetailComponent,
-  ],
+  declarations: [BookingDetailPage],
 })
 export class BookingDetailPageModule {}

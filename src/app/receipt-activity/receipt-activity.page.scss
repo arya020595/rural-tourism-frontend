@@ -1,178 +1,447 @@
-body {
-    background: black
-  }
-  
-  ion-content {
-    --background: none;
-  }
+ion-content {
+  --background: #000;
+}
 
-  .details{
-    margin-bottom: 10%;
-    font-size: 12px;
+#container {
+  min-height: 100vh;
+  padding: 20px;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-        p{
-            font-size: 25px;
-            font-family: 'Roboto';
-            font-weight: bold;
-            text-transform: uppercase;
-            color: black;
-        }
-  }
-  
-  // .custom-header{
-  //   height: 8vh; box-shadow: none; 
-  //   // background-color: transparent;
-  //   border-radius: 30px;
-  //   border-color: white;
-  // }
+/* Match receipt module PDF sizing for capture clone */
+.receipt-capture-clone {
+  width: 520px !important;
+  max-width: 520px !important;
+}
 
-  .card-header{
-    border-bottom: 2px solid #161616;
-    margin-bottom: 10%;
-  }
+.receipt-capture-clone .receipt-card {
+  width: 520px !important;
+  padding: 22px 20px 18px !important;
+}
 
-  .right-content {
-    text-align: center; /* Center the content inside the right container */
-    margin-top: -10%;
-  }
+.receipt-capture-clone .logo {
+  height: 44px !important;
+  max-width: 140px !important;
+}
 
-  .date-container {
-    position: absolute;
-    bottom: 10%;
-    right: 0;
-    font-size: 18px;
-    color: #555;
-    font-weight: bold;
-    padding-right: 10px;
-    padding-top: 10px;
-    font-family: monospace;
-  }
-  
-  .logo{
-      height: 70px;
-      width: 100px;
-      align-items: baseline;
-    }
-  
-    /* home.page.scss */
-  
-  ion-content {
-    background-color: rgb(48, 48, 48);
-    background-size: cover; /* Cover the entire background */
-    background-repeat: no-repeat; /* Prevent tiling */
-    background-position: center; /* Center the image */
-    height: 100vh; /* Ensure it covers the full height */
-    color: white; /* Optional: text color for visibility */
-  }
-  
-  
-    #form ion-item{
-      margin-bottom: 15%;
-    }
-  
-    #form ion-list{
-      padding-right: 5%;
-    }
-  
-    .main-Container{
-      margin-top: 5%;
-      border-radius: 30px;
-      padding:5%;
-      
-    }
-  
-    #container {
-      // text-align: center;
-      // overflow: auto;
-      position: relative;
-      left: 0;
-      right: 0;
-      // top: 0%;
-      // transform: translateY(-50%);
-    }
+.receipt-capture-clone .receipt-date {
+  font-size: 14px !important;
+}
 
-    .totalRM{
-        border-top: 2px solid #666666;
-        border-bottom: 2px solid #666666;
-    }
+.receipt-capture-clone .row-value {
+  font-size: 15px !important;
+}
 
-    .price-container {
-        // position: absolute;
-        bottom: 10%;
-        right: 0;
-        font-size: 18px;
-        color: #555;
-        font-weight: bold;
-        padding-right: 10px;
-        padding-top: 10px;
-        font-family: monospace;
-      }
-    
+.receipt-capture-clone .issued-name {
+  font-size: 17px !important;
+}
 
-      .total{
-        font-size: 12px;
-        
+.receipt-capture-clone .issued-email {
+  font-size: 12px !important;
+}
 
-            p{
-                position: relative;
-                top: -10;
-                font-size: 30px;
-                
-            }
-      }
+.receipt-capture-clone .total-amount {
+  font-size: 20px !important;
+}
 
- /* Receipt Footer Styling (Total section) */
+.receipt-card-wrapper {
+  width: 100%;
+  max-width: 1120px;
+}
+
+.receipt-card {
+  background: #efefef;
+  border-radius: 18px;
+  padding: 28px 34px 20px;
+  border: 1px solid #d7d7d7;
+  font-family: Roboto, sans-serif;
+}
+
+.receipt-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #d2d2d2;
+}
+
+.header-logos {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.logo {
+  object-fit: contain;
+  width: auto;
+  height: 52px;
+  max-width: 160px;
+  display: block;
+}
+
+.logo-divider {
+  width: 1px;
+  height: 42px;
+  background: #111;
+}
+
+.receipt-date {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  font-family: monospace;
+  margin-bottom: 1px;
+}
+
+.receipt-body {
+  padding: 20px 0 10px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 34px;
+}
+
+.details-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.receipt-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row-label {
+  color: #4f4f4f;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+
+.row-value {
+  color: #141414;
+  font-size: 23px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.18;
+}
+
 .receipt-footer {
-    padding: 10px 20px;
-    border-top: 2px solid #666666; /* Top border */
-    border-bottom: 2px solid #666666; /* Bottom border */
-    display: flex;
-    flex-direction: column;  /* Stack items vertically */
-      /* Center the content */
-  }
-  
-  /* Styling for Total text and amount */
-  .receipt-total {
-    display: flex;
-    flex-direction: column;  /* Stack Total and Amount vertically */
-    align-items:flex-end;  /* Center the text */
-    width: 100%;  /* Take up full width */
-  }
-  
-  .totalAmt {
-    font-family: 'Roboto';
-    font-size: 16px;
-    color: #555;
-    font-weight: lighter;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 24px;
+  border-top: 1px solid #d2d2d2;
+  padding-top: 16px;
+}
 
-  }
-  
-  .amount {
-    font-size: 30px;
-    font-family: 'Roboto';
-    font-weight: bold;
-    color: #0a0e14; /* Amount color */
-    text-transform: uppercase;
+.issued-block .row-label {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.issued-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e1e1e;
+  text-transform: uppercase;
+}
+
+.issued-email {
+  font-size: 14px;
+  color: #333;
+}
+
+.total-block {
+  text-align: right;
+}
+
+.total-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #333;
+  line-height: 1.1;
+}
+
+.total-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.receipt-qr-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #d2d2d2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.qr-text {
+  text-align: right;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #2d2d2d;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-ms,
+.qr-en {
+  display: block;
+}
+
+.qr-en {
+  font-style: italic;
+}
+
+.qr-code-container {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+qrcode {
+  transform: scale(0.5);
+  transform-origin: center;
+}
+
+.receipt-footer-button {
+  width: 100%;
+  max-width: 1120px;
+  margin-top: 14px;
+}
+
+.btn-back {
+  --background: #076f2d;
+  --background-activated: #055d25;
+  --color: #fff;
+  --border-radius: 4px;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+@media (max-width: 920px) {
+  .receipt-card-wrapper,
+  .receipt-footer-button {
+    max-width: 400px;
   }
 
-  .qr-section{
-    margin-top: 5%;
-    align-items: center;
+  .receipt-card {
+    padding: 22px 20px 18px;
+    border-radius: 20px;
+  }
+
+  .receipt-header {
+    padding-bottom: 12px;
+  }
+
+  .logo-divider {
+    height: 36px;
+  }
+
+  .logo {
+    width: auto;
+    height: 44px;
+    max-width: 140px;
+  }
+
+  .receipt-date {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  .receipt-body {
+    padding-top: 16px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .details-column {
+    gap: 16px;
+  }
+
+  .row-label {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .row-value {
+    font-size: 15px;
+  }
+
+  .receipt-footer {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .issued-block {
     text-align: center;
   }
 
-  .btn-home{
-    --background: #024E25;
-    // background-color: #3880ff;
-    height: 50px;
-    margin-top: 5%; 
-    margin-left: 10px; 
-    margin-right: 10px;
-    margin-bottom: 10%;
+  .issued-block .row-label {
+    font-size: 13px;
   }
 
-  .qr-btn{
-    margin-top: 5%;
-    align-items: center;
-    text-align: center;
+  .issued-name {
+    font-size: 17px;
   }
+
+  .issued-email {
+    font-size: 14px;
+  }
+
+  .total-block {
+    background: #e9e9e9;
+    border: 1px solid #d4d4d4;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .total-label {
+    font-size: 13px;
+  }
+
+  .total-amount {
+    font-size: 20px;
+  }
+
+  .receipt-qr-section {
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .qr-text {
+    text-align: center;
+    font-size: 11px;
+    min-height: auto;
+    display: block;
+  }
+
+  .qr-ms,
+  .qr-en {
+    display: block;
+  }
+
+  .qr-code-container {
+    width: 140px;
+    height: 140px;
+  }
+
+  qrcode {
+    transform: scale(0.5);
+  }
+
+  .btn-back {
+    height: 46px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 921px) {
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 46px;
+    row-gap: 22px;
+    align-items: start;
+  }
+
+  .receipt-row--booked {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .receipt-row--activity {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .receipt-row--pax {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .receipt-row--company {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .receipt-row--location {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .receipt-row--status {
+    grid-column: 2;
+    grid-row: 3;
+  }
+}
+
+/* Ensure the offscreen capture clone uses mobile typography regardless of viewport width */
+/* capture-clone overrides removed to allow desktop/media queries to apply */
+/* For PDF capture: force the clone to use a narrow portrait card with two columns */
+.receipt-capture-clone {
+  width: 520px !important;
+  max-width: 520px !important;
+}
+.receipt-capture-clone .receipt-card {
+  width: 520px !important;
+  padding: 22px 20px 18px !important;
+}
+.receipt-capture-clone .details-grid {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 20px !important;
+}
+.receipt-capture-clone .receipt-footer {
+  grid-template-columns: 1fr auto !important;
+  gap: 24px !important;
+  align-items: center !important;
+}
+.receipt-capture-clone .issued-block {
+  text-align: left !important;
+}
+.receipt-capture-clone .total-block {
+  text-align: right !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+.receipt-capture-clone .row-value { font-size: 15px !important; }
+.receipt-capture-clone .receipt-date { font-size: 16px !important; }
+.receipt-capture-clone .total-amount { font-size: 20px !important; }

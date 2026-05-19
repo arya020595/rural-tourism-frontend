@@ -1,46 +1,16 @@
-ion-content{
-  --ion-background-color:#282c28;
+// ── Shared toolbar ───────────────────────────────────────────────
+ion-content {
+  --ion-background-color: #282c28;
 }
 
-ion-toolbar {
+.e-receipt-header ion-toolbar {
   --background: #282c28;
-  --box-shadow: none !important;
-  --border-width: 0px !important;
-  color: inherit;
-  padding: 0;
-}
-
-ion-menu.side-menu {
-  --background: #f0f0f0;
-}
-
-.item-nav{
-  --padding-start: 0;
+  --box-shadow: none;
   --border-width: 0;
-  --border-style: none !important;
-  margin-left: 5%;
 }
 
-.side-menu{
-  --ion-background-color: white !important;
-}
-
-.logo-side-panel {
-  width: 200px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 1px;
-  text-align: center;
-  padding: 5%;
-}
-
-#container {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+.menu-toggle {
+  color: #ffffff;
 }
 
 .notification-button {
@@ -49,7 +19,7 @@ ion-menu.side-menu {
 
 .notification-bell {
   font-size: 24px;
-  color: #FFC107;
+  color: #ffc107;
 }
 
 .notification-badge {
@@ -63,8 +33,105 @@ ion-menu.side-menu {
   transform: translate(25%, -25%);
 }
 
-.main-Container{
-  --ion-background-color:tranparent;
+// ── Desktop view ─────────────────────────────────────────────────
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #f5f5f5;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.page-container {
+  background: #f5f5f5;
+  border-radius: 14px;
+  padding: 18px 22px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  border-bottom: 1px solid #dadada;
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0 0 12px;
+    color: #04552f;
+    font-size: 48px;
+    font-weight: 800;
+  }
+}
+
+.receipt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.receipt-tile {
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  height: 240px;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.tile-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.tile-label {
+  position: absolute;
+  bottom: 10px;
+  left: 5%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.card-texts {
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tile-icon {
+  width: 70px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+// ── Mobile view (original) ────────────────────────────────────────
+.main-Container {
+  --ion-background-color: transparent;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
   margin-top: 5vh;
   border-radius: 30px;
@@ -72,46 +139,20 @@ ion-menu.side-menu {
   background-color: white;
 }
 
-#container img{
-  height: 60px;
-}
-
-.tree{
-  width: 70px;
-  height: auto;
-}
-
-.house{
-  width: 70px;
-  height: auto;
-}
-
-.text1{
-  bottom: -60%;
-}
-
-.center{
+.center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.logo{
-  width: 300px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  padding: 5%;
+.tree {
+  width: 70px;
+  height: auto;
 }
 
-.logo-side-panel {
-  width: 200px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 1px;
-  text-align: center;
-  padding: 5%;
+.house {
+  width: 70px;
+  height: auto;
 }
 
 .custom-card {
@@ -121,11 +162,7 @@ ion-menu.side-menu {
   height: 30vh;
   border-radius: 30px;
   position: relative;
-  background-image: url(../../assets/mountain.jpg);
-  background-size: 50vh;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center -60px;
+  overflow: hidden;
   margin-top: -100px;
 }
 
@@ -136,10 +173,7 @@ ion-menu.side-menu {
   height: 30vh;
   border-radius: 30px;
   position: relative;
-  background-image: url(../../assets/accom.jpg);
-  background-size: 50vh;
-  background-size: cover;
-  background-repeat: no-repeat;
+  overflow: hidden;
   margin-top: -100px;
 }
 
@@ -150,44 +184,53 @@ ion-menu.side-menu {
   height: 30vh;
   border-radius: 30px;
   position: relative;
-  background-image: url(../../assets/package.jpg);
-  background-size: 50vh;
-  background-size: cover;
-  background-repeat: no-repeat;
+  overflow: hidden;
   margin-top: -100px;
 }
 
-.card-button {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.card-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  object-fit: cover;
+  object-position: center;
 }
 
-.card-content {
-  margin-top: auto;
-  height: 100%;
-}
-
-.card-texts{
+.cards {
   color: white;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.cards{
-  color: white;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: absolute;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
   bottom: 10px;
   left: 5%;
 }
 
-.text-title{
-  color: white;
+// ── Responsive breakpoints ────────────────────────────────────────
+@media (max-width: 992px) {
+  .title-row h1 {
+    font-size: 38px;
+  }
+
+  .receipt-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tile-image {
+    height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  ion-content {
+    --ion-background-color: #282c28;
+  }
 }

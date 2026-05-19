@@ -1,0 +1,335 @@
+<form
+  class="booking-form"
+  [class.view-mode]="isViewMode"
+  autocomplete="off"
+  autocapitalize="off"
+  spellcheck="false"
+  novalidate
+  (ngSubmit)="submitForm()"
+>
+  <section class="form-section">
+    <h3>{{ formTitle }}</h3>
+
+    <div class="field-grid two-col">
+      <div class="field">
+        <label>2. Tarikh/Date<span class="required">*</span></label>
+        <div class="input-with-icon">
+          <input
+            #activityDateInput
+            type="date"
+            [(ngModel)]="bookingDate"
+            name="activityBookingDate"
+            [readonly]="isViewMode"
+          />
+          <ion-icon
+            name="calendar-clear-outline"
+            aria-hidden="true"
+            (click)="openDatePicker(activityDateInput)"
+          ></ion-icon>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>3. Masa/Time<span class="required">*</span></label>
+        <div class="input-with-icon">
+          <input
+            #activityTimeInput
+            type="time"
+            step="60"
+            [(ngModel)]="bookingTime"
+            name="activityBookingTime"
+            [readonly]="isViewMode"
+          />
+          <ion-icon
+            name="time-outline"
+            aria-hidden="true"
+            (click)="openTimePicker(activityTimeInput)"
+          ></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-grid one-col">
+      <div class="field">
+        <label
+          >4. Nama Penuh Pelancong/Tourist Full Name<span class="required"
+            >*</span
+          ></label
+        >
+        <input
+          type="text"
+          [(ngModel)]="fullName"
+          name="actF01"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
+          placeholder="Sila masukkan nama penuh pelancong/Please enter tourist full name"
+          [readonly]="isViewMode"
+        />
+      </div>
+    </div>
+
+    <div class="field-grid two-col">
+      <div class="field">
+        <label>5. No. Telefon/Telephone No.</label>
+        <input
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="15"
+          [(ngModel)]="phone"
+          name="actF02"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
+          placeholder="Sila masukkan no. telefon/Please enter telephone no."
+          [readonly]="isViewMode"
+          (input)="onNumericInput('phone', $any($event.target).value)"
+          (keydown)="onNumericKeydown($event)"
+          (paste)="onNumericPaste('phone', $event)"
+        />
+      </div>
+
+      <div class="field">
+        <label>6. Emel/Email</label>
+        <input
+          type="text"
+          [(ngModel)]="email"
+          name="actF03"
+          autocomplete="off"
+          autocorrect="off"
+          aria-autocomplete="none"
+          placeholder="Sila masukkan emel/Please enter email"
+          [readonly]="isViewMode"
+        />
+      </div>
+    </div>
+
+    <section class="form-section">
+      <h2 class="form-input-label">
+        7. Domestik/Antarabangsa<span class="required">*</span>
+      </h2>
+      <div class="radio-grid three-col">
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'domestic'"
+        >
+          <input
+            type="radio"
+            name="activityNationality"
+            value="domestic"
+            [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
+          />
+          <span>Domestik</span>
+        </label>
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'international'"
+        >
+          <input
+            type="radio"
+            name="activityNationality"
+            value="international"
+            [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
+          />
+          <span>Antarabangsa</span>
+        </label>
+        <label
+          class="radio-card"
+          [class.active]="selectedNationality === 'both'"
+        >
+          <input
+            type="radio"
+            name="activityNationality"
+            value="both"
+            [(ngModel)]="selectedNationality"
+            [disabled]="isViewMode"
+          />
+          <span>Domestik/Antarabangsa</span>
+        </label>
+      </div>
+    </section>
+
+    <ng-container *ngIf="isMixedNationality; else singleNationalityLayout">
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >8(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            [(ngModel)]="domesticPax"
+            name="activityDomesticPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('domesticPax', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="field">
+          <label
+            >8(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
+              class="required"
+              >*</span
+            ></label
+          >
+          <input
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            [(ngModel)]="internationalPax"
+            name="activityInternationalPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="
+              onNumericInput('internationalPax', $any($event.target).value)
+            "
+          />
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>9. Aktiviti/Activity<span class="required">*</span></label>
+          <select
+            class="field-input native-select"
+            [(ngModel)]="activity"
+            name="activityNameMixed"
+            [disabled]="isViewMode"
+            (ngModelChange)="onActivityInput()"
+          >
+            <option value="" disabled hidden>Sila pilih aktiviti</option>
+            <option *ngFor="let option of activityOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+          <div class="field-error" *ngIf="activitySelectionError">
+            {{ activitySelectionError }}
+          </div>
+        </div>
+
+        <div class="field">
+          <label>10. Jumlah/Total (RM)<span class="required">*</span></label>
+          <input
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [(ngModel)]="total"
+            name="activityTotalMixed"
+            placeholder="Sila isi jumlah bayaran/Please insert total payment"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('total', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('total', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>11. Nama Pengandali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="activityOperatorMixed"
+            placeholder="Sila isi nama pengandali/Enter operator name"
+            [readonly]="isViewMode"
+          />
+        </div>
+
+        <div class="field" aria-hidden="true"></div>
+      </div>
+    </ng-container>
+
+    <ng-template #singleNationalityLayout>
+      <div class="field-grid two-col">
+        <div class="field">
+          <label
+            >8. Bilangan Orang/No. of Pax<span class="required">*</span></label
+          >
+          <input
+            type="number"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            [(ngModel)]="paxCount"
+            name="activityPax"
+            placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('paxCount', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="field">
+          <label>9. Aktiviti/Activity<span class="required">*</span></label>
+          <select
+            class="field-input native-select"
+            [(ngModel)]="activity"
+            name="activityNameSingle"
+            [disabled]="isViewMode"
+            (ngModelChange)="onActivityInput()"
+          >
+            <option value="" disabled hidden>Sila pilih aktiviti</option>
+            <option *ngFor="let option of activityOptions" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+          <div class="field-error" *ngIf="activitySelectionError">
+            {{ activitySelectionError }}
+          </div>
+        </div>
+      </div>
+
+      <div class="field-grid two-col">
+        <div class="field">
+          <label>10. Jumlah/Total (RM)<span class="required">*</span></label>
+          <input
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [(ngModel)]="total"
+            name="activityTotalSingle"
+            placeholder="Sila isi jumlah bayaran/Please insert total payment"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('total', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('total', $event)"
+          />
+        </div>
+        <div class="field">
+          <label>11. Nama Pengandali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="activityOperatorSingle"
+            placeholder="Sila isi nama pengandali/Enter operator name"
+            [readonly]="isViewMode"
+          />
+        </div>
+      </div>
+    </ng-template>
+
+    <div *ngIf="!isViewMode" class="action-row">
+      <button type="button" class="bottom-action cancel" (click)="onCancel()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        <span>Batal Tempahan/Cancel Booking</span>
+      </button>
+
+      <button type="submit" class="bottom-action submit">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+        <span>{{ submitLabel }}</span>
+      </button>
+    </div>
+  </section>
+</form>

@@ -19,18 +19,38 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
+      <ion-button
+        *ngIf="(pendingCount$ | async) as count"
+        class="notification-button"
+        aria-label="Pending sync"
+      >
+        <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+        <ion-badge color="warning">{{ count }}</ion-badge>
       </ion-button>
+
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
+<app-notification-panel #notifPanel></app-notification-panel>
+
 <ion-content [fullscreen]="true" id="booking-main-content">
+  <!-- Failed/conflict sync banner -->
+  <ion-item color="danger" *ngIf="failedCount > 0" lines="none" button (click)="openConflictResolve()">
+    <ion-icon name="warning-outline" slot="start"></ion-icon>
+    <ion-label>
+      {{ failedCount }} booking(s) failed to sync. Tap to review.
+    </ion-label>
+    <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+  </ion-item>
+
+  <!-- Offline mode banner -->
+  <ion-item color="medium" *ngIf="isOffline" lines="none">
+    <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
+    <ion-label>You are offline. Showing last synced bookings.</ion-label>
+  </ion-item>
+
   <div class="surface-card">
     <div class="booking-container">
       <div class="logo-row">
@@ -67,8 +87,17 @@
 
       <app-booking-list-table
         *ngIf="viewMode === 'table'"
-        [bookings]="bookings"
+        [bookings]="pagedBookings"
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalBookings]="filteredBookings.length"
+        [totalPages]="totalBookingPages"
+        [queueStatusMap]="queueStatusMap"
+        [statusFilter]="statusFilter"
+        (pageChange)="changeBookingPage($event)"
         (viewDetails)="viewBookingDetails($event)"
+        (editBooking)="editBooking($event)"
+        (statusFilterChange)="cycleStatusFilter()"
       ></app-booking-list-table>
 
       <section *ngIf="viewMode === 'calendar'" class="calendar-layout">
@@ -107,6 +136,7 @@
               [class.selected]="isSelectedDay(cell)"
               [class.paid]="getDayStatusClass(cell) === 'paid'"
               [class.booked]="getDayStatusClass(cell) === 'booked'"
+              [class.pending]="getDayStatusClass(cell) === 'pending'"
               (click)="selectDate(cell)"
               [disabled]="!cell.inCurrentMonth"
             >
@@ -122,17 +152,23 @@
             <div class="legend-list">
               <div class="legend-item">
                 <span class="legend-box booked"></span>
-                <span>Booked</span>
+                <span>Booked/Deposit</span>
               </div>
               <div class="legend-item">
                 <span class="legend-box paid"></span>
-                <span>Paid</span>
+                <span>Booked/Paid</span>
               </div>
             </div>
           </div>
 
           <div class="booked-body">
-            <div class="date-label">{{ selectedDateLabel }}</div>
+            <div
+              class="date-label"
+              [class.paid]="getSelectedDateStatusClass() === 'paid'"
+              [class.pending]="getSelectedDateStatusClass() === 'pending'"
+            >
+              {{ selectedDateLabel }}
+            </div>
 
             <ng-container
               *ngIf="selectedDateBookings.length > 0; else noBookingsTemplate"
@@ -141,9 +177,10 @@
                 class="booking-chip"
                 *ngFor="let booking of selectedDateBookings"
                 [class.paid]="getBookingStatusClass(booking) === 'paid'"
-                [class.booked]="getBookingStatusClass(booking) === 'booked'"
+                [class.pending]="getBookingStatusClass(booking) === 'pending'"
+                (click)="viewBookingDetails(booking)"
               >
-                <div class="booking-chip-title">{{ booking.serviceName }}</div>
+                <div class="booking-chip-title">{{ booking.serviceName }} <span class="booking-chip-id">(#{{ booking.id }})</span></div>
                 <div class="booking-chip-meta">
                   {{ booking.type }} - {{ getBookingStatusText(booking) }}
                 </div>

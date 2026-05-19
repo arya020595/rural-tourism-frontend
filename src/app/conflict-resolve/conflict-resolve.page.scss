@@ -1,0 +1,70 @@
+.conflict-diff-grid {
+  border: 1px solid var(--ion-color-light-shade);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.diff-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-left: 120px;
+}
+
+.diff-col-label {
+  padding: 8px 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.mine {
+    background: var(--ion-color-primary-tint);
+    color: var(--ion-color-primary-shade);
+  }
+
+  &.server {
+    background: var(--ion-color-warning-tint);
+    color: var(--ion-color-warning-shade);
+  }
+}
+
+.diff-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr;
+  border-top: 1px solid var(--ion-color-light-shade);
+
+  &.diff-changed {
+    background: #fff8e1;
+
+    .diff-field-name {
+      color: var(--ion-color-warning-shade);
+      font-weight: 600;
+    }
+  }
+}
+
+.diff-field-name {
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: var(--ion-color-medium-shade);
+  background: var(--ion-color-light);
+  border-right: 1px solid var(--ion-color-light-shade);
+  word-break: break-word;
+}
+
+.diff-value {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  word-break: break-word;
+
+  &.mine {
+    border-right: 1px solid var(--ion-color-light-shade);
+  }
+}
+
+.action-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

@@ -1,18 +1,63 @@
 <ion-content [fullscreen]="true">
   <div id="container">
-    <form (ngSubmit)="submitForm(myForm)" #myForm="ngForm">
+    <form
+      (ngSubmit)="submitForm(myForm)"
+      #myForm="ngForm"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      novalidate
+    >
+      <!-- Anti-autofill dummy fields (keep hidden) -->
+      <input
+        type="text"
+        autocomplete="username"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+      />
+      <input
+        type="password"
+        autocomplete="new-password"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+      />
+      <!-- Hidden trap fields to absorb browser autofill (name, phone, email) -->
+      <input
+        type="text"
+        name="given-name"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+        autocomplete="off"
+      />
+      <input
+        type="tel"
+        name="tel"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+        autocomplete="off"
+      />
+      <input
+        type="email"
+        name="email"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+        autocomplete="off"
+      />
       <ion-card class="main-Container">
-
         <!-- Back Button -->
         <ion-buttons class="back-btn-wrapper">
-          <ion-back-button defaultHref="/home" icon="arrow-back-outline" text="" class="circle-back-btn"></ion-back-button>
+          <ion-back-button
+            defaultHref="/home"
+            icon="arrow-back-outline"
+            text=""
+            class="circle-back-btn"
+          ></ion-back-button>
         </ion-buttons>
 
         <app-header-logo></app-header-logo>
 
         <ion-card-content id="form">
           <ion-list>
-
             <!-- Form Title -->
             <div class="form-title">
               <h2>Pakej Pelancongan</h2>
@@ -54,7 +99,10 @@
                   <span>Domestik/Antarabangsa</span>
                 </label>
               </div>
-              <ion-item *ngIf="citizenship.invalid && citizenship.touched" class="error-message no-border">
+              <ion-item
+                *ngIf="citizenship.invalid && citizenship.touched"
+                class="error-message no-border"
+              >
                 <ion-text>
                   *Sila pilih Warganegara / Please choose a Citizenship status
                 </ion-text>
@@ -64,15 +112,19 @@
             <!-- Q2: Pax -->
             <ng-container *ngIf="form.citizenship === ''">
               <div class="field-label question-label">
-                2. Bilangan Orang/No. of Pax <span class="error-message">*</span>
+                2. Bilangan Orang/No. of Pax
+                <span class="error-message">*</span>
               </div>
               <div class="pax-input-wrap">
                 <ion-item>
                   <ion-input
                     [clearInput]="true"
                     placeholder="Sila pilih Domestik/Antarabangsa"
-                    [(ngModel)]="form.pax" name="pax"
-                    type="number" readonly>
+                    [(ngModel)]="form.pax"
+                    name="pax"
+                    type="number"
+                    readonly
+                  >
                   </ion-input>
                 </ion-item>
               </div>
@@ -80,38 +132,58 @@
 
             <ng-container *ngIf="form.citizenship === 'Warganegara'">
               <div class="field-label question-label">
-                2. Bilangan Orang/No. of Pax (Domestik) <span class="error-message">*</span>
+                2. Bilangan Orang/No. of Pax (Domestik)
+                <span class="error-message">*</span>
               </div>
               <div class="pax-input-wrap">
                 <ion-item>
                   <ion-input
                     [clearInput]="true"
                     placeholder="No. Bilangan Orang/Pax"
-                    [(ngModel)]="form.pax_domestik" name="pax_domestik"
-                    required #pax_domestik="ngModel" type="number">
+                    [(ngModel)]="form.pax_domestik"
+                    name="pax_domestik"
+                    required
+                    #pax_domestik="ngModel"
+                    type="number"
+                  >
                   </ion-input>
                 </ion-item>
-                <ion-item *ngIf="pax_domestik.invalid && pax_domestik.touched" class="error-message no-border">
-                  <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                <ion-item
+                  *ngIf="pax_domestik.invalid && pax_domestik.touched"
+                  class="error-message no-border"
+                >
+                  <ion-text
+                    >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
+                  >
                 </ion-item>
               </div>
             </ng-container>
 
             <ng-container *ngIf="form.citizenship === 'Bukan Warganegara'">
               <div class="field-label question-label">
-                2. Bilangan Orang/No. of Pax (Antarabangsa) <span class="error-message">*</span>
+                2. Bilangan Orang/No. of Pax (Antarabangsa)
+                <span class="error-message">*</span>
               </div>
               <div class="pax-input-wrap">
                 <ion-item>
                   <ion-input
                     [clearInput]="true"
                     placeholder="No. Bilangan Orang/Pax"
-                    [(ngModel)]="form.pax_antarabangsa" name="pax_antarabangsa"
-                    required #pax_antarabangsa="ngModel" type="number">
+                    [(ngModel)]="form.pax_antarabangsa"
+                    name="pax_antarabangsa"
+                    required
+                    #pax_antarabangsa="ngModel"
+                    type="number"
+                  >
                   </ion-input>
                 </ion-item>
-                <ion-item *ngIf="pax_antarabangsa.invalid && pax_antarabangsa.touched" class="error-message no-border">
-                  <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                <ion-item
+                  *ngIf="pax_antarabangsa.invalid && pax_antarabangsa.touched"
+                  class="error-message no-border"
+                >
+                  <ion-text
+                    >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
+                  >
                 </ion-item>
               </div>
             </ng-container>
@@ -120,45 +192,68 @@
               <div class="form-row-2col">
                 <div class="form-col">
                   <div class="field-label question-label">
-                    2(a). Bilangan Orang/No. of Pax (Domestik) <span class="error-message">*</span>
+                    2(a). Bilangan Orang/No. of Pax (Domestik)
+                    <span class="error-message">*</span>
                   </div>
                   <ion-item>
                     <ion-input
                       [clearInput]="true"
                       placeholder="No. Bilangan Orang/Pax"
-                      [(ngModel)]="form.pax_domestik" name="pax_domestik_mix"
-                      required #pax_domestik_mix="ngModel" type="number">
+                      [(ngModel)]="form.pax_domestik"
+                      name="pax_domestik_mix"
+                      required
+                      #pax_domestik_mix="ngModel"
+                      type="number"
+                    >
                     </ion-input>
                   </ion-item>
-                  <ion-item *ngIf="pax_domestik_mix.invalid && pax_domestik_mix.touched" class="error-message no-border">
-                    <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                  <ion-item
+                    *ngIf="pax_domestik_mix.invalid && pax_domestik_mix.touched"
+                    class="error-message no-border"
+                  >
+                    <ion-text
+                      >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
+                    >
                   </ion-item>
                 </div>
                 <div class="form-col">
                   <div class="field-label question-label">
-                    2(b). Bilangan Orang/No. of Pax (Antarabangsa) <span class="error-message">*</span>
+                    2(b). Bilangan Orang/No. of Pax (Antarabangsa)
+                    <span class="error-message">*</span>
                   </div>
                   <ion-item>
                     <ion-input
                       [clearInput]="true"
                       placeholder="No. Bilangan Orang/Pax"
-                      [(ngModel)]="form.pax_antarabangsa" name="pax_antarabangsa_mix"
-                      required #pax_antarabangsa_mix="ngModel" type="number">
+                      [(ngModel)]="form.pax_antarabangsa"
+                      name="pax_antarabangsa_mix"
+                      required
+                      #pax_antarabangsa_mix="ngModel"
+                      type="number"
+                    >
                     </ion-input>
                   </ion-item>
-                  <ion-item *ngIf="pax_antarabangsa_mix.invalid && pax_antarabangsa_mix.touched" class="error-message no-border">
-                    <ion-text>*Sila isi Bilangan Orang/No. of Pax is required</ion-text>
+                  <ion-item
+                    *ngIf="pax_antarabangsa_mix.invalid && pax_antarabangsa_mix.touched"
+                    class="error-message no-border"
+                  >
+                    <ion-text
+                      >*Sila isi Bilangan Orang/No. of Pax is required</ion-text
+                    >
                   </ion-item>
                 </div>
               </div>
             </ng-container>
 
             <!-- Q3: Package -->
-            <div class="field-label question-label" style="margin-bottom: 8px;">
+            <div class="field-label question-label" style="margin-bottom: 8px">
               3. Pakej/Package <span class="error-message">*</span>
             </div>
 
-            <div *ngFor="let inputSet of inputSets; let i = index; trackBy: trackByIndex" class="package-row">
+            <div
+              *ngFor="let inputSet of inputSets; let i = index; trackBy: trackByIndex"
+              class="package-row"
+            >
               <div class="package-fields">
                 <div class="package-top-row">
                   <ion-item>
@@ -167,19 +262,27 @@
                       [(ngModel)]="inputSet.nameOfBusiness"
                       (ngModelChange)="onActivityChange(inputSet.nameOfBusiness)"
                       name="full_name_{{inputSet.id}}"
-                      required>
-                      <ion-select-option *ngFor="let business of businesses" [value]="business.full_name">
+                      required
+                    >
+                      <ion-select-option
+                        *ngFor="let business of businesses"
+                        [value]="business.full_name"
+                      >
                         {{ business?.full_name }}
                       </ion-select-option>
                     </ion-select>
                   </ion-item>
                   <ion-item>
                     <ion-input
-                      step="0.01" type="number"
+                      step="0.01"
+                      type="number"
                       placeholder="RM"
                       [(ngModel)]="inputSet.total_rm"
-                      name="total_rm_{{inputSet.id}}"
-                      required>
+                      name="pkgTotal_{{inputSet.id}}"
+                      required
+                      autocomplete="off"
+                      autocorrect="off"
+                    >
                     </ion-input>
                   </ion-item>
                 </div>
@@ -188,18 +291,30 @@
                     <ion-input
                       placeholder="Description"
                       [(ngModel)]="inputSet.packageDesc"
-                      name="package_desc_{{inputSet.id}}"
-                      required>
+                      name="pkgDesc_{{inputSet.id}}"
+                      required
+                      autocomplete="off"
+                      autocorrect="off"
+                    >
                     </ion-input>
                   </ion-item>
                 </div>
               </div>
-              <ion-button (click)="removeInputSet(i)" color="danger" fill="clear" class="delete-btn">
+              <ion-button
+                (click)="removeInputSet(i)"
+                color="danger"
+                fill="clear"
+                class="delete-btn"
+              >
                 <ion-icon name="trash"></ion-icon>
               </ion-button>
             </div>
 
-            <ion-button fill="clear" (click)="addInputSet()" class="add-more-btn">
+            <ion-button
+              fill="clear"
+              (click)="addInputSet()"
+              class="add-more-btn"
+            >
               <ion-icon slot="start" name="add-circle-outline"></ion-icon>
               Add More
             </ion-button>
@@ -207,14 +322,16 @@
             <!-- Q4 + Q5: Date and Operator side by side -->
             <div class="form-row-2col">
               <div class="form-col">
-                <div class="field-label question-label">
-                  4. Tarikh/Date
-                </div>
+                <div class="field-label question-label">4. Tarikh/Date</div>
                 <ion-item>
                   <ion-input
                     type="date"
-                    [(ngModel)]="form.date" name="date"
-                    #dateInput="ngModel">
+                    [(ngModel)]="form.date"
+                    name="pkgF01"
+                    #dateInput="ngModel"
+                    autocomplete="off"
+                    autocorrect="off"
+                  >
                   </ion-input>
                 </ion-item>
               </div>
@@ -226,8 +343,12 @@
                   <ion-input
                     [clearInput]="true"
                     placeholder="Nama Pengandali/Operator"
-                    [(ngModel)]="form.issuer" name="issuer"
-                    #issuerInput="ngModel">
+                    [(ngModel)]="form.issuer"
+                    name="pkgF02"
+                    #issuerInput="ngModel"
+                    autocomplete="off"
+                    autocorrect="off"
+                  >
                   </ion-input>
                 </ion-item>
               </div>
@@ -235,19 +356,16 @@
 
             <ion-button
               mode="ios"
-              style="margin: 16px 0 24px 0;"
+              style="margin: 16px 0 24px 0"
               expand="block"
               type="submit"
-              [disabled]="myForm.invalid">
+              [disabled]="myForm.invalid"
+            >
               Hantar / Submit
             </ion-button>
-
           </ion-list>
         </ion-card-content>
-
       </ion-card>
-
     </form>
   </div>
-
 </ion-content>

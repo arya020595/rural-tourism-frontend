@@ -1,0 +1,66 @@
+<app-side-nav
+  [menuId]="'ereceipt-add-menu'"
+  [contentId]="'ereceipt-add-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="ereceipt-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="ereceipt-add-menu" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content [fullscreen]="true" id="ereceipt-add-main-content">
+  <div class="surface-card">
+    <div class="booking-container">
+
+      <button type="button" class="back-link" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Kembali</span>
+      </button>
+
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1>E-Receipt — {{ pageTitle }}</h1>
+      </div>
+
+      <div class="booking-form">
+        <ng-container [ngSwitch]="bookingType">
+          <app-activity-booking-form
+            *ngSwitchCase="'activity'"
+            (bookingCancel)="goBack()"
+            (bookingSubmit)="handleFormSubmit('activity', $event)"
+          ></app-activity-booking-form>
+
+          <app-accommodation-booking-form
+            *ngSwitchCase="'accommodation'"
+            (bookingCancel)="goBack()"
+            (bookingSubmit)="handleFormSubmit('accommodation', $event)"
+          ></app-accommodation-booking-form>
+
+          <app-package-booking-form
+            *ngSwitchCase="'package'"
+            (bookingCancel)="goBack()"
+            (bookingSubmit)="handleFormSubmit('package', $event)"
+          ></app-package-booking-form>
+        </ng-container>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

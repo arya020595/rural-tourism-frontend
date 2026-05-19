@@ -19,18 +19,20 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
+<app-notification-panel #notifPanel></app-notification-panel>
+
 <ion-content [fullscreen]="true" id="booking-detail-main-content">
+  <!-- Offline banner -->
+  <ion-item color="warning" *ngIf="isOffline" lines="none">
+    <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
+    <ion-label>You are offline. Showing last saved booking data.</ion-label>
+  </ion-item>
+
   <div class="surface-card">
     <div class="booking-container">
       <button type="button" class="back-link" (click)="goBack()">
@@ -49,117 +51,109 @@
             <span class="status-label">Booking Status</span>
             <span
               class="status-pill"
-              [ngClass]="{'paid': booking?.status === 'Paid', 'booked': booking?.status === 'Booked', 'pending': booking?.status === 'Pending'}"
+              [ngClass]="{'paid': booking?.status === 'paid', 'pending': booking?.status === 'pending', 'cancelled': booking?.status === 'cancelled'}"
             >
-              {{ booking?.status }}
+              {{ booking?.status | titlecase }}
             </span>
           </div>
         </div>
       </div>
 
-      <div class="pdf-button-row">
-        <button
-          type="button"
-          class="pdf-button"
-          (click)="viewPaymentReceipt()"
-          [disabled]="!booking?.numericId"
-        >
-          <ion-icon name="document-text-outline"></ion-icon>
-          <span>Manjana PDF/Generate PDF</span>
-        </button>
-      </div>
-
       <ng-container *ngIf="booking; else noBookingTemplate">
-        <form
-          class="booking-form"
-          [ngClass]="{'disabled-section': booking.status === 'Paid' || booking.status === 'Pending' || booking.status === 'Booked'}"
+        <div
+          class="booking-form view-mode"
+          [ngClass]="{'disabled-section': true}"
         >
-          <!-- Booking Type Section -->
-          <section class="form-section">
-            <h3>1. Select Type</h3>
+          <section class="form-section disabled-section">
+            <div class="section-head-row">
+              <h3>1. Select Type</h3>
+              <button
+                *ngIf="booking?.status !== 'cancelled'"
+                type="button"
+                class="pdf-button"
+                (click)="viewPaymentReceipt()"
+                [disabled]="isGeneratingPdf || !booking.numericId || isOffline"
+              >
+                <ion-spinner
+                  *ngIf="isGeneratingPdf"
+                  name="crescent"
+                  class="pdf-spinner"
+                ></ion-spinner>
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>{{ isOffline ? 'PDF Unavailable Offline' : 'Manjana PDF/Generate PDF' }}</span>
+              </button>
+            </div>
             <div class="radio-grid three-col">
               <label
                 class="radio-card"
-                [class.checked]="booking.type === 'Activity'"
+                [class.checked]="bookingType === 'activity'"
               >
                 <input
                   type="radio"
                   name="type"
                   value="Activity"
-                  [checked]="booking.type === 'Activity'"
-                  [disabled]="booking.status === 'Paid' || booking.status === 'Pending' || booking.status === 'Booked'"
+                  [checked]="bookingType === 'activity'"
+                  disabled
                 />
                 <span>Activity</span>
               </label>
               <label
                 class="radio-card"
-                [class.checked]="booking.type === 'Accommodation'"
+                [class.checked]="bookingType === 'accommodation'"
               >
                 <input
                   type="radio"
                   name="type"
                   value="Accommodation"
-                  [checked]="booking.type === 'Accommodation'"
-                  [disabled]="booking.status === 'Paid' || booking.status === 'Pending' || booking.status === 'Booked'"
+                  [checked]="bookingType === 'accommodation'"
+                  disabled
                 />
                 <span>Accommodation</span>
               </label>
               <label
                 class="radio-card"
-                [class.checked]="booking.type === 'Package'"
+                [class.checked]="bookingType === 'package'"
               >
                 <input
                   type="radio"
                   name="type"
                   value="Package"
-                  [checked]="booking.type === 'Package'"
-                  [disabled]="booking.status === 'Paid' || booking.status === 'Pending' || booking.status === 'Booked'"
+                  [checked]="bookingType === 'package'"
+                  disabled
                 />
                 <span>Package</span>
               </label>
             </div>
           </section>
 
-          <!-- Activity Booking Detail Component -->
-          <app-activity-booking-detail
-            *ngIf="booking.type === 'Activity'"
+          <app-activity-booking-form
+            *ngIf="bookingType === 'activity'"
             [booking]="booking"
-            (cancel)="cancelBooking()"
-            (edit)="editBooking()"
-            (viewReceipt)="viewPaymentReceipt()"
-          >
-          </app-activity-booking-detail>
+            [mode]="bookingMode"
+          ></app-activity-booking-form>
 
-          <!-- Accommodation Booking Detail Component -->
-          <app-accommodation-booking-detail
-            *ngIf="booking.type === 'Accommodation'"
+          <app-accommodation-booking-form
+            *ngIf="bookingType === 'accommodation'"
             [booking]="booking"
-            (cancel)="cancelBooking()"
-            (edit)="editBooking()"
-            (viewReceipt)="viewPaymentReceipt()"
-          >
-          </app-accommodation-booking-detail>
+            [mode]="bookingMode"
+          ></app-accommodation-booking-form>
 
-          <!-- Package Booking Detail Component -->
-          <app-package-booking-detail
-            *ngIf="booking.type === 'Package'"
+          <app-package-booking-form
+            *ngIf="bookingType === 'package'"
             [booking]="booking"
-            (cancel)="cancelBooking()"
-            (edit)="editBooking()"
-            (viewReceipt)="viewPaymentReceipt()"
-          >
-          </app-package-booking-detail>
-        </form>
+            [mode]="bookingMode"
+          ></app-package-booking-form>
+        </div>
 
         <!-- Action Buttons - Outside form so they remain clickable -->
         <ng-container
-          *ngIf="booking.status === 'Paid'; else pendingButtonsTemplate"
+          *ngIf="booking.status === 'paid'; else bookedButtonsTemplate"
         >
           <div class="action-row action-row-single-center">
             <button
               type="button"
               class="bottom-action submit"
-              (click)="viewPaymentReceipt()"
+              (click)="goToReceipt()"
             >
               <ion-icon name="receipt-outline"></ion-icon>
               <span>Resit Bayaran/Payment Receipt</span>
@@ -167,8 +161,11 @@
           </div>
         </ng-container>
 
-        <ng-template #pendingButtonsTemplate>
-          <div class="action-row action-row-three">
+        <ng-template #bookedButtonsTemplate>
+          <div
+            *ngIf="booking.status === 'pending'; else cancelledButtonsTemplate"
+            class="action-row action-row-three"
+          >
             <button
               type="button"
               class="bottom-action cancel"
@@ -188,12 +185,18 @@
             <button
               type="button"
               class="bottom-action submit"
-              (click)="viewPaymentReceipt()"
+              (click)="goToReceipt()"
             >
               <ion-icon name="receipt-outline"></ion-icon>
               <span>Resit Bayaran/Payment Receipt</span>
             </button>
           </div>
+
+          <ng-template #cancelledButtonsTemplate>
+            <div class="action-row">
+              <p class="cancelled-message">This booking has been cancelled.</p>
+            </div>
+          </ng-template>
         </ng-template>
       </ng-container>
 

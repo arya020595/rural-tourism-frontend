@@ -17,6 +17,16 @@ export class ConfirmBookingDetailsPage implements OnInit {
   operatorData: any = null;
   isSubmitting = false;
   perPaxPrice: number = 0;
+  isSuccessAlertOpen = false;
+  successAlertButtons: Array<any> = [
+    {
+      text: 'Return to Home Page',
+      handler: () => {
+        this.isSuccessAlertOpen = false;
+        this.navCtrl.navigateRoot('/tourist/home');
+      },
+    },
+  ];
 
   constructor(
     private navCtrl: NavController,
@@ -412,18 +422,8 @@ export class ConfirmBookingDetailsPage implements OnInit {
         }
       }
 
-      // Show success alert
-      const alert = await this.alertController.create({
-        header: 'Booking Successful!',
-        message: 'Your booking has been confirmed!',
-        buttons: [
-          {
-            text: 'Return to Home Page',
-            handler: () => this.navCtrl.navigateRoot('/tourist/home'),
-          },
-        ],
-      });
-      await alert.present();
+      // Show template-driven success alert (matches registration popup)
+      this.isSuccessAlertOpen = true;
     } catch (err: any) {
       this.isSubmitting = false;
       const errorAlert = await this.alertController.create({

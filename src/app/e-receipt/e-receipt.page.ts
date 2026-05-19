@@ -1,15 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
-import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
-import {
-  Notification,
-  NotificationService,
-} from '../services/notification.service';
-import { UserService } from '../services/user.service';
+import { NetworkService } from '../services/network.service';
 
 @Component({
   selector: 'app-e-receipt',
@@ -20,17 +15,22 @@ export class EReceiptPage implements OnInit {
   uid: string | null = null;
   user: any = null;
   menuItems: MenuItem[] = [];
-  unreadCount: number = 0;
-  notifications: Notification[] = [];
   pendingBookingsCount: number = 0;
+  isOffline = false;
+
+  activityBgSrc = '';
+  accomBgSrc = '';
+  packageBgSrc = '';
+  treeIconSrc = 'assets/icon/tree.png';
+  houseIconSrc = 'assets/icon/house.png';
+  packageIconSrc = 'assets/icon/pakej-removebg-preview.png';
 
   constructor(
-    private userService: UserService,
     private bookingService: BookingService,
     private menuCtrl: MenuController,
     private router: Router,
     private toastController: ToastController,
-    private notificationService: NotificationService,
+    private networkService: NetworkService,
     private menuService: MenuService,
     private authService: AuthService,
   ) {}
@@ -38,9 +38,44 @@ export class EReceiptPage implements OnInit {
   ngOnInit(): void {
     this.loadUserData();
 
-    this.notificationService.unreadCount$.subscribe((count) => {
-      this.unreadCount = count;
+    this.isOffline = !this.networkService.isOnline;
+    this.networkService.isOnline$.subscribe((online) => {
+      this.isOffline = !online;
     });
+
+    void this.loadBgImages();
+  }
+
+  private async loadBgImages(): Promise<void> {
+    const assets = [
+      { key: 'activityBgSrc' as const, path: 'assets/mountain.jpg' },
+      { key: 'accomBgSrc' as const, path: 'assets/accom.jpg' },
+      { key: 'packageBgSrc' as const, path: 'assets/package.jpg' },
+      { key: 'treeIconSrc' as const, path: 'assets/icon/tree.png' },
+      { key: 'houseIconSrc' as const, path: 'assets/icon/house.png' },
+      { key: 'packageIconSrc' as const, path: 'assets/icon/pakej-removebg-preview.png' },
+    ];
+
+    let cache: Cache | null = null;
+    try {
+      cache = await caches.open('prewarm-assets-v1');
+    } catch {
+      // Cache API unavailable
+    }
+
+    for (const asset of assets) {
+      try {
+        const cached = cache ? await cache.match(asset.path) : null;
+        if (cached) {
+          const blob = await cached.blob();
+          this[asset.key] = URL.createObjectURL(blob);
+        } else {
+          this[asset.key] = asset.path;
+        }
+      } catch {
+        this[asset.key] = asset.path;
+      }
+    }
   }
 
   ionViewWillEnter(): void {
@@ -49,53 +84,39 @@ export class EReceiptPage implements OnInit {
   }
 
   private loadUserData(): void {
-    this.uid = localStorage.getItem('uid');
-    const storedUser = localStorage.getItem('user');
-    this.user = storedUser ? JSON.parse(storedUser) : null;
+    this.uid = this.authService.getUserId();
+    this.user = this.authService.currentUser;
     this.refreshMenuItems();
 
-    if (!this.uid) {
+    if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
       return;
     }
 
-    this.loadUser();
-    this.loadNotifications();
-    this.updatePendingBookingsCount();
+    this.loadCurrentSessionUser();
   }
 
-  private loadUser(): void {
-    if (!this.uid) return;
-
-    this.userService.getUserByID(this.uid).subscribe({
-      next: (data: any) => {
-        this.authService.syncUserProfile(data);
-        this.user = this.authService.currentUser || data;
+  private loadCurrentSessionUser(): void {
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
         this.refreshMenuItems();
+        this.updatePendingBookingsCount();
       },
-      error: (err: any) => console.error('Error loading user:', err),
+      error: (err: any) => console.error('Error loading session user:', err),
     });
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForContext('operator_admin');
   }
 
   onMenuItemTap(item: MenuItem): void {
     if (item.action === 'feature-unavailable') {
       this.showFeatureUnavailableToast();
     }
-  }
-
-  private loadNotifications(): void {
-    if (!this.uid) return;
-
-    this.notificationService.getNotifications(this.uid).subscribe({
-      next: (notifications: Notification[]) => {
-        this.notifications = notifications;
-      },
-      error: (err: any) => console.error('Error fetching notifications:', err),
-    });
   }
 
   updatePendingBookingsCount() {
@@ -117,52 +138,6 @@ export class EReceiptPage implements OnInit {
         this.pendingBookingsCount = 0;
       },
     });
-  }
-
-  markNotificationAsRead(notification: Notification): void {
-    if (notification.read) return;
-
-    this.notificationService.markAsRead(notification.id).subscribe({
-      next: () => {
-        notification.read = true;
-      },
-      error: (err) => console.error('Error marking notification as read:', err),
-    });
-  }
-
-  goToNotifications(): void {
-    if (!this.uid) return;
-
-    this.router.navigate(['/notifications']);
-    this.notificationService.markAllAsRead(this.uid).subscribe({
-      next: () => {
-        this.notifications.forEach((n) => (n.read = true));
-      },
-      error: (err) =>
-        console.error('Error marking all notifications as read:', err),
-    });
-  }
-
-  async sendTestNotification(): Promise<void> {
-    if (!this.uid) return;
-
-    const notificationData = {
-      operator_id: this.uid,
-      tourist_user_id: '123',
-      booking_id: 456,
-      message: 'Test notification',
-      read_status: 0,
-    };
-
-    try {
-      await firstValueFrom(
-        this.notificationService.createOperatorNotification(notificationData),
-      );
-      console.log('Notification sent successfully');
-      this.loadNotifications();
-    } catch (err: any) {
-      console.error('Error sending notification:', err);
-    }
   }
 
   closeMenu(): void {
@@ -192,7 +167,6 @@ export class EReceiptPage implements OnInit {
       icon: 'alert-circle-outline',
       color: 'warning',
     });
-
     await toast.present();
   }
 

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -17,6 +17,10 @@ export class BookingService {
 
   createBooking(bookingData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/activity-booking`, bookingData);
+  }
+
+  createUnifiedBooking(bookingData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/bookings`, bookingData);
   }
 
   getTouristActivityBookings(touristId: string): Observable<any[]> {
@@ -100,6 +104,100 @@ export class BookingService {
     return this.http.get<{ success: boolean; data: any[] }>(
       `${this.apiUrl}/tourist-bookings/user/${touristUserId}`,
     );
+  }
+
+  // ── Unified booking management ───────────────────────────────────
+
+  getBookingById(bookingId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/bookings/${bookingId}`);
+  }
+
+  updateBooking(bookingId: string, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/bookings/${bookingId}`, data);
+  }
+
+  cancelBooking(bookingId: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/bookings/${bookingId}/cancel`, {});
+  }
+
+  markBookingAsPaid(bookingId: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/bookings/${bookingId}/payment`, {});
+  }
+
+  getBookings(params?: {
+    page?: number;
+    per_page?: number;
+    booking_type?: string;
+    status?: string;
+    start_date?: string;
+    end_date?: string;
+    user_id?: string | number;
+    company_id?: string | number;
+    search?: string;
+  }): Observable<any> {
+    let httpParams = new HttpParams();
+
+    if (params?.page !== undefined) {
+      httpParams = httpParams.set('page', String(params.page));
+    }
+
+    if (params?.per_page !== undefined) {
+      httpParams = httpParams.set('per_page', String(params.per_page));
+    }
+
+    if (params?.booking_type) {
+      httpParams = httpParams.set('booking_type', params.booking_type);
+    }
+
+    if (params?.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+
+    if (params?.start_date) {
+      httpParams = httpParams.set('start_date', params.start_date);
+    }
+
+    if (params?.end_date) {
+      httpParams = httpParams.set('end_date', params.end_date);
+    }
+
+    if (params?.user_id !== undefined) {
+      httpParams = httpParams.set('user_id', String(params.user_id));
+    }
+
+    if (params?.company_id !== undefined) {
+      httpParams = httpParams.set('company_id', String(params.company_id));
+    }
+
+    if (params?.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get(`${this.apiUrl}/bookings`, { params: httpParams });
+  }
+
+  getPackageBookings(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    search?: string;
+  }): Observable<any> {
+    let httpParams = new HttpParams();
+
+    if (params?.page !== undefined) {
+      httpParams = httpParams.set('page', String(params.page));
+    }
+    if (params?.per_page !== undefined) {
+      httpParams = httpParams.set('per_page', String(params.per_page));
+    }
+    if (params?.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params?.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get(`${this.apiUrl}/bookings/packages`, { params: httpParams });
   }
 
   // ── Tourist user management ──────────────────────────────────────
