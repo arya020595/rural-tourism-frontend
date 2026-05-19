@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { AuthService, UserRoleName } from '../services/auth.service';
+import { SyncService } from '../services/sync.service';
 
 interface PendingActivityBooking {
   activityId: string;
@@ -26,6 +27,7 @@ export class LoginPage implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private syncService: SyncService,
     private navCtrl: NavController,
     private toastController: ToastController,
     private route: ActivatedRoute,
@@ -105,6 +107,9 @@ export class LoginPage implements OnInit {
     }
 
     await this.successToast('Login successful!');
+
+    // Pre-warm all caches immediately after login so offline mode works right away
+    void this.syncService.prewarmCaches();
 
     if (role === 'association') {
       this.navCtrl.navigateRoot(redirectUrl || '/association/dashboard');

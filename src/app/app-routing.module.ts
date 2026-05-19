@@ -240,6 +240,18 @@ const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'booking-home/conflict-resolve',
+    loadChildren: () =>
+      import('./conflict-resolve/conflict-resolve.module').then(
+        (m) => m.ConflictResolvePageModule,
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:update'],
+    },
+  },
+  {
     path: 'about',
     loadChildren: () =>
       import('./about/about.module').then((m) => m.AboutPageModule),

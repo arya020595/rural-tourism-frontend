@@ -16,12 +16,12 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="my-transaction-main-content">
   <div class="surface-card">
@@ -77,30 +77,82 @@
       </div>
 
       <div class="card-grid" *ngIf="!isLoading && visibleTransactions.length > 0">
-        <article class="transaction-card" *ngFor="let trx of visibleTransactions">
-          <h3>{{ trx.title }}</h3>
+        <ng-container *ngFor="let trx of visibleTransactions">
 
-          <div class="trx-body">
-            <div class="trx-meta">
-              <p><strong>Name:</strong> {{ trx.name }}</p>
-              <p><strong>Date:</strong> {{ trx.date }}</p>
-              <p *ngIf="trx.time"><strong>Time:</strong> {{ trx.time }}</p>
-              <p *ngIf="trx.checkInDate"><strong>Check-in:</strong> {{ trx.checkInDate }}</p>
-              <p *ngIf="trx.checkOutDate"><strong>Check-out:</strong> {{ trx.checkOutDate }}</p>
-              <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
-              <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
-              <p class="status-line">
-                <strong>Status:</strong>
-                <span class="status-pill paid">Paid</span>
-              </p>
+          <!-- Company A: package booking creator — one card with full package list -->
+          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && !trx.isReferral">
+            <h3>Package</h3>
+
+            <div class="trx-body">
+              <div class="trx-meta">
+                <p><strong>Name:</strong> {{ trx.name }}</p>
+                <p *ngIf="trx.packageCompanies && trx.packageCompanies.length > 0">
+                  <strong>Package List:</strong>
+                </p>
+                <ul class="package-list" *ngIf="trx.packageCompanies && trx.packageCompanies.length > 0">
+                  <li *ngFor="let pkg of trx.packageCompanies">{{ pkg.description }}</li>
+                </ul>
+                <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
+                <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+                <p class="status-line">
+                  <strong>Status:</strong>
+                  <span class="status-pill paid">Paid</span>
+                </p>
+              </div>
+
+              <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span>View Receipt</span>
+              </button>
             </div>
+          </article>
 
-            <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
-              <ion-icon name="receipt-outline"></ion-icon>
-              <span>View Receipt</span>
-            </button>
-          </div>
-        </article>
+          <!-- Company B: referral recipient — one card per referral row -->
+          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && trx.isReferral">
+            <h3>{{ trx.title }}</h3>
+
+            <div class="trx-body">
+              <div class="trx-meta">
+                <p><strong>Name:</strong> {{ trx.name }}</p>
+                <p><strong>Date:</strong> {{ trx.date }}</p>
+                <p><strong>Package Name:</strong> {{ trx.packageName }}</p>
+                <p><strong>Referral By:</strong> {{ trx.referralBy }}</p>
+                <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+                <p class="status-line">
+                  <strong>Status:</strong>
+                  <span class="status-pill paid">Paid</span>
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Activity and Accommodation cards -->
+          <article class="transaction-card" *ngIf="trx.bookingType !== 'package'">
+            <h3>{{ trx.title }}</h3>
+
+            <div class="trx-body">
+              <div class="trx-meta">
+                <p><strong>Name:</strong> {{ trx.name }}</p>
+                <p><strong>Date:</strong> {{ trx.date }}</p>
+                <p *ngIf="trx.time"><strong>Time:</strong> {{ trx.time }}</p>
+                <p *ngIf="trx.checkInDate"><strong>Check-in:</strong> {{ trx.checkInDate }}</p>
+                <p *ngIf="trx.checkOutDate"><strong>Check-out:</strong> {{ trx.checkOutDate }}</p>
+                <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
+                <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+                <p class="status-line">
+                  <strong>Status:</strong>
+                  <span class="status-pill paid">Paid</span>
+                </p>
+              </div>
+
+              <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span>View Receipt</span>
+              </button>
+            </div>
+          </article>
+
+        </ng-container>
       </div>
 
       <div class="table-footer" *ngIf="!isLoading && filteredTransactions.length > 0">

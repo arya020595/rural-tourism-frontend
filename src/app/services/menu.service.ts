@@ -8,6 +8,7 @@ export interface MenuItem {
   route?: string;
   permission?: string | string[];
   action?: 'logout' | 'feature-unavailable';
+  offlineCapable?: boolean;
 }
 
 export type MenuContext =
@@ -35,9 +36,9 @@ export class MenuService {
       {
         id: 'dashboard',
         label: 'Dashboard',
-        icon: 'speedometer-outline',
+        icon: 'grid-outline',
         route: '/home',
-        permission: 'booking:read',
+        permission: 'dashboard:read',
       },
       {
         id: 'company-profile',
@@ -58,6 +59,7 @@ export class MenuService {
         label: 'Booking/Tempahan',
         icon: 'calendar-outline',
         route: '/booking-home',
+        offlineCapable: true,
       },
       {
         id: 'my-transaction',
@@ -71,6 +73,7 @@ export class MenuService {
         icon: 'document-text-outline',
         route: '/e-receipt',
         permission: 'receipt:create',
+        offlineCapable: true,
       },
       {
         id: 'users',
@@ -100,6 +103,7 @@ export class MenuService {
         label: 'Booking/Tempahan',
         icon: 'calendar-outline',
         route: '/booking-home',
+        offlineCapable: true,
       },
       {
         id: 'my-transaction',

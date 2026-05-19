@@ -19,18 +19,20 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
+<app-notification-panel #notifPanel></app-notification-panel>
+
 <ion-content [fullscreen]="true" id="booking-detail-main-content">
+  <!-- Offline banner -->
+  <ion-item color="warning" *ngIf="isOffline" lines="none">
+    <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
+    <ion-label>You are offline. Showing last saved booking data.</ion-label>
+  </ion-item>
+
   <div class="surface-card">
     <div class="booking-container">
       <button type="button" class="back-link" (click)="goBack()">
@@ -70,7 +72,7 @@
                 type="button"
                 class="pdf-button"
                 (click)="viewPaymentReceipt()"
-                [disabled]="isGeneratingPdf || !booking.numericId"
+                [disabled]="isGeneratingPdf || !booking.numericId || isOffline"
               >
                 <ion-spinner
                   *ngIf="isGeneratingPdf"
@@ -78,7 +80,7 @@
                   class="pdf-spinner"
                 ></ion-spinner>
                 <ion-icon name="document-text-outline"></ion-icon>
-                <span>Manjana PDF/Generate PDF</span>
+                <span>{{ isOffline ? 'PDF Unavailable Offline' : 'Manjana PDF/Generate PDF' }}</span>
               </button>
             </div>
             <div class="radio-grid three-col">

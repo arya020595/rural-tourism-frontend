@@ -13,6 +13,8 @@ import { BookingStateService } from '../services/booking-state.service';
 import { BookingService } from '../services/booking.service';
 import { LoadingService } from '../services/loading.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NetworkService } from '../services/network.service';
+import { OfflineQueueService } from '../services/offline-queue.service';
 import { ToastService } from '../services/toast.service';
 
 @Component({
@@ -25,6 +27,7 @@ export class BookingDetailPage implements OnInit {
   menuItems: MenuItem[] = [];
   booking: BookingDetail | null = null;
   isGeneratingPdf = false;
+  isOffline = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,6 +39,8 @@ export class BookingDetailPage implements OnInit {
     private bookingStateService: BookingStateService,
     private loadingService: LoadingService,
     private toastService: ToastService,
+    private networkService: NetworkService,
+    private offlineQueue: OfflineQueueService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
   ) {
@@ -198,22 +203,38 @@ export class BookingDetailPage implements OnInit {
     }
 
     if (this.booking.status !== 'paid') {
-      try {
-        await this.loadingService.show('Updating payment status...');
-        const response = await firstValueFrom(
-          this.bookingService.markBookingAsPaid(String(this.booking.id)),
+      if (!this.networkService.isOnline) {
+        const serverBookingId = this.booking.numericId ?? Number(this.booking.id);
+        const baseVersion = this.booking.version ?? 0;
+        await this.offlineQueue.enqueueEdit(serverBookingId, { status: 'paid' }, baseVersion);
+        this.booking = { ...this.booking, status: 'paid' };
+        // Update booking_cache so booking-home reflects the paid status offline
+        const cached = await this.offlineQueue.getCachedBookings();
+        const existing = cached.find(
+          (b: any) => Number(b.id) === serverBookingId || Number(b.numericId) === serverBookingId,
         );
-        const data = response?.data ?? response;
-        this.booking = data ? this.mapBookingToDetail(data) : this.booking;
-      } catch (error) {
-        await this.loadingService.hide();
-        const err = error as any;
-        this.toastService.error(
-          err?.error?.message || 'Failed to mark booking as paid.',
-        );
-        return;
-      } finally {
-        await this.loadingService.hide();
+        if (existing) {
+          await this.offlineQueue.cacheBookings([{ ...existing, status: 'paid' }]);
+        }
+        await this.toastService.success('Payment queued — will sync when back online.');
+      } else {
+        try {
+          await this.loadingService.show('Updating payment status...');
+          const response = await firstValueFrom(
+            this.bookingService.markBookingAsPaid(String(this.booking.id)),
+          );
+          const data = response?.data ?? response;
+          this.booking = data ? this.mapBookingToDetail(data) : this.booking;
+        } catch (error) {
+          await this.loadingService.hide();
+          const err = error as any;
+          this.toastService.error(
+            err?.error?.message || 'Failed to mark booking as paid.',
+          );
+          return;
+        } finally {
+          await this.loadingService.hide();
+        }
       }
     }
 
@@ -287,20 +308,41 @@ export class BookingDetailPage implements OnInit {
       return;
     }
 
+    if (!this.networkService.isOnline) {
+      this.loadBookingFromCache(id);
+      return;
+    }
+
     this.bookingService.getBookingById(id).subscribe({
-      next: (response: any) => {
+      next: async (response: any) => {
         const data = response?.data ?? response;
         this.booking = data ? this.mapBookingToDetail(data) : null;
+        this.isOffline = false;
+        if (this.booking && data) {
+          await this.offlineQueue.cacheBookings([data]);
+        }
       },
       error: () => {
-        const navigation = this.router.getCurrentNavigation();
-        const fallback =
-          navigation?.extras?.state?.['booking'] ??
-          history.state?.['booking'] ??
-          null;
-        this.booking = fallback ? this.mapBookingToDetail(fallback) : null;
+        this.loadBookingFromCache(id);
       },
     });
+  }
+
+  private async loadBookingFromCache(id: string): Promise<void> {
+    const cached = await this.offlineQueue.getCachedBookings();
+    const match = cached.find(
+      (b: any) => String(b.id) === id || String(b.numericId) === id,
+    );
+
+    if (match) {
+      this.booking = this.mapBookingToDetail(match);
+      this.isOffline = true;
+      return;
+    }
+
+    const stateBooking = history.state?.['booking'] ?? null;
+    this.booking = stateBooking ? this.mapBookingToDetail(stateBooking) : null;
+    this.isOffline = true;
   }
 
   private mapBookingToDetail(record: any): BookingDetail {
@@ -387,6 +429,8 @@ export class BookingDetailPage implements OnInit {
       package_companies: Array.isArray(record?.package_companies)
         ? record.package_companies
         : [],
+      version:
+        record?.version !== undefined ? Number(record.version) : undefined,
     };
   }
 

@@ -1,0 +1,85 @@
+<ion-header class="booking-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" aria-label="Back">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="surface-card">
+    <div class="booking-container">
+
+      <div class="title-row">
+        <h1>Sync Conflict / Konflik Segerak</h1>
+      </div>
+
+      <ng-container *ngIf="queueItem; else noItemTemplate">
+
+        <!-- Conflict reason banner -->
+        <ion-item color="warning" lines="none" style="margin-bottom: 16px; border-radius: 8px;">
+          <ion-icon name="warning-outline" slot="start"></ion-icon>
+          <ion-label class="ion-text-wrap">{{ conflictReason }}</ion-label>
+        </ion-item>
+
+        <!-- Two-column diff table -->
+        <div class="conflict-diff-grid">
+          <div class="diff-header">
+            <div class="diff-col-label mine">My Changes / Perubahan Saya</div>
+            <div class="diff-col-label server">Server Version / Versi Pelayan</div>
+          </div>
+
+          <div
+            class="diff-row"
+            *ngFor="let field of displayFields"
+            [class.diff-changed]="myData[field] !== serverData?.[field]"
+          >
+            <div class="diff-field-name">{{ field }}</div>
+            <div class="diff-value mine">{{ myData[field] ?? '—' }}</div>
+            <div class="diff-value server">{{ serverData?.[field] ?? '—' }}</div>
+          </div>
+        </div>
+
+        <!-- Resolution actions -->
+        <div class="action-row action-row-two" style="margin-top: 24px;">
+          <button
+            type="button"
+            class="bottom-action cancel"
+            (click)="acceptServerVersion()"
+            [disabled]="isResolving"
+          >
+            <ion-icon name="cloud-download-outline"></ion-icon>
+            <span>Use Server Version / Guna Versi Pelayan</span>
+          </button>
+
+          <button
+            type="button"
+            class="bottom-action submit"
+            (click)="forceMyVersion()"
+            [disabled]="isResolving"
+          >
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+            <span>Force My Version / Hantar Semula</span>
+          </button>
+        </div>
+
+        <p class="conflict-hint ion-text-center" style="margin-top: 12px; font-size: 0.8rem; color: var(--ion-color-medium);">
+          "Force My Version" will re-submit your changes using the server's current version number.
+        </p>
+
+      </ng-container>
+
+      <ng-template #noItemTemplate>
+        <div class="no-data-message">
+          <p>No conflict data available.</p>
+          <button type="button" class="bottom-action submit" (click)="goBack()">
+            <span>Kembali / Back</span>
+          </button>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+</ion-content>

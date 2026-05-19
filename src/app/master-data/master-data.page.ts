@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { AlertController, MenuController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { ProductService } from '../services/product.service';
@@ -60,7 +59,6 @@ export class MasterDataPage implements OnInit {
     private productService: ProductService,
     private alertCtrl: AlertController,
     private menuService: MenuService,
-    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -450,10 +448,6 @@ export class MasterDataPage implements OnInit {
     const displayHours = String(hours % 12 || 12).padStart(2, '0');
 
     return `${day}-${month}-${year}, ${displayHours}:${minutes}${suffix}`;
-  }
-
-  goToNotifications(): void {
-    this.router.navigate(['/notifications']);
   }
 
   onMenuItemTap(_item: MenuItem): void {

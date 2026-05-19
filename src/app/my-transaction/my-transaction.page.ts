@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
@@ -137,7 +138,6 @@ export class MyTransactionPage implements OnInit {
   viewReceipt(transaction: Transaction): void {
     const id = transaction.numericId ?? Number(transaction.id);
     const route = this.getReceiptRoute(transaction.bookingType);
-    // Pass the raw API response so receipt pages can map all fields correctly
     this.router.navigate([route, id], { state: { booking: transaction._raw ?? transaction } });
   }
 
@@ -152,10 +152,35 @@ export class MyTransactionPage implements OnInit {
   private loadTransactions(): void {
     this.isLoading = true;
 
-    this.bookingService.getBookings({ status: 'paid', per_page: 1000 }).subscribe({
-      next: (res: any) => {
-        const raw: any[] = Array.isArray(res?.data) ? res.data : [];
-        this.allTransactions = raw.map((b) => this.mapToTransaction(b));
+    forkJoin({
+      bookings: this.bookingService.getBookings({ status: 'paid', per_page: 1000 }),
+      packageReferrals: this.bookingService.getPackageBookings({ status: 'paid', per_page: 1000 }),
+    }).subscribe({
+      next: ({ bookings, packageReferrals }) => {
+        const rawBookings: any[] = Array.isArray(bookings?.data) ? bookings.data : [];
+        const rawReferrals: any[] = Array.isArray(packageReferrals?.data) ? packageReferrals.data : [];
+
+        // Get the current company's ID to distinguish Company A vs Company B
+        const myCompanyId = Number(this.user?.company_id ?? 0);
+
+        // Company A: bookings where this company is the creator (companyId matches)
+        // These come from the standard bookings endpoint with booking_type=package
+        const creatorBookings = rawBookings
+          .filter((b) => String(b.booking_type).toLowerCase() === 'package')
+          .map((b) => this.mapCreatorPackage(b));
+
+        // Company B: referral rows where this company is the referee (received referral)
+        // Exclude any referral where this company is also the referrer (already shown as creator)
+        const referralBookings = rawReferrals
+          .filter((r) => Number(r.referee_id) === myCompanyId && Number(r.referrer_id) !== myCompanyId)
+          .map((r) => this.mapReferralPackage(r));
+
+        // Non-package bookings (activity + accommodation) come from the standard endpoint
+        const otherBookings = rawBookings
+          .filter((b) => String(b.booking_type).toLowerCase() !== 'package')
+          .map((b) => this.mapToTransaction(b));
+
+        this.allTransactions = [...otherBookings, ...creatorBookings, ...referralBookings];
         this.currentPage = 1;
         this.isLoading = false;
       },
@@ -165,6 +190,62 @@ export class MyTransactionPage implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  // Company A view: one card per booking, with package_companies list
+  private mapCreatorPackage(b: any): Transaction {
+    const date = (
+      b.activity_date || b.receipt_created_at || b.created_at || ''
+    ).slice(0, 10);
+
+    const pax = Number(b.no_of_pax_domestik || 0) + Number(b.no_of_pax_antarbangsa || 0);
+    const customerName = b.customer_type === 'company'
+      ? (b.company_name || b.tourist_full_name || '')
+      : (b.tourist_full_name || b.company_name || '');
+
+    return {
+      id: b.id,
+      title: 'Package',
+      name: customerName,
+      date,
+      pax,
+      totalPrice: Number(b.total_price || 0),
+      status: b.status || 'paid',
+      bookingType: 'package',
+      numericId: Number(b.id),
+      packageCompanies: Array.isArray(b.package_companies) ? b.package_companies : [],
+      isReferral: false,
+      _raw: b,
+    };
+  }
+
+  // Company B view: one card per referral row
+  private mapReferralPackage(r: any): Transaction {
+    const booking = r.booking ?? {};
+    const date = (
+      booking.activity_date || booking.receipt_created_at || booking.created_at || r.created_at || ''
+    ).slice(0, 10);
+
+    const customerName = booking.customer_type === 'company'
+      ? (booking.company_name || booking.tourist_full_name || '')
+      : (booking.tourist_full_name || booking.company_name || '');
+
+    return {
+      id: r.id,
+      title: 'Package (Referral from ' + (r.referral_company || 'Unknown') + ')',
+      name: customerName,
+      date,
+      pax: Number(booking.total_pax || 0),
+      totalPrice: Number(r.per_price || 0),
+      status: booking.status || 'paid',
+      bookingType: 'package',
+      numericId: Number(booking.id),
+      packageName: r.description || '',
+      referralBy: r.referral_company || '',
+      perPrice: Number(r.per_price || 0),
+      isReferral: true,
+      _raw: r.booking ?? r,
+    };
   }
 
   private mapToTransaction(b: any): Transaction {

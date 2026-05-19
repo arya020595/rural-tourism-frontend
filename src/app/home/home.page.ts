@@ -2,16 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
-import {
-  DashboardSummary,
-  ReceiptListItem,
-  TodayDashboardData,
-  TrendDashboardData,
-  TrendChartItem,
-} from './dashboard/dashboard.models';
-import { DashboardMockService } from './dashboard/services/dashboard-mock.service';
-import { DashboardApiService } from './dashboard/services/dashboard-api.service';
-import { ReceiptPaginationMeta } from './dashboard/components/receipt-list-table/dashboard-receipt-list-table.component';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
@@ -19,6 +9,16 @@ import {
   Notification,
   NotificationService,
 } from '../services/notification.service';
+import {
+  DashboardSummary,
+  ReceiptListItem,
+  TodayDashboardData,
+  TrendDashboardData,
+  TrendChartItem
+} from './dashboard/dashboard.models';
+import { ReceiptPaginationMeta } from './dashboard/components/receipt-list-table/dashboard-receipt-list-table.component';
+import { DashboardApiService } from './dashboard/services/dashboard-api.service';
+import { DashboardMockService } from './dashboard/services/dashboard-mock.service';
 
 export type DashboardMode = 'today' | 'trend';
 
@@ -97,6 +97,7 @@ export class HomePage implements OnInit {
     this.loadUserData();
     this.loadDashboardData();
 
+    // Subscribe to reactive unread count
     this.notificationService.unreadCount$.subscribe((count) => {
       this.unreadCount = count;
     });
@@ -509,7 +510,6 @@ export class HomePage implements OnInit {
     ];
   }
 
-  /** Load user and notifications */
   private loadUserData(): void {
     this.uid = this.authService.getUserId();
     this.user = this.authService.currentUser;
@@ -526,17 +526,6 @@ export class HomePage implements OnInit {
   private refreshMenuItems(): void {
     this.menuItems =
       this.menuService.getVisibleMenuItemsForContext('operator_admin');
-  }
-
-  onMenuItemTap(item: MenuItem): void {
-    this.closeMenu();
-    if (item.action === 'feature-unavailable') {
-      this.showFeatureUnavailableToast();
-    }
-  }
-
-  trackMenuItem(_index: number, item: MenuItem): string {
-    return item.id;
   }
 
   private loadCurrentSessionUser(): void {
@@ -564,6 +553,7 @@ export class HomePage implements OnInit {
     });
   }
 
+  // Call this whenever you load operator bookings
   updatePendingBookingsCount() {
     this.bookingService
       .getBookings({
@@ -573,15 +563,9 @@ export class HomePage implements OnInit {
       })
       .subscribe({
       next: (res: any) => {
-        if (res?.success) {
-          const totalFromMeta = Number(res?.meta?.total);
-          if (!Number.isNaN(totalFromMeta)) {
-            this.pendingBookingsCount = totalFromMeta;
-            return;
-          }
-
-          const rows = Array.isArray(res?.data) ? res.data : [];
-          this.pendingBookingsCount = rows.filter(
+        if (res.success && res.data) {
+          // Count only bookings that are not yet Paid or Cancelled
+          this.pendingBookingsCount = res.data.filter(
             (b: any) => b.status?.toLowerCase() === 'booked',
           ).length;
         } else {
@@ -595,30 +579,34 @@ export class HomePage implements OnInit {
     });
   }
 
+  /** Mark a single notification as read */
   markNotificationAsRead(notification: Notification): void {
     if (notification.read) return;
 
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        notification.read = true;
+        notification.read = true; // update locally for UI
       },
       error: (err) => console.error('Error marking notification as read:', err),
     });
   }
 
+  /** Go to notifications page and mark all as read */
   goToNotifications(): void {
     if (!this.uid) return;
 
     this.router.navigate(['/notifications']);
     this.notificationService.markAllAsRead(this.uid).subscribe({
       next: () => {
-        this.notifications.forEach((n) => (n.read = true));
+        // notifications marked read, badge auto-updates via BehaviorSubject
+        this.notifications.forEach((n) => (n.read = true)); // optional local update
       },
       error: (err) =>
         console.error('Error marking all notifications as read:', err),
     });
   }
 
+  /** Send a test notification */
   async sendTestNotification(): Promise<void> {
     if (!this.uid) return;
 
@@ -634,10 +622,22 @@ export class HomePage implements OnInit {
       await firstValueFrom(
         this.notificationService.createOperatorNotification(notificationData),
       );
+      console.log('Notification sent successfully');
       this.loadNotifications();
     } catch (err: any) {
       console.error('Error sending notification:', err);
     }
+  }
+
+  onMenuItemTap(item: MenuItem): void {
+    this.closeMenu();
+    if (item.action === 'feature-unavailable') {
+      this.showFeatureUnavailableToast();
+    }
+  }
+
+  trackMenuItem(_index: number, item: MenuItem): string {
+    return item.id;
   }
 
   closeMenu(): void {
@@ -663,7 +663,6 @@ export class HomePage implements OnInit {
       icon: 'alert-circle-outline',
       color: 'warning',
     });
-
     await toast.present();
   }
 

@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
+import { AuthService } from '../services/auth.service';
+import { CompanyService } from '../services/company.service';
+import { StorageService } from '../services/storage.service';
 import {
   Notification,
   NotificationService,
@@ -14,10 +17,14 @@ export class NotificationsPage implements OnInit {
   uid: string | null = null;
   notifications: Notification[] = [];
   unreadCount: number = 0;
+  companyLogoUrl: string | null = null;
 
   constructor(
     private notificationService: NotificationService,
     private navCtrl: NavController,
+    private authService: AuthService,
+    private companyService: CompanyService,
+    private storageService: StorageService,
   ) {}
 
   ngOnInit() {
@@ -27,16 +34,37 @@ export class NotificationsPage implements OnInit {
   ionViewWillEnter() {
     this.uid = localStorage.getItem('uid');
     if (this.uid) {
-      this.notifications = []; // reset to avoid duplicates
+      this.notifications = [];
       this.loadNotifications();
+      this.loadCompanyLogo();
     }
   }
 
-  backHome() {
-    this.navCtrl.navigateForward('/home', {
-      animated: true,
-      animationDirection: 'back',
+  private async loadCompanyLogo(): Promise<void> {
+    const user = this.authService.currentUser;
+    const companyId = user?.company_id;
+    if (!companyId) return;
+
+    // Show cached logo immediately (works offline)
+    const cached = await this.storageService.getCompanyLogo(companyId);
+    if (cached) {
+      this.companyLogoUrl = cached;
+    }
+
+    // Fetch fresh from network and update cache
+    this.companyService.getCompanyById(companyId).subscribe({
+      next: async (res: any) => {
+        const logo = res?.data?.operator_logo_image ?? res?.operator_logo_image ?? null;
+        if (logo) {
+          this.companyLogoUrl = logo;
+          await this.storageService.setCompanyLogo(companyId, logo);
+        }
+      },
     });
+  }
+
+  backHome() {
+    this.navCtrl.back();
   }
 
   loadNotifications() {
@@ -52,6 +80,10 @@ export class NotificationsPage implements OnInit {
     });
   }
 
+  get hasUnread(): boolean {
+    return this.notifications.some((n) => !n.read);
+  }
+
   markAsRead(notification: Notification) {
     if (notification.read) return;
 
@@ -63,28 +95,30 @@ export class NotificationsPage implements OnInit {
     });
   }
 
-  /** Avatar letter from tourist_name or fallback */
+  markAllAsRead() {
+    if (!this.uid) return;
+    this.notificationService.markAllAsRead(this.uid).subscribe({
+      next: () => {
+        this.notifications.forEach((n) => (n.read = true));
+        this.unreadCount = 0;
+      },
+    });
+  }
+
   getAvatarLetter(notification: Notification): string {
     let name = notification.tourist_name?.trim();
-
-    // fallback: use first word from message
     if (!name && notification.message) {
       name = notification.message.split(' ')[0];
     }
-
     return name ? name.charAt(0).toUpperCase() : '?';
   }
 
-  /** Time ago: takes a string date */
   timeAgo(dateString: string): string {
     if (!dateString) return '';
-
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '';
-
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
     if (seconds < 60) return `${seconds}s ago`;
     const minutes = Math.floor(seconds / 60);
     if (minutes < 60) return `${minutes}m ago`;

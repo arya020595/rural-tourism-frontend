@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, NavController } from '@ionic/angular';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NetworkService } from '../services/network.service';
+import { OfflineQueueService, QueueStatus } from '../services/offline-queue.service';
+import { SyncService } from '../services/sync.service';
 import { BookingRow, BookingDetail } from './booking-home.models';
-import { firstValueFrom } from 'rxjs';
 import { BookingStateService } from '../services/booking-state.service';
 
 interface CalendarCell {
@@ -28,6 +31,11 @@ export class BookingHomePage implements OnInit {
 
   viewMode: BookingViewMode = 'table';
   loadingBookings = false;
+  isOffline = false;
+
+  readonly pendingCount$ = new BehaviorSubject<number>(0);
+  failedCount = 0;
+  queueStatusMap: Record<string, QueueStatus> = {};
 
   readonly dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   readonly pageSize = 10;
@@ -42,12 +50,16 @@ export class BookingHomePage implements OnInit {
   selectedDateKey: string | null = null;
 
   bookings: BookingDetail[] = [];
+  statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
 
   constructor(
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
     private bookingService: BookingService,
+    private networkService: NetworkService,
+    private offlineQueue: OfflineQueueService,
+    private syncService: SyncService,
     private router: Router,
     private navCtrl: NavController,
     private bookingStateService: BookingStateService,
@@ -55,6 +67,11 @@ export class BookingHomePage implements OnInit {
 
   ngOnInit(): void {
     this.loadUser();
+    this.syncService.pendingCount$.subscribe((count) => {
+      this.pendingCount$.next(count);
+      void this.refreshFailedCount();
+      void this.refreshQueueStatusMap();
+    });
     void this.loadBookings();
   }
 
@@ -79,13 +96,25 @@ export class BookingHomePage implements OnInit {
     this.viewMode = mode;
   }
 
+  get filteredBookings(): BookingDetail[] {
+    if (this.statusFilter === 'all') return this.bookings;
+    return this.bookings.filter((b) => b.status === this.statusFilter);
+  }
+
   get totalBookingPages(): number {
-    return Math.max(1, Math.ceil(this.bookings.length / this.pageSize));
+    return Math.max(1, Math.ceil(this.filteredBookings.length / this.pageSize));
   }
 
   get pagedBookings(): BookingDetail[] {
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    return this.bookings.slice(startIndex, startIndex + this.pageSize);
+    return this.filteredBookings.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  cycleStatusFilter(): void {
+    const order: Array<'all' | 'pending' | 'paid' | 'cancelled'> = ['all', 'pending', 'paid', 'cancelled'];
+    const next = (order.indexOf(this.statusFilter) + 1) % order.length;
+    this.statusFilter = order[next];
+    this.currentPage = 1;
   }
 
   changeBookingPage(page: number): void {
@@ -246,6 +275,11 @@ export class BookingHomePage implements OnInit {
       return;
     }
 
+    if (!this.networkService.isOnline) {
+      await this.loadBookingsFromCache();
+      return;
+    }
+
     this.loadingBookings = true;
 
     try {
@@ -264,16 +298,67 @@ export class BookingHomePage implements OnInit {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
         .sort((a: BookingDetail, b: BookingDetail) =>
-          b.bookedDate.localeCompare(a.bookedDate),
+          Number(b.id) - Number(a.id),
         );
       this.currentPage = 1;
+      this.isOffline = false;
+
+      await this.offlineQueue.cacheBookings(rows);
     } catch (error) {
       console.error('[booking-home] failed to load bookings', error);
-      this.bookings = [];
+      await this.loadBookingsFromCache();
+    } finally {
+      this.loadingBookings = false;
+      this.buildCalendar();
+      void this.refreshQueueStatusMap();
+    }
+  }
+
+  private async loadBookingsFromCache(): Promise<void> {
+    this.loadingBookings = true;
+    try {
+      const cached = await this.offlineQueue.getCachedBookings();
+      this.bookings = cached
+        .map((row: any) => this.mapBookingRow(row))
+        .filter((booking: BookingDetail | null): booking is BookingDetail => {
+          return !!booking && !!booking.bookedDate && !!booking.id;
+        })
+        .sort((a: BookingDetail, b: BookingDetail) =>
+          Number(b.id) - Number(a.id),
+        );
+      this.currentPage = 1;
+      this.isOffline = true;
     } finally {
       this.loadingBookings = false;
       this.buildCalendar();
     }
+  }
+
+  async openConflictResolve(): Promise<void> {
+    const failed = await this.offlineQueue.getFailedItems();
+    if (!failed.length) return;
+
+    this.router.navigate(['/booking-home/conflict-resolve'], {
+      state: { queueItem: failed[0] },
+    });
+  }
+
+  private async refreshFailedCount(): Promise<void> {
+    const failed = await this.offlineQueue.getFailedItems();
+    this.failedCount = failed.length;
+  }
+
+  private async refreshQueueStatusMap(): Promise<void> {
+    const allItems = await this.offlineQueue.getAllQueueItems();
+    const map: Record<string, QueueStatus> = {};
+    for (const item of allItems) {
+      // local_booking_id is the booking's server ID (as string) for EDITs,
+      // or a UUID for CREATEs — only map items that have a server ID
+      if (item.server_booking_id) {
+        map[String(item.server_booking_id)] = item.status;
+      }
+    }
+    this.queueStatusMap = map;
   }
 
   private buildCalendar(): void {
