@@ -117,11 +117,11 @@ export class LoginPage implements OnInit {
     }
 
     if (role === 'operator_admin' || role === 'operator_staff') {
-      this.navCtrl.navigateRoot('/booking-home');
+      this.navCtrl.navigateRoot('/home');
       return;
     }
 
-    this.navCtrl.navigateRoot(redirectUrl || '/booking-home');
+    this.navCtrl.navigateRoot(redirectUrl || '/home');
   }
 
   private redirectTouristAfterLogin(touristUserId: string): void {

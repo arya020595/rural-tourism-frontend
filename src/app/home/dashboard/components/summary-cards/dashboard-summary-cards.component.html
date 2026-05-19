@@ -1,0 +1,16 @@
+<div class="summary-grid" *ngIf="summary">
+  <article class="summary-card">
+    <div class="summary-header">Total Revenue (RM)</div>
+    <div class="summary-value">{{ formatCompact(summary.totalRevenue, true) }}</div>
+  </article>
+
+  <article class="summary-card">
+    <div class="summary-header">Total No. of Reciepts</div>
+    <div class="summary-value">{{ formatCompact(summary.totalReceipts) }}</div>
+  </article>
+
+  <article class="summary-card">
+    <div class="summary-header">Total No. of Tourists</div>
+    <div class="summary-value">{{ formatCompact(summary.totalTourists) }}</div>
+  </article>
+</div>

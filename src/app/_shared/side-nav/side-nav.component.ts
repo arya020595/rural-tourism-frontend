@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MenuItem } from '../../services/menu.service';
 import { NetworkService } from '../../services/network.service';
@@ -44,6 +45,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
     private networkService: NetworkService,
     private cdr: ChangeDetectorRef,
     private zone: NgZone,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -59,6 +61,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.networkSub?.unsubscribe();
   }
+
 
   get showGuestPanel(): boolean {
     return this.guestMode && !this.user;
@@ -94,5 +97,20 @@ export class SideNavComponent implements OnInit, OnDestroy {
   getBadgeCount(itemId: string): number {
     const count = this.badgeCounts[itemId];
     return typeof count === 'number' && count > 0 ? count : 0;
+  }
+
+  isActiveItem(item: MenuItem): boolean {
+    if (!item.route) {
+      return false;
+    }
+
+    const currentUrl = this.router.url.split('?')[0];
+    const target = item.route;
+
+    if (target === '/home') {
+      return currentUrl === '/home';
+    }
+
+    return currentUrl === target || currentUrl.startsWith(`${target}/`);
   }
 }

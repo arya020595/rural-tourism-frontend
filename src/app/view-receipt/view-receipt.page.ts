@@ -73,14 +73,13 @@ export class ViewReceiptPage implements OnInit {
   }
 
   loadUser() {
-    if (this.uid) {
-      this.userService.getUserByID(this.uid).subscribe(
-        (data) => (this.user = data),
-        (error) => console.log(error),
-      );
-    } else {
-      console.log('uid not found in storage');
-    }
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
+      },
+      error: (error) => console.log(error),
+    });
   }
 
   // Get receipt details

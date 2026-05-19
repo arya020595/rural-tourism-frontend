@@ -1,0 +1,48 @@
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.summary-card {
+  border: 1px solid #d6d6d6;
+}
+
+.summary-header {
+  background: #3f825d;
+  color: #e8f0ea;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 12px;
+}
+
+.summary-value {
+  background: #106532;
+  color: #e8f4ed;
+  text-align: center;
+  font-size: 56px;
+  font-weight: 700;
+  padding: 24px 12px;
+  line-height: 1.1;
+}
+
+@media (max-width: 1200px) {
+  .summary-value {
+    font-size: 42px;
+  }
+
+  .summary-header {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-value {
+    font-size: 36px;
+  }
+}

@@ -43,6 +43,12 @@
             ],
             "styles": ["src/global.scss", "src/theme/variables.scss"],
             "scripts": [],
+            "allowedCommonJsDependencies": [
+              "sweetalert2",
+              "qrcode",
+              "ion7-calendar",
+              "html2canvas"
+            ],
             "serviceWorker": true
           },
           "configurations": {
@@ -55,8 +61,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "14kb"
                 }
               ],
               "fileReplacements": [
@@ -76,8 +82,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "6kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "14kb"
                 }
               ],
               "fileReplacements": [

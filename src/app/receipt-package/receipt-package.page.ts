@@ -1,21 +1,20 @@
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   ElementRef,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import html2canvas from 'html2canvas'; // Import html2canvas
 import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { CompanyService } from '../services/company.service';
 import { FormService } from '../services/form.service';
 import { NetworkService } from '../services/network.service';
 import { OfflineQueueService } from '../services/offline-queue.service';
-import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-receipt-package',
@@ -46,7 +45,7 @@ export class ReceiptPackagePage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private navCtrl: NavController,
-    private userService: UserService,
+    private authService: AuthService,
     private bookingService: BookingService,
     private companyService: CompanyService,
     private formService: FormService,
@@ -56,7 +55,7 @@ export class ReceiptPackagePage implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.uid = localStorage.getItem('uid'); // Retrieve user ID from local storage
+    this.uid = this.authService.getUserId();
     this.activatedRoute.params.subscribe((params) => {
       this.receiptId = params['receipt_id'];
 
@@ -81,34 +80,45 @@ export class ReceiptPackagePage implements OnInit {
   }
 
   loadUser() {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedUserRaw = localStorage.getItem('user');
+    if (storedUserRaw) {
       try {
-        this.user = JSON.parse(storedUser);
-      } catch {
-        this.user = null;
+        const parsed = JSON.parse(storedUserRaw);
+        this.user = parsed?.data?.user || parsed;
+        this.uid =
+          this.user?.id ||
+          this.user?.unified_user_id ||
+          this.uid;
+        this.loadCompanyProfile(this.user?.company_id);
+      } catch (error) {
+        console.warn('Failed to parse cached user from localStorage', error);
       }
     }
 
-    if (this.uid) {
-      this.userService.getUserByID(this.uid).subscribe(
-        (response) => {
-          this.user = this.unwrapPayload(response);
-          this.loadCompanyProfile(this.user?.company_id);
-          this.userReady = true;
-          this.tryAutoGenerateReceipt();
-        },
-        (error) => {
-          console.log(error);
-          this.userReady = true;
-          this.tryAutoGenerateReceipt();
-        },
-      );
-    } else {
-      console.log('uid not found in storage');
+    if (!this.authService.isAuthenticated) {
       this.userReady = true;
       this.tryAutoGenerateReceipt();
+      return;
     }
+
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser || this.user;
+        this.uid =
+          this.authService.getUserId() ||
+          this.user?.id ||
+          this.user?.unified_user_id ||
+          this.uid;
+        this.loadCompanyProfile(this.user?.company_id);
+        this.userReady = true;
+        this.tryAutoGenerateReceipt();
+      },
+      error: (error) => {
+        console.log(error);
+        this.userReady = true;
+        this.tryAutoGenerateReceipt();
+      },
+    });
   }
 
   //get receipt details

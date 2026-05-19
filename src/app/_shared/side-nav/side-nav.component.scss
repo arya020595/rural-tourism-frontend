@@ -8,6 +8,21 @@
   --border-style: none !important;
   margin-left: 5%;
   margin-top: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.item-nav.item-nav-active {
+  --background: #e4f1ea;
+  --color: #04552f;
+  border-left: 4px solid #04552f;
+  padding-left: 8px;
+  font-weight: 700;
+}
+
+.item-nav.item-nav-active ion-icon,
+.item-nav.item-nav-active ion-text {
+  color: #04552f;
 }
 
 .logo-side-panel {

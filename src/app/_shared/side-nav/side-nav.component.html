@@ -57,7 +57,8 @@
         <ion-item
           *ngIf="isOnline || item.offlineCapable"
           class="item-nav"
-          detail="false"
+          [class.item-nav-active]="isActiveItem(item)"
+        detail="false"
           lines="none"
           mode="ios"
           menuClose

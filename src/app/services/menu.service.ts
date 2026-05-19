@@ -85,6 +85,13 @@ export class MenuService {
     ],
     operator_staff: [
       {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: 'speedometer-outline',
+        route: '/home',
+        permission: 'booking:read',
+      },
+      {
         id: 'company-profile',
         label: 'Profil Syarikat/Company Profile',
         icon: 'business-outline',
