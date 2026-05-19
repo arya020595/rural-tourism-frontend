@@ -25,6 +25,22 @@ tbody td {
   text-align: center;
 }
 
+.info-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.info-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .icon-cell ion-icon {
   font-size: 24px;
   color: #2f6190;
@@ -115,5 +131,23 @@ tbody td {
   .pagination {
     justify-content: flex-start;
     text-align: left;
+  }
+
+  .entries-control {
+    flex-wrap: wrap;
+  }
+
+  .pagination {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    white-space: nowrap;
+  }
+
+  .page-btn {
+    flex: 0 0 auto;
+    min-height: 38px;
+    font-size: 15px;
+    padding: 0 12px;
   }
 }
