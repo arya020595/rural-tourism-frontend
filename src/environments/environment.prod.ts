@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  // Temporarily pointing to local backend for offline PWA testing
-  apiUrl: 'http://localhost:3000/api',
-  API: 'http://localhost:3000',
+  // Uses relative URLs - nginx reverse proxy handles routing to backend
+  apiUrl: '/api',
+  API: typeof window !== 'undefined' ? window.location.origin : '',
 
   // Feature flags for production
   enableDebugMode: false,
