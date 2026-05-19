@@ -28,8 +28,7 @@ export class ReceiptActivityPage implements OnInit {
   pdfUrl: string = '';
   isLocalOnly = false;
 
-  testAPI = environment.API;
-  localAPI = 'http://localhost:3000';
+  localAPI = environment.API;
   uid: any; // Store the user ID
   user: any; // Object to hold user data
   companyProfile: any = null;
@@ -184,7 +183,7 @@ export class ReceiptActivityPage implements OnInit {
     if (this.pdfUrl) {
       const pdfPath = this.pdfUrl.startsWith('http')
         ? this.pdfUrl
-        : `${this.testAPI}${this.pdfUrl}`;
+        : `${this.localAPI}${this.pdfUrl}`;
       // Link directly to the generated PDF so the QR opens the actual receipt file.
       this.pdfLink = pdfPath;
       this.qrCodeReady = true;
@@ -546,10 +545,10 @@ export class ReceiptActivityPage implements OnInit {
       return value;
     }
     if (value.startsWith('/')) {
-      return `${this.testAPI}${value}`;
+      return `${this.localAPI}${value}`;
     }
     if (value.includes('/')) {
-      return `${this.testAPI}/${value.replace(/^\/+/, '')}`;
+      return `${this.localAPI}/${value.replace(/^\/+/, '')}`;
     }
     return `data:image/png;base64,${value}`;
   }

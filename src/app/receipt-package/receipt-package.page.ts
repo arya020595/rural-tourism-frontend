@@ -28,8 +28,7 @@ export class ReceiptPackagePage implements OnInit {
   pdfUrl: string = '';
   isLocalOnly = false;
 
-  testAPI = environment.API;
-  localAPI = 'http://localhost:3000';
+  localAPI = environment.API;
   uid: any; // Store the user ID
   user: any; // Object to hold user data
   companyProfile: any = null;
@@ -171,7 +170,7 @@ export class ReceiptPackagePage implements OnInit {
     if (this.pdfUrl) {
       this.qrCodeReady = true;
       this.cdr.detectChanges();
-      this.pdfLink = this.testAPI + this.pdfUrl;
+      this.pdfLink = this.localAPI + this.pdfUrl;
       // this.pdfLink = this.localAPI + this.pdfUrl
       console.log('Generating QR code with URL:', this.pdfLink);
     } else {
@@ -523,10 +522,10 @@ export class ReceiptPackagePage implements OnInit {
       return value;
     }
     if (value.startsWith('/')) {
-      return `${this.testAPI}${value}`;
+      return `${this.localAPI}${value}`;
     }
     if (value.includes('/')) {
-      return `${this.testAPI}/${value.replace(/^\/+/, '')}`;
+      return `${this.localAPI}/${value.replace(/^\/+/, '')}`;
     }
     return `data:image/png;base64,${value}`;
   }

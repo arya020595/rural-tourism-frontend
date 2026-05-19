@@ -29,8 +29,7 @@ export class ReceiptPage implements OnInit, AfterViewInit {
   pdfUrl: string = '';
   isLocalOnly = false;
 
-  testAPI = environment.API;
-  localAPI = 'http://localhost:3000';
+  localAPI = environment.API;
   uid: any; // Store the user ID
   user: any; // Object to hold user data
   companyProfile: any = null;
@@ -186,7 +185,7 @@ export class ReceiptPage implements OnInit, AfterViewInit {
     if (this.pdfUrl) {
       const pdfPath = this.pdfUrl.startsWith('http')
         ? this.pdfUrl
-        : `${this.testAPI}${this.pdfUrl}`;
+        : `${this.localAPI}${this.pdfUrl}`;
       this.pdfLink = pdfPath;
       this.qrCodeReady = true;
       this.cdr.detectChanges();
@@ -513,10 +512,10 @@ export class ReceiptPage implements OnInit, AfterViewInit {
       return value;
     }
     if (value.startsWith('/')) {
-      return `${this.testAPI}${value}`;
+      return `${this.localAPI}${value}`;
     }
     if (value.includes('/')) {
-      return `${this.testAPI}/${value.replace(/^\/+/, '')}`;
+      return `${this.localAPI}/${value.replace(/^\/+/, '')}`;
     }
     return `data:image/png;base64,${value}`;
   }
