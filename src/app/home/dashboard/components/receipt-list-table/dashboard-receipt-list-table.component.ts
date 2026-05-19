@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { ReceiptListItem } from '../../dashboard.models';
 
 export interface ReceiptPaginationMeta {
@@ -27,6 +28,8 @@ export class DashboardReceiptListTableComponent {
   };
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
+
+  constructor(private router: Router) {}
 
   get totalPages(): number {
     return Math.max(1, this.meta.total_pages || 1);
@@ -66,5 +69,15 @@ export class DashboardReceiptListTableComponent {
   onPageSizeChange(value: string): void {
     const parsed = Number(value);
     this.pageSizeChange.emit(parsed > 0 ? parsed : 10);
+  }
+
+  onInfoClick(row: ReceiptListItem): void {
+    if (!row.bookingId) {
+      return;
+    }
+
+    this.router.navigate(['/booking-home/detail', row.bookingId], {
+      queryParams: { from: 'dashboard' },
+    });
   }
 }

@@ -13,7 +13,16 @@
     <tbody>
       <tr *ngFor="let row of receipts">
         <td class="icon-cell">
-          <ion-icon name="information-circle"></ion-icon>
+          <button
+            type="button"
+            class="info-btn"
+            (click)="onInfoClick(row)"
+            [disabled]="!row.bookingId"
+            aria-label="View booking detail"
+            title="View booking detail"
+          >
+            <ion-icon name="information-circle"></ion-icon>
+          </button>
         </td>
         <td>{{ row.receiptId }}</td>
         <td>{{ row.bookedBy }}</td>

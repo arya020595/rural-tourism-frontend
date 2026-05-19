@@ -18,7 +18,6 @@ import {
 } from './dashboard/dashboard.models';
 import { ReceiptPaginationMeta } from './dashboard/components/receipt-list-table/dashboard-receipt-list-table.component';
 import { DashboardApiService } from './dashboard/services/dashboard-api.service';
-import { DashboardMockService } from './dashboard/services/dashboard-mock.service';
 
 export type DashboardMode = 'today' | 'trend';
 
@@ -83,7 +82,6 @@ export class HomePage implements OnInit {
   constructor(
     private bookingService: BookingService,
     private dashboardApiService: DashboardApiService,
-    private dashboardMockService: DashboardMockService,
     private menuCtrl: MenuController,
     private router: Router,
     private toastController: ToastController,
@@ -128,40 +126,18 @@ export class HomePage implements OnInit {
     }
 
     if (!this.trendFrom || !this.trendTo) {
-      this.receiptMeta = { ...this.receiptMeta, page: 1 };
-      this.trendData = this.dashboardMockService.getTrendDashboardData();
-      this.bindTrendData();
-      this.loadReceiptsFromBookingList();
+      this.setDefaultTrendRange();
+      this.fetchTrendDashboard();
       return;
     }
 
-    this.dashboardApiService
-      .getTrendDashboard(this.trendFrom, this.trendTo)
-      .subscribe({
-        next: (response) => {
-          this.receiptMeta = { ...this.receiptMeta, page: 1 };
-          this.trendData = response?.data || null;
-          this.bindTrendData();
-          this.loadReceiptsFromBookingList();
-        },
-        error: () => {
-          this.receiptMeta = { ...this.receiptMeta, page: 1 };
-          this.trendData = this.dashboardMockService.getTrendDashboardData(
-            this.trendFrom,
-            this.trendTo,
-          );
-          this.bindTrendData();
-          this.loadReceiptsFromBookingList();
-        },
-      });
+    this.fetchTrendDashboard();
   }
 
   resetTrendFilter(): void {
     this.setDefaultTrendRange();
     this.receiptMeta = { ...this.receiptMeta, page: 1 };
-    this.trendData = this.dashboardMockService.getTrendDashboardData();
-    this.bindTrendData();
-    this.loadReceiptsFromBookingList();
+    this.fetchTrendDashboard();
   }
 
   openTrendPicker(target: 'from' | 'to', event: Event): void {
@@ -247,8 +223,7 @@ export class HomePage implements OnInit {
 
   private loadDashboardData(): void {
     this.loadTodayDashboard();
-    this.trendData = this.dashboardMockService.getTrendDashboardData();
-    this.loadReceiptsFromBookingList();
+    this.fetchTrendDashboard();
   }
 
   private loadTodayDashboard(): void {
@@ -258,8 +233,32 @@ export class HomePage implements OnInit {
         this.bindTodayData();
       },
       error: () => {
-        this.todayData = this.dashboardMockService.getTodayDashboardData();
-        this.bindTodayData();
+        this.todayData = null;
+        this.activeSummary = null;
+      },
+    });
+  }
+
+  private fetchTrendDashboard(): void {
+    if (!this.trendFrom || !this.trendTo) {
+      return;
+    }
+
+    this.dashboardApiService.getTrendDashboard(this.trendFrom, this.trendTo).subscribe({
+      next: (response) => {
+        this.receiptMeta = { ...this.receiptMeta, page: 1 };
+        this.trendData = response?.data || null;
+        this.bindTrendData();
+        this.loadReceiptsFromBookingList();
+      },
+      error: () => {
+        this.trendData = null;
+        if (this.mode === 'trend') {
+          this.activeSummary = null;
+          this.revenueSeries = [];
+          this.receiptsSeries = [];
+          this.touristsSeries = [];
+        }
       },
     });
   }
@@ -455,6 +454,11 @@ export class HomePage implements OnInit {
       package: 'Package',
     };
     const type = typeMap[rawType] || 'Activity';
+    const bookingIdRaw = item?.id || item?.booking_id || item?.bookingId;
+    const bookingId =
+      bookingIdRaw !== undefined && bookingIdRaw !== null
+        ? String(bookingIdRaw)
+        : '';
     const receiptId = item?.receipt_id || item?.receiptId || item?.id || `RES_${index + 1}`;
     const bookedBy =
       item?.user_fullname ||
@@ -469,6 +473,7 @@ export class HomePage implements OnInit {
     const createdAt = item?.created_at || item?.createdAt || '-';
 
     return {
+      bookingId,
       receiptId: String(receiptId),
       bookedBy: String(bookedBy),
       serviceName: String(serviceName),
