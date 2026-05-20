@@ -3,13 +3,16 @@ import { Router } from '@angular/router';
 import { MenuController, NavController } from '@ionic/angular';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { BookingStateService } from '../services/booking-state.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { NetworkService } from '../services/network.service';
-import { OfflineQueueService, QueueStatus } from '../services/offline-queue.service';
+import {
+  OfflineQueueService,
+  QueueStatus,
+} from '../services/offline-queue.service';
 import { SyncService } from '../services/sync.service';
-import { BookingRow, BookingDetail } from './booking-home.models';
-import { BookingStateService } from '../services/booking-state.service';
+import { BookingDetail, BookingRow } from './booking-home.models';
 
 interface CalendarCell {
   key: string | null;
@@ -44,7 +47,7 @@ export class BookingHomePage implements OnInit {
   currentMonthDate = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
-    1,
+    1
   );
   calendarCells: CalendarCell[] = [];
   selectedDateKey: string | null = null;
@@ -62,7 +65,7 @@ export class BookingHomePage implements OnInit {
     private syncService: SyncService,
     private router: Router,
     private navCtrl: NavController,
-    private bookingStateService: BookingStateService,
+    private bookingStateService: BookingStateService
   ) {}
 
   ngOnInit(): void {
@@ -111,7 +114,12 @@ export class BookingHomePage implements OnInit {
   }
 
   cycleStatusFilter(): void {
-    const order: Array<'all' | 'pending' | 'paid' | 'cancelled'> = ['all', 'pending', 'paid', 'cancelled'];
+    const order: Array<'all' | 'pending' | 'paid' | 'cancelled'> = [
+      'all',
+      'pending',
+      'paid',
+      'cancelled',
+    ];
     const next = (order.indexOf(this.statusFilter) + 1) % order.length;
     this.statusFilter = order[next];
     this.currentPage = 1;
@@ -147,7 +155,7 @@ export class BookingHomePage implements OnInit {
     this.currentMonthDate = new Date(
       this.currentMonthDate.getFullYear(),
       this.currentMonthDate.getMonth() - 1,
-      1,
+      1
     );
 
     this.buildCalendar();
@@ -157,7 +165,7 @@ export class BookingHomePage implements OnInit {
     this.currentMonthDate = new Date(
       this.currentMonthDate.getFullYear(),
       this.currentMonthDate.getMonth() + 1,
-      1,
+      1
     );
 
     this.buildCalendar();
@@ -189,7 +197,7 @@ export class BookingHomePage implements OnInit {
       'en-US',
       {
         month: 'short',
-      },
+      }
     )}`;
   }
 
@@ -288,7 +296,7 @@ export class BookingHomePage implements OnInit {
           page: 1,
           per_page: 1000,
           user_id: String(operatorId),
-        }),
+        })
       );
 
       const rows = Array.isArray(response?.data) ? response.data : [];
@@ -297,8 +305,8 @@ export class BookingHomePage implements OnInit {
         .filter((booking: BookingDetail | null): booking is BookingDetail => {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
-        .sort((a: BookingDetail, b: BookingDetail) =>
-          Number(b.id) - Number(a.id),
+        .sort(
+          (a: BookingDetail, b: BookingDetail) => Number(b.id) - Number(a.id)
         );
       this.currentPage = 1;
       this.isOffline = false;
@@ -323,11 +331,11 @@ export class BookingHomePage implements OnInit {
         .filter((booking: BookingDetail | null): booking is BookingDetail => {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
-        .sort((a: BookingDetail, b: BookingDetail) =>
-          Number(b.id) - Number(a.id),
+        .sort(
+          (a: BookingDetail, b: BookingDetail) => Number(b.id) - Number(a.id)
         );
       this.currentPage = 1;
-      this.isOffline = true;
+      this.isOffline = !this.networkService.isOnline;
     } finally {
       this.loadingBookings = false;
       this.buildCalendar();
@@ -422,7 +430,7 @@ export class BookingHomePage implements OnInit {
     this.calendarCells = cells;
 
     const currentMonthKeys = new Set(
-      cells.filter((cell) => !!cell.key).map((cell) => cell.key as string),
+      cells.filter((cell) => !!cell.key).map((cell) => cell.key as string)
     );
 
     if (this.selectedDateKey && currentMonthKeys.has(this.selectedDateKey)) {
@@ -430,7 +438,7 @@ export class BookingHomePage implements OnInit {
     }
 
     const firstBookedDate = cells.find(
-      (cell) => !!cell.key && cell.bookings.length > 0,
+      (cell) => !!cell.key && cell.bookings.length > 0
     );
 
     this.selectedDateKey = firstBookedDate?.key || null;
@@ -455,11 +463,11 @@ export class BookingHomePage implements OnInit {
       type,
       status: this.normalizeStatus(status),
       time: this.formatTime(
-        record?.activity_time || record?.time || record?.activity_date,
+        record?.activity_time || record?.time || record?.activity_date
       ),
       fullName: String(record?.tourist_full_name || ''),
       phone: String(
-        record?.phone_number || record?.phone || record?.contact_phone || '',
+        record?.phone_number || record?.phone || record?.contact_phone || ''
       ),
       email: String(record?.email || record?.contact_email || ''),
       nationality: this.normalizeNationality(record?.citizenship),
@@ -509,7 +517,7 @@ export class BookingHomePage implements OnInit {
         record?.receipt_created_at ||
         record?.created_at ||
         record?.updated_at ||
-        '',
+        ''
     );
   }
 
@@ -529,13 +537,13 @@ export class BookingHomePage implements OnInit {
   private resolveServiceName(record: any, type: BookingDetail['type']): string {
     if (type === 'Activity') {
       return String(
-        record?.product_name || record?.activity_name || 'Activity',
+        record?.product_name || record?.activity_name || 'Activity'
       );
     }
 
     if (type === 'Accommodation') {
       return String(
-        record?.product_name || record?.check_in_name || 'Accommodation',
+        record?.product_name || record?.check_in_name || 'Accommodation'
       );
     }
 
@@ -544,7 +552,7 @@ export class BookingHomePage implements OnInit {
       : [];
     const packageNames = packageCompanies
       .map((item: any) =>
-        String(item?.description || item?.referee_company || '').trim(),
+        String(item?.description || item?.referee_company || '').trim()
       )
       .filter((name: string) => name.length > 0);
 
@@ -584,7 +592,7 @@ export class BookingHomePage implements OnInit {
   }
 
   private normalizeNationality(
-    value: any,
+    value: any
   ): 'domestic' | 'international' | 'both' {
     const normalized = String(value || '')
       .trim()
