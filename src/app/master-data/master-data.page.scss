@@ -1,5 +1,5 @@
 .master-header ion-toolbar {
-  --background: #2b2f2b;
+  --background: #2b2f2b; /* toolbar stays dark */
   --box-shadow: none;
   --border-width: 0;
 }
@@ -23,14 +23,14 @@ ion-content {
 .surface-card {
   margin-top: 5vh;
   min-height: calc(100vh - 5vh);
-  background: #f5f5f5;
+  background: #ffffff;
   border-radius: 26px 26px 0 0;
   box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
   padding: 20px;
 }
 
 .master-page {
-  background: #f5f5f5;
+  background: #ffffff;
   border-radius: 14px;
   min-height: calc(100vh - 9vh);
   padding: 18px 22px 24px;
@@ -107,7 +107,7 @@ ion-content {
 }
 
 .table-card {
-  background: #f5f5f5;
+  background: #ffffff;
   border-radius: 14px;
 }
 
@@ -486,12 +486,23 @@ ion-content {
 
   .table-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
 
   .pagination {
+    order: 1;
     justify-content: center;
     width: 100%;
+  }
+
+  .middle-info {
+    order: 2;
+    text-align: center;
+  }
+
+  .left-tools {
+    order: 3;
+    text-align: center;
   }
 }
 

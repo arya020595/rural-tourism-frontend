@@ -49,8 +49,10 @@
             src="https://ionicframework.com/docs/img/demos/avatar.svg"
           />
         </ion-avatar>
-        <h3>{{ displayName }}</h3>
-        <p style="margin-top: 2%">{{ displayEmail }}</p>
+        <div>
+          <h3>{{ displayName }}</h3>
+          <p>{{ displayEmail }}</p>
+        </div>
       </div>
 
       <ng-container *ngFor="let item of menuItems; trackBy: trackMenuItem">

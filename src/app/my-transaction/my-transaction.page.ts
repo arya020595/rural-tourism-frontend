@@ -20,8 +20,9 @@ export class MyTransactionPage implements OnInit {
   selectedDateIso: string = this.toIsoDate(new Date());
   isDateModalOpen = false;
   isLoading = false;
+  isPageLoading = false;
 
-  readonly pageSize = 6;
+  pageSize = 6;
   currentPage = 1;
 
   private allTransactions: Transaction[] = [];
@@ -131,7 +132,19 @@ export class MyTransactionPage implements OnInit {
   changePage(page: number): void {
     const next = Math.min(Math.max(1, page), this.totalPages);
     if (next !== this.currentPage) {
-      this.currentPage = next;
+      this.isPageLoading = true;
+      setTimeout(() => {
+        this.currentPage = next;
+        this.isPageLoading = false;
+      }, 300);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const val = Number((event.target as HTMLSelectElement).value);
+    if (val !== this.pageSize) {
+      this.pageSize = val;
+      this.currentPage = 1;
     }
   }
 

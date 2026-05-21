@@ -112,6 +112,10 @@ export class BookingService {
     return this.http.get(`${this.apiUrl}/bookings/${bookingId}`);
   }
 
+  getReceiptPdfUrl(bookingId: string | number): string {
+    return `${this.apiUrl}/bookings/${bookingId}/receipt-pdf`;
+  }
+
   updateBooking(bookingId: string, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/bookings/${bookingId}`, data);
   }

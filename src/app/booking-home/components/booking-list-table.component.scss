@@ -240,11 +240,22 @@ tbody td {
 
   .table-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
 
   .pagination {
+    order: 1;
     justify-content: center;
     width: 100%;
+  }
+
+  .entries-summary {
+    order: 2;
+    text-align: center;
+  }
+
+  .entries-control {
+    order: 3;
+    text-align: center;
   }
 }

@@ -19,7 +19,7 @@
             <img class="logo" [src]="companyLogoUrl" alt="Company logo" />
           </div>
           <div class="receipt-date">
-            {{ receipt?.createdAt | date: 'dd-MMM-yyyy' }}
+            {{ formatMyDate(receipt?.createdAt) }}
           </div>
         </div>
 
@@ -38,16 +38,16 @@
             </div>
 
             <div class="receipt-row receipt-row--checkin">
-              <div class="row-label">TARIKH DAFTAR MASUK/CHECK-IN DATE</div>
+              <div class="row-label">DAFTAR MASUK/<em>CHECK-IN</em></div>
               <div class="row-value">
-                {{ receipt?.check_in_date | date: 'dd-MM-yyyy' }}
+                {{ formatMyDate(receipt?.check_in_date) }}
               </div>
             </div>
 
             <div class="receipt-row receipt-row--checkout">
-              <div class="row-label">TARIKH DAFTAR KELUAR/CHECK-OUT DATE</div>
+              <div class="row-label">DAFTAR KELUAR/<em>CHECK-OUT</em></div>
               <div class="row-value">
-                {{ receipt?.check_out_date | date: 'dd-MM-yyyy' }}
+                {{ formatMyDate(receipt?.check_out_date) }}
               </div>
             </div>
 

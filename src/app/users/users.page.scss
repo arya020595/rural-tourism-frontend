@@ -1,8 +1,27 @@
 // ── Toolbar (dark, matches company-profile pattern) ───────────────────────
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
 .um-header ion-toolbar {
   --background: #2b2f2b;
   --box-shadow: none;
   --border-width: 0;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #ffffff;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 .menu-toggle {
@@ -32,7 +51,7 @@
 .um-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 0;
 }
 
 .um-page-header {
@@ -47,23 +66,23 @@
 .um-add-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: var(--ion-color-primary);
+  gap: 10px;
+  background: #015c2f;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 18px;
+  font-weight: 700;
+  min-height: 44px;
   cursor: pointer;
-  transition: background 0.2s;
 
   ion-icon {
-    font-size: 1.1rem;
+    font-size: 22px;
   }
 
   &:hover {
-    background: var(--ion-color-primary-shade);
+    background: #014a26;
   }
 }
 
@@ -150,17 +169,6 @@
   white-space: nowrap;
 }
 
-// Responsive column hiding
-@media (max-width: 599px) {
-  .um-table .hide-mobile {
-    display: none;
-  }
-}
-@media (max-width: 767px) {
-  .um-table .hide-sm {
-    display: none;
-  }
-}
 
 @media (max-width: 992px) {
   .um-table thead th,
@@ -299,10 +307,19 @@
 @media (max-width: 480px) {
   .um-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
   .um-pagination {
+    order: 1;
     justify-content: center;
     width: 100%;
+  }
+  .um-count {
+    order: 2;
+    text-align: center;
+  }
+  .um-per-page {
+    order: 3;
+    text-align: center;
   }
 }

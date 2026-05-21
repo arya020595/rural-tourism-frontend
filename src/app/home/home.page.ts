@@ -469,7 +469,8 @@ export class HomePage implements OnInit {
       '-';
     const serviceName =
       item?.product_name || item?.service_name || item?.title || item?.activity_name || '-';
-    const createdAt = item?.created_at || item?.createdAt || '-';
+    const createdAtRaw = item?.created_at || item?.createdAt || '-';
+    const createdAt = this.formatDateTime(createdAtRaw);
 
     return {
       bookingId,
@@ -477,8 +478,20 @@ export class HomePage implements OnInit {
       bookedBy: String(bookedBy),
       serviceName: String(serviceName),
       type,
-      createdAt: String(createdAt),
+      createdAt,
     };
+  }
+
+  private formatDateTime(raw: string): string {
+    if (!raw || raw === '-') return '-';
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return raw;
+    const day = String(d.getDate()).padStart(2, '0');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const year = d.getFullYear();
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    return `${day} ${months[d.getMonth()]} ${year}, ${h}:${m}`;
   }
 
   private getReceiptFallback(): ReceiptListItem[] {

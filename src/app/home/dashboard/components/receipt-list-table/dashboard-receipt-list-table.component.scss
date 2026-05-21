@@ -1,28 +1,41 @@
 .table-wrapper {
   overflow-x: auto;
+  margin-bottom: 16px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 700px;
 }
 
 thead th {
-  background: #3f825d;
-  color: #e8f0ea;
-  font-size: 22px;
+  background: #015c2f;
+  color: #ffffff;
+  font-size: 18px;
   font-weight: 700;
-  padding: 14px 12px;
+  padding: 16px 12px;
   text-align: center;
+  white-space: nowrap;
+
+  &:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
 }
 
 tbody td {
   padding: 14px 12px;
   border-bottom: 1px solid #d6d6d6;
-  color: #161616;
-  font-size: 16px;
+  color: #121212;
+  font-size: 18px;
   text-align: center;
+  vertical-align: middle;
 }
 
 .info-btn {
@@ -34,120 +47,114 @@ tbody td {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-}
 
-.info-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
+  &:hover {
+    opacity: 0.75;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
 }
 
 .icon-cell ion-icon {
-  font-size: 24px;
-  color: #2f6190;
+  font-size: 28px;
+  color: #245a94;
 }
 
 .table-footer {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 14px;
 }
 
 .entries-control {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 18px;
-}
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #555;
 
-.entries-control select {
-  border: 1px solid #c5c5c5;
-  border-radius: 4px;
-  min-width: 72px;
-  min-height: 38px;
-  padding: 0 10px;
-  background: #ffffff;
-  font-size: 18px;
+  select {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    background: white;
+    cursor: pointer;
+  }
 }
 
 .entries-summary {
-  font-size: 18px;
-  text-align: center;
+  font-size: 0.82rem;
+  color: #666;
+  margin: 0;
 }
 
 .pagination {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 .page-btn {
-  border: 1px solid #b6b6b6;
-  border-left: none;
-  background: #f8f8f8;
-  color: #202020;
-  font-size: 18px;
-  min-height: 42px;
-  padding: 0 14px;
-}
+  min-width: 36px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
 
-.page-btn:first-child {
-  border-left: 1px solid #b6b6b6;
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-}
+  &.active {
+    background: #015c2f;
+    color: #ffffff;
+    border-color: #015c2f;
+    font-weight: 700;
+  }
 
-.page-btn:last-child {
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-}
+  &:hover:not(.active):not(:disabled) {
+    background: #f0f0f0;
+  }
 
-.page-btn.active {
-  background: #015c2f;
-  color: #ffffff;
-  border-color: #015c2f;
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }
 
 @media (max-width: 992px) {
   tbody td,
-  thead th,
-  .entries-summary,
-  .entries-control,
-  .entries-control select,
-  .page-btn {
+  thead th {
     font-size: 16px;
   }
 
-  .icon-cell ion-icon {
-    font-size: 22px;
-  }
-
   .table-footer {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .entries-summary,
   .pagination {
-    justify-content: flex-start;
-    text-align: left;
+    order: 1;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .entries-summary {
+    order: 2;
+    text-align: center;
   }
 
   .entries-control {
-    flex-wrap: wrap;
-  }
-
-  .pagination {
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    white-space: nowrap;
-  }
-
-  .page-btn {
-    flex: 0 0 auto;
-    min-height: 38px;
-    font-size: 15px;
-    padding: 0 12px;
+    order: 3;
+    text-align: center;
   }
 }

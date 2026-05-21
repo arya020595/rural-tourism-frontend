@@ -23,16 +23,16 @@
 <app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="users-main-content" class="um-content">
-  <!-- ── Shared header logo ────────────────────────────────────────────── -->
-  <div class="um-logo-section">
-    <app-header-logo></app-header-logo>
-  </div>
-
-  <div class="um-container">
+  <div class="surface-card">
+    <div class="um-container">
+      <!-- ── Shared header logo ───────────────────────────────────────────── -->
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
     <!-- ── Page header row (title + Add button) ───────────────────────────── -->
     <div class="um-page-header">
       <div class="page-title-row">
-        <h1>Pengurusan Pengguna/<em>User Management</em></h1>
+        <h1>Pengurusan Pengguna/<br class="mobile-break"><em>User Management</em></h1>
       </div>
       <div class="um-page-header__actions">
         <button
@@ -69,8 +69,8 @@
             <th class="col-actions"></th>
             <th class="col-id">User ID</th>
             <th class="col-name">Full Name</th>
-            <th class="col-email hide-mobile">Email Address</th>
-            <th class="col-date hide-sm">Created At</th>
+            <th class="col-email">Email Address</th>
+            <th class="col-date">Created At</th>
           </tr>
         </thead>
         <tbody>
@@ -111,8 +111,8 @@
             </td>
             <td class="col-id">{{ formatUserId(u.id) }}</td>
             <td class="col-name">{{ u.name }}</td>
-            <td class="col-email hide-mobile">{{ u.email }}</td>
-            <td class="col-date hide-sm">{{ formatDate(u.created_at) }}</td>
+            <td class="col-email">{{ u.email }}</td>
+            <td class="col-date">{{ formatDate(u.created_at) }}</td>
           </tr>
 
           <!-- Empty state -->
@@ -178,6 +178,7 @@
           Next &raquo;
         </button>
       </nav>
+    </div>
     </div>
   </div>
 </ion-content>

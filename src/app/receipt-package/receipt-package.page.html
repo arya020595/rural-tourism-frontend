@@ -28,7 +28,7 @@
             <img class="logo" [src]="companyLogoUrl" alt="Company logo" />
           </div>
           <div class="receipt-date">
-            {{ receipt?.createdAt | date: 'dd-MMM-yyyy' }}
+            {{ formatMyDate(receipt?.createdAt) }}
           </div>
         </div>
 
