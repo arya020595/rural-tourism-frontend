@@ -13,17 +13,8 @@ $rm-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .role-form-modal {
   --border-radius: #{$rm-modal-radius};
   --box-shadow: #{$rm-modal-shadow};
-
-  // Mobile: full-screen (Ionic default), lock border-radius off
-  @media (max-width: 575px) {
-    --border-radius: 0;
-  }
-
-  // Desktop: constrained
-  @media (min-width: 576px) {
-    --width: 560px;
-    --max-height: 92vh;
-  }
+  --width: min(92%, 560px);
+  --max-height: 90dvh;
 
   ion-toolbar {
     --color: white;
@@ -32,14 +23,9 @@ $rm-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   .rfm-scroll-content {
     flex: 1;
     overflow-y: auto;
-    // Mobile: fills full screen minus header
-    max-height: calc(100dvh - 56px);
+    max-height: calc(90dvh - 56px);
     padding: 16px;
     box-sizing: border-box;
-
-    @media (min-width: 576px) {
-      max-height: calc(92vh - 56px);
-    }
   }
 
   .rfm-spinner {
@@ -203,17 +189,8 @@ $rm-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .role-view-modal {
   --border-radius: #{$rm-modal-radius};
   --box-shadow: #{$rm-modal-shadow};
-
-  // Mobile: full-screen, no rounded corners
-  @media (max-width: 575px) {
-    --border-radius: 0;
-  }
-
-  // Desktop: constrained
-  @media (min-width: 576px) {
-    --width: 480px;
-    --max-height: 90vh;
-  }
+  --width: min(92%, 480px);
+  --max-height: 90dvh;
 
   ion-toolbar {
     --background: var(--ion-color-primary);
@@ -227,14 +204,9 @@ $rm-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   .rvm-scroll-content {
     flex: 1;
     overflow-y: auto;
-    // Mobile: fills full screen minus header
-    max-height: calc(100dvh - 56px);
+    max-height: calc(90dvh - 56px);
     padding: 16px;
     box-sizing: border-box;
-
-    @media (min-width: 576px) {
-      max-height: calc(90vh - 56px);
-    }
   }
 
   .rvm-spinner {

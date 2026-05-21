@@ -166,16 +166,8 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .user-view-modal {
   --border-radius: #{$um-modal-radius};
   --box-shadow: #{$um-modal-shadow};
-
-  .ion-page {
-    height: auto;
-    min-height: 0;
-  }
-
-  @media (min-width: 576px) {
-    --width: 440px;
-    --max-height: 90vh;
-  }
+  --width: min(92%, 480px);
+  --max-height: 90dvh;
 
   ion-toolbar {
     --background: var(--ion-color-primary);
@@ -192,8 +184,9 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 
   // Wrapper div replacing ion-content
   .uvm-scroll-content {
+    flex: 1;
     overflow-y: auto;
-    max-height: calc(90vh - 56px);
+    max-height: calc(90dvh - 56px);
     padding: 24px 16px;
     box-sizing: border-box;
   }
