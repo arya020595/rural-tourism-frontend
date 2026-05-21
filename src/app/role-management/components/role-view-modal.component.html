@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Butiran Peranan / Role Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="rvm-scroll-content ion-padding">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="rvm-spinner">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading && role">
+    <!-- Role summary -->
+    <div class="rvm-summary">
+      <div class="rvm-row">
+        <span class="rvm-label">Nama Peranan / Role Name</span>
+        <span class="rvm-value">{{ role.name }}</span>
+      </div>
+      <div class="rvm-row">
+        <span class="rvm-label">Jumlah Kebenaran / Total Permissions</span>
+        <ion-badge color="primary">{{ role.permissions_count }}</ion-badge>
+      </div>
+      <div class="rvm-row">
+        <span class="rvm-label">Dicipta / Created At</span>
+        <span class="rvm-value">{{ formatDate(role.created_at) }}</span>
+      </div>
+      <div class="rvm-row">
+        <span class="rvm-label">Dikemaskini / Updated At</span>
+        <span class="rvm-value">{{ formatDate(role.updated_at) }}</span>
+      </div>
+    </div>
+
+    <hr class="rvm-divider" />
+
+    <!-- Permissions grouped by section -->
+    <h4 class="rvm-perms-heading">
+      Kebenaran / <em>Permissions</em> ({{ role.permissions_count }})
+    </h4>
+
+    <div *ngIf="sections.length === 0" class="rvm-no-perms">
+      <ion-icon name="lock-open-outline"></ion-icon>
+      <p>Tiada kebenaran ditetapkan / No permissions assigned.</p>
+    </div>
+
+    <div *ngFor="let section of sections" class="rvm-section-block">
+      <div class="rvm-section-header">
+        <span class="rvm-section-num">{{ section.name }}</span>
+      </div>
+      <div class="rvm-perms-list">
+        <div *ngFor="let perm of section.permissions" class="rvm-perm-item">
+          <ion-icon name="checkmark-circle" color="success"></ion-icon>
+          <span class="rvm-perm-name">{{ perm.name }}</span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div *ngIf="!isLoading && !role" class="rvm-error">
+    <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+    <p>Gagal memuatkan peranan / Failed to load role.</p>
+  </div>
+</div>

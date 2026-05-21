@@ -1,0 +1,427 @@
+// =============================================================================
+// Role Management Module — Modal Overlay Styles
+//
+// These styles live in a globally-imported file because Ionic appends
+// modals directly to <ion-app>, outside any Angular component scope.
+// Imported from src/global.scss.
+// =============================================================================
+
+$rm-modal-radius: 16px;
+$rm-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+// ── Form modal (Add / Edit role) ───────────────────────────────────────────
+.role-form-modal {
+  --border-radius: #{$rm-modal-radius};
+  --box-shadow: #{$rm-modal-shadow};
+
+  @media (min-width: 576px) {
+    --width: 560px;
+    --max-height: 92vh;
+  }
+
+  ion-toolbar {
+    --color: white;
+  }
+
+  .rfm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(92vh - 56px);
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .rfm-spinner {
+    display: flex;
+    justify-content: center;
+    padding: 32px 0;
+  }
+
+  .rfm-field {
+    margin-bottom: 16px;
+  }
+
+  .rfm-label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 6px;
+
+    em {
+      font-style: normal;
+    }
+
+    .required {
+      color: var(--ion-color-danger);
+      margin-left: 2px;
+    }
+  }
+
+  .rfm-input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    border: 1.5px solid #ccc;
+    border-radius: 10px;
+    background: #fff;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--ion-color-primary);
+    }
+
+    &:disabled {
+      background: #f5f5f5;
+      color: #888;
+    }
+  }
+
+  .rfm-permissions-section {
+    margin-top: 8px;
+  }
+
+  .rfm-section-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 12px;
+
+    .rfm-count {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--ion-color-medium);
+      margin-left: 6px;
+    }
+  }
+
+  .rfm-section-block {
+    margin-bottom: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .rfm-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #f5f5f5;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #444;
+
+    &:hover {
+      background: #ececec;
+    }
+
+    &.rfm-section-header--checked {
+      background: var(--ion-color-primary);
+      color: white;
+
+      input[type="checkbox"] {
+        accent-color: white;
+      }
+    }
+
+    .rfm-checkbox-wrap {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .rfm-perms-list {
+    padding: 8px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .rfm-perm-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.87rem;
+    color: #333;
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      cursor: pointer;
+      accent-color: var(--ion-color-primary);
+    }
+
+    .rfm-perm-name {
+      flex: 1;
+    }
+
+    .rfm-perm-code {
+      font-size: 0.75rem;
+      color: #888;
+      background: #f0f0f0;
+      border-radius: 4px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+  }
+
+  .rfm-error {
+    color: var(--ion-color-danger);
+    font-size: 0.85rem;
+    padding: 8px 0;
+    margin: 4px 0;
+  }
+
+  .rfm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+  }
+}
+
+// ── View modal (read-only role details) ────────────────────────────────────
+.role-view-modal {
+  --border-radius: #{$rm-modal-radius};
+  --box-shadow: #{$rm-modal-shadow};
+
+  @media (min-width: 576px) {
+    --width: 480px;
+    --max-height: 90vh;
+  }
+
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: white;
+  }
+
+  ion-buttons ion-button {
+    --color: white;
+  }
+
+  .rvm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(90vh - 56px);
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .rvm-spinner {
+    display: flex;
+    justify-content: center;
+    padding: 32px 0;
+  }
+
+  .rvm-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .rvm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.88rem;
+  }
+
+  .rvm-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 140px;
+  }
+
+  .rvm-value {
+    color: #222;
+    text-align: right;
+    word-break: break-all;
+  }
+
+  .rvm-divider {
+    border: none;
+    border-top: 1.5px solid #e0e0e0;
+    margin: 12px 0;
+  }
+
+  .rvm-perms-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 12px;
+
+    em {
+      font-style: normal;
+    }
+  }
+
+  .rvm-no-perms {
+    text-align: center;
+    color: #888;
+    padding: 24px 0;
+
+    ion-icon {
+      font-size: 2rem;
+      display: block;
+      margin: 0 auto 6px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .rvm-section-block {
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .rvm-section-header {
+    background: var(--ion-color-primary);
+    color: white;
+    padding: 8px 14px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .rvm-perms-list {
+    padding: 8px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .rvm-perm-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.87rem;
+    color: #333;
+
+    ion-icon {
+      flex-shrink: 0;
+    }
+
+    .rvm-perm-name {
+      flex: 1;
+    }
+  }
+
+  .rvm-error {
+    text-align: center;
+    color: var(--ion-color-danger);
+    padding: 24px 0;
+
+    ion-icon {
+      font-size: 2rem;
+      display: block;
+      margin: 0 auto 6px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+// ── Delete modal (confirm deletion) ───────────────────────────────────────
+.role-delete-modal {
+  --border-radius: #{$rm-modal-radius};
+  --box-shadow: #{$rm-modal-shadow};
+
+  @media (min-width: 576px) {
+    --width: 400px;
+    --max-height: 80vh;
+  }
+
+  .rdm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(80vh - 56px);
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .confirm-container {
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .warning-icon {
+    ion-icon {
+      font-size: 3.5rem;
+    }
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 12px 0 8px;
+
+    small {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: #777;
+    }
+  }
+
+  .confirm-text {
+    font-size: 0.88rem;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  .role-info-block {
+    background: #fff8f8;
+    border: 1px solid #ffd0d0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+    font-size: 0.88rem;
+
+    strong {
+      font-size: 0.95rem;
+    }
+
+    span {
+      color: #777;
+    }
+  }
+
+  .warn-text {
+    font-size: 0.83rem;
+    color: #c0392b;
+    margin-bottom: 12px;
+  }
+
+  .api-error {
+    color: var(--ion-color-danger);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: rgba(255, 0, 0, 0.06);
+    border-radius: 6px;
+  }
+
+  .action-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}

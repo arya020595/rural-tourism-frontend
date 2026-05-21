@@ -31,6 +31,13 @@ export class MenuService {
         route: '/master-data',
         permission: 'product:read',
       },
+      {
+        id: 'role-management',
+        label: 'Pengurusan Peranan/Role Management',
+        icon: 'shield-outline',
+        route: '/role-management',
+        permission: 'role:read',
+      },
     ],
     operator_admin: [
       {
@@ -81,6 +88,13 @@ export class MenuService {
         icon: 'people-outline',
         route: '/users',
         permission: 'user:read',
+      },
+      {
+        id: 'role-management',
+        label: 'Pengurusan Peranan/Role Management',
+        icon: 'shield-outline',
+        route: '/role-management',
+        permission: 'role:read',
       },
     ],
     operator_staff: [

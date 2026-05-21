@@ -94,6 +94,11 @@
    ============================================ */
 @import "app/users/users-modals";
 
+/* ============================================
+   ROLE MANAGEMENT MODALS
+   ============================================ */
+@import "app/role-management/role-management-modals";
+
 .info-toast {
   --background: #2196f3;
   --color: white;

@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>Padam Peranan / Delete Role</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon
+          name="close-outline"
+          slot="icon-only"
+          style="color: white"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="rdm-scroll-content ion-padding">
+  <div class="confirm-container">
+    <div class="warning-icon">
+      <ion-icon name="warning-outline" color="danger"></ion-icon>
+    </div>
+
+    <h3>Padam Peranan?<br /><small>Delete Role?</small></h3>
+
+    <p class="confirm-text">
+      Anda akan memadam peranan berikut secara kekal:<br />
+      <em>You are about to permanently delete:</em>
+    </p>
+
+    <div class="role-info-block">
+      <strong>{{ role.name }}</strong>
+      <span>{{ role.permissions_count }} permission(s)</span>
+    </div>
+
+    <p class="warn-text">
+      Tindakan ini tidak boleh dibatalkan.<br />
+      <em>This action cannot be undone.</em>
+    </p>
+
+    <p class="api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="action-row">
+      <ion-button
+        fill="outline"
+        color="medium"
+        (click)="dismiss()"
+        [disabled]="isDeleting"
+      >
+        Batal / Cancel
+      </ion-button>
+      <ion-button color="danger" (click)="confirm()" [disabled]="isDeleting">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        {{ isDeleting ? "Memadam..." : "Padam / Delete" }}
+      </ion-button>
+    </div>
+  </div>
+</div>
