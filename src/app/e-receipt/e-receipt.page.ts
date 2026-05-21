@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
@@ -11,12 +13,14 @@ import { NetworkService } from '../services/network.service';
   templateUrl: './e-receipt.page.html',
   styleUrls: ['./e-receipt.page.scss'],
 })
-export class EReceiptPage implements OnInit {
+export class EReceiptPage implements OnInit, OnDestroy {
   uid: string | null = null;
   user: any = null;
   menuItems: MenuItem[] = [];
   pendingBookingsCount: number = 0;
   isOffline = false;
+
+  private networkSub?: Subscription;
 
   activityBgSrc = '';
   accomBgSrc = '';
@@ -39,11 +43,17 @@ export class EReceiptPage implements OnInit {
     this.loadUserData();
 
     this.isOffline = !this.networkService.isOnline;
-    this.networkService.isOnline$.subscribe((online) => {
-      this.isOffline = !online;
-    });
+    this.networkSub = this.networkService.isOnline$
+      .pipe(distinctUntilChanged())
+      .subscribe((online) => {
+        this.isOffline = !online;
+      });
 
     void this.loadBgImages();
+  }
+
+  ngOnDestroy(): void {
+    this.networkSub?.unsubscribe();
   }
 
   private async loadBgImages(): Promise<void> {

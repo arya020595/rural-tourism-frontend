@@ -97,6 +97,26 @@ ion-content {
   cursor: pointer;
 }
 
+.mobile-update-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-update-btn {
+    display: none;
+  }
+
+  .mobile-update-btn {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+    font-size: 15px;
+    border-radius: 8px;
+    margin-top: 16px;
+  }
+}
+
 .avatar-block {
   display: flex;
   flex-direction: column;
@@ -422,6 +442,12 @@ select.native-select:invalid {
 
   .title-row h1 {
     font-size: 22px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .title-row {
+    justify-content: center;
   }
 
   .edit-toggle-button {
@@ -440,6 +466,16 @@ select.native-select:invalid {
   .value {
     text-align: left;
     padding-top: 0;
+  }
+
+  ion-input.field-input,
+  ion-textarea.field-input {
+    margin: 4px 0;
+  }
+
+  select.native-select {
+    margin: 4px 0;
+    width: 100%;
   }
 
   .document-actions {

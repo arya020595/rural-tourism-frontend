@@ -34,6 +34,7 @@ export class BookingHomePage implements OnInit {
 
   viewMode: BookingViewMode = 'table';
   loadingBookings = false;
+  loadingPage = false;
   isOffline = false;
 
   readonly pendingCount$ = new BehaviorSubject<number>(0);
@@ -41,7 +42,8 @@ export class BookingHomePage implements OnInit {
   queueStatusMap: Record<string, QueueStatus> = {};
 
   readonly dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  readonly pageSize = 10;
+  readonly perPageOptions = [10, 25, 50, 100];
+  pageSize = 10;
 
   currentPage = 1;
   currentMonthDate = new Date(
@@ -125,13 +127,22 @@ export class BookingHomePage implements OnInit {
     this.currentPage = 1;
   }
 
+  changePageSize(size: number): void {
+    this.pageSize = Number(size);
+    this.currentPage = 1;
+  }
+
   changeBookingPage(page: number): void {
     const nextPage = Math.min(Math.max(1, page), this.totalBookingPages);
     if (nextPage === this.currentPage) {
       return;
     }
 
-    this.currentPage = nextPage;
+    this.loadingPage = true;
+    setTimeout(() => {
+      this.currentPage = nextPage;
+      this.loadingPage = false;
+    }, 300);
   }
 
   viewBookingDetails(booking: BookingDetail): void {

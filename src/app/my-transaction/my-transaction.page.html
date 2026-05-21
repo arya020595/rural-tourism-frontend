@@ -72,15 +72,19 @@
         Loading transactions...
       </div>
 
-      <div *ngIf="!isLoading && visibleTransactions.length === 0" class="empty-state">
+      <div *ngIf="isPageLoading" class="loading-state">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <div *ngIf="!isLoading && !isPageLoading && visibleTransactions.length === 0" class="empty-state">
         No paid transactions found.
       </div>
 
-      <div class="card-grid" *ngIf="!isLoading && visibleTransactions.length > 0">
+      <div class="card-grid" *ngIf="!isLoading && !isPageLoading && visibleTransactions.length > 0">
         <ng-container *ngFor="let trx of visibleTransactions">
 
           <!-- Company A: package booking creator — one card with full package list -->
-          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && !trx.isReferral">
+          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && !trx.isReferral" (click)="navigateToDetail(trx)">
             <h3>Package</h3>
 
             <div class="trx-body">
@@ -100,7 +104,7 @@
                 </p>
               </div>
 
-              <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+              <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
                 <ion-icon name="receipt-outline"></ion-icon>
                 <span>View Receipt</span>
               </button>
@@ -127,7 +131,7 @@
           </article>
 
           <!-- Activity and Accommodation cards -->
-          <article class="transaction-card" *ngIf="trx.bookingType !== 'package'">
+          <article class="transaction-card" *ngIf="trx.bookingType !== 'package'" (click)="navigateToDetail(trx)">
             <h3>{{ trx.title }}</h3>
 
             <div class="trx-body">
@@ -145,7 +149,7 @@
                 </p>
               </div>
 
-              <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+              <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
                 <ion-icon name="receipt-outline"></ion-icon>
                 <span>View Receipt</span>
               </button>
@@ -158,8 +162,11 @@
       <div class="table-footer" *ngIf="!isLoading && filteredTransactions.length > 0">
         <div class="entries-control">
           <span>Show</span>
-          <select [value]="pageSize" disabled>
+          <select [value]="pageSize" (change)="onPageSizeChange($event)">
             <option [value]="6">6</option>
+            <option [value]="12">12</option>
+            <option [value]="24">24</option>
+            <option [value]="50">50</option>
           </select>
           <span>entries</span>
         </div>
@@ -203,6 +210,7 @@
           <ion-datetime
             presentation="date"
             [showDefaultButtons]="false"
+            [preferWheel]="false"
             [(ngModel)]="selectedDateIso"
           ></ion-datetime>
 

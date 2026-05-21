@@ -45,8 +45,9 @@ export class MasterDataPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   currentPage = 1;
-  pageSize = 7;
+  pageSize = 10;
   totalItems = 0;
+  readonly perPageOptions = [10, 25, 50, 100];
   totalPages = 1;
 
   data: MasterDataRow[] = [];
@@ -294,7 +295,7 @@ export class MasterDataPage implements OnInit {
   async openDeleteModal(item: MasterDataRow): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'Delete Master Data',
-      message: 'Are you sure you want to delete this master data item?',
+      message: `Are you sure you want to delete "${item.name}"? This action cannot be undone. Deletion will be blocked if there are existing bookings that use this item.`,
       buttons: [
         {
           text: 'Cancel',

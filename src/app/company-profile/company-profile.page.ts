@@ -7,6 +7,7 @@ import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
 import { CompanyService } from '../services/company.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { StorageService } from '../services/storage.service';
 import { UserService } from '../services/user.service';
 
 type DocumentField =
@@ -86,6 +87,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     private companyService: CompanyService,
     private associationService: AssociationService,
     private authService: AuthService,
+    private storageService: StorageService,
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private router: Router,
@@ -473,7 +475,27 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.isSaving = true;
 
     this.companyService.updateCompanyById(companyId, payload).subscribe({
-      next: (_response: any) => {
+      next: (response: any) => {
+        // The update response always includes operator_logo_image from the DB —
+        // use this as the authoritative source regardless of whether a new logo
+        // was uploaded in this save or not.
+        const updatedLogo: string | null =
+          response?.data?.operator_logo_image ?? null;
+
+        if (updatedLogo) {
+          // Write fresh logo into IndexedDB — notification panel and notifications
+          // page use cache-first so they show the new logo immediately.
+          this.storageService.setCompanyLogo(companyId, updatedLogo);
+
+          // Patch company_logo on the stored user so HeaderLogoComponent (which
+          // reads localStorage) reflects the new logo without requiring re-login.
+          // auth.service.ts refreshSession() now preserves this field so it
+          // survives /auth/me calls that don't return company_logo.
+          this.authService.syncUserProfile({ company_logo: updatedLogo } as any);
+        } else {
+          this.storageService.clearCompanyLogo(companyId);
+        }
+
         // Reload the full user profile to get the latest merged data
         this.loadProfile(this.uid!);
 

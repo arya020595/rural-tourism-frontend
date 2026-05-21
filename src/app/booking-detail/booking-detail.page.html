@@ -27,12 +27,6 @@
 <app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="booking-detail-main-content">
-  <!-- Offline banner -->
-  <ion-item color="warning" *ngIf="isOffline" lines="none">
-    <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
-    <ion-label>You are offline. Showing last saved booking data.</ion-label>
-  </ion-item>
-
   <div class="surface-card">
     <div class="booking-container">
       <button type="button" class="back-link" (click)="goBack()">
@@ -211,3 +205,12 @@
     </div>
   </div>
 </ion-content>
+
+<ion-footer *ngIf="isOffline">
+  <ion-toolbar color="medium">
+    <div style="display:flex; align-items:center; gap:8px; padding: 0 16px;">
+      <ion-icon name="cloud-offline-outline"></ion-icon>
+      <ion-label>You are offline. Showing last saved booking data.</ion-label>
+    </div>
+  </ion-toolbar>
+</ion-footer>

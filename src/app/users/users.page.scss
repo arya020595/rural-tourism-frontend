@@ -1,8 +1,27 @@
 // ── Toolbar (dark, matches company-profile pattern) ───────────────────────
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
 .um-header ion-toolbar {
   --background: #2b2f2b;
   --box-shadow: none;
   --border-width: 0;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #ffffff;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 .menu-toggle {
@@ -32,28 +51,11 @@
 .um-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 0;
 }
 
-// ── Page header row ────────────────────────────────────────────────────────
 .um-page-header {
   margin-bottom: 16px;
-}
-
-.um-page-header__title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--ion-color-primary);
-  margin: 0 0 12px;
-  em {
-    font-style: normal;
-  }
-}
-
-.um-page-header__divider {
-  border: none;
-  border-top: 1.5px solid #d9d9d9;
-  margin: 0 0 12px;
 }
 
 .um-page-header__actions {
@@ -64,23 +66,23 @@
 .um-add-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: var(--ion-color-primary);
+  gap: 10px;
+  background: #015c2f;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 18px;
+  font-weight: 700;
+  min-height: 44px;
   cursor: pointer;
-  transition: background 0.2s;
 
   ion-icon {
-    font-size: 1.1rem;
+    font-size: 22px;
   }
 
   &:hover {
-    background: var(--ion-color-primary-shade);
+    background: #014a26;
   }
 }
 
@@ -109,12 +111,7 @@
 
 // ── Table ──────────────────────────────────────────────────────────────────
 .um-table-wrap {
-  background: white;
-  border-radius: 12px;
   overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-bottom: 16px;
 }
 
@@ -122,108 +119,96 @@
   width: 100%;
   min-width: 700px;
   border-collapse: collapse;
-  font-size: 0.88rem;
 
-  thead tr {
-    background: var(--ion-color-primary);
-    color: white;
-  }
-
-  th {
-    padding: 12px 10px;
-    text-align: left;
-    font-weight: 600;
+  thead th {
+    background: #015c2f;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 16px 12px;
+    text-align: center;
     white-space: nowrap;
-  }
 
-  tbody tr {
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.15s;
+    &:first-child {
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
 
     &:last-child {
-      border-bottom: none;
-    }
-    &:hover {
-      background: #fafafa;
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
     }
   }
 
-  td {
-    padding: 10px;
+  tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #d6d6d6;
+    color: #121212;
+    font-size: 18px;
     vertical-align: middle;
-    color: #333;
+    text-align: center;
   }
 }
 
 // Column widths
 .col-actions {
-  width: 110px;
-  text-align: center;
+  width: 120px;
 }
 .col-id {
-  width: 90px;
+  width: 100px;
   white-space: nowrap;
 }
 .col-name {
-  min-width: 120px;
+  min-width: 140px;
 }
 .col-email {
-  min-width: 180px;
+  min-width: 200px;
 }
 .col-date {
-  width: 160px;
+  width: 170px;
   white-space: nowrap;
 }
 
-// Responsive column hiding
-@media (max-width: 599px) {
-  .um-table .hide-mobile {
-    display: none;
-  }
-}
-@media (max-width: 767px) {
-  .um-table .hide-sm {
-    display: none;
+
+@media (max-width: 992px) {
+  .um-table thead th,
+  .um-table tbody td {
+    font-size: 16px;
   }
 }
 
 // ── Action buttons ─────────────────────────────────────────────────────────
 .um-action-btns {
-  display: flex;
-  gap: 4px;
+  display: inline-flex;
   align-items: center;
+  gap: 10px;
 }
 
 .um-btn {
-  width: 30px;
-  height: 30px;
   border: none;
-  border-radius: 6px;
-  display: flex;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: opacity 0.2s;
 
   ion-icon {
-    font-size: 1rem;
+    font-size: 28px;
   }
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.75;
   }
 
   &--info {
-    background: #1976d2;
-    color: white;
+    color: #245a94;
   }
   &--edit {
-    background: #f59e0b;
-    color: white;
+    color: #f28a00;
   }
   &--delete {
-    background: #ef4444;
-    color: white;
+    color: #ef1616;
   }
 }
 
@@ -322,10 +307,19 @@
 @media (max-width: 480px) {
   .um-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
   .um-pagination {
+    order: 1;
     justify-content: center;
     width: 100%;
+  }
+  .um-count {
+    order: 2;
+    text-align: center;
+  }
+  .um-per-page {
+    order: 3;
+    text-align: center;
   }
 }

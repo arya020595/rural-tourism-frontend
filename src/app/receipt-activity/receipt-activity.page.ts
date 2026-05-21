@@ -1,13 +1,11 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   OnInit,
-  ViewChild
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import html2canvas from 'html2canvas'; // Import html2canvas
 import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
@@ -21,8 +19,7 @@ import { OfflineQueueService } from '../services/offline-queue.service';
   templateUrl: './receipt-activity.page.html',
   styleUrls: ['./receipt-activity.page.scss'],
 })
-export class ReceiptActivityPage implements OnInit {
-  @ViewChild('receiptContent') receiptContent!: ElementRef; // Reference to the content to capture
+export class ReceiptActivityPage implements OnInit, AfterViewInit {
   receiptId: any;
   receipt: any;
   pdfUrl: string = '';
@@ -179,133 +176,17 @@ export class ReceiptActivityPage implements OnInit {
   pdfLink: string = '';
   qrCodeReady: boolean = false;
 
-  generateQR() {
-    if (this.pdfUrl) {
-      const pdfPath = this.pdfUrl.startsWith('http')
-        ? this.pdfUrl
-        : `${this.localAPI}${this.pdfUrl}`;
-      // Link directly to the generated PDF so the QR opens the actual receipt file.
-      this.pdfLink = pdfPath;
-      this.qrCodeReady = true;
-      this.cdr.detectChanges();
-      console.log('Generating QR code with URL:', this.pdfLink);
-    } else {
-      alert('Error Generating PDF');
-      console.log('No URL for QR code generation');
-    }
-  }
-
-  getImageDataUrl(image: HTMLImageElement): string {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.drawImage(image, 0, 0);
-      return canvas.toDataURL('image/png');
-    }
-    return '';
-  }
-
-  // Method to generate the receipt PDF
-  async generateReceipt() {
-    console.log('generateReceipt() called');
-    const receiptElement = this.receiptContent?.nativeElement as
-      | HTMLElement
-      | undefined; // Get the receipt content element
-    if (!receiptElement) {
-      alert('Error Generating PDF');
-      console.error('Receipt element not found for capture');
+  generateReceipt() {
+    const id = this.receipt?.receipt_id || this.receiptId;
+    if (!id) {
+      console.error('No receipt ID for PDF generation');
       return;
     }
-
-    console.log('Receipt element found, creating capture clone');
-    const captureElement = this.createCaptureClone(receiptElement);
-    document.body.appendChild(captureElement);
-
-    try {
-      await this.waitForImages(captureElement);
-      console.log('Images wait completed');
-    } catch (waitError) {
-      console.warn(
-        'Image wait timed out, continuing capture anyway',
-        waitError,
-      );
-    }
-
-    // Use html2canvas to capture a screenshot of the element
-    console.log('Starting html2canvas capture');
-    html2canvas(captureElement, {
-      ignoreElements: (element) => {
-        const tag = String(element?.tagName || '').toLowerCase();
-        return (
-          element.classList.contains('qr-btn') ||
-          tag === 'ion-loading' ||
-          tag === 'ion-backdrop' ||
-          tag === 'ion-alert' ||
-          tag === 'ion-toast' ||
-          tag === 'ion-modal' ||
-          tag === 'ion-popover'
-        );
-      },
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      scale: 2,
-      imageTimeout: 15000,
-    })
-      .finally(() => {
-        console.log('Canvas capture finally block, removing clone');
-        captureElement.remove();
-      })
-      .then((canvas) => {
-        console.log('Canvas captured successfully, converting to blob');
-        canvas.toBlob((blob) => {
-          if (blob) {
-            console.log('Blob created, preparing FormData');
-            // Prepare FormData to send the image file to the backend
-            const formData = new FormData();
-            formData.append('receiptImage', blob, 'receipt.png'); // Append Blob as file
-            formData.append('receiptId', this.receiptId); // append receipt id as req
-
-            console.log('FormData prepared, calling generatePdfFromImage API');
-            // Send the formData to the backend API to generate the PDF
-            this.formService.generatePdfFromImage(formData).subscribe(
-              (response: any) => {
-                console.log('API response received:', response);
-                if (response.success) {
-                  this.pdfUrl = response.fileUrl; // Save the returned PDF URL
-                  this.generateQR(); // generate the QR Code
-                  console.log('PDF URL:', this.pdfUrl);
-                  // give the pdf url here
-                } else {
-                  alert('Error Generating PDF');
-                  console.error('Failed to generate PDF', response);
-                }
-              },
-              (error) => {
-                alert('Error Generating PDF');
-                console.error('Error generating PDF', {
-                  status: error?.status,
-                  message: error?.message,
-                  error: error?.error,
-                });
-              },
-            );
-          } else {
-            alert('Error Generating PDF');
-            console.error('Failed to capture canvas as Blob');
-          }
-        }, 'image/png'); // Convert the canvas to a Blob in PNG format
-      })
-      .catch((error) => {
-        alert('Error Generating PDF');
-        console.error('Error capturing receipt:', {
-          message: error?.message,
-          stack: error?.stack,
-          error,
-        });
-      });
+    this.pdfLink = this.bookingService.getReceiptPdfUrl(id);
+    this.pdfUrl = this.pdfLink;
+    this.qrCodeReady = true;
+    this.cdr.detectChanges();
+    console.log('%c[Receipt PDF] Open in browser:', 'color:#2e7d32;font-weight:bold;', this.pdfLink);
   }
 
   private mapBookingToReceipt(record: any): any {
@@ -451,64 +332,6 @@ export class ReceiptActivityPage implements OnInit {
     return this.resolveImageSource(source, 'assets/icon/RuralT Logo.png');
   }
 
-  private createCaptureClone(sourceElement: HTMLElement): HTMLElement {
-    const clone = sourceElement.cloneNode(true) as HTMLElement;
-    clone.classList.add('receipt-capture-clone');
-    clone.style.position = 'fixed';
-    clone.style.left = '-10000px';
-    clone.style.top = '0';
-    // Force capture to a narrow portrait card width so the PDF shows a vertical card
-    clone.style.width = '520px';
-    clone.style.pointerEvents = 'none';
-    clone.style.opacity = '1';
-
-    clone
-      .querySelectorAll('ion-button, qrcode, ion-header, ion-content')
-      .forEach((el) => {
-        el.remove();
-      });
-
-    clone.querySelectorAll('img').forEach((img) => {
-      const source = (img as HTMLImageElement).getAttribute('src') || '';
-      if (source) {
-        (img as HTMLImageElement).crossOrigin = 'anonymous';
-      }
-    });
-
-    const footerButton = clone.querySelector('.receipt-footer-button');
-    if (footerButton) {
-      footerButton.remove();
-    }
-
-    return clone;
-  }
-
-  private waitForImages(container: HTMLElement): Promise<void> {
-    const images = Array.from(
-      container.querySelectorAll('img'),
-    ) as HTMLImageElement[];
-    if (images.length === 0) {
-      return Promise.resolve();
-    }
-
-    return Promise.race([
-      Promise.all(
-        images.map(
-          (img) =>
-            new Promise<void>((resolve) => {
-              if (img.complete && img.naturalWidth > 0) {
-                resolve();
-                return;
-              }
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            }),
-        ),
-      ).then(() => undefined),
-      new Promise<void>((resolve) => setTimeout(resolve, 5000)),
-    ]);
-  }
-
   private unwrapPayload(response: any): any {
     return response?.data || response;
   }
@@ -562,18 +385,9 @@ export class ReceiptActivityPage implements OnInit {
       !this.receipt ||
       this.isLocalOnly
     ) {
-      console.log('tryAutoGenerateReceipt blocked:', {
-        autoGenerated: this.autoGenerated,
-        viewReady: this.viewReady,
-        userReady: this.userReady,
-        receiptReady: this.receiptReady,
-        hasReceipt: !!this.receipt,
-        isLocalOnly: this.isLocalOnly,
-      });
       return;
     }
 
-    console.log('tryAutoGenerateReceipt starting generateReceipt');
     this.autoGenerated = true;
     setTimeout(() => this.generateReceipt(), 250);
   }
@@ -594,6 +408,15 @@ export class ReceiptActivityPage implements OnInit {
         this.tryAutoGenerateReceipt();
       }
     }, 3000);
+  }
+
+  formatMyDate(dateStr: string | null | undefined): string {
+    if (!dateStr) return '-';
+    const months = ['JAN','FEB','MAC','APR','MEI','JUN','JUL','OGO','SEP','OKT','NOV','DIS'];
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
   goBack(): void {

@@ -54,7 +54,7 @@ ion-content {
 }
 
 .receipt-card {
-  background: #efefef;
+  background: #ffffff;
   border-radius: 18px;
   padding: 28px 34px 20px;
   border: 1px solid #d7d7d7;
@@ -280,7 +280,7 @@ qrcode {
 
   .details-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 16px;
   }
 
   .details-column {
@@ -288,12 +288,12 @@ qrcode {
   }
 
   .row-label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
   }
 
   .row-value {
-    font-size: 15px;
+    font-size: 19px;
   }
 
   .receipt-footer {
@@ -310,7 +310,7 @@ qrcode {
   }
 
   .issued-name {
-    font-size: 17px;
+    font-size: 20px;
   }
 
   .issued-email {
@@ -333,7 +333,7 @@ qrcode {
   }
 
   .total-amount {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .receipt-qr-section {

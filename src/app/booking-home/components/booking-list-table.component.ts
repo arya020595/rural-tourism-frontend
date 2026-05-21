@@ -15,9 +15,12 @@ export class BookingListTableComponent {
   @Input() totalPages = 1;
   @Input() queueStatusMap: Record<string, QueueStatus> = {};
   @Input() statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
+  @Input() isLoading = false;
+  @Input() perPageOptions: number[] = [10, 25, 50, 100];
   @Output() viewDetails = new EventEmitter<BookingDetail>();
   @Output() editBooking = new EventEmitter<BookingDetail>();
   @Output() pageChange = new EventEmitter<number>();
+  @Output() pageSizeChange = new EventEmitter<number>();
   @Output() statusFilterChange = new EventEmitter<void>();
 
   trackByIndex(index: number): number {

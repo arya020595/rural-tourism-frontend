@@ -42,7 +42,7 @@
 @media (min-width: 768px) {
   .date-picker-modal {
     --width: 400px;
-    --height: 620px;
+    --height: 480px;
     --border-radius: 16px;
     --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 
@@ -52,7 +52,17 @@
 
     ion-datetime {
       --background: #ffffff;
+      --wheel-fade-background-rgb: 255, 255, 255;
       width: 100%;
+    }
+
+    ion-datetime::part(wheel-item) {
+      color: #888888;
+    }
+
+    ion-datetime::part(wheel-item active) {
+      color: #111111;
+      font-weight: 700;
     }
   }
 }
@@ -177,6 +187,69 @@ ion-router-outlet {
 .standalone-app .home.page {
   display: block;
   height: 100%;
+}
+
+/* ============================================
+   PAGE HEADER — shared across all module pages
+   ============================================ */
+
+.page-title-row {
+  margin-top: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #dadada;
+  padding-bottom: 12px;
+
+  h1 {
+    margin: 0 0 12px;
+    color: #04552f;
+    font-size: 48px;
+    font-weight: 800;
+
+    em {
+      font-style: italic;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-title-row h1 {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-title-row h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title-row h1,
+  .page-title-row h1 {
+    font-size: 22px !important;
+    text-align: center;
+    width: 100%;
+  }
+
+  .title-row h1 {
+    white-space: nowrap;
+  }
+
+  .title-row,
+  .page-title-row {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+.mobile-break {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-break {
+    display: block;
+  }
 }
 
 /* ============================================

@@ -89,16 +89,13 @@
       <div class="table-footer">
         <div class="left-tools">
           <span>Show</span>
-          <ion-select
-            [(ngModel)]="pageSize"
-            interface="popover"
+          <select
             class="entries-select"
-            (ionChange)="onPageSizeChange()"
+            [value]="pageSize"
+            (change)="pageSize = +$any($event.target).value; onPageSizeChange()"
           >
-            <ion-select-option [value]="7">7</ion-select-option>
-            <ion-select-option [value]="10">10</ion-select-option>
-            <ion-select-option [value]="25">25</ion-select-option>
-          </ion-select>
+            <option *ngFor="let opt of perPageOptions" [value]="opt">{{ opt }}</option>
+          </select>
           <span>entries</span>
         </div>
 

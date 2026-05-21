@@ -45,14 +45,14 @@ ion-content {
 .surface-card {
   margin-top: 5vh;
   min-height: calc(100vh - 5vh);
-  background: #f5f5f5;
+  background: #ffffff;
   border-radius: 26px 26px 0 0;
   box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
   padding: 20px;
 }
 
 .page-container {
-  background: #f5f5f5;
+  background: #ffffff;
   border-radius: 14px;
   padding: 18px 22px 24px;
   max-width: 1200px;
@@ -135,8 +135,10 @@ ion-content {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
   margin-top: 5vh;
   border-radius: 30px;
-  height: 125vh;
+  min-height: calc(100vh - 5vh);
+  height: auto;
   background-color: white;
+  padding-bottom: 16px;
 }
 
 .center {
@@ -204,6 +206,24 @@ ion-content {
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
   bottom: 10px;
   left: 5%;
+}
+
+.mobile-title-row {
+  border-bottom: 1px solid #dadada;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  text-align: center;
+
+  h1 {
+    margin: 8px 0 0;
+    color: #04552f;
+    font-size: 22px;
+    font-weight: 800;
+
+    em {
+      font-style: italic;
+    }
+  }
 }
 
 // ── Responsive breakpoints ────────────────────────────────────────

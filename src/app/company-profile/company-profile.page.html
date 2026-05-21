@@ -42,7 +42,7 @@
           <button
             *ngIf="!isEditing"
             type="button"
-            class="edit-toggle-button"
+            class="edit-toggle-button desktop-update-btn"
             (click)="startEdit()"
           >
             <ion-icon name="create-outline"></ion-icon>
@@ -264,6 +264,16 @@
               </p>
             </div>
           </div>
+
+          <button
+            *ngIf="!isEditing"
+            type="button"
+            class="edit-toggle-button mobile-update-btn"
+            (click)="startEdit()"
+          >
+            <ion-icon name="create-outline"></ion-icon>
+            <span>Kemaskini/Update</span>
+          </button>
 
           <div class="footer-actions" *ngIf="isEditing">
             <button
