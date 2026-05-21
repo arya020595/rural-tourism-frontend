@@ -31,10 +31,9 @@
   <div class="um-container">
     <!-- ── Page header row (title + Add button) ───────────────────────────── -->
     <div class="um-page-header">
-      <h1 class="um-page-header__title">
-        Pengurusan Pengguna/<em>User Management</em>
-      </h1>
-      <hr class="um-page-header__divider" />
+      <div class="page-title-row">
+        <h1>Pengurusan Pengguna/<em>User Management</em></h1>
+      </div>
       <div class="um-page-header__actions">
         <button
           class="um-add-btn"
@@ -86,7 +85,7 @@
                   aria-label="View user"
                   (click)="openViewModal(u)"
                 >
-                  <ion-icon name="information-circle-outline"></ion-icon>
+                  <ion-icon name="information-circle"></ion-icon>
                 </button>
                 <button
                   type="button"
@@ -96,7 +95,7 @@
                   (click)="openEditModal(u)"
                   *hasPermission="'user:update'"
                 >
-                  <ion-icon name="create-outline"></ion-icon>
+                  <ion-icon name="create"></ion-icon>
                 </button>
                 <button
                   type="button"
@@ -106,7 +105,7 @@
                   (click)="openDeleteModal(u)"
                   *hasPermission="'user:delete'"
                 >
-                  <ion-icon name="trash-outline"></ion-icon>
+                  <ion-icon name="trash"></ion-icon>
                 </button>
               </div>
             </td>

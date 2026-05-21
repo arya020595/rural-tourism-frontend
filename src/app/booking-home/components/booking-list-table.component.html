@@ -1,8 +1,12 @@
-<div class="table-wrapper">
+<div class="table-spinner" *ngIf="isLoading">
+  <ion-spinner name="crescent" color="primary"></ion-spinner>
+</div>
+
+<div class="table-wrapper" *ngIf="!isLoading">
   <table>
     <thead>
       <tr>
-        <th>Action</th>
+        <th></th>
         <th>Booking ID</th>
         <th>Booked Date</th>
         <th>Service Name</th>
@@ -84,8 +88,8 @@
 <div class="table-footer">
   <div class="entries-control">
     <span>Show</span>
-    <select [value]="pageSize" disabled>
-      <option [value]="10">10</option>
+    <select [value]="pageSize" (change)="pageSizeChange.emit(+$any($event.target).value)">
+      <option *ngFor="let opt of perPageOptions" [value]="opt">{{ opt }}</option>
     </select>
     <span>entries</span>
   </div>

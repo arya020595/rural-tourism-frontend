@@ -180,6 +180,40 @@ ion-router-outlet {
 }
 
 /* ============================================
+   PAGE HEADER — shared across all module pages
+   ============================================ */
+
+.page-title-row {
+  margin-top: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #dadada;
+  padding-bottom: 12px;
+
+  h1 {
+    margin: 0 0 12px;
+    color: #04552f;
+    font-size: 48px;
+    font-weight: 800;
+
+    em {
+      font-style: italic;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-title-row h1 {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-title-row h1 {
+    font-size: 30px;
+  }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 

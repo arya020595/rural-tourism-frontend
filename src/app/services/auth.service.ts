@@ -267,11 +267,17 @@ export class AuthService {
         }
 
         const storedUser = this.storage.getUser<User>();
+        const storedAny = storedUser as any;
         const mergedUser = {
           ...(storedUser || {}),
           ...response.data.user,
           permissions:
             response.data.user.permissions || storedUser?.permissions || [],
+          // /auth/me does not return company_logo — preserve the value that was
+          // set at login or patched after a profile update, so HeaderLogoComponent
+          // keeps showing the correct logo without requiring re-login.
+          company_logo:
+            (response.data.user as any).company_logo ?? storedAny?.company_logo ?? null,
         } as User;
 
         this.persistSession(token, mergedUser);

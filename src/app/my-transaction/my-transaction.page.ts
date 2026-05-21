@@ -135,6 +135,11 @@ export class MyTransactionPage implements OnInit {
     }
   }
 
+  navigateToDetail(transaction: Transaction): void {
+    const id = transaction.numericId ?? Number(transaction.id);
+    this.router.navigate(['/booking-home/detail', id]);
+  }
+
   viewReceipt(transaction: Transaction): void {
     const id = transaction.numericId ?? Number(transaction.id);
     const route = this.getReceiptRoute(transaction.bookingType);

@@ -135,8 +135,10 @@ ion-content {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
   margin-top: 5vh;
   border-radius: 30px;
-  height: 125vh;
+  min-height: calc(100vh - 5vh);
+  height: auto;
   background-color: white;
+  padding-bottom: 16px;
 }
 
 .center {

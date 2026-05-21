@@ -50,7 +50,7 @@ ion-content {
 
 .title-row h1 {
   margin: 0 0 12px;
-  color: #050505;
+  color: #04552f;
   font-size: 48px;
   font-weight: 800;
 }
@@ -135,6 +135,13 @@ ion-content {
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
   padding: 16px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    border-color: #04552f;
+  }
 }
 
 .transaction-card h3 {
@@ -146,8 +153,7 @@ ion-content {
 
 .trx-body {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 12px;
 }
 
@@ -201,13 +207,15 @@ ion-content {
   border-radius: 6px;
   min-height: 40px;
   padding: 0 16px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 15px;
   font-weight: 700;
-  margin-top: 6px;
+  width: 100%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
 }
 
 .table-footer {
@@ -356,9 +364,6 @@ ion-content {
     justify-content: center;
   }
 
-  .trx-body {
-    flex-direction: column;
-  }
 }
 
 .package-list {

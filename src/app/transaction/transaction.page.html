@@ -9,8 +9,9 @@
   <div style="margin: 5%;">
     <app-header-logo></app-header-logo>
 
-    <h2 class="title">Transaction History</h2>
-    <hr class="title-divider" />
+    <div class="page-title-row">
+      <h1>Transaction History/<em>Sejarah Transaksi</em></h1>
+    </div>
     <div class="date-row">
       <ion-button fill="outline" color="success" (click)="openDateModal()">
         {{ selectedDate ? (selectedDate | date: 'dd-MMM-yyyy') : 'Select Date'

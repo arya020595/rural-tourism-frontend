@@ -26,11 +26,6 @@
 
 <ion-content [fullscreen]="true" id="e-receipt-main-content">
 
-  <ion-item color="medium" *ngIf="isOffline" lines="none">
-    <ion-icon name="cloud-offline-outline" slot="start"></ion-icon>
-    <ion-label>You are offline. Showing last synced bookings.</ion-label>
-  </ion-item>
-
   <!-- ── DESKTOP view ── -->
   <div class="surface-card desktop-only">
     <div class="page-container">
@@ -39,7 +34,7 @@
       </div>
 
       <div class="title-row">
-        <h1>E-Receipt</h1>
+        <h1>E-Receipt/E-Resit</h1>
       </div>
 
       <div class="receipt-grid">
@@ -112,3 +107,12 @@
   </ion-card>
 
 </ion-content>
+
+<ion-footer *ngIf="isOffline">
+  <ion-toolbar color="medium">
+    <div style="display:flex; align-items:center; gap:8px; padding: 0 16px;">
+      <ion-icon name="cloud-offline-outline"></ion-icon>
+      <ion-label>You are offline. Showing last synced bookings.</ion-label>
+    </div>
+  </ion-toolbar>
+</ion-footer>

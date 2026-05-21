@@ -80,7 +80,7 @@
         <ng-container *ngFor="let trx of visibleTransactions">
 
           <!-- Company A: package booking creator — one card with full package list -->
-          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && !trx.isReferral">
+          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && !trx.isReferral" (click)="navigateToDetail(trx)">
             <h3>Package</h3>
 
             <div class="trx-body">
@@ -100,7 +100,7 @@
                 </p>
               </div>
 
-              <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+              <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
                 <ion-icon name="receipt-outline"></ion-icon>
                 <span>View Receipt</span>
               </button>
@@ -127,7 +127,7 @@
           </article>
 
           <!-- Activity and Accommodation cards -->
-          <article class="transaction-card" *ngIf="trx.bookingType !== 'package'">
+          <article class="transaction-card" *ngIf="trx.bookingType !== 'package'" (click)="navigateToDetail(trx)">
             <h3>{{ trx.title }}</h3>
 
             <div class="trx-body">
@@ -145,7 +145,7 @@
                 </p>
               </div>
 
-              <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
+              <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
                 <ion-icon name="receipt-outline"></ion-icon>
                 <span>View Receipt</span>
               </button>

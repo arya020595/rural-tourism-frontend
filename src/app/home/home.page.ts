@@ -223,7 +223,6 @@ export class HomePage implements OnInit {
 
   private loadDashboardData(): void {
     this.loadTodayDashboard();
-    this.fetchTrendDashboard();
   }
 
   private loadTodayDashboard(): void {
