@@ -1,12 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { PermissionItem, Role } from '../../models/role-management.model';
+import {
+  PermissionItem,
+  PermissionSection,
+  Role,
+} from '../../models/role-management.model';
 import { RoleManagementService } from '../../services/role-management.service';
-
-interface PermissionSection {
-  name: string;
-  permissions: PermissionItem[];
-}
 
 @Component({
   selector: 'app-role-view-modal',

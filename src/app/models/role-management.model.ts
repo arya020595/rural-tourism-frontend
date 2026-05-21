@@ -84,3 +84,9 @@ export interface RoleListParams {
   per_page?: number;
   search?: string;
 }
+
+/** Groups permissions by section name — used by view/form modals */
+export interface PermissionSection {
+  name: string;
+  permissions: PermissionItem[];
+}
