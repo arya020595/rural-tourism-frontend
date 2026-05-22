@@ -62,7 +62,7 @@
             <div class="section-head-row">
               <h3>1. Select Type</h3>
               <button
-                *ngIf="booking?.status !== 'cancelled'"
+                *ngIf="booking?.status !== 'cancelled' && booking?.status !== 'paid'"
                 type="button"
                 class="pdf-button"
                 (click)="viewPaymentReceipt()"
@@ -153,6 +153,7 @@
               <span>Resit Bayaran/Payment Receipt</span>
             </button>
           </div>
+
         </ng-container>
 
         <ng-template #bookedButtonsTemplate>
@@ -189,6 +190,10 @@
           <ng-template #cancelledButtonsTemplate>
             <div class="action-row">
               <p class="cancelled-message">This booking has been cancelled.</p>
+              <button type="button" class="bottom-action back back-mobile" (click)="goBack()">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+                <span>Kembali/Back</span>
+              </button>
             </div>
           </ng-template>
         </ng-template>

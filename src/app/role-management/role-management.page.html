@@ -12,10 +12,7 @@
 <ion-header class="rm-header" style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button
-        menu="role-mgmt-menu"
-        class="menu-toggle"
-      ></ion-menu-button>
+      <ion-menu-button menu="role-mgmt-menu" class="menu-toggle"></ion-menu-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <app-notification-bell [panel]="notifPanel"></app-notification-bell>
@@ -26,156 +23,156 @@
 <app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="role-mgmt-main-content" class="rm-content">
-  <!-- ── Shared header logo ────────────────────────────────────────────── -->
-  <div class="rm-logo-section">
-    <app-header-logo></app-header-logo>
-  </div>
-
-  <div class="rm-container">
-    <!-- ── Page header row (title + Add button) ───────────────────────────── -->
-    <div class="rm-page-header">
-      <h1 class="rm-page-header__title">
-        Pengurusan Peranan/<em>Role Management</em>
-      </h1>
-      <hr class="rm-page-header__divider" />
-      <div class="rm-page-header__actions">
-        <button class="rm-add-btn" (click)="openAddModal()">
-          <ion-icon name="add-circle-outline"></ion-icon>
-          Tambah/Add
-        </button>
-      </div>
-    </div>
-
-    <!-- ── Search bar ─────────────────────────────────────────────────────── -->
-    <div class="rm-search-row">
-      <ion-searchbar
-        class="rm-searchbar"
-        placeholder="Cari nama peranan / Search role name"
-        (ionInput)="onSearch($event)"
-        debounce="0"
-      ></ion-searchbar>
-    </div>
-
-    <!-- ── Loading ────────────────────────────────────────────────────────── -->
-    <div class="rm-spinner" *ngIf="isLoading">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-    </div>
-
-    <!-- ── Table ──────────────────────────────────────────────────────────── -->
-    <div class="rm-table-wrap" *ngIf="!isLoading">
-      <table class="rm-table">
-        <thead>
-          <tr>
-            <th class="col-actions"></th>
-            <th class="col-name">Role Name</th>
-            <th class="col-permissions hide-mobile">Permissions</th>
-            <th class="col-date hide-sm">Created At</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let r of roles">
-            <!-- Action buttons -->
-            <td class="col-actions">
-              <div class="rm-action-btns">
-                <button
-                  type="button"
-                  class="rm-btn rm-btn--info"
-                  title="Lihat / View"
-                  aria-label="View role"
-                  (click)="openViewModal(r)"
-                >
-                  <ion-icon name="information-circle-outline"></ion-icon>
-                </button>
-                <button
-                  type="button"
-                  class="rm-btn rm-btn--edit"
-                  title="Kemaskini / Edit"
-                  aria-label="Edit role"
-                  (click)="openEditModal(r)"
-                >
-                  <ion-icon name="create-outline"></ion-icon>
-                </button>
-                <button
-                  type="button"
-                  class="rm-btn rm-btn--delete"
-                  title="Padam / Delete"
-                  aria-label="Delete role"
-                  (click)="openDeleteModal(r)"
-                >
-                  <ion-icon name="trash-outline"></ion-icon>
-                </button>
-              </div>
-            </td>
-            <td class="col-name">{{ r.name }}</td>
-            <td class="col-permissions hide-mobile">
-              <ion-badge color="primary">{{ r.permissions_count }}</ion-badge>
-            </td>
-            <td class="col-date hide-sm">{{ formatDate(r.created_at) }}</td>
-          </tr>
-
-          <!-- Empty state -->
-          <tr *ngIf="roles.length === 0">
-            <td colspan="4" class="rm-empty">
-              <ion-icon name="shield-outline"></ion-icon>
-              <p>Tiada peranan dijumpai / No roles found.</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ── Footer: per-page + info + pagination ───────────────────────────── -->
-    <div class="rm-footer" *ngIf="!isLoading && meta.total > 0">
-      <!-- Per-page selector -->
-      <div class="rm-per-page">
-        <label>Show</label>
-        <select
-          [(ngModel)]="meta.per_page"
-          (ngModelChange)="onPerPageChange($event)"
-        >
-          <option *ngFor="let opt of perPageOptions" [ngValue]="opt">
-            {{ opt }}
-          </option>
-        </select>
-        <label>entries</label>
+  <div class="surface-card">
+    <div class="rm-container">
+      <!-- ── Shared header logo ───────────────────────────────────────────── -->
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
       </div>
 
-      <!-- Record count -->
-      <p class="rm-count">
-        Showing {{ showingFrom }} to {{ showingTo }} out of {{ meta.total }}
-        entries
-      </p>
-
-      <!-- Pagination -->
-      <nav class="rm-pagination" aria-label="Pagination">
-        <button
-          class="rm-page-btn"
-          [disabled]="!meta.has_prev"
-          (click)="goToPage(meta.page - 1)"
-        >
-          &laquo; Previous
-        </button>
-
-        <ng-container *ngFor="let btn of pageButtons">
-          <button
-            *ngIf="btn !== '...'"
-            class="rm-page-btn"
-            [class.active]="btn === meta.page"
-            (click)="goToPage(+btn)"
-          >
-            {{ btn }}
+      <!-- ── Page header row (title + Add button) ──────────────────────────── -->
+      <div class="rm-page-header">
+        <div class="page-title-row">
+          <h1>Pengurusan Peranan/<br class="mobile-break"><em>Role Management</em></h1>
+        </div>
+        <div class="rm-page-header__actions">
+          <button class="rm-add-btn" (click)="openAddModal()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            Tambah/Add
           </button>
-          <span *ngIf="btn === '...'" class="rm-ellipsis">&hellip;</span>
-        </ng-container>
+        </div>
+      </div>
 
-        <button
-          class="rm-page-btn"
-          [disabled]="!meta.has_next"
-          (click)="goToPage(meta.page + 1)"
-        >
-          Next &raquo;
-        </button>
-      </nav>
+      <!-- ── Search bar ─────────────────────────────────────────────────────── -->
+      <div class="rm-search-row">
+        <ion-searchbar
+          class="rm-searchbar"
+          placeholder="Cari nama peranan / Search role name"
+          (ionInput)="onSearch($event)"
+          debounce="0"
+        ></ion-searchbar>
+      </div>
+
+      <!-- ── Loading ────────────────────────────────────────────────────────── -->
+      <div class="rm-spinner" *ngIf="isLoading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <!-- ── Table ──────────────────────────────────────────────────────────── -->
+      <div class="rm-table-wrap" *ngIf="!isLoading">
+        <table class="rm-table">
+          <thead>
+            <tr>
+              <th class="col-actions"></th>
+              <th class="col-name">Role Name</th>
+              <th class="col-permissions">Permissions</th>
+              <th class="col-date">Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of roles">
+              <!-- Action buttons -->
+              <td class="col-actions">
+                <div class="rm-action-btns">
+                  <button
+                    type="button"
+                    class="rm-btn rm-btn--info"
+                    title="Lihat / View"
+                    aria-label="View role"
+                    (click)="openViewModal(r)"
+                  >
+                    <ion-icon name="information-circle"></ion-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="rm-btn rm-btn--edit"
+                    title="Kemaskini / Edit"
+                    aria-label="Edit role"
+                    (click)="openEditModal(r)"
+                  >
+                    <ion-icon name="create"></ion-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="rm-btn rm-btn--delete"
+                    title="Padam / Delete"
+                    aria-label="Delete role"
+                    (click)="openDeleteModal(r)"
+                  >
+                    <ion-icon name="trash"></ion-icon>
+                  </button>
+                </div>
+              </td>
+              <td class="col-name">{{ r.name }}</td>
+              <td class="col-permissions">
+                <ion-badge color="primary">{{ r.permissions_count }}</ion-badge>
+              </td>
+              <td class="col-date">{{ formatDate(r.created_at) }}</td>
+            </tr>
+
+            <!-- Empty state -->
+            <tr *ngIf="roles.length === 0">
+              <td colspan="4" class="rm-empty">
+                <ion-icon name="shield-outline"></ion-icon>
+                <p>Tiada peranan dijumpai / No roles found.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Footer: per-page + info + pagination ───────────────────────────── -->
+      <div class="rm-footer" *ngIf="!isLoading && meta.total > 0">
+        <!-- Per-page selector -->
+        <div class="rm-per-page">
+          <label>Show</label>
+          <select
+            [(ngModel)]="meta.per_page"
+            (ngModelChange)="onPerPageChange($event)"
+          >
+            <option *ngFor="let opt of perPageOptions" [ngValue]="opt">
+              {{ opt }}
+            </option>
+          </select>
+          <label>entries</label>
+        </div>
+
+        <!-- Record count -->
+        <p class="rm-count">
+          Showing {{ showingFrom }} to {{ showingTo }} out of {{ meta.total }} entries
+        </p>
+
+        <!-- Pagination -->
+        <nav class="rm-pagination" aria-label="Pagination">
+          <button
+            class="rm-page-btn"
+            [disabled]="!meta.has_prev"
+            (click)="goToPage(meta.page - 1)"
+          >
+            &laquo; Previous
+          </button>
+
+          <ng-container *ngFor="let btn of pageButtons">
+            <button
+              *ngIf="btn !== '...'"
+              class="rm-page-btn"
+              [class.active]="btn === meta.page"
+              (click)="goToPage(+btn)"
+            >
+              {{ btn }}
+            </button>
+            <span *ngIf="btn === '...'" class="rm-ellipsis">&hellip;</span>
+          </ng-container>
+
+          <button
+            class="rm-page-btn"
+            [disabled]="!meta.has_next"
+            (click)="goToPage(meta.page + 1)"
+          >
+            Next &raquo;
+          </button>
+        </nav>
+      </div>
     </div>
   </div>
 </ion-content>

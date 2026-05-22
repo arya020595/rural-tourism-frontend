@@ -113,7 +113,8 @@ export class BookingService {
   }
 
   getReceiptPdfUrl(bookingId: string | number): string {
-    return `${this.apiUrl}/bookings/${bookingId}/receipt-pdf`;
+    const origin = (environment.API || window.location.origin).replace(/\/$/, '');
+    return `${origin}/api/bookings/${bookingId}/receipt-pdf`;
   }
 
   updateBooking(bookingId: string, data: any): Observable<any> {
