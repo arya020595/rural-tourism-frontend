@@ -220,4 +220,25 @@ export class BookingService {
       responseType: 'blob',
     });
   }
+
+  getStatementPreview(year: number, type: string, fromMonth: number, toMonth: number): Observable<any> {
+    const params = new HttpParams()
+      .set('year', String(year))
+      .set('type', type)
+      .set('fromMonth', String(fromMonth))
+      .set('toMonth', String(toMonth));
+    return this.http.get(`${this.apiUrl}/bookings/statement/preview`, { params });
+  }
+
+  downloadStatementPdf(year: number, type: string, fromMonth: number, toMonth: number): Observable<Blob> {
+    const params = new HttpParams()
+      .set('year', String(year))
+      .set('type', type)
+      .set('fromMonth', String(fromMonth))
+      .set('toMonth', String(toMonth));
+    return this.http.get(`${this.apiUrl}/bookings/statement/pdf`, {
+      responseType: 'blob',
+      params,
+    });
+  }
 }
