@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar color="danger">
-    <ion-title>Padam Pengguna / Delete User</ion-title>
+    <ion-title>Padam Peranan / Delete Role</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="dismiss()" fill="clear">
         <ion-icon
@@ -13,34 +13,36 @@
   </ion-toolbar>
 </ion-header>
 
-<div class="udm-body">
-  <!-- User target card -->
-  <div class="udm-target-card">
-    <ion-icon name="person-circle-outline" class="udm-person-icon"></ion-icon>
-    <div class="udm-target-info">
-      <span class="udm-target-name">{{ user.name }}</span>
-      <span class="udm-target-sub">{{ user.username }}</span>
-      <span class="udm-target-sub">{{ user.email }}</span>
+<div class="rdm-body">
+  <!-- Role target card -->
+  <div class="rdm-target-card">
+    <ion-icon name="shield-half-outline" class="rdm-shield-icon"></ion-icon>
+    <div class="rdm-target-info">
+      <span class="rdm-target-name">{{ role.name }}</span>
+      <span class="rdm-target-meta">
+        <ion-badge color="danger">{{ role.permissions_count }}</ion-badge>
+        <span>permissions</span>
+      </span>
     </div>
   </div>
 
-  <!-- Warning text — centred -->
-  <div class="udm-center-zone">
-    <div class="udm-warning">
-      <p class="udm-warning-main">
-        Anda akan memadam pengguna ini secara kekal.<br />
-        <em>You are about to permanently delete this user.</em>
+  <!-- Warning text — vertically centred in remaining space -->
+  <div class="rdm-center-zone">
+    <div class="rdm-warning">
+      <p class="rdm-warning-main">
+        Anda akan memadam peranan ini secara kekal.<br />
+        <em>You are about to permanently delete this role.</em>
       </p>
-      <p class="udm-warning-sub">
+      <p class="rdm-warning-sub">
         Tindakan ini tidak boleh dibatalkan.<br />
         <em>This action cannot be undone.</em>
       </p>
     </div>
-    <p class="udm-api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="rdm-api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
   </div>
 
   <!-- Action buttons -->
-  <div class="udm-actions">
+  <div class="rdm-actions">
     <ion-button
       expand="block"
       color="danger"
