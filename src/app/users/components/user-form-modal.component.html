@@ -1,32 +1,31 @@
-<div class="ufm-content">
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon name="close-outline" slot="icon-only" style="color: white"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="ufm-scroll-content">
   <form #formRef="ngForm" (ngSubmit)="submit(formRef)">
-    <!-- Modal header -->
-    <div class="ufm-header">
-      <button
-        type="button"
-        class="ufm-close-btn"
-        (click)="dismiss()"
-        aria-label="Close"
-      >
-        &times;
-      </button>
-      <h2 class="ufm-title">{{ title }}</h2>
-      <hr class="ufm-divider" />
-    </div>
 
     <!-- Full Name -->
     <div class="ufm-field">
-      <label class="ufm-label"
-        >Nama Penuh/Full Name <span class="ufm-required">*</span></label
-      >
-      <ion-input
+      <label class="ufm-label">
+        Nama Penuh / <em>Full Name</em> <span class="ufm-required">*</span>
+      </label>
+      <input
         class="ufm-input"
-        placeholder="Sila isi nama penuh/Enter full name"
+        type="text"
+        placeholder="Sila isi nama penuh / Enter full name"
         [(ngModel)]="form.name"
         name="name"
         required
         #nameInput="ngModel"
-      ></ion-input>
+      />
       <p class="ufm-error" *ngIf="nameInput.invalid && nameInput.touched">
         Full name is required.
       </p>
@@ -34,40 +33,38 @@
 
     <!-- Username -->
     <div class="ufm-field">
-      <label class="ufm-label"
-        >Nama Pengguna/Username <span class="ufm-required">*</span></label
-      >
-      <ion-input
+      <label class="ufm-label">
+        Nama Pengguna / <em>Username</em> <span class="ufm-required">*</span>
+      </label>
+      <input
         class="ufm-input"
-        placeholder="Sila isi nama pengguna/Enter username"
+        type="text"
+        placeholder="Sila isi nama pengguna / Enter username"
         [(ngModel)]="form.username"
         name="username"
         required
         #usernameInput="ngModel"
-      ></ion-input>
-      <p
-        class="ufm-error"
-        *ngIf="usernameInput.invalid && usernameInput.touched"
-      >
+      />
+      <p class="ufm-error" *ngIf="usernameInput.invalid && usernameInput.touched">
         Username is required.
       </p>
     </div>
 
     <!-- Email -->
     <div class="ufm-field">
-      <label class="ufm-label"
-        >Alamat E-mel/Email Address <span class="ufm-required">*</span></label
-      >
-      <ion-input
+      <label class="ufm-label">
+        Alamat E-mel / <em>Email Address</em> <span class="ufm-required">*</span>
+      </label>
+      <input
         class="ufm-input"
         type="email"
-        placeholder="Sila isi alamat e-mel/Enter email address"
+        placeholder="Sila isi alamat e-mel / Enter email address"
         [(ngModel)]="form.email"
         name="email"
         required
         email
         #emailInput="ngModel"
-      ></ion-input>
+      />
       <p class="ufm-error" *ngIf="emailInput.invalid && emailInput.touched">
         A valid email address is required.
       </p>
@@ -76,10 +73,10 @@
     <!-- Role (superadmin create only) -->
     <div class="ufm-field" *ngIf="isSuperadmin && !isEditMode">
       <label class="ufm-label">
-        Peranan/Role <span class="ufm-required">*</span>
+        Peranan / <em>Role</em> <span class="ufm-required">*</span>
       </label>
       <select
-        class="ufm-select"
+        class="ufm-input ufm-select"
         [(ngModel)]="form.role_id"
         name="role_id"
         required
@@ -96,26 +93,23 @@
     <!-- Password -->
     <div class="ufm-field">
       <label class="ufm-label">
-        Kata Laluan/Password
+        Kata Laluan / <em>Password</em>
         <span class="ufm-required" *ngIf="!isEditMode">*</span>
-        <span class="ufm-optional" *ngIf="isEditMode"
-          >(kosong = tidak berubah / leave blank to keep current)</span
-        >
+        <span class="ufm-optional" *ngIf="isEditMode">
+          (kosong = tidak berubah / leave blank to keep current)
+        </span>
       </label>
-      <ion-input
+      <input
         class="ufm-input"
         type="password"
-        placeholder="Sila isi kata laluan/Enter password"
+        placeholder="Sila isi kata laluan / Enter password"
         [(ngModel)]="form.password"
         name="password"
         [required]="!isEditMode"
         minlength="6"
         #passwordInput="ngModel"
-      ></ion-input>
-      <p
-        class="ufm-error"
-        *ngIf="passwordInput.invalid && passwordInput.touched"
-      >
+      />
+      <p class="ufm-error" *ngIf="passwordInput.invalid && passwordInput.touched">
         Password must be at least 6 characters.
       </p>
     </div>
@@ -123,18 +117,18 @@
     <!-- Confirm Password -->
     <div class="ufm-field">
       <label class="ufm-label">
-        Sahkan Kata Laluan/Confirm Password
+        Sahkan Kata Laluan / <em>Confirm Password</em>
         <span class="ufm-required" *ngIf="!isEditMode">*</span>
       </label>
-      <ion-input
+      <input
         class="ufm-input"
         type="password"
-        placeholder="Sila isi kata laluan untuk mengesahkan/Enter password again.."
+        placeholder="Sila isi kata laluan untuk mengesahkan / Enter password again"
         [(ngModel)]="form.confirmed_password"
         name="confirmed_password"
         [required]="!isEditMode || !!form.password"
         #confirmInput="ngModel"
-      ></ion-input>
+      />
       <p class="ufm-error" *ngIf="confirmInput.invalid && confirmInput.touched">
         Confirm password is required.
       </p>
@@ -143,12 +137,16 @@
     <!-- API error -->
     <p class="ufm-api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-    <!-- Footer -->
-    <div class="ufm-footer">
-      <ion-button type="submit" class="ufm-save-btn" [disabled]="isSaving">
+    <!-- Actions -->
+    <div class="ufm-actions">
+      <ion-button fill="outline" color="medium" (click)="dismiss()" [disabled]="isSaving">
+        Batal / Cancel
+      </ion-button>
+      <ion-button color="primary" type="submit" [disabled]="isSaving">
         <ion-icon name="save-outline" slot="start"></ion-icon>
-        {{ isSaving ? "Menyimpan..." : "Save/Simpan" }}
+        {{ isSaving ? "Menyimpan..." : "Simpan / Save" }}
       </ion-button>
     </div>
+
   </form>
 </div>

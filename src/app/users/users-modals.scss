@@ -19,76 +19,32 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .user-form-modal {
   --border-radius: #{$um-modal-radius};
   --box-shadow: #{$um-modal-shadow};
-  --background: #fff;
+  --width: min(92%, 500px);
+  --height: auto;
+  --max-height: 90dvh;
+  --ion-safe-area-top: 0;
+  --ion-safe-area-bottom: 0;
 
-  @media (min-width: 576px) {
-    --width: 500px;
-    --max-height: 90vh;
+  ion-toolbar {
+    --color: white;
   }
 
-  .ion-page {
-    position: relative;
-    contain: layout style;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    border-radius: #{$um-modal-radius};
-  }
-
-  // Wrapper div: fills remaining modal height and scrolls
-  .ufm-content {
-    background: #fff;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-
-  .ufm-header {
-    position: relative;
-    padding: 22px 24px 0;
-    background: #fff;
-  }
-
-  .ufm-close-btn {
-    position: absolute;
-    top: 18px;
-    right: 18px;
-    background: none;
-    border: none;
-    font-size: 1.6rem;
-    line-height: 1;
-    color: #555;
-    cursor: pointer;
-    padding: 0 4px;
-    z-index: 1;
-
-    &:hover {
-      color: #000;
+  ion-header {
+    box-shadow: none !important;
+    &::after {
+      display: none;
     }
   }
 
-  .ufm-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #1a4d2e;
-    margin: 0 0 14px;
-    padding-right: 36px;
-    line-height: 1.3;
-  }
-
-  .ufm-divider {
-    border: none;
-    border-top: 1.5px solid #e0e0e0;
-    margin: 0 0 16px;
+  .ufm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(90dvh - 56px);
+    padding: 16px;
+    box-sizing: border-box;
   }
 
   .ufm-field {
-    padding: 0 24px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
   .ufm-label {
@@ -97,6 +53,10 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     font-weight: 700;
     color: #222;
     margin-bottom: 6px;
+
+    em {
+      font-style: normal;
+    }
   }
 
   .ufm-required {
@@ -112,44 +72,29 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   }
 
   .ufm-input {
-    --border-radius: 10px;
-    --border-color: #ccc;
-    --border-width: 1.5px;
-    --padding-start: 14px;
-    --padding-end: 14px;
-    --background: #fff;
-    --color: #111;
-    --placeholder-color: #aaa;
-    font-size: 0.9rem;
-    border: 1.5px solid #ccc;
-    border-radius: 10px;
-    background: #fff;
-    min-height: 44px;
-    width: 100%;
-
-    &.ion-touched.ion-invalid {
-      border-color: var(--ion-color-danger);
-    }
-
-    &:focus-within {
-      border-color: #015c2f;
-    }
-  }
-
-  .ufm-select {
     width: 100%;
     padding: 10px 14px;
     font-size: 0.9rem;
     border: 1.5px solid #ccc;
     border-radius: 10px;
     background: #fff;
-    color: var(--ion-text-color, #000);
-    appearance: auto;
     outline: none;
+    box-sizing: border-box;
+    color: #111;
 
     &:focus {
-      border-color: var(--ion-color-primary, #024e25);
+      border-color: var(--ion-color-primary);
     }
+
+    &:disabled {
+      background: #f5f5f5;
+      color: #888;
+    }
+  }
+
+  .ufm-select {
+    appearance: auto;
+    cursor: pointer;
   }
 
   .ufm-error {
@@ -161,26 +106,17 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   .ufm-api-error {
     color: var(--ion-color-danger);
     font-size: 0.85rem;
-    margin: 4px 24px 0;
+    margin: 0 0 8px;
     padding: 8px 12px;
     background: rgba(255, 0, 0, 0.06);
     border-radius: 8px;
   }
 
-  .ufm-footer {
+  .ufm-actions {
     display: flex;
     justify-content: flex-end;
-    padding: 16px 24px 24px;
-  }
-
-  .ufm-save-btn {
-    --background: #1a4d2e;
-    --background-activated: #153d25;
-    --border-radius: 10px;
-    --padding-start: 20px;
-    --padding-end: 20px;
-    font-weight: 600;
-    font-size: 0.95rem;
+    gap: 8px;
+    padding-top: 12px;
   }
 }
 
