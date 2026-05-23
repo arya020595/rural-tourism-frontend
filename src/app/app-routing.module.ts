@@ -524,7 +524,11 @@ const routes: Routes = [
     path: 'association/login',
     redirectTo: 'login',
     pathMatch: 'full',
+  },  {
+    path: 'privacy-policy',
+    loadChildren: () => import('./privacy-policy/privacy-policy.module').then( m => m.PrivacyPolicyPageModule)
   },
+
 ];
 
 @NgModule({

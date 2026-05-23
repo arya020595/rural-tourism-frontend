@@ -405,6 +405,27 @@ ion-content {
   }
 }
 
+/* ── Report overlay animations ── */
+@keyframes rpt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes rpt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes rpt-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes rpt-sheet-down {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
 /* ── Report overlay ── */
 .rpt-overlay {
   position: fixed;
@@ -414,6 +435,7 @@ ion-content {
   align-items: center;
   justify-content: center;
   padding: 16px;
+  animation: rpt-fade-in 0.25s ease;
 }
 
 .rpt-backdrop {
@@ -428,11 +450,20 @@ ion-content {
   border-radius: 12px;
   width: 100%;
   max-width: 860px;
-  max-height: 90vh;
+  height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  animation: rpt-sheet-up 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.rpt-closing {
+  animation: rpt-fade-out 0.3s ease forwards;
+
+  .rpt-dialog {
+    animation: rpt-sheet-down 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
 }
 
 .rpt-header {
@@ -562,12 +593,23 @@ ion-content {
   color: #ffffff;
 }
 
+/* Scrollable body wrapper (used on mobile) — no-op on desktop */
+.rpt-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Preview area */
 .rpt-preview {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 0 24px 24px;
-  min-height: 340px;
+  min-height: 0;
 }
 
 .rpt-empty {
@@ -742,7 +784,7 @@ ion-content {
 }
 
 @media (max-width: 768px) {
-  /* Dialog — slide up as a bottom sheet */
+  /* Dialog — bottom sheet */
   .rpt-overlay {
     padding: 0;
     align-items: flex-end;
@@ -750,8 +792,9 @@ ion-content {
 
   .rpt-dialog {
     max-width: 100%;
-    max-height: 95vh;
+    height: 95vh;
     border-radius: 16px 16px 0 0;
+    overflow: hidden;
   }
 
   .rpt-header {
@@ -762,11 +805,30 @@ ion-content {
     font-size: 18px;
   }
 
-  /* Filters — stack vertically, full-width */
+  /* rpt-body takes all remaining height and scrolls as one unit —
+     filters, buttons, and report all scroll together */
+  .rpt-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    min-height: 0;
+    padding: 0 14px 24px;
+  }
+
+  /* rpt-preview no longer needs its own scroll — body handles it */
+  .rpt-preview {
+    overflow: visible;
+    padding: 0;
+    min-height: unset;
+    flex: unset;
+  }
+
+  /* Filters — 2-column grid */
   .rpt-filters {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    padding: 12px 0;
     gap: 10px;
   }
 
@@ -777,36 +839,34 @@ ion-content {
   .rpt-select {
     min-width: 0;
     width: 100%;
+    font-size: 14px;
+    padding: 0 34px 0 10px;
   }
 
   .rpt-actions {
+    grid-column: 1 / -1;
     margin-left: 0;
     flex-direction: column;
     width: 100%;
+    gap: 8px;
   }
 
   .rpt-btn {
     width: 100%;
     justify-content: center;
-  }
-
-  /* Preview — tighter padding, horizontal scroll for tables */
-  .rpt-preview {
-    padding: 0 12px 16px;
+    font-size: 14px;
   }
 
   .rpt-doc {
     padding: 16px 12px;
   }
 
-  /* Account statement header — stack label and date */
   .rpt-doc-account-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
   }
 
-  /* Tables — allow horizontal scroll instead of overflowing */
   .rpt-doc-trx-table {
     display: block;
     overflow-x: auto;
@@ -822,11 +882,104 @@ ion-content {
     td { white-space: normal; }
   }
 
-  /* Compact table text on small screens */
   .rpt-doc-trx-table thead th,
   .rpt-doc-trx-table tbody td {
     font-size: 11px;
     padding: 6px 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Bottom sheet handle indicator */
+  .rpt-dialog::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: #d0d0d0;
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+
+  .rpt-dialog {
+    height: 92vh;
+  }
+
+  .rpt-header {
+    padding: 8px 14px 0;
+  }
+
+  .rpt-title {
+    font-size: 16px;
+  }
+
+  .rpt-close {
+    font-size: 22px;
+  }
+
+  /* Single-column on very small screens */
+  .rpt-filters {
+    grid-template-columns: 1fr;
+    padding: 10px 0;
+    gap: 8px;
+  }
+
+  .rpt-label {
+    font-size: 12px;
+  }
+
+  .rpt-select {
+    min-height: 40px;
+    font-size: 13px;
+  }
+
+  .rpt-btn {
+    min-height: 42px;
+    font-size: 13px;
+  }
+
+  .rpt-divider {
+    margin: 10px 0 0;
+  }
+
+  .rpt-empty {
+    gap: 8px;
+  }
+
+  .rpt-empty-icon {
+    font-size: 48px;
+  }
+
+  .rpt-empty p {
+    font-size: 13px;
+    text-align: center;
+    padding: 0 16px;
+  }
+
+  .rpt-doc {
+    padding: 12px 10px;
+    font-size: 12px;
+  }
+
+  .rpt-doc-company-name {
+    font-size: 13px;
+  }
+
+  .rpt-doc-logo,
+  .rpt-doc-logo-placeholder {
+    width: 56px;
+    height: 56px;
+  }
+
+  .rpt-doc-section-header {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .rpt-doc-details-table td {
+    font-size: 11px;
+    padding: 7px 10px;
   }
 }
 

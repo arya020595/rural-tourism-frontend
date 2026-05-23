@@ -342,6 +342,22 @@
             Password and confirm password do not match.
           </p>
 
+          <!-- Privacy Policy -->
+          <div class="privacy-row">
+            <label class="privacy-label">
+              <input
+                type="checkbox"
+                class="privacy-checkbox"
+                [(ngModel)]="agreedToPrivacy"
+                name="agreedToPrivacy"
+              />
+              <span>
+                Saya menerima terma dan syarat mereka/I accept their
+                <a class="privacy-link" (click)="openPrivacyPolicy()">terms and conditions</a>
+              </span>
+            </label>
+          </div>
+
           <div class="action-row">
             <ion-button
               class="back-button"

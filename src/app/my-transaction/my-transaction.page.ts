@@ -29,6 +29,7 @@ export class MyTransactionPage implements OnInit {
 
   // ── Report modal ──────────────────────────────────────────────────
   isReportModalOpen = false;
+  isReportModalClosing = false;
   reportYear = new Date().getFullYear();
   reportType = 'all';
   reportFromMonth: number | null = null;
@@ -198,9 +199,13 @@ export class MyTransactionPage implements OnInit {
   }
 
   closeReportModal(): void {
-    this.isReportModalOpen = false;
-    this.reportData = null;
-    this.reportGenerated = false;
+    this.isReportModalClosing = true;
+    setTimeout(() => {
+      this.isReportModalOpen = false;
+      this.isReportModalClosing = false;
+      this.reportData = null;
+      this.reportGenerated = false;
+    }, 320);
   }
 
   generateReport(): void {

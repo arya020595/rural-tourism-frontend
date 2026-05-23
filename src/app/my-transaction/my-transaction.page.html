@@ -204,7 +204,7 @@
   </div>
 
   <!-- ── Report overlay modal ── -->
-  <div class="rpt-overlay" *ngIf="isReportModalOpen">
+  <div class="rpt-overlay" *ngIf="isReportModalOpen" [class.rpt-closing]="isReportModalClosing">
     <div class="rpt-backdrop" (click)="closeReportModal()"></div>
 
     <div class="rpt-dialog">
@@ -216,6 +216,9 @@
         </button>
       </div>
       <hr class="rpt-divider" />
+
+      <!-- Scrollable body: filters + preview scroll together on mobile -->
+      <div class="rpt-body">
 
       <!-- Filters row -->
       <div class="rpt-filters">
@@ -399,6 +402,8 @@
           </table>
         </div>
       </div>
+
+      </div><!-- /.rpt-body -->
     </div>
   </div>
 
