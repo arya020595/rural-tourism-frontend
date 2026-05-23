@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController, NavController } from '@ionic/angular';
+import { AlertController, MenuController, NavController } from '@ionic/angular';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingStateService } from '../services/booking-state.service';
@@ -67,7 +67,8 @@ export class BookingHomePage implements OnInit {
     private syncService: SyncService,
     private router: Router,
     private navCtrl: NavController,
-    private bookingStateService: BookingStateService
+    private bookingStateService: BookingStateService,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit(): void {
@@ -152,6 +153,10 @@ export class BookingHomePage implements OnInit {
     });
   }
 
+  get canCancelBooking(): boolean {
+    return this.authService.hasPermission('booking:cancel');
+  }
+
   editBooking(booking: BookingDetail): void {
     if (booking.status !== 'pending') {
       return;
@@ -160,6 +165,33 @@ export class BookingHomePage implements OnInit {
     this.router.navigate(['/booking-home/edit', booking.id], {
       state: { booking },
     });
+  }
+
+  async cancelBooking(booking: BookingDetail): Promise<void> {
+    if (booking.status !== 'pending' || !booking.id) {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Cancel Booking',
+      message: `Are you sure you want to cancel booking #${booking.id}? This action cannot be undone.`,
+      buttons: [
+        { text: 'No', role: 'cancel' },
+        {
+          text: 'Yes, Cancel',
+          role: 'confirm',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.bookingService.cancelBooking(booking.id!).subscribe({
+              next: () => this.loadBookings(),
+              error: (err) => console.error('[CancelBooking] error:', err),
+            });
+          },
+        },
+      ],
+    });
+
+    await alert.present();
   }
 
   goToPreviousMonth(): void {

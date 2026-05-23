@@ -401,7 +401,7 @@
     <div *ngIf="!isViewMode" class="action-row">
       <button type="button" class="bottom-action cancel" (click)="onCancel()">
         <ion-icon name="close-circle-outline"></ion-icon>
-        <span>Batal Tempahan/Cancel Booking</span>
+        <span>{{ mode === 'edit' ? 'Batal Edit/Cancel Edit' : 'Batal Tempahan/Cancel Booking' }}</span>
       </button>
 
       <button type="submit" class="bottom-action submit">

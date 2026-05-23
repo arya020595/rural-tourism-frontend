@@ -17,8 +17,10 @@ export class BookingListTableComponent {
   @Input() statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
   @Input() isLoading = false;
   @Input() perPageOptions: number[] = [10, 25, 50, 100];
+  @Input() canCancel = false;
   @Output() viewDetails = new EventEmitter<BookingDetail>();
   @Output() editBooking = new EventEmitter<BookingDetail>();
+  @Output() cancelBooking = new EventEmitter<BookingDetail>();
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
   @Output() statusFilterChange = new EventEmitter<void>();
@@ -88,6 +90,14 @@ export class BookingListTableComponent {
     }
 
     this.editBooking.emit(booking);
+  }
+
+  onCancelBooking(booking: BookingDetail): void {
+    if (booking.status !== 'pending') {
+      return;
+    }
+
+    this.cancelBooking.emit(booking);
   }
 
   get startEntry(): number {

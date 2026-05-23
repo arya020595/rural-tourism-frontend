@@ -390,6 +390,12 @@ export class AuthService {
     );
   }
 
+  hasPermission(permission: string): boolean {
+    if (this.isAdmin()) return true;
+    const user = this.currentUser;
+    return Array.isArray(user?.permissions) && user.permissions.includes(permission);
+  }
+
   // ── Auth HTTP calls ──────────────────────────────────────────────
 
   register(payload: any, userType: 'operator' | 'tourist'): Observable<any> {
