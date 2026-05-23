@@ -39,6 +39,11 @@
           {{ selectedDateLabel }}
         </button>
         <button type="button" class="date-btn reset" (click)="onResetDate()">Reset Date</button>
+
+        <button type="button" class="date-btn report-trigger" (click)="openReportModal()">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Generate Report
+        </button>
       </div>
 
       <div class="tab-row" role="tablist" aria-label="Transaction category tabs">
