@@ -27,6 +27,31 @@ export class MyTransactionPage implements OnInit {
 
   private allTransactions: Transaction[] = [];
 
+  // ── Report modal ──────────────────────────────────────────────────
+  isReportModalOpen = false;
+  isReportModalClosing = false;
+  reportYear = new Date().getFullYear();
+  reportType = 'all';
+  reportFromMonth: number | null = null;
+  reportToMonth: number | null = null;
+  isGeneratingReport = false;
+  isDownloadingReport = false;
+  reportGenerated = false;
+  reportData: any = null;
+
+  readonly monthNames = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December',
+  ];
+
+  readonly maxMonthRange = 3;
+
+  get fromMonthValue(): number { return this.reportFromMonth ?? 0; }
+
+  get availableYears(): number[] {
+    return [new Date().getFullYear()];
+  }
+
   constructor(
     private menuCtrl: MenuController,
     private menuService: MenuService,
@@ -157,6 +182,78 @@ export class MyTransactionPage implements OnInit {
     const id = transaction.numericId ?? Number(transaction.id);
     const route = this.getReceiptRoute(transaction.bookingType);
     this.router.navigate([route, id], { state: { booking: transaction._raw ?? transaction } });
+  }
+
+  openReportModal(): void {
+    this.reportYear = new Date().getFullYear();
+    this.reportType = 'all';
+    this.reportFromMonth = null;
+    this.reportToMonth = null;
+    this.reportData = null;
+    this.reportGenerated = false;
+    this.isReportModalOpen = true;
+  }
+
+  onFromMonthChange(): void {
+    this.reportToMonth = null;
+  }
+
+  closeReportModal(): void {
+    this.isReportModalClosing = true;
+    setTimeout(() => {
+      this.isReportModalOpen = false;
+      this.isReportModalClosing = false;
+      this.reportData = null;
+      this.reportGenerated = false;
+    }, 320);
+  }
+
+  generateReport(): void {
+    if (this.isGeneratingReport || !this.reportFromMonth || !this.reportToMonth) return;
+    this.isGeneratingReport = true;
+    this.reportData = null;
+    this.reportGenerated = false;
+
+    this.bookingService.getStatementPreview(this.reportYear, this.reportType, this.reportFromMonth, this.reportToMonth).subscribe({
+      next: (res) => {
+        this.reportData = res?.data ?? res;
+        this.reportGenerated = true;
+        this.isGeneratingReport = false;
+      },
+      error: (err) => {
+        console.error('[GenerateReport] error:', err);
+        this.isGeneratingReport = false;
+      },
+    });
+  }
+
+  downloadReport(): void {
+    if (this.isDownloadingReport || !this.reportFromMonth || !this.reportToMonth) return;
+    this.isDownloadingReport = true;
+
+    this.bookingService.downloadStatementPdf(this.reportYear, this.reportType, this.reportFromMonth, this.reportToMonth).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `statement-${this.reportYear}-m${this.reportFromMonth}-m${this.reportToMonth}-${this.reportType}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.isDownloadingReport = false;
+      },
+      error: (err) => {
+        console.error('[DownloadReport] error:', err);
+        this.isDownloadingReport = false;
+      },
+    });
+  }
+
+  getLogoSrc(): string {
+    const logo = this.reportData?.company?.logoBase64;
+    if (!logo) return '';
+    return logo.startsWith('data:') ? logo : `data:image/png;base64,${logo}`;
   }
 
   private getReceiptRoute(type: TransactionTab): string {

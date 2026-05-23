@@ -198,6 +198,210 @@
     </div>
   </div>
 
+  <!-- ── Report overlay modal ── -->
+  <div class="rpt-overlay" *ngIf="isReportModalOpen" [class.rpt-closing]="isReportModalClosing">
+    <div class="rpt-backdrop" (click)="closeReportModal()"></div>
+
+    <div class="rpt-dialog">
+      <!-- Header -->
+      <div class="rpt-header">
+        <h2 class="rpt-title">Generate Report</h2>
+        <button type="button" class="rpt-close" (click)="closeReportModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <hr class="rpt-divider" />
+
+      <!-- Scrollable body: filters + preview scroll together on mobile -->
+      <div class="rpt-body">
+
+      <!-- Filters row -->
+      <div class="rpt-filters">
+        <div class="rpt-field">
+          <label class="rpt-label">Year</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportYear" class="rpt-select">
+              <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+            </select>
+            <ion-icon name="calendar-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-field">
+          <label class="rpt-label">Type</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportType" class="rpt-select">
+              <option value="all">All</option>
+              <option value="activity">Activity</option>
+              <option value="accommodation">Accommodation</option>
+              <option value="package">Package</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-field">
+          <label class="rpt-label">From Month</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportFromMonth" (ngModelChange)="onFromMonthChange()" class="rpt-select">
+              <option [ngValue]="null" disabled>Select Month</option>
+              <option *ngFor="let m of monthNames; let i = index" [ngValue]="i + 1">{{ m }}</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-field">
+          <label class="rpt-label">To Month</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportToMonth" class="rpt-select" [disabled]="reportFromMonth === null">
+              <option [ngValue]="null" disabled>Select Month</option>
+              <option *ngFor="let m of monthNames; let i = index" [ngValue]="i + 1" [disabled]="reportFromMonth === null || i + 1 < fromMonthValue || i + 1 > fromMonthValue + maxMonthRange - 1">{{ m }}</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-actions">
+          <button
+            *ngIf="reportGenerated"
+            type="button"
+            class="rpt-btn download"
+            (click)="downloadReport()"
+            [disabled]="isDownloadingReport"
+          >
+            <ion-icon name="document-outline"></ion-icon>
+            {{ isDownloadingReport ? 'Downloading...' : 'Download Report' }}
+          </button>
+          <button
+            type="button"
+            class="rpt-btn generate"
+            (click)="generateReport()"
+            [disabled]="isGeneratingReport || !reportFromMonth || !reportToMonth"
+          >
+            <ion-icon name="document-outline"></ion-icon>
+            {{ isGeneratingReport ? 'Generating...' : 'Generate Report' }}
+          </button>
+        </div>
+      </div>
+
+      <hr class="rpt-divider" />
+
+      <!-- Preview area -->
+      <div class="rpt-preview">
+        <div *ngIf="!reportGenerated && !isGeneratingReport" class="rpt-empty">
+          <ion-icon name="document-outline" class="rpt-empty-icon"></ion-icon>
+          <p>Select Year and Type to Generate Report</p>
+        </div>
+
+        <div *ngIf="isGeneratingReport" class="rpt-empty">
+          <p>Generating report...</p>
+        </div>
+
+        <div *ngIf="reportGenerated && reportData" class="rpt-doc">
+          <!-- Company logo + name -->
+          <div class="rpt-doc-logo-row">
+            <img *ngIf="getLogoSrc()" [src]="getLogoSrc()" class="rpt-doc-logo" alt="Company Logo" />
+            <div *ngIf="!getLogoSrc()" class="rpt-doc-logo-placeholder">
+              {{ (reportData.company?.name || '?').slice(0, 2).toUpperCase() }}
+            </div>
+          </div>
+          <div class="rpt-doc-company-name">{{ reportData.company?.name || '-' }}</div>
+          <div class="rpt-doc-company-est">Est. {{ reportData.company?.establishedYear }}</div>
+
+          <!-- Business Details -->
+          <div class="rpt-doc-section-header">Butiran Perniagaan/Business Details</div>
+          <table class="rpt-doc-details-table">
+            <tr>
+              <td>Nama Perniagaan/Business Name</td>
+              <td>{{ reportData.company?.name || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Nama Pemilik/Owner Name</td>
+              <td>{{ reportData.ownerName || '-' }}</td>
+            </tr>
+            <tr>
+              <td>No. Perhubungan/Contact No.</td>
+              <td>{{ reportData.company?.contactNo || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Alamat Perniagaan/Business Address</td>
+              <td>{{ reportData.company?.address || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Lokasi/Location</td>
+              <td>{{ reportData.company?.location || '-' }}</td>
+            </tr>
+          </table>
+
+          <!-- Account Statement header + date range -->
+          <div class="rpt-doc-account-header">
+            <span>Penyata Akaun/Account Statement</span>
+            <span>Created at: {{ reportData.createdAt }}</span>
+          </div>
+          <div class="rpt-doc-date-range">From {{ reportData.fromDate }} to {{ reportData.toDate }}</div>
+
+          <!-- Transaction table -->
+          <table class="rpt-doc-trx-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Type</th>
+                <th>Name</th>
+                <th>No. of Pax</th>
+                <th>Total Price (RM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of reportData.transactions">
+                <td>{{ t.year }}</td>
+                <td>{{ t.month }}</td>
+                <td>{{ t.type }}</td>
+                <td>{{ t.name }}</td>
+                <td>{{ t.noOfPax }}</td>
+                <td>RM {{ t.totalPrice }}</td>
+              </tr>
+              <tr *ngIf="reportData.transactions?.length === 0">
+                <td colspan="6" class="rpt-doc-empty-row">No transactions found for {{ reportData.year }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Summary -->
+          <div class="rpt-doc-section-header" style="margin-top:48px">Ringkasan Akaun/Summary of Account</div>
+          <table class="rpt-doc-trx-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Total No. of Tourist</th>
+                <th>Total Revenue (RM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of (reportData.summary || [])">
+                <td>{{ s.no }}</td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.type }}</td>
+                <td>{{ s.totalPax }}</td>
+                <td>RM {{ s.totalRevenue }}</td>
+              </tr>
+              <tr class="rpt-doc-summary-total">
+                <td colspan="3">Overall Total</td>
+                <td>{{ reportData.overallTotal?.totalPax }}</td>
+                <td>RM {{ reportData.overallTotal?.totalRevenue }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      </div><!-- /.rpt-body -->
+    </div>
+  </div>
+
   <ion-modal
     [isOpen]="isDateModalOpen"
     (didDismiss)="closeDatePicker()"
