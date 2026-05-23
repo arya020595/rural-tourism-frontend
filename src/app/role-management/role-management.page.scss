@@ -94,14 +94,21 @@ ion-content {
 // ── Table ──────────────────────────────────────────────────────────────────
 .rm-table-wrap {
   display: block;
-  overflow-x: scroll;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
   margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 .rm-table {
   width: 100%;
-  min-width: 700px;
+
+  @media (max-width: 768px) {
+    min-width: 700px;
+  }
   border-collapse: collapse;
 
   thead th {

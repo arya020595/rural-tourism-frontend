@@ -90,10 +90,12 @@
         [statusFilter]="statusFilter"
         [isLoading]="loadingPage"
         [perPageOptions]="perPageOptions"
+        [canCancel]="canCancelBooking"
         (pageChange)="changeBookingPage($event)"
         (pageSizeChange)="changePageSize($event)"
         (viewDetails)="viewBookingDetails($event)"
         (editBooking)="editBooking($event)"
+        (cancelBooking)="cancelBooking($event)"
         (statusFilterChange)="cycleStatusFilter()"
       ></app-booking-list-table>
 

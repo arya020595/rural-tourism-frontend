@@ -40,11 +40,14 @@
               <ion-icon name="create"></ion-icon>
             </button>
             <button
+              *ngIf="canCancel"
               type="button"
-              class="icon-btn delete"
-              aria-label="Delete booking"
+              class="icon-btn cancel"
+              aria-label="Cancel booking"
+              [disabled]="booking.status !== 'pending'"
+              (click)="onCancelBooking(booking)"
             >
-              <ion-icon name="trash"></ion-icon>
+              <ion-icon name="ban-outline"></ion-icon>
             </button>
           </div>
         </td>
