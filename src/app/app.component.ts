@@ -4,6 +4,7 @@ import { Platform } from '@ionic/angular';
 import { Subscription, interval } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
+import { InactivityService } from './services/inactivity.service';
 import { NetworkService } from './services/network.service';
 import { NotificationService } from './services/notification.service';
 import { OfflineQueueService } from './services/offline-queue.service';
@@ -19,11 +20,13 @@ export class AppComponent implements OnInit, OnDestroy {
   user: any = null;
 
   private pollingSub?: Subscription;
+  private inactivitySub?: Subscription;
 
   constructor(
     private platform: Platform,
     private router: Router,
     private authService: AuthService,
+    private inactivityService: InactivityService,
     private networkService: NetworkService,
     private syncService: SyncService,
     private offlineQueue: OfflineQueueService,
@@ -42,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       this.loadUserData();
       this.startNotificationPolling();
+      this.startInactivityTracking();
       this.applyStandaloneClass();
 
       this.router.events.subscribe((event) => {
@@ -102,8 +106,22 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  private startInactivityTracking(): void {
+    this.inactivitySub = this.authService.isAuthenticated$
+      .pipe(distinctUntilChanged())
+      .subscribe((authenticated) => {
+        if (authenticated) {
+          this.inactivityService.start();
+        } else {
+          this.inactivityService.stop();
+        }
+      });
+  }
+
   ngOnDestroy(): void {
     this.pollingSub?.unsubscribe();
+    this.inactivitySub?.unsubscribe();
+    this.inactivityService.stop();
   }
 
   applyStandaloneClass() {
