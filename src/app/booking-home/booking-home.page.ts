@@ -517,6 +517,7 @@ export class BookingHomePage implements OnInit {
       domesticPax: this.toNumber(record?.no_of_pax_domestik),
       internationalPax: this.toNumber(record?.no_of_pax_antarbangsa),
       totalAmount: this.toNumber(record?.total_price),
+      totalDeposit: this.toNumber(record?.total_deposit),
       operatorName: String(record?.operator_name || ''),
       activityName:
         type === 'Activity' ? String(record?.product_name || '') : undefined,

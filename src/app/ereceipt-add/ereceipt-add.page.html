@@ -43,19 +43,19 @@
         <ng-container [ngSwitch]="bookingType">
           <app-activity-booking-form
             *ngSwitchCase="'activity'"
-            (bookingCancel)="goBack()"
+            [hideCancel]="true"
             (bookingSubmit)="handleFormSubmit('activity', $event)"
           ></app-activity-booking-form>
 
           <app-accommodation-booking-form
             *ngSwitchCase="'accommodation'"
-            (bookingCancel)="goBack()"
+            [hideCancel]="true"
             (bookingSubmit)="handleFormSubmit('accommodation', $event)"
           ></app-accommodation-booking-form>
 
           <app-package-booking-form
             *ngSwitchCase="'package'"
-            (bookingCancel)="goBack()"
+            [hideCancel]="true"
             (bookingSubmit)="handleFormSubmit('package', $event)"
           ></app-package-booking-form>
         </ng-container>

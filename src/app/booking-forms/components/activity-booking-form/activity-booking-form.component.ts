@@ -24,6 +24,7 @@ import { ProductService } from '../../../services/product.service';
 export class ActivityBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
+  @Input() hideCancel = false;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
 
@@ -38,6 +39,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   internationalPax = '';
   activity = '';
   total = '';
+  totalDeposit = '';
   operatorName = '';
   activityOptions: string[] = [];
   activitySelectionError = '';
@@ -74,9 +76,9 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   }
 
   get submitLabel(): string {
-    return this.mode === 'edit'
-      ? 'Kemaskini Tempahan/Update Booking'
-      : 'Hantar Tempahan/Submit Booking';
+    if (this.mode === 'edit') return 'Kemaskini Tempahan/Update Booking';
+    if (this.hideCancel) return 'Hantar/Submit';
+    return 'Hantar Tempahan/Submit Booking';
   }
 
   get isViewMode(): boolean {
@@ -111,6 +113,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
       internationalPax: this.internationalPax,
       activity: selectedActivity,
       total: this.total,
+      totalDeposit: this.totalDeposit,
       operatorName: this.operatorName,
     });
   }
@@ -160,6 +163,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
       '';
     this.activity = this.booking.activityName || this.booking.serviceName || '';
     this.total = this.booking.totalAmount?.toString() || '';
+    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
     this.operatorName = this.booking.operatorName || '';
   }
 

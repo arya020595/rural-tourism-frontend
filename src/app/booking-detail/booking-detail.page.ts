@@ -16,6 +16,7 @@ import { MenuItem, MenuService } from '../services/menu.service';
 import { NetworkService } from '../services/network.service';
 import { OfflineQueueService } from '../services/offline-queue.service';
 import { ToastService } from '../services/toast.service';
+import { NativeDownloadService } from '../services/native-download.service';
 
 @Component({
   selector: 'app-booking-detail',
@@ -45,6 +46,7 @@ export class BookingDetailPage implements OnInit {
     private offlineQueue: OfflineQueueService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
+    private nativeDownload: NativeDownloadService,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['booking']) {
@@ -267,16 +269,10 @@ export class BookingDetailPage implements OnInit {
       const blob = await firstValueFrom(
         this.bookingService.downloadBookingPdf(this.booking.numericId),
       );
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `booking-${this.booking.id ?? this.booking.numericId}.pdf`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(anchor);
-      }, 100);
+      await this.nativeDownload.downloadBlob(
+        blob,
+        `booking-${this.booking.id ?? this.booking.numericId}.pdf`,
+      );
     } catch (err) {
       console.error('Failed to download booking PDF:', err);
       this.toastService.error(
@@ -401,6 +397,7 @@ export class BookingDetailPage implements OnInit {
       domesticPax: Number(record?.no_of_pax_domestik || 0),
       internationalPax: Number(record?.no_of_pax_antarbangsa || 0),
       totalAmount: Number(record?.total_price || 0),
+      totalDeposit: Number(record?.total_deposit || 0),
       operatorName: String(record?.operator_name || ''),
       activityName:
         type === 'Activity' ? String(record?.product_name || '') : undefined,

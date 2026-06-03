@@ -24,6 +24,7 @@ import { ProductService } from '../../../services/product.service';
 export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
+  @Input() hideCancel = false;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
 
@@ -40,6 +41,7 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   nights = '';
   homestay = '';
   total = '';
+  totalDeposit = '';
   operatorName = '';
   accommodationOptions: string[] = [];
   homestaySelectionError = '';
@@ -76,9 +78,9 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   }
 
   get submitLabel(): string {
-    return this.mode === 'edit'
-      ? 'Kemaskini Tempahan/Update Booking'
-      : 'Hantar Tempahan/Submit Booking';
+    if (this.mode === 'edit') return 'Kemaskini Tempahan/Update Booking';
+    if (this.hideCancel) return 'Hantar/Submit';
+    return 'Hantar Tempahan/Submit Booking';
   }
 
   get isViewMode(): boolean {
@@ -114,6 +116,7 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
       nights: this.nights,
       homestay: selectedHomestay,
       total: this.total,
+      totalDeposit: this.totalDeposit,
       operatorName: this.operatorName,
     });
   }
@@ -148,6 +151,7 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     this.nights = this.booking.nights?.toString() || '';
     this.homestay = this.booking.homestay || '';
     this.total = this.booking.totalAmount?.toString() || '';
+    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
     this.operatorName = this.booking.operatorName || '';
     // compute check-out min (next day after check-in)
     const inIso =

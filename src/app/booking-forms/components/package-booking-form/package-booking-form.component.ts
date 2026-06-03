@@ -24,6 +24,7 @@ import { ProductService } from '../../../services/product.service';
 export class PackageBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
+  @Input() hideCancel = false;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
 
@@ -38,6 +39,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   bookingDate = '';
   packageName = '';
   packagePrice = '';
+  totalDeposit = '';
   serviceName = '';
   operatorName = '';
   // Dynamic package items (company selection + price + description)
@@ -252,9 +254,9 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   get submitLabel(): string {
-    return this.mode === 'edit'
-      ? 'Kemaskini Tempahan/Update Booking'
-      : 'Hantar Tempahan/Submit Booking';
+    if (this.mode === 'edit') return 'Kemaskini Tempahan/Update Booking';
+    if (this.hideCancel) return 'Hantar/Submit';
+    return 'Hantar Tempahan/Submit Booking';
   }
 
   get isViewMode(): boolean {
@@ -276,6 +278,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       packageName: this.packageName,
       packagePrice: this.packagePrice,
       serviceName: this.serviceName,
+      totalDeposit: this.totalDeposit,
       packageItems: this.packageItems.map((item) => ({
         companyId: item.companyId,
         serviceName: item.serviceName || item.description || '',
@@ -316,6 +319,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.packageName =
       this.booking.packageName || this.booking.serviceName || '';
     this.packagePrice = this.booking.packagePrice?.toString() || '';
+    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
     this.serviceName = this.booking.serviceName || '';
     this.operatorName = this.booking.operatorName || '';
 

@@ -223,6 +223,7 @@ export class HomePage implements OnInit {
 
   private loadDashboardData(): void {
     this.loadTodayDashboard();
+    this.loadReceiptsFromBookingList();
   }
 
   private loadTodayDashboard(): void {
