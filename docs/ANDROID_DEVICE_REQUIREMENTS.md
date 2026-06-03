@@ -66,6 +66,7 @@ This document outlines the minimum and recommended device specifications require
 
 ## Notes
 
-- An active internet connection is required at all times as the app connects to the RUTeC backend server.
-- All user data is stored on the server — no offline mode is available.
+- An active internet connection is required for most features as the app connects to the RUTeC backend server.
+- The app supports **offline mode** — bookings created or edited while offline are queued locally (IndexedDB) and automatically synced when connectivity is restored.
+- PDF downloads (booking confirmation, monthly statement) use the native share sheet on Android — the user can open or save the file via any installed PDF viewer.
 - For the best experience, use a device running Android 10 or higher with at least 4 GB RAM.

@@ -17,7 +17,10 @@
     "android:open": "npx cap open android",
     "android:release": "cd android && (gradlew.bat bundleRelease || ./gradlew bundleRelease)",
     "android:apk": "cd android && (gradlew.bat assembleRelease || ./gradlew assembleRelease)",
-    "full-release": "npm run android:build:native && npm run android:sync"
+    "full-release": "npm run android:build:native && npm run android:sync",
+    "ios:sync": "npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:build": "npm run android:build:native && npx cap sync ios"
   },
   "private": true,
   "dependencies": {
