@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NativeDownloadService } from '../services/native-download.service';
 import { Transaction, TransactionTab } from './my-transaction.models';
 
 @Component({
@@ -58,6 +59,7 @@ export class MyTransactionPage implements OnInit {
     private authService: AuthService,
     private bookingService: BookingService,
     private router: Router,
+    private nativeDownload: NativeDownloadService,
   ) {}
 
   ngOnInit(): void {
@@ -231,16 +233,10 @@ export class MyTransactionPage implements OnInit {
     if (this.isDownloadingReport || !this.reportFromMonth || !this.reportToMonth) return;
     this.isDownloadingReport = true;
 
+    const filename = `statement-${this.reportYear}-m${this.reportFromMonth}-m${this.reportToMonth}-${this.reportType}.pdf`;
     this.bookingService.downloadStatementPdf(this.reportYear, this.reportType, this.reportFromMonth, this.reportToMonth).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `statement-${this.reportYear}-m${this.reportFromMonth}-m${this.reportToMonth}-${this.reportType}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      next: async (blob) => {
+        await this.nativeDownload.downloadBlob(blob, filename);
         this.isDownloadingReport = false;
       },
       error: (err) => {

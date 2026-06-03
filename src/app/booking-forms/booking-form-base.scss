@@ -233,6 +233,10 @@
   margin-top: 18px;
 }
 
+.action-row.single-action {
+  grid-template-columns: 1fr;
+}
+
 .bottom-action {
   border: none;
   border-radius: 12px;

@@ -360,7 +360,23 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>10. Nama Pengandali/Operator Name</label>
+          <label>10. Deposit/Total Deposit (RM)</label>
+          <input
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [(ngModel)]="totalDeposit"
+            name="packageDepositMixed"
+            placeholder="Sila isi deposit/Please insert deposit"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('totalDeposit', $event)"
+          />
+        </div>
+
+        <div class="field">
+          <label>11. Nama Pengandali/Operator Name</label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -372,8 +388,6 @@
             aria-autocomplete="none"
           />
         </div>
-
-        <div class="field" aria-hidden="true"></div>
       </div>
     </ng-container>
 
@@ -545,7 +559,23 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>10. Nama Pengandali/Operator Name</label>
+          <label>10. Deposit/Total Deposit (RM)</label>
+          <input
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [(ngModel)]="totalDeposit"
+            name="packageDepositSingle"
+            placeholder="Sila isi deposit/Please insert deposit"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('totalDeposit', $event)"
+          />
+        </div>
+
+        <div class="field">
+          <label>11. Nama Pengandali/Operator Name</label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -557,13 +587,11 @@
             aria-autocomplete="none"
           />
         </div>
-
-        <div class="field" aria-hidden="true"></div>
       </div>
     </ng-template>
 
-    <div *ngIf="!isViewMode" class="action-row">
-      <button type="button" class="bottom-action cancel" (click)="onCancel()">
+    <div *ngIf="!isViewMode" class="action-row" [class.single-action]="hideCancel">
+      <button *ngIf="!hideCancel" type="button" class="bottom-action cancel" (click)="onCancel()">
         <ion-icon name="close-circle-outline"></ion-icon>
         <span>{{ mode === 'edit' ? 'Batal Edit/Cancel Edit' : 'Batal Tempahan/Cancel Booking' }}</span>
       </button>

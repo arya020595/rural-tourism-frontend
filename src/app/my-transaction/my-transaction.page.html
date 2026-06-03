@@ -269,6 +269,15 @@
 
         <div class="rpt-actions">
           <button
+            type="button"
+            class="rpt-btn generate"
+            (click)="generateReport()"
+            [disabled]="isGeneratingReport || !reportFromMonth || !reportToMonth"
+          >
+            <ion-icon name="document-outline"></ion-icon>
+            {{ isGeneratingReport ? 'Generating...' : 'Generate Report' }}
+          </button>
+          <button
             *ngIf="reportGenerated"
             type="button"
             class="rpt-btn download"
@@ -277,15 +286,6 @@
           >
             <ion-icon name="document-outline"></ion-icon>
             {{ isDownloadingReport ? 'Downloading...' : 'Download Report' }}
-          </button>
-          <button
-            type="button"
-            class="rpt-btn generate"
-            (click)="generateReport()"
-            [disabled]="isGeneratingReport || !reportFromMonth || !reportToMonth"
-          >
-            <ion-icon name="document-outline"></ion-icon>
-            {{ isGeneratingReport ? 'Generating...' : 'Generate Report' }}
           </button>
         </div>
       </div>

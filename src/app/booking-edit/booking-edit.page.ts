@@ -230,6 +230,7 @@ export class BookingEditPage implements OnInit {
       domesticPax: Number(record?.no_of_pax_domestik || 0),
       internationalPax: Number(record?.no_of_pax_antarbangsa || 0),
       totalAmount: Number(record?.total_price || 0),
+      totalDeposit: Number(record?.total_deposit || 0),
       operatorName: String(record?.operator_name || ''),
       activityName:
         type === 'Activity' ? String(record?.product_name || '') : undefined,
@@ -329,6 +330,7 @@ export class BookingEditPage implements OnInit {
         payload.bookingTime,
       ),
       total_price: Number(payload.total || 0),
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
     };
   }
@@ -359,6 +361,7 @@ export class BookingEditPage implements OnInit {
           ? Number(payload.nights)
           : undefined,
       total_price: Number(payload.total || 0),
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
     };
   }
@@ -398,6 +401,7 @@ export class BookingEditPage implements OnInit {
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
       total_price: totalPrice,
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
       package_companies: packageItems.map((item: any) => ({
         referrer_id: currentCompanyId,
@@ -406,6 +410,16 @@ export class BookingEditPage implements OnInit {
         per_price: Number(item.price || 0),
       })),
     };
+  }
+
+  private normalizeDeposit(value: any): number | undefined {
+    if (value === 0) return 0;
+    if (value === undefined || value === null) return undefined;
+    const raw = String(value).trim();
+    if (!raw) return undefined;
+    const parsed = Number(raw);
+    if (Number.isNaN(parsed)) return undefined;
+    return Math.trunc(parsed);
   }
 
   private async findProductByName(
