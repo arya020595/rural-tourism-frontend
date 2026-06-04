@@ -406,7 +406,7 @@ export class BookingEditPage implements OnInit {
       package_companies: packageItems.map((item: any) => ({
         referrer_id: currentCompanyId,
         referee_id: Number(item.companyId),
-        description: item.description || '',
+        description: item.serviceName || item.description || '',
         per_price: Number(item.price || 0),
       })),
     };

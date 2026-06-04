@@ -33,6 +33,8 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   fullName = '';
   phone = '';
   email = '';
+  emailError = '';
+  validationErrors: string[] = [];
   paxCount = '';
   domesticPax = '';
   internationalPax = '';
@@ -118,7 +120,13 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.serviceSearchText[index] = '';
     this.showServiceDropdown[index] = false;
 
-    if (company.id && !this.serviceOptionsByCompanyId[company.id]) {
+    // Always reload from API when the user actively picks a company — clears
+    // any synthetic seed that was pre-populated from existing booking data.
+    const existing = this.serviceOptionsByCompanyId[company.id];
+    const isSyntheticOnly =
+      existing?.length === 1 && existing[0]?.id === 0;
+    if (company.id && (!existing || isSyntheticOnly)) {
+      delete this.serviceOptionsByCompanyId[company.id];
       this.loadServicesForCompany(company.id, index);
     } else if (company.id) {
       this.filteredServices[index] = [
@@ -264,6 +272,30 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   submitForm(): void {
+    this.validationErrors = [];
+    this.emailError = '';
+
+    if (!this.isViewMode) {
+      if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      if (!this.phone.trim()) this.validationErrors.push('Phone number is required.');
+      if (!this.email.trim()) this.validationErrors.push('Email is required.');
+      else if (!this.isValidEmail(this.email)) {
+        this.emailError = 'Please enter a valid email address.';
+        this.validationErrors.push('Please enter a valid email address.');
+      }
+      if (!this.bookingDate) this.validationErrors.push('Booking date is required.');
+      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      if (!this.operatorName.trim()) this.validationErrors.push('Operator name is required.');
+      const validItems = this.packageItems.filter(item => item.companyId);
+      if (validItems.length === 0) this.validationErrors.push('At least one package item with a company is required.');
+      for (let i = 0; i < validItems.length; i++) {
+        const item = validItems[i];
+        if (!item.serviceName && !item.description) this.validationErrors.push(`Package item ${i + 1}: service/description is required.`);
+        if (!item.price || Number(item.price) <= 0) this.validationErrors.push(`Package item ${i + 1}: price must be greater than 0.`);
+      }
+      if (this.validationErrors.length > 0) return;
+    }
+
     this.bookingSubmit.emit({
       bookingType: 'package',
       customerType: this.customerType,
@@ -351,7 +383,28 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
               '',
           ).trim();
           this.serviceSearchText[idx] = item.serviceName || '';
-          this.loadServicesForCompany(item.companyId, idx);
+
+          // Seed the dropdown immediately with the saved description so the
+          // current value shows before the API responds. Then fetch the full
+          // product list in the background so the user can pick a different one.
+          const companyId = Number(item.companyId);
+          if (companyId) {
+            if (!this.serviceOptionsByCompanyId[companyId]) {
+              const syntheticService = item.serviceName
+                ? [{ id: 0, name: item.serviceName }]
+                : [];
+              this.serviceOptionsByCompanyId = {
+                ...this.serviceOptionsByCompanyId,
+                [companyId]: syntheticService,
+              };
+              this.filteredServices[idx] = [...syntheticService];
+            }
+            if (this.mode === 'edit') {
+              // Remove synthetic seed so loadServicesForCompany fetches real data
+              delete this.serviceOptionsByCompanyId[companyId];
+              this.loadServicesForCompany(companyId, idx);
+            }
+          }
         }
       }
     }
@@ -382,22 +435,6 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
         const data = Array.isArray(response?.data) ? response.data : [];
         localStorage.setItem(cacheKey, JSON.stringify(data));
         applyCompanies(data);
-        // Pre-fetch and cache products for all companies while online
-        data.forEach((company: any) => {
-          const id = Number(company.id);
-          if (!id) return;
-          const productCacheKey = `products_cache_${id}`;
-          if (localStorage.getItem(productCacheKey)) return; // already cached
-          this.productService
-            .getProductsByCompany(id, { page: 1, per_page: 1000 })
-            .subscribe({
-              next: (res) => {
-                const products = Array.isArray(res?.data) ? res.data : [];
-                localStorage.setItem(productCacheKey, JSON.stringify(products));
-              },
-              error: () => {},
-            });
-        });
       },
       error: () => {
         const cached = localStorage.getItem(cacheKey);
@@ -459,6 +496,10 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
           applyProducts(data);
         },
       });
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
   private normalizeDateForInput(value: string): string {

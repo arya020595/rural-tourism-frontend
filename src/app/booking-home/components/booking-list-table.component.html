@@ -10,7 +10,11 @@
         <th>Booking ID</th>
         <th>Booked Date</th>
         <th>Service Name</th>
-        <th>Type</th>
+        <th>
+          <button type="button" class="status-filter-btn" (click)="onTypeFilterClick()">
+            {{ typeFilterLabel }}
+          </button>
+        </th>
         <th>
           <button type="button" class="status-filter-btn" (click)="onStatusFilterClick()">
             {{ statusFilterLabel }}

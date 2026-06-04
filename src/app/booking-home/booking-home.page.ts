@@ -56,6 +56,7 @@ export class BookingHomePage implements OnInit {
 
   bookings: BookingDetail[] = [];
   statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
+  typeFilter: 'all' | 'Activity' | 'Accommodation' | 'Package' = 'all';
 
   constructor(
     private menuCtrl: MenuController,
@@ -103,8 +104,11 @@ export class BookingHomePage implements OnInit {
   }
 
   get filteredBookings(): BookingDetail[] {
-    if (this.statusFilter === 'all') return this.bookings;
-    return this.bookings.filter((b) => b.status === this.statusFilter);
+    return this.bookings.filter((b) => {
+      const statusMatch = this.statusFilter === 'all' || b.status === this.statusFilter;
+      const typeMatch = this.typeFilter === 'all' || b.type === this.typeFilter;
+      return statusMatch && typeMatch;
+    });
   }
 
   get totalBookingPages(): number {
@@ -118,13 +122,19 @@ export class BookingHomePage implements OnInit {
 
   cycleStatusFilter(): void {
     const order: Array<'all' | 'pending' | 'paid' | 'cancelled'> = [
-      'all',
-      'pending',
-      'paid',
-      'cancelled',
+      'all', 'pending', 'paid', 'cancelled',
     ];
     const next = (order.indexOf(this.statusFilter) + 1) % order.length;
     this.statusFilter = order[next];
+    this.currentPage = 1;
+  }
+
+  cycleTypeFilter(): void {
+    const order: Array<'all' | 'Activity' | 'Accommodation' | 'Package'> = [
+      'all', 'Activity', 'Accommodation', 'Package',
+    ];
+    const next = (order.indexOf(this.typeFilter) + 1) % order.length;
+    this.typeFilter = order[next];
     this.currentPage = 1;
   }
 
@@ -250,8 +260,24 @@ export class BookingHomePage implements OnInit {
     }
 
     return this.bookings
-      .filter((booking) => booking.bookedDate === this.selectedDateKey)
-      .filter((booking) => booking.status !== 'cancelled')
+      .filter((booking) => {
+        if (booking.status === 'cancelled') return false;
+
+        // For accommodation, match any date within check-in to check-out range
+        if (
+          booking.type === 'Accommodation' &&
+          booking.checkInDate &&
+          booking.checkOutDate
+        ) {
+          return (
+            this.selectedDateKey! >= booking.checkInDate &&
+            this.selectedDateKey! <= booking.checkOutDate
+          );
+        }
+
+        // For activity/package, match the single booked date
+        return booking.bookedDate === this.selectedDateKey;
+      })
       .sort((a, b) => a.serviceName.localeCompare(b.serviceName));
   }
 
@@ -338,7 +364,6 @@ export class BookingHomePage implements OnInit {
         this.bookingService.getBookings({
           page: 1,
           per_page: 1000,
-          user_id: String(operatorId),
         })
       );
 
@@ -426,6 +451,30 @@ export class BookingHomePage implements OnInit {
         return;
       }
 
+      // For accommodation, mark every date from check-in to check-out
+      if (
+        booking.type === 'Accommodation' &&
+        booking.checkInDate &&
+        booking.checkOutDate
+      ) {
+        const start = new Date(booking.checkInDate);
+        const end = new Date(booking.checkOutDate);
+        for (
+          const d = new Date(start);
+          d <= end;
+          d.setDate(d.getDate() + 1)
+        ) {
+          if (d.getFullYear() === year && d.getMonth() === month) {
+            const key = this.toDateKey(new Date(d));
+            const current = bookingsByDate.get(key) || [];
+            if (!current.includes(booking)) current.push(booking);
+            bookingsByDate.set(key, current);
+          }
+        }
+        return;
+      }
+
+      // For activity/package, mark the single booked date
       const bookingDate = new Date(booking.bookedDate);
       if (
         bookingDate.getFullYear() === year &&

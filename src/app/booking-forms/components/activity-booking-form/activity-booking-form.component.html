@@ -71,7 +71,7 @@
 
     <div class="field-grid two-col">
       <div class="field">
-        <label>5. No. Telefon/Telephone No.</label>
+        <label>5. No. Telefon/Telephone No.<span class="required">*</span></label>
         <input
           type="text"
           inputmode="numeric"
@@ -91,9 +91,9 @@
       </div>
 
       <div class="field">
-        <label>6. Emel/Email</label>
+        <label>6. Emel/Email<span class="required">*</span></label>
         <input
-          type="text"
+          type="email"
           [(ngModel)]="email"
           name="actF03"
           autocomplete="off"
@@ -102,6 +102,7 @@
           placeholder="Sila masukkan emel/Please enter email"
           [readonly]="isViewMode"
         />
+        <span *ngIf="emailError" class="field-error">{{ emailError }}</span>
       </div>
     </div>
 
@@ -245,7 +246,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>11. Nama Pengandali/Operator Name</label>
+          <label>11. Nama Pengandali/Operator Name<span class="required">*</span></label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -342,7 +343,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>12. Nama Pengandali/Operator Name</label>
+          <label>12. Nama Pengandali/Operator Name<span class="required">*</span></label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -355,6 +356,13 @@
         <div class="field" aria-hidden="true"></div>
       </div>
     </ng-template>
+
+    <div class="validation-error-box" *ngIf="validationErrors.length > 0">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
 
     <div *ngIf="!isViewMode" class="action-row" [class.single-action]="hideCancel">
       <button *ngIf="!hideCancel" type="button" class="bottom-action cancel" (click)="onCancel()">

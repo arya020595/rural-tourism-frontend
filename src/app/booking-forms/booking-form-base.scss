@@ -2,6 +2,37 @@
   display: block;
 }
 
+.validation-error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fdecea;
+  border: 1px solid #f5c6c3;
+  border-left: 4px solid var(--ion-color-danger);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+
+  ion-icon {
+    font-size: 1.2rem;
+    color: var(--ion-color-danger);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 16px;
+    list-style: disc;
+
+    li {
+      font-size: 0.85rem;
+      color: #c0392b;
+      line-height: 1.6;
+    }
+  }
+}
+
 .form-section {
   margin-bottom: 12px;
   --input-label-size: 14px;

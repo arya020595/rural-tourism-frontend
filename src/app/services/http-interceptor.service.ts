@@ -11,6 +11,7 @@ import { ToastController } from '@ionic/angular';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { LoadingService } from './loading.service';
+import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 
 @Injectable({
@@ -22,6 +23,7 @@ export class HttpInterceptorService implements HttpInterceptor {
     private toastController: ToastController,
     private loadingService: LoadingService,
     private storageService: StorageService,
+    private networkService: NetworkService,
   ) {}
 
   intercept(
@@ -78,6 +80,8 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     switch (error.status) {
       case 0:
+        // User is already aware they're offline via the offline banner — skip toast
+        if (!this.networkService.isOnline) return;
         message =
           'Unable to connect to server. Please check your internet connection.';
         break;

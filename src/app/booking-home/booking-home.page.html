@@ -88,6 +88,7 @@
         [totalPages]="totalBookingPages"
         [queueStatusMap]="queueStatusMap"
         [statusFilter]="statusFilter"
+        [typeFilter]="typeFilter"
         [isLoading]="loadingPage"
         [perPageOptions]="perPageOptions"
         [canCancel]="canCancelBooking"
@@ -97,6 +98,7 @@
         (editBooking)="editBooking($event)"
         (cancelBooking)="cancelBooking($event)"
         (statusFilterChange)="cycleStatusFilter()"
+        (typeFilterChange)="cycleTypeFilter()"
       ></app-booking-list-table>
 
       <section *ngIf="viewMode === 'calendar'" class="calendar-layout">

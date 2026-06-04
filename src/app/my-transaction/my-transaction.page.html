@@ -40,7 +40,7 @@
         </button>
         <button type="button" class="date-btn reset" (click)="onResetDate()">Reset Date</button>
 
-        <button type="button" class="date-btn report-trigger" (click)="openReportModal()">
+        <button *ngIf="canGenerateReport" type="button" class="date-btn report-trigger" (click)="openReportModal()">
           <ion-icon name="document-text-outline"></ion-icon>
           Generate Report
         </button>

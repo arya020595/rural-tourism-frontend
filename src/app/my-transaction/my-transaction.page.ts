@@ -49,6 +49,10 @@ export class MyTransactionPage implements OnInit {
 
   get fromMonthValue(): number { return this.reportFromMonth ?? 0; }
 
+  get canGenerateReport(): boolean {
+    return this.authService.hasPermission('booking:export');
+  }
+
   get availableYears(): number[] {
     return [new Date().getFullYear()];
   }
