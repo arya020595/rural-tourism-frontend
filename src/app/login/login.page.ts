@@ -116,8 +116,13 @@ export class LoginPage implements OnInit {
       return;
     }
 
-    if (role === 'operator_admin' || role === 'operator_staff') {
+    if (role === 'operator_admin') {
       this.navCtrl.navigateRoot('/home');
+      return;
+    }
+
+    if (role === 'operator_staff') {
+      this.navCtrl.navigateRoot('/booking-home');
       return;
     }
 

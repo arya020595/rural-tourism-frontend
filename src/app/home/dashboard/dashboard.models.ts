@@ -26,6 +26,7 @@ export interface ReceiptListItem {
   serviceName: string;
   type: 'Activity' | 'Accommodation' | 'Package';
   createdAt: string;
+  isReferral?: boolean;
 }
 
 export interface TodayDashboardData {

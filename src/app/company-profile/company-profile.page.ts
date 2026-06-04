@@ -167,6 +167,11 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     return { ...data };
   }
 
+  get canUpdateCompany(): boolean {
+    const role = this.authService.getCurrentRole();
+    return role === 'superadmin' || role === 'operator_admin';
+  }
+
   private loadUserData(): void {
     this.uid = this.authService.getUserId();
     this.user = this.authService.currentUser;

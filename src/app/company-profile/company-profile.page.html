@@ -40,7 +40,7 @@
         <div class="title-row">
           <h1>Profil Anda/My Profile</h1>
           <button
-            *ngIf="!isEditing"
+            *ngIf="!isEditing && canUpdateCompany"
             type="button"
             class="edit-toggle-button desktop-update-btn"
             (click)="startEdit()"
@@ -102,22 +102,11 @@
               ></ion-input>
             </div>
 
-            <div class="detail-row" [class.edit-mode]="isEditing">
+            <div class="detail-row">
               <div class="label">Persatuan/Association</div>
-              <div class="value" *ngIf="!isEditing">
+              <div class="value">
                 {{ displayOrDash(selectedAssociationName) }}
               </div>
-              <select
-                *ngIf="isEditing"
-                class="field-input native-select"
-                [(ngModel)]="formData.association_id"
-                [ngModelOptions]="{ standalone: true }"
-              >
-                <option value="" disabled hidden>Sila pilih persatuan</option>
-                <option *ngFor="let item of associations" [value]="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
             </div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
@@ -266,7 +255,7 @@
           </div>
 
           <button
-            *ngIf="!isEditing"
+            *ngIf="!isEditing && canUpdateCompany"
             type="button"
             class="edit-toggle-button mobile-update-btn"
             (click)="startEdit()"
@@ -275,7 +264,7 @@
             <span>Kemaskini/Update</span>
           </button>
 
-          <div class="footer-actions" *ngIf="isEditing">
+          <div class="footer-actions" *ngIf="isEditing && canUpdateCompany">
             <button
               type="button"
               class="save-profile-button"

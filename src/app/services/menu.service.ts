@@ -125,6 +125,14 @@ export class MenuService {
         icon: 'receipt-outline',
         route: '/my-transaction',
       },
+      {
+        id: 'e-receipt',
+        label: 'E-Receipt',
+        icon: 'document-text-outline',
+        route: '/e-receipt',
+        permission: 'receipt:create',
+        offlineCapable: true,
+      },
     ],
     tourist: [
       {

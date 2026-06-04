@@ -84,7 +84,7 @@
 
     <div class="field-grid one-col">
       <div class="field">
-        <label>4. Nama Penuh Pelancong/Tourist Full Name</label>
+        <label>4. Nama Penuh Pelancong/Tourist Full Name<span class="required">*</span></label>
         <input
           type="text"
           [(ngModel)]="fullName"
@@ -100,7 +100,7 @@
 
     <div class="field-grid two-col">
       <div class="field">
-        <label>5. No. Telefon/Telephone No.</label>
+        <label>5. No. Telefon/Telephone No.<span class="required">*</span></label>
         <input
           type="text"
           inputmode="numeric"
@@ -120,9 +120,9 @@
       </div>
 
       <div class="field">
-        <label>6. Emel/Email</label>
+        <label>6. Emel/Email<span class="required">*</span></label>
         <input
-          type="text"
+          type="email"
           [(ngModel)]="email"
           name="acF03"
           autocomplete="off"
@@ -131,6 +131,7 @@
           placeholder="Sila masukkan emel/Please enter email"
           [readonly]="isViewMode"
         />
+        <span *ngIf="emailError" class="field-error">{{ emailError }}</span>
       </div>
     </div>
 
@@ -307,7 +308,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>13. Nama Pengandali/Operator Name</label>
+          <label>13. Nama Pengandali/Operator Name<span class="required">*</span></label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -418,7 +419,7 @@
         </div>
 
         <div class="field">
-          <label>13. Nama Pengandali/Operator Name</label>
+          <label>13. Nama Pengandali/Operator Name<span class="required">*</span></label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -429,6 +430,13 @@
         </div>
       </div>
     </ng-template>
+
+    <div class="validation-error-box" *ngIf="validationErrors.length > 0">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
 
     <div *ngIf="!isViewMode" class="action-row" [class.single-action]="hideCancel">
       <button *ngIf="!hideCancel" type="button" class="bottom-action cancel" (click)="onCancel()">

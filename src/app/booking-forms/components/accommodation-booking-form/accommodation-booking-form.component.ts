@@ -45,6 +45,8 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   operatorName = '';
   accommodationOptions: string[] = [];
   homestaySelectionError = '';
+  emailError = '';
+  validationErrors: string[] = [];
 
   constructor(
     private productService: ProductService,
@@ -88,10 +90,29 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   }
 
   submitForm(): void {
-    if (!this.isViewMode && !this.hasValidHomestaySelection()) {
-      this.homestaySelectionError =
-        'Please select an accommodation from the existing product list.';
-      return;
+    this.validationErrors = [];
+    this.homestaySelectionError = '';
+    this.emailError = '';
+
+    if (!this.isViewMode) {
+      if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      if (!this.phone.trim()) this.validationErrors.push('Phone number is required.');
+      if (!this.email.trim()) this.validationErrors.push('Email is required.');
+      else if (!this.isValidEmail(this.email)) {
+        this.emailError = 'Please enter a valid email address.';
+        this.validationErrors.push('Please enter a valid email address.');
+      }
+      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      if (!this.checkInDate) this.validationErrors.push('Check-in date is required.');
+      if (!this.checkOutDate) this.validationErrors.push('Check-out date is required.');
+      if (!this.nights || Number(this.nights) <= 0) this.validationErrors.push('Number of nights is required.');
+      if (!this.total || Number(this.total) <= 0) this.validationErrors.push('Total amount is required.');
+      if (!this.operatorName.trim()) this.validationErrors.push('Operator name is required.');
+      if (!this.hasValidHomestaySelection()) {
+        this.homestaySelectionError = 'Please select an accommodation from the existing product list.';
+        this.validationErrors.push('Please select a valid accommodation.');
+      }
+      if (this.validationErrors.length > 0) return;
     }
 
     const selectedHomestay = this.getCanonicalOption(
@@ -209,6 +230,10 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
 
   private hasExistingOption(value: string, options: string[]): boolean {
     return !!this.getCanonicalOption(value, options);
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
   private getCanonicalOption(value: string, options: string[]): string {
