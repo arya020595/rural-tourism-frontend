@@ -18,6 +18,8 @@ import { StorageService } from './storage.service';
   providedIn: 'root',
 })
 export class HttpInterceptorService implements HttpInterceptor {
+  private isRedirectingToLogin = false;
+
   constructor(
     private router: Router,
     private toastController: ToastController,
@@ -90,16 +92,20 @@ export class HttpInterceptorService implements HttpInterceptor {
           error.error?.message || 'Bad request. Please check your input.';
         break;
       case 401: {
-        // Check if current request is the canonical auth login endpoint
         const isLoginRequest = request?.url.includes('/auth/login');
 
         if (!isLoginRequest) {
-          // For protected APIs, clear auth and redirect
+          // If already redirecting, suppress duplicate toasts from in-flight requests
+          if (this.isRedirectingToLogin) return;
+          this.isRedirectingToLogin = true;
+
           message = 'Session expired. Please login again.';
           this.storageService.clearAuth();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login']).then(() => {
+            // Reset flag after navigation so future real session expiries work
+            this.isRedirectingToLogin = false;
+          });
         } else {
-          // For login attempts with wrong credentials, just show toast
           return;
         }
         break;
