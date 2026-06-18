@@ -33,6 +33,9 @@
   <section class="form-section">
     <h3>{{ formTitle }}</h3>
 
+    <h2 class="form-input-label">
+      {{ customerTypeNumber }}. Jenis Pelanggan/Customer Type<span class="required">*</span>
+    </h2>
     <div class="radio-grid two-col customer-type-grid">
       <label class="radio-card" [class.active]="customerType === 'tourist'">
         <input
@@ -59,10 +62,10 @@
     <div class="field-grid one-col">
       <div class="field">
         <label *ngIf="customerType === 'tourist'"
-          >3. Nama Penuh Pelancong/Tourist Full Name<span class="required">*</span></label
+          >{{ n(3) }}. Nama Penuh Pelancong/Tourist Full Name<span class="required">*</span></label
         >
         <label *ngIf="customerType === 'company'"
-          >3. Nama Penuh Syarikat/Company Full Name<span class="required">*</span></label
+          >{{ n(3) }}. Nama Penuh Syarikat/Company Full Name<span class="required">*</span></label
         >
         <input
           type="text"
@@ -83,7 +86,7 @@
 
     <div class="field-grid two-col">
       <div class="field">
-        <label>4. No. Telefon/Telephone No.<span class="required">*</span></label>
+        <label>{{ n(4) }}. No. Telefon/Telephone No.<span class="required">*</span></label>
         <input
           type="text"
           inputmode="numeric"
@@ -103,7 +106,7 @@
       </div>
 
       <div class="field">
-        <label>5. Emel/Email<span class="required">*</span></label>
+        <label>{{ n(5) }}. Emel/Email<span class="required">*</span></label>
         <input
           type="email"
           [(ngModel)]="email"
@@ -120,7 +123,7 @@
 
     <section class="form-section">
       <h2 class="form-input-label">
-        6. Domestik/Antarabangsa<span class="required">*</span>
+        {{ n(6) }}. Domestik/Antarabangsa<span class="required">*</span>
       </h2>
       <div class="radio-grid three-col">
         <label
@@ -169,7 +172,7 @@
       <div class="field-grid two-col">
         <div class="field">
           <label
-            >7(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
+            >{{ n(7) }}(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
               >*</span
             ></label
           >
@@ -189,7 +192,7 @@
 
         <div class="field">
           <label
-            >7(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
+            >{{ n(7) }}(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
               class="required"
               >*</span
             ></label
@@ -213,7 +216,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>8. Tarikh/Date<span class="required">*</span></label>
+          <label>{{ n(8) }}. Tarikh/Date<span class="required">*</span></label>
           <div class="input-with-icon">
             <input
               #pkgBookingDateInput
@@ -235,7 +238,7 @@
 
       <!-- Package items: select company, price, description. Repeatable -->
       <div class="package-items">
-        <label>9. Pakej/Package<span class="required">*</span></label>
+        <label>{{ n(9) }}. Pakej/Package<span class="required">*</span></label>
         <div *ngFor="let item of packageItems; let i = index">
           <div class="field-grid two-col">
             <div class="field">
@@ -361,7 +364,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>10. Deposit/Total Deposit (RM)</label>
+          <label>{{ n(10) }}. Deposit/Total Deposit (RM)</label>
           <input
             type="tel"
             inputmode="numeric"
@@ -377,7 +380,7 @@
         </div>
 
         <div class="field">
-          <label>11. Nama Pengandali/Operator Name<span class="required">*</span></label>
+          <label>{{ n(11) }}. Nama Pengandali/Operator Name<span class="required">*</span></label>
           <input
             type="text"
             [(ngModel)]="operatorName"
@@ -396,7 +399,7 @@
       <div class="field-grid two-col">
         <div class="field">
           <label
-            >7. Bilangan Orang/No. of Pax<span class="required">*</span></label
+            >{{ n(7) }}. Bilangan Orang/No. of Pax<span class="required">*</span></label
           >
           <input
             type="number"
@@ -413,7 +416,7 @@
         </div>
 
         <div class="field">
-          <label>8. Tarikh/Date<span class="required">*</span></label>
+          <label>{{ n(8) }}. Tarikh/Date<span class="required">*</span></label>
           <div class="input-with-icon">
             <input
               #pkgBookingDateSingleInput
@@ -433,7 +436,7 @@
 
       <!-- Package items for single-nationality layout -->
       <div class="package-items">
-        <label>9. Pakej/Package<span class="required">*</span></label>
+        <label>{{ n(9) }}. Pakej/Package<span class="required">*</span></label>
         <div *ngFor="let item of packageItems; let i = index">
           <div class="field-grid two-col">
             <div class="field">
@@ -560,7 +563,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>10. Deposit/Total Deposit (RM)</label>
+          <label>{{ n(10) }}. Deposit/Total Deposit (RM)</label>
           <input
             type="tel"
             inputmode="numeric"
@@ -576,7 +579,7 @@
         </div>
 
         <div class="field">
-          <label>11. Nama Pengandali/Operator Name<span class="required">*</span></label>
+          <label>{{ n(11) }}. Nama Pengandali/Operator Name<span class="required">*</span></label>
           <input
             type="text"
             [(ngModel)]="operatorName"

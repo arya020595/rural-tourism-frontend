@@ -25,6 +25,11 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
   @Input() hideCancel = false;
+  // Shifts the displayed field numbers. booking-add renders a "1. Select Type"
+  // field before this form, so its numbered fields start at 3 (offset 0). The
+  // e-receipt page has no preceding field, so it passes -1; the customer-type
+  // selector then becomes "1." and the rest start at 2.
+  @Input() numberOffset = 0;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
 
@@ -67,6 +72,20 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     private companyService: CompanyService,
     private productService: ProductService,
   ) {}
+
+  /** Displayed field number for a given base number, shifted by numberOffset. */
+  n(base: number): number {
+    return base + this.numberOffset;
+  }
+
+  /**
+   * Number for the customer-type selector. It sits immediately before field 3,
+   * so it is one less than n(3): "2" on the booking pages (after their
+   * "1. Select Type" field) and "1" on the e-receipt page (numberOffset -1).
+   */
+  get customerTypeNumber(): number {
+    return this.n(3) - 1;
+  }
 
   ngOnInit(): void {
     this.loadCompanies();

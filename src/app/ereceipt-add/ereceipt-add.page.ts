@@ -91,6 +91,26 @@ export class EreceiptAddPage implements OnInit {
       if (this.networkService.isOnline) {
         // Attempt immediate sync so receipt page can get a real server ID
         await this.syncService.triggerSync();
+
+        // After sync, the queue item carries the numeric server booking id.
+        // Navigate with that id (not the local UUID) so the QR points at a
+        // valid /api/bookings/:id/receipt-pdf URL and the server record's
+        // created_at is available for the receipt date.
+        const synced = (await this.offlineQueue.getAllQueueItems()).find(
+          (i) => i.idempotency_key === idempotencyKey,
+        );
+        if (synced?.server_booking_id) {
+          // Navigate by numeric id WITHOUT the local booking state so the
+          // receipt page fetches the server record (which carries created_at /
+          // receipt_created_at for the receipt date) instead of rendering the
+          // local payload that has no server-generated timestamp.
+          this.navigateToReceipt(
+            formType,
+            String(synced.server_booking_id),
+            null,
+          );
+          return;
+        }
       } else {
         await this.showToast(
           'No internet. Receipt saved locally — QR will appear once synced.',
@@ -98,7 +118,8 @@ export class EreceiptAddPage implements OnInit {
         );
       }
 
-      // Navigate immediately with local data — receipt page handles QR pending state
+      // Fall back to local data — receipt page handles the QR pending state
+      // and will swap in the server id once the booking finishes syncing.
       this.navigateToReceipt(formType, idempotencyKey, {
         ...createPayload,
         idempotency_key: idempotencyKey,
@@ -120,7 +141,11 @@ export class EreceiptAddPage implements OnInit {
     localRef: string,
     booking: any,
   ): void {
-    const state = { booking, idempotency_key: booking.idempotency_key };
+    // When booking is null we navigate by numeric server id and let the
+    // receipt page fetch the server record (no local state needed).
+    const state = booking
+      ? { booking, idempotency_key: booking.idempotency_key }
+      : {};
 
     if (formType === 'activity') {
       this.navCtrl.navigateForward(`/receipt-activity/${localRef}`, {
