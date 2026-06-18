@@ -25,6 +25,10 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
   @Input() hideCancel = false;
+  // Shifts the displayed field numbers. booking-add renders a "1. Select Type"
+  // field before this form, so its fields start at 2 (offset 0). The e-receipt
+  // page has no preceding field, so it passes -1 to start the numbering at 1.
+  @Input() numberOffset = 0;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
 
@@ -52,6 +56,11 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     private productService: ProductService,
     private authService: AuthService,
   ) {}
+
+  /** Displayed field number for a given base number, shifted by numberOffset. */
+  n(base: number): number {
+    return base + this.numberOffset;
+  }
 
   ngOnInit(): void {
     this.loadAccommodationOptions();

@@ -44,18 +44,21 @@
           <app-activity-booking-form
             *ngSwitchCase="'activity'"
             [hideCancel]="true"
+            [numberOffset]="-1"
             (bookingSubmit)="handleFormSubmit('activity', $event)"
           ></app-activity-booking-form>
 
           <app-accommodation-booking-form
             *ngSwitchCase="'accommodation'"
             [hideCancel]="true"
+            [numberOffset]="-1"
             (bookingSubmit)="handleFormSubmit('accommodation', $event)"
           ></app-accommodation-booking-form>
 
           <app-package-booking-form
             *ngSwitchCase="'package'"
             [hideCancel]="true"
+            [numberOffset]="-1"
             (bookingSubmit)="handleFormSubmit('package', $event)"
           ></app-package-booking-form>
         </ng-container>
