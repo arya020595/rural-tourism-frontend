@@ -272,6 +272,16 @@ ion-content {
   text-align: right;
 }
 
+// Inline hint under a label marking a field as non-editable (e.g. Association).
+.readonly-hint {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
+  color: #8a8a8a;
+}
+
 .address-value {
   white-space: normal;
 }
@@ -291,6 +301,16 @@ ion-textarea.field-input {
 ion-textarea.field-input {
   margin-top: 8px;
   margin-bottom: 8px;
+}
+
+// Read-only field shown in edit mode (e.g. Association). Greyed out with a
+// not-allowed cursor so it is clearly distinct from the editable inputs.
+ion-input.field-input--readonly {
+  --background: #ececec;
+  --border-color: #d9d9d9;
+  --color: #6b6b6b;
+  cursor: not-allowed;
+  opacity: 0.85;
 }
 
 select.native-select {
