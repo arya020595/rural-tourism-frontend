@@ -228,6 +228,19 @@
   color: #777;
 }
 
+/* Always-read-only field (e.g. auto-calculated Total No. of Nights). Greyed
+   out with a not-allowed cursor so it reads as non-editable in every mode. */
+.field input.field-input--readonly {
+  background: #e8e8e8;
+  color: #666;
+  cursor: not-allowed;
+  border-color: #bbb;
+}
+
+.field input.field-input--readonly::placeholder {
+  color: #888;
+}
+
 .booking-form.view-mode .input-with-icon ion-icon {
   color: #777;
 }
