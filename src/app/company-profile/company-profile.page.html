@@ -102,11 +102,23 @@
               ></ion-input>
             </div>
 
-            <div class="detail-row">
-              <div class="label">Persatuan/Association</div>
-              <div class="value">
+            <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">
+                Persatuan/Association
+                <span class="readonly-hint" *ngIf="isEditing"
+                  >(Tidak boleh diubah / Read-only)</span
+                >
+              </div>
+              <div class="value" *ngIf="!isEditing">
                 {{ displayOrDash(selectedAssociationName) }}
               </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input field-input--readonly"
+                fill="outline"
+                readonly
+                [value]="displayOrDash(selectedAssociationName)"
+              ></ion-input>
             </div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
