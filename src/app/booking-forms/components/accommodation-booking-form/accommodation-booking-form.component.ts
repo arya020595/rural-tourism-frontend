@@ -33,8 +33,8 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
 
   selectedNationality = 'domestic';
-  checkInDate = '5/03/2026';
-  checkOutDate = '7/03/2026';
+  checkInDate = '';
+  checkOutDate = '';
   checkOutMin: string = '';
   fullName = '';
   phone = '';
@@ -174,10 +174,13 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     this.email = this.booking.email || '';
     this.domesticPax = this.booking.domesticPax?.toString() || '';
     this.internationalPax = this.booking.internationalPax?.toString() || '';
-    this.paxCount =
-      this.booking.domesticPax?.toString() ||
-      this.booking.internationalPax?.toString() ||
-      '';
+    // For a single-nationality booking the pax sits in either domestic or
+    // international. Use whichever is non-zero (a plain `||` would treat a
+    // domestic value of 0 as truthy via "0" and hide an international count).
+    const domesticPaxNum = Number(this.booking.domesticPax || 0);
+    const internationalPaxNum = Number(this.booking.internationalPax || 0);
+    const singlePax = domesticPaxNum || internationalPaxNum;
+    this.paxCount = singlePax ? String(singlePax) : '';
     this.nights = this.booking.nights?.toString() || '';
     this.homestay = this.booking.homestay || '';
     this.total = this.booking.totalAmount?.toString() || '';
@@ -310,10 +313,9 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
       this.checkOutMin = '';
     }
 
-    // If no check-out selected, default it to check-in +1 day. If existing check-out is before min, bump it.
-    if (!this.checkOutDate) {
-      this.checkOutDate = this.checkOutMin;
-    } else {
+    // Leave check-out empty for the user to pick. Only correct an already
+    // selected check-out that is now before the minimum (check-in + 1 day).
+    if (this.checkOutDate) {
       const outIso =
         this.normalizeDateForInput(this.checkOutDate) || this.checkOutDate;
       if (this.checkOutMin && outIso && outIso < this.checkOutMin) {

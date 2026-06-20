@@ -363,6 +363,18 @@ export class ReceiptPackagePage implements OnInit, AfterViewInit {
     );
   }
 
+  // "Issued By" uses the operator who created the booking (same as the booking
+  // confirmation PDF). Falls back to the company name when no operator name is
+  // recorded.
+  get issuedByName(): string {
+    const operatorName = String(
+      this.receipt?.operator?.full_name ||
+        this.receipt?.operator_name ||
+        '',
+    ).trim();
+    return operatorName || this.companyName;
+  }
+
   get companyEmail(): string {
     const storedUser = localStorage.getItem('user');
     const cachedUser = storedUser ? JSON.parse(storedUser) : null;

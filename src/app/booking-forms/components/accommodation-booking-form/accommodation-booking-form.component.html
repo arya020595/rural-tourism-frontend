@@ -241,11 +241,11 @@
             pattern="\d*"
             min="0"
             step="1"
-            [(ngModel)]="nights"
+            [ngModel]="nights"
             name="accommodationNightsMixed"
-            placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
-            [readonly]="isViewMode"
-            (input)="onNumericInput('nights', $any($event.target).value)"
+            class="field-input--readonly"
+            placeholder="Dikira automatik/Auto-calculated from dates"
+            readonly
           />
         </div>
 
@@ -352,11 +352,11 @@
             pattern="\d*"
             min="0"
             step="1"
-            [(ngModel)]="nights"
+            [ngModel]="nights"
             name="accommodationNightsSingle"
-            placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
-            [readonly]="isViewMode"
-            (input)="onNumericInput('nights', $any($event.target).value)"
+            class="field-input--readonly"
+            placeholder="Dikira automatik/Auto-calculated from dates"
+            readonly
           />
         </div>
       </div>

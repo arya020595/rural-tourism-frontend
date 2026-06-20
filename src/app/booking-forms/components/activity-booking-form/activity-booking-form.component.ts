@@ -185,10 +185,13 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     this.email = this.booking.email || '';
     this.domesticPax = this.booking.domesticPax?.toString() || '';
     this.internationalPax = this.booking.internationalPax?.toString() || '';
-    this.paxCount =
-      this.booking.domesticPax?.toString() ||
-      this.booking.internationalPax?.toString() ||
-      '';
+    // For a single-nationality booking the pax sits in either domestic or
+    // international. Use whichever is non-zero (a plain `||` would treat a
+    // domestic value of 0 as truthy via "0" and hide an international count).
+    const domesticPaxNum = Number(this.booking.domesticPax || 0);
+    const internationalPaxNum = Number(this.booking.internationalPax || 0);
+    const singlePax = domesticPaxNum || internationalPaxNum;
+    this.paxCount = singlePax ? String(singlePax) : '';
     this.activity = this.booking.activityName || this.booking.serviceName || '';
     this.total = this.booking.totalAmount?.toString() || '';
     this.totalDeposit = this.booking.totalDeposit?.toString() || '';
