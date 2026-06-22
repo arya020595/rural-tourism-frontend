@@ -99,16 +99,27 @@
           (kosong = tidak berubah / leave blank to keep current)
         </span>
       </label>
-      <input
-        class="ufm-input"
-        type="password"
-        placeholder="Sila isi kata laluan / Enter password"
-        [(ngModel)]="form.password"
-        name="password"
-        [required]="!isEditMode"
-        minlength="6"
-        #passwordInput="ngModel"
-      />
+      <div class="ufm-input-wrap">
+        <input
+          class="ufm-input ufm-input--password"
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Sila isi kata laluan / Enter password"
+          [(ngModel)]="form.password"
+          name="password"
+          autocomplete="new-password"
+          [required]="!isEditMode"
+          minlength="6"
+          #passwordInput="ngModel"
+        />
+        <button
+          type="button"
+          class="ufm-toggle-password"
+          (click)="showPassword = !showPassword"
+          [attr.aria-label]="showPassword ? 'Sembunyi kata laluan / Hide password' : 'Papar kata laluan / Show password'"
+        >
+          <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </div>
       <p class="ufm-error" *ngIf="passwordInput.invalid && passwordInput.touched">
         Password must be at least 6 characters.
       </p>
@@ -120,15 +131,26 @@
         Sahkan Kata Laluan / <em>Confirm Password</em>
         <span class="ufm-required" *ngIf="!isEditMode">*</span>
       </label>
-      <input
-        class="ufm-input"
-        type="password"
-        placeholder="Sila isi kata laluan untuk mengesahkan / Enter password again"
-        [(ngModel)]="form.confirmed_password"
-        name="confirmed_password"
-        [required]="!isEditMode || !!form.password"
-        #confirmInput="ngModel"
-      />
+      <div class="ufm-input-wrap">
+        <input
+          class="ufm-input ufm-input--password"
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          placeholder="Sila isi kata laluan untuk mengesahkan / Enter password again"
+          [(ngModel)]="form.confirmed_password"
+          name="confirmed_password"
+          autocomplete="new-password"
+          [required]="!isEditMode || !!form.password"
+          #confirmInput="ngModel"
+        />
+        <button
+          type="button"
+          class="ufm-toggle-password"
+          (click)="showConfirmPassword = !showConfirmPassword"
+          [attr.aria-label]="showConfirmPassword ? 'Sembunyi kata laluan / Hide password' : 'Papar kata laluan / Show password'"
+        >
+          <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </div>
       <p class="ufm-error" *ngIf="confirmInput.invalid && confirmInput.touched">
         Confirm password is required.
       </p>

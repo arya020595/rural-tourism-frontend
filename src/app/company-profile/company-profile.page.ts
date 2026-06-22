@@ -255,9 +255,10 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       association_id: toString(
         data?.association_id ?? data?.associationId ?? data?.association?.id,
       ),
-      owner_full_name: toString(
-        data?.owner_full_name ?? data?.full_name ?? data?.name,
-      ),
+      // Owner = the company's operator_admin (provided by the backend as
+      // owner_full_name). Do NOT fall back to the logged-in user's name, or a
+      // staff account would show its own name instead of the owner's.
+      owner_full_name: toString(data?.owner_full_name),
       contact_no: toString(data?.contact_no ?? data?.company?.contact_no),
       business_address: toString(
         data?.business_address ?? data?.company?.address,

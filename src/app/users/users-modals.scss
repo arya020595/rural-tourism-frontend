@@ -97,6 +97,41 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     cursor: pointer;
   }
 
+  // Password field with show/hide toggle.
+  .ufm-input-wrap {
+    position: relative;
+  }
+
+  .ufm-input--password {
+    // Leave room for the eye toggle button.
+    padding-right: 44px;
+  }
+
+  .ufm-toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 1.25rem;
+    }
+
+    &:hover {
+      color: var(--ion-color-primary);
+    }
+  }
+
   .ufm-error {
     font-size: 0.78rem;
     color: var(--ion-color-danger);
