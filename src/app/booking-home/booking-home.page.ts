@@ -373,8 +373,8 @@ export class BookingHomePage implements OnInit {
         .filter((booking: BookingDetail | null): booking is BookingDetail => {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
-        .sort(
-          (a: BookingDetail, b: BookingDetail) => Number(b.id) - Number(a.id)
+        .sort((a: BookingDetail, b: BookingDetail) =>
+          this.compareBookings(a, b)
         );
       this.currentPage = 1;
       this.isOffline = false;
@@ -399,8 +399,8 @@ export class BookingHomePage implements OnInit {
         .filter((booking: BookingDetail | null): booking is BookingDetail => {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
-        .sort(
-          (a: BookingDetail, b: BookingDetail) => Number(b.id) - Number(a.id)
+        .sort((a: BookingDetail, b: BookingDetail) =>
+          this.compareBookings(a, b)
         );
       this.currentPage = 1;
       this.isOffline = !this.networkService.isOnline;
@@ -534,6 +534,25 @@ export class BookingHomePage implements OnInit {
     );
 
     this.selectedDateKey = firstBookedDate?.key || null;
+  }
+
+  /**
+   * Order bookings newest-first. Offline-created bookings have a UUID id (not
+   * numeric) and are always the most recent, so they sort ahead of any
+   * server booking. Among server bookings, higher numeric id wins.
+   * Using Number(id) alone would yield NaN for UUIDs and drop offline
+   * bookings out of the table's first page (they only showed in the calendar).
+   */
+  private compareBookings(a: BookingDetail, b: BookingDetail): number {
+    const aNum = Number(a.id);
+    const bNum = Number(b.id);
+    const aIsNumeric = Number.isFinite(aNum);
+    const bIsNumeric = Number.isFinite(bNum);
+
+    if (aIsNumeric && bIsNumeric) return bNum - aNum;
+    if (aIsNumeric) return 1; // b is offline (UUID) → b first
+    if (bIsNumeric) return -1; // a is offline (UUID) → a first
+    return 0; // both offline → keep insertion order
   }
 
   private mapBookingRow(record: any): BookingDetail | null {

@@ -23,6 +23,9 @@ export class UserFormModalComponent implements OnInit {
   isSaving = false;
   errorMessage = '';
 
+  showPassword = false;
+  showConfirmPassword = false;
+
   roles: RoleItem[] = [];
 
   form = {

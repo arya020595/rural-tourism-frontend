@@ -296,15 +296,12 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
 
     if (!this.isViewMode) {
       if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
-      if (!this.phone.trim()) this.validationErrors.push('Phone number is required.');
-      if (!this.email.trim()) this.validationErrors.push('Email is required.');
-      else if (!this.isValidEmail(this.email)) {
+      if (this.email.trim() && !this.isValidEmail(this.email)) {
         this.emailError = 'Please enter a valid email address.';
         this.validationErrors.push('Please enter a valid email address.');
       }
       if (!this.bookingDate) this.validationErrors.push('Booking date is required.');
       if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
-      if (!this.operatorName.trim()) this.validationErrors.push('Operator name is required.');
       const validItems = this.packageItems.filter(item => item.companyId);
       if (validItems.length === 0) this.validationErrors.push('At least one package item with a company is required.');
       for (let i = 0; i < validItems.length; i++) {
