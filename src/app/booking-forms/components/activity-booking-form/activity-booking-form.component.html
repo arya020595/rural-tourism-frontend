@@ -242,9 +242,22 @@
             (paste)="onNumericPaste('total', $event)"
           />
         </div>
+
+        <!-- When deposit is hidden, Operator sits beside Total. -->
+        <div class="field" *ngIf="hideDeposit">
+          <label>{{ n(12) }}. Nama Pengendali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="activityOperatorMixed"
+            placeholder="Sila isi nama pengendali/Enter operator name"
+            [readonly]="isViewMode"
+          />
+        </div>
       </div>
 
-      <div class="field-grid two-col">
+      <!-- Deposit + Operator row (shown only when deposit is visible). -->
+      <div class="field-grid two-col" *ngIf="!hideDeposit">
         <div class="field">
           <label>{{ n(11) }}. Deposit/Total Deposit (RM)</label>
           <input
@@ -266,7 +279,7 @@
           <input
             type="text"
             [(ngModel)]="operatorName"
-            name="activityOperatorMixed"
+            name="activityOperatorMixedAlt"
             placeholder="Sila isi nama pengendali/Enter operator name"
             [readonly]="isViewMode"
           />
@@ -338,7 +351,7 @@
             (paste)="onNumericPaste('total', $event)"
           />
         </div>
-        <div class="field">
+        <div class="field" *ngIf="!hideDeposit">
           <label>{{ n(11) }}. Deposit/Total Deposit (RM)</label>
           <input
             type="tel"
@@ -353,15 +366,28 @@
             (paste)="onNumericPaste('totalDeposit', $event)"
           />
         </div>
-      </div>
 
-      <div class="field-grid two-col">
-        <div class="field">
+        <!-- When deposit is hidden, Operator sits beside Total. -->
+        <div class="field" *ngIf="hideDeposit">
           <label>{{ n(12) }}. Nama Pengendali/Operator Name</label>
           <input
             type="text"
             [(ngModel)]="operatorName"
             name="activityOperatorSingle"
+            placeholder="Sila isi nama pengendali/Enter operator name"
+            [readonly]="isViewMode"
+          />
+        </div>
+      </div>
+
+      <!-- Operator row (shown only when deposit is visible). -->
+      <div class="field-grid two-col" *ngIf="!hideDeposit">
+        <div class="field">
+          <label>{{ n(12) }}. Nama Pengendali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="activityOperatorSingleAlt"
             placeholder="Sila isi nama pengendali/Enter operator name"
             [readonly]="isViewMode"
           />

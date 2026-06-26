@@ -29,8 +29,14 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   // field before this form, so its fields start at 2 (offset 0). The e-receipt
   // page has no preceding field, so it passes -1 to start the numbering at 1.
   @Input() numberOffset = 0;
+  // Hides the Deposit field (e.g. on the e-receipt walk-in flow, which has no
+  // pending/deposit concept). Field numbers after the deposit shift up by one.
+  @Input() hideDeposit = false;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
+
+  /** Deposit field base number; fields after it shift when deposit is hidden. */
+  private readonly depositFieldNumber = 12;
 
   selectedNationality = 'domestic';
   checkInDate = '';
@@ -57,9 +63,12 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     private authService: AuthService,
   ) {}
 
-  /** Displayed field number for a given base number, shifted by numberOffset. */
+  /** Displayed field number for a given base number, shifted by numberOffset.
+   *  When the deposit is hidden, fields numbered after it shift up by one. */
   n(base: number): number {
-    return base + this.numberOffset;
+    const depositShift =
+      this.hideDeposit && base > this.depositFieldNumber ? -1 : 0;
+    return base + this.numberOffset + depositShift;
   }
 
   ngOnInit(): void {

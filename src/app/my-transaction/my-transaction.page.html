@@ -107,6 +107,7 @@
                   <strong>Status:</strong>
                   <span class="status-pill paid">Paid</span>
                 </p>
+                <p *ngIf="trx.receiptCreatedAt"><strong>Receipt Date:</strong> {{ trx.receiptCreatedAt }}</p>
               </div>
 
               <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
@@ -131,6 +132,7 @@
                   <strong>Status:</strong>
                   <span class="status-pill paid">Paid</span>
                 </p>
+                <p *ngIf="trx.receiptCreatedAt"><strong>Receipt Date:</strong> {{ trx.receiptCreatedAt }}</p>
               </div>
             </div>
           </article>
@@ -152,6 +154,7 @@
                   <strong>Status:</strong>
                   <span class="status-pill paid">Paid</span>
                 </p>
+                <p *ngIf="trx.receiptCreatedAt"><strong>Receipt Date:</strong> {{ trx.receiptCreatedAt }}</p>
               </div>
 
               <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
