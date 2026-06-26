@@ -20,6 +20,7 @@ export interface Transaction {
   pax: number;
   totalPrice: number;
   status: string;
+  receiptCreatedAt?: string;
   bookingType: TransactionTab;
   numericId?: number;
   checkInDate?: string;

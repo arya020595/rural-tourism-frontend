@@ -127,7 +127,15 @@ export class MyTransactionPage implements OnInit {
       list = list.filter((t) => t.date.slice(0, 10) === this.selectedDateIso);
     }
 
-    return list;
+    // Latest receipt first (by receipt_created_at); rows without a date go last.
+    return [...list].sort((a, b) => {
+      const aDate = a.receiptCreatedAt || '';
+      const bDate = b.receiptCreatedAt || '';
+      if (aDate && bDate) return bDate.localeCompare(aDate);
+      if (aDate) return -1;
+      if (bDate) return 1;
+      return 0;
+    });
   }
 
   get totalPages(): number {
@@ -326,6 +334,7 @@ export class MyTransactionPage implements OnInit {
       pax,
       totalPrice: Number(b.total_price || 0),
       status: b.status || 'paid',
+      receiptCreatedAt: (b.receipt_created_at || '').slice(0, 10),
       bookingType: 'package',
       numericId: Number(b.id),
       packageCompanies: Array.isArray(b.package_companies) ? b.package_companies : [],
@@ -353,6 +362,7 @@ export class MyTransactionPage implements OnInit {
       pax: Number(booking.total_pax || 0),
       totalPrice: Number(r.per_price || 0),
       status: booking.status || 'paid',
+      receiptCreatedAt: (booking.receipt_created_at || '').slice(0, 10),
       bookingType: 'package',
       numericId: Number(booking.id),
       packageName: r.description || '',
@@ -389,6 +399,7 @@ export class MyTransactionPage implements OnInit {
       pax,
       totalPrice: Number(b.total_price || 0),
       status: 'Paid',
+      receiptCreatedAt: (b.receipt_created_at || '').slice(0, 10),
       bookingType: validType,
       numericId: Number(b.id),
       checkInDate: validType === 'accommodation' ? (b.check_in_date || '').slice(0, 10) : undefined,

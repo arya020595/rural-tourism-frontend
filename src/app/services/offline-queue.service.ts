@@ -131,6 +131,57 @@ export class OfflineQueueService {
     return idempotency_key;
   }
 
+  /**
+   * Records an edit that was already applied directly to the server (online
+   * path, e.g. marking a booking paid while connected). Stored as 'synced' so
+   * the booking list shows the transient "Synced" indicator, consistent with
+   * edits that went through the offline queue.
+   */
+  async recordSyncedEdit(
+    serverBookingId: number,
+    payload: Record<string, any> = {},
+  ): Promise<void> {
+    try {
+      const idempotency_key = uuidv4();
+      const now = new Date();
+
+      const existing = await this.db.offline_booking_queue
+        .where('local_booking_id')
+        .equals(String(serverBookingId))
+        .filter((item) => item.operation === 'EDIT')
+        .first();
+
+      if (existing?.id) {
+        await this.db.offline_booking_queue.update(existing.id, {
+          status: 'synced',
+          payload: { ...payload, idempotency_key },
+          error_message: null,
+          conflict_data: null,
+          updated_at: now,
+        });
+        return;
+      }
+
+      await this.db.offline_booking_queue.add({
+        idempotency_key,
+        operation: 'EDIT',
+        local_booking_id: String(serverBookingId),
+        server_booking_id: serverBookingId,
+        payload: { ...payload, idempotency_key },
+        base_version: 0,
+        status: 'synced',
+        retry_count: 0,
+        error_message: null,
+        conflict_data: null,
+        company_id: this.companyId,
+        created_at: now,
+        updated_at: now,
+      });
+    } catch (err) {
+      console.warn('[OfflineQueue] Failed to record synced edit:', err);
+    }
+  }
+
   async getPendingItems(): Promise<QueueItem[]> {
     return this.db.offline_booking_queue
       .where('status')
@@ -172,6 +223,22 @@ export class OfflineQueueService {
       updated_at: new Date(),
       ...extras,
     });
+  }
+
+  /**
+   * Removes already-synced queue items. Called on logout so the transient
+   * "Synced" indicator does not reappear after logging back in — only genuinely
+   * pending/failed items (or new changes made in the next session) keep a badge.
+   */
+  async clearSyncedItems(): Promise<void> {
+    try {
+      await this.db.offline_booking_queue
+        .where('status')
+        .equals('synced')
+        .delete();
+    } catch (err) {
+      console.warn('[OfflineQueue] Failed to clear synced items:', err);
+    }
   }
 
   async resetStaleSyncingItems(): Promise<void> {

@@ -65,7 +65,21 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
     return localStorage.getItem('explore_sabah_logo') || 'assets/icon/explore_sabah-without_bg.png';
   }
 
+  private isAssociationUser(): boolean {
+    const roleName = String(
+      this.user?.role?.name || this.user?.role || this.user?.user_type || '',
+    ).toLowerCase();
+    // Operators have a company; association users do not.
+    return roleName === 'association' && !this.user?.company_id;
+  }
+
   private resolveBundledAssociationLogo(): string {
+    // Only association accounts should show the association logo here.
+    // Operators belong to an association too, but must show their company logo.
+    if (!this.isAssociationUser()) {
+      return '';
+    }
+
     const assoc = this.user?.association;
     if (!assoc) {
       return '';

@@ -116,6 +116,12 @@ export class BookingDetailPage implements OnInit {
                     ...this.booking!,
                     status: 'cancelled',
                   };
+                  // Record the change so the booking list shows the "Synced"
+                  // indicator, consistent with other status changes.
+                  await this.offlineQueue.recordSyncedEdit(
+                    this.booking.numericId ?? Number(this.booking.id),
+                    { status: 'cancelled' },
+                  );
                   await this.loadingService.hide();
                   await this.toastService.success(
                     'Booking cancelled successfully',
@@ -235,6 +241,12 @@ export class BookingDetailPage implements OnInit {
           );
           const data = response?.data ?? response;
           this.booking = data ? this.mapBookingToDetail(data) : this.booking;
+          // Record the change so the booking list shows the "Synced" indicator,
+          // consistent with edits made through the offline queue.
+          await this.offlineQueue.recordSyncedEdit(
+            this.booking.numericId ?? Number(this.booking.id),
+            { status: 'paid' },
+          );
         } catch (error) {
           await this.loadingService.hide();
           const err = error as any;
