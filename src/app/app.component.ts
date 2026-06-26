@@ -86,6 +86,19 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  private isOperatorUser(): boolean {
+    const user: any = this.authService.currentUser;
+    const roleName = String(
+      user?.role?.name || user?.role || user?.user_type || '',
+    ).toLowerCase();
+    return (
+      !!user?.company_id ||
+      roleName === 'operator' ||
+      roleName === 'operator_admin' ||
+      roleName === 'operator_staff'
+    );
+  }
+
   private startNotificationPolling(): void {
     // Wait for auth to be confirmed (fires immediately if already authenticated,
     // or after refreshSession() resolves on app startup).
@@ -95,7 +108,9 @@ export class AppComponent implements OnInit, OnDestroy {
         filter((authenticated) => authenticated),
         switchMap(() => {
           const uid = this.authService.getUserId();
-          if (!uid) return [];
+          // Notifications are an operator-only feature; other user types
+          // (association, tourist) can't access the endpoint and would 403.
+          if (!uid || !this.isOperatorUser()) return [];
           // Fetch immediately, then repeat every 60 seconds
           this.notificationService.getUnreadCount(uid).subscribe();
           return interval(60_000).pipe(
