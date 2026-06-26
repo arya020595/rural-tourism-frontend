@@ -499,6 +499,17 @@ const routes: Routes = [
     },
   },
   {
+    path: 'association/change-password',
+    loadChildren: () =>
+      import('./association/change-password/change-password.module').then(
+        (m) => m.AssociationChangePasswordPageModule
+      ),
+    canActivate: [authGuard],
+    data: {
+      loginRole: 'association',
+    },
+  },
+  {
     path: 'users',
     loadChildren: () =>
       import('./users/users.module').then((m) => m.UsersPageModule),
