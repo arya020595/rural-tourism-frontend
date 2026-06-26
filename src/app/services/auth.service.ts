@@ -429,4 +429,21 @@ export class AuthService {
       password,
     });
   }
+
+  changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/change-password`, {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  }
+
+  updateProfile(
+    userId: string | number,
+    updates: { name?: string; username?: string; email?: string },
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${userId}`, updates);
+  }
 }

@@ -164,6 +164,12 @@ export class MenuService {
         route: '/association/dashboard',
         permission: 'bi_dashboard:read',
       },
+      {
+        id: 'association-account-settings',
+        label: 'Tetapan Akaun / Account Settings',
+        icon: 'settings-outline',
+        route: '/association/change-password',
+      },
     ],
   };
 

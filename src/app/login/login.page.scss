@@ -12,13 +12,42 @@ ion-content.background {
   --border-color: #024e25;
 }
 
+.logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin: 32px auto 18px;
+}
+
+.logo-divider {
+  width: 2px;
+  align-self: center;
+  height: 90px;
+  background-color: #d0d5d0;
+  flex: 0 0 auto;
+}
+
 .borneo {
   display: block;
   text-align: center;
   align-items: center;
-  height: auto;
-  width: min(290px, 62%);
-  margin: 10px auto 18px;
+  height: 90px;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+  margin: 0;
+  padding: 0;
+}
+
+.rutec-logo {
+  display: block;
+  height: 90px;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+  margin: 0;
   padding: 0;
 }
 
@@ -227,11 +256,27 @@ ion-card-header {
     min-height: 100%;
   }
 
+  .logo-row {
+    gap: 10px;
+    margin: 22px auto 14px;
+  }
+
+  .logo-divider {
+    height: 60px;
+  }
+
   .borneo {
-    width: min(220px, 66%);
-    max-width: 66%;
-    margin: 6px auto 14px;
+    height: 60px;
+    width: auto;
+    max-width: 45%;
+    margin: 0;
     padding: 0;
+  }
+
+  .rutec-logo {
+    height: 60px;
+    width: auto;
+    max-width: 45%;
   }
 
   .title {
@@ -283,10 +328,25 @@ ion-card-header {
     margin: 0 auto;
   }
 
+  .logo-row {
+    margin: 28px auto 16px;
+  }
+
+  .logo-divider {
+    height: 80px;
+  }
+
   .borneo {
-    width: min(260px, 58%);
-    max-width: 58%;
-    margin: 8px auto 16px;
+    height: 80px;
+    width: auto;
+    max-width: 45%;
+    margin: 0;
+  }
+
+  .rutec-logo {
+    height: 80px;
+    width: auto;
+    max-width: 45%;
   }
 
   .title {
@@ -299,11 +359,26 @@ ion-card-header {
 }
 
 @media screen and (min-width: 1024px) {
+  .logo-row {
+    margin: 32px auto 18px;
+  }
+
+  .logo-divider {
+    height: 90px;
+  }
+
   .borneo {
-    width: min(300px, 52%);
-    max-width: 52%;
+    height: 90px;
+    width: auto;
+    max-width: 45%;
     padding: 0;
-    margin: 8px auto 18px;
+    margin: 0;
+  }
+
+  .rutec-logo {
+    height: 90px;
+    width: auto;
+    max-width: 45%;
   }
 
   .title-col {

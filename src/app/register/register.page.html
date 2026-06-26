@@ -2,11 +2,19 @@
   <div class="register-wrapper">
     <ion-card class="register-card">
       <ion-card-header>
-        <img
-          src="../../assets/icon/explore_sabah-without_bg.png"
-          class="logo"
-          alt="Explore Sabah"
-        />
+        <div class="logo-row">
+          <img
+            src="../../assets/icon/explore_sabah-without_bg.png"
+            class="logo"
+            alt="Explore Sabah"
+          />
+          <span class="logo-divider"></span>
+          <img
+            src="../../assets/icon/rutec_icon.png"
+            class="rutec-logo"
+            alt="RUTeC"
+          />
+        </div>
       </ion-card-header>
 
       <form
@@ -354,6 +362,23 @@
               <span>
                 Saya menerima terma dan syarat mereka/I accept their
                 <a class="privacy-link" (click)="openPrivacyPolicy()">terms and conditions</a>
+              </span>
+            </label>
+          </div>
+
+          <!-- Declaration -->
+          <div class="privacy-row">
+            <label class="privacy-label">
+              <input
+                type="checkbox"
+                class="privacy-checkbox"
+                [(ngModel)]="agreedToDeclaration"
+                name="agreedToDeclaration"
+              />
+              <span>
+                Saya dengan ini mengesahkan bahawa maklumat yang diberikan adalah
+                benar dan tepat/I hereby declare that the information provided is
+                true and accurate.
               </span>
             </label>
           </div>

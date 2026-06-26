@@ -31,6 +31,7 @@ export class RegisterPage implements OnInit {
   showPassword = false;
   showConfirmPassword = false;
   agreedToPrivacy = false;
+  agreedToDeclaration = false;
 
   associations: AssociationItem[] = [];
 
@@ -181,7 +182,8 @@ export class RegisterPage implements OnInit {
       this.formData.password.length >= 8 &&
       this.hasConfirmedPassword &&
       !this.passwordMismatch &&
-      this.agreedToPrivacy
+      this.agreedToPrivacy &&
+      this.agreedToDeclaration
     );
   }
 

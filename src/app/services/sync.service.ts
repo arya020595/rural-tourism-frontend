@@ -295,6 +295,21 @@ export class SyncService {
 
     await this.prewarmAssets();
 
+    // The booking/product prefetch below is operator-only. Other user types
+    // (association, tourist) lack the permissions for these endpoints, so the
+    // calls would 403 and surface a misleading "no permission" toast. Skip them.
+    const roleName = String(
+      user?.role?.name || user?.role || user?.user_type || '',
+    ).toLowerCase();
+    const isOperator =
+      !!companyId ||
+      roleName === 'operator' ||
+      roleName === 'operator_admin' ||
+      roleName === 'operator_staff';
+    if (!isOperator) {
+      return;
+    }
+
     // 1. Bookings
     try {
       const params: any = { page: 1, per_page: 1000 };

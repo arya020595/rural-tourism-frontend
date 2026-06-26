@@ -23,9 +23,37 @@ ion-card-header {
   padding-bottom: 2px;
 }
 
-.logo {
-  width: 180px;
+.logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
   margin: 0 auto;
+}
+
+.logo-divider {
+  width: 2px;
+  align-self: center;
+  height: 70px;
+  background-color: #d0d5d0;
+  flex: 0 0 auto;
+}
+
+.logo {
+  height: 70px;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+  margin: 0;
+}
+
+.rutec-logo {
+  height: 70px;
+  width: auto;
+  max-width: 45%;
+  object-fit: contain;
+  margin: 0;
 }
 
 .section-title {
