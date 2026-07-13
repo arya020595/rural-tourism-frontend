@@ -76,8 +76,7 @@ export class RoleManagementPage implements OnInit, OnDestroy {
 
   private loadPageData(): void {
     this.user = this.authService.currentUser;
-    this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+    this.menuItems = this.menuService.getVisibleMenuItemsForCurrentUser();
 
     if (!this.user) {
       this.router.navigate(['/login']);

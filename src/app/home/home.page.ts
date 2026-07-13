@@ -579,7 +579,7 @@ export class HomePage implements OnInit {
 
   private refreshMenuItems(): void {
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadCurrentSessionUser(): void {

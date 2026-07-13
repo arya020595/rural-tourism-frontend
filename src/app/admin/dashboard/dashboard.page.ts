@@ -6,12 +6,21 @@ import { AuthService, User } from '../../services/auth.service';
 import { MenuItem, MenuService } from '../../services/menu.service';
 import { sanitizePowerBiUrl } from '../../utils/power-bi-url.util';
 
+/**
+ * Hardcoded Power BI dashboard for the platform superadmin. Unlike the
+ * association dashboard (whose URL is stored per-record in the database), the
+ * admin dashboard points at a single fixed report. Replace this URL to change
+ * which report superadmin sees.
+ */
+const ADMIN_POWER_BI_URL =
+  'https://app.powerbi.com/view?r=REPLACE_WITH_ADMIN_REPORT_URL';
+
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-admin-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
 })
-export class AssociationDashboardPage implements OnInit {
+export class AdminDashboardPage implements OnInit {
   user: User | null = null;
   menuItems: MenuItem[] = [];
   biDashboardUrl: SafeResourceUrl | null = null;
@@ -34,14 +43,8 @@ export class AssociationDashboardPage implements OnInit {
   }
 
   loadUser() {
-    const storedAssociationUser = this.parseStoredUser(
-      localStorage.getItem('association_user'),
-    );
-    const storedUser = this.parseStoredUser(localStorage.getItem('user'));
-    this.user =
-      this.authService.currentUser || storedAssociationUser || storedUser;
-    this.menuItems =
-      this.menuService.getVisibleMenuItemsForCurrentUser();
+    this.user = this.authService.currentUser;
+    this.menuItems = this.menuService.getVisibleMenuItemsForCurrentUser();
 
     if (!this.user) {
       this.biDashboardUrl = null;
@@ -49,25 +52,10 @@ export class AssociationDashboardPage implements OnInit {
       return;
     }
 
-    const rawUrl = sanitizePowerBiUrl(this.user.power_bi_url);
+    const rawUrl = sanitizePowerBiUrl(ADMIN_POWER_BI_URL);
     this.biDashboardUrl = rawUrl
       ? this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl)
       : null;
-  }
-
-  private parseStoredUser(rawUser: string | null): User | null {
-    if (!rawUser) {
-      return null;
-    }
-
-    try {
-      const parsedUser = JSON.parse(rawUser);
-      return parsedUser && typeof parsedUser === 'object'
-        ? (parsedUser as User)
-        : null;
-    } catch {
-      return null;
-    }
   }
 
   onMenuItemTap(item: MenuItem): void {

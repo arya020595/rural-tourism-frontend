@@ -51,7 +51,7 @@ export class AssociationChangePasswordPage implements OnInit {
       this.parseStoredUser(localStorage.getItem('association_user')) ||
       this.parseStoredUser(localStorage.getItem('user'));
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('association');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
 
     if (!this.user) {
       this.router.navigate(['/login']);
