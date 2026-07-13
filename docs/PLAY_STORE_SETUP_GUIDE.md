@@ -3,8 +3,26 @@
 **Step-by-step guide to fix all blockers and publish the app to Google Play Store.**
 
 > Created: May 12, 2026  
-> App: Rural Tourism Sabah  
+> App: Rural Tourism Sabah (RUTeC)  
 > Stack: Ionic 8 + Angular 18 + Capacitor 7
+
+> **Opening the developer account?** Account creation (Organization type, D-U-N-S number,
+> required documents, the $25 fee) is covered separately in
+> [`PLAY_STORE_ACCOUNT_REQUIREMENTS.md`](./PLAY_STORE_ACCOUNT_REQUIREMENTS.md).
+> This guide covers building and publishing the app once that account exists.
+
+### Project Reference (current values)
+
+| Item | Value |
+|---|---|
+| Application ID | `com.sabah.ruraltourism` |
+| App name | RUTeC |
+| `minSdkVersion` | 23 |
+| `targetSdkVersion` / `compileSdkVersion` | 35 |
+| Current `versionCode` / `versionName` | 1 / 1.0 |
+
+> Note: Google periodically raises the minimum **`targetSdkVersion`** required for new uploads.
+> Verify the current requirement in Play Console at release time and bump `variables.gradle` if needed.
 
 ---
 
@@ -213,6 +231,11 @@ When prompted, enter:
 Choose a strong password and write it down — you will need it every time you build a release.
 
 > **CRITICAL: If you lose the keystore file or password, you can NEVER update the app on Play Store. Back it up in at least 3 places (USB drive, cloud storage, company vault).**
+
+> **Recommended — enable Google Play App Signing:** At upload time, opt in to Play App Signing.
+> Google securely holds the real *app signing key*, while you keep only an *upload key*. If the
+> upload key is ever lost or compromised, Google can reset it — so you don't permanently lose the
+> ability to update the app. This is the safer default for a long-lived government/tourism app.
 
 ### 4B. Back Up the Keystore
 

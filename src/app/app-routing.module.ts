@@ -156,7 +156,11 @@ const routes: Routes = [
       import('./my-transaction/my-transaction.module').then(
         (m) => m.MyTransactionPageModule
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['receipt:read'],
+    },
   },
   {
     path: 'my-transaction/receipt',
@@ -264,7 +268,7 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'operator_admin',
-      permissions: ['booking:read'],
+      permissions: ['dashboard:read', 'booking:read'],
     },
   },
   {
@@ -286,7 +290,7 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'operator_admin',
-      permissions: ['booking:read'],
+      permissions: ['receipt:create'],
     },
   },
   {
@@ -340,6 +344,18 @@ const routes: Routes = [
     loadChildren: () =>
       import('./role-management/role-management.module').then(
         (m) => m.RoleManagementPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'superadmin',
+      permissions: ['role:read'],
+    },
+  },
+  {
+    path: 'admin/dashboard',
+    loadChildren: () =>
+      import('./admin/dashboard/dashboard.module').then(
+        (m) => m.AdminDashboardPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {

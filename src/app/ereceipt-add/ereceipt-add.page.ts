@@ -420,6 +420,6 @@ export class EreceiptAddPage implements OnInit {
       const raw = localStorage.getItem('user');
       try { this.user = raw ? JSON.parse(raw) : null; } catch { this.user = null; }
     }
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator_admin');
+    this.menuItems = this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 }

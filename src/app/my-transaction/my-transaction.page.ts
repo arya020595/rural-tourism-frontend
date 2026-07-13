@@ -429,7 +429,7 @@ export class MyTransactionPage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private formatDateLabel(isoDate: string): string {

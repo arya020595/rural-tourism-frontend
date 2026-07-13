@@ -20,5 +20,9 @@ export const loginRedirectGuard: CanActivateFn = () => {
     return router.createUrlTree(['/association/dashboard']);
   }
 
+  if (currentRole === 'superadmin') {
+    return router.createUrlTree(['/admin/dashboard']);
+  }
+
   return router.createUrlTree(['/home']);
 };

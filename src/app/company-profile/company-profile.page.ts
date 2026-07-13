@@ -111,6 +111,15 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.loadUserData();
   }
 
+  /**
+   * superadmin has no company of its own, so the operator-specific
+   * "No. of Staff" and "View Documents" sections are hidden for them in both
+   * view and edit modes.
+   */
+  get isSuperadmin(): boolean {
+    return this.authService.getCurrentRole() === 'superadmin';
+  }
+
   get companyLogoSrc(): string {
     if (this.logoPreviewObjectUrl) {
       return this.logoPreviewObjectUrl;
@@ -168,8 +177,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   }
 
   get canUpdateCompany(): boolean {
+    // superadmin has no company of its own, so it can't create/update one here.
     const role = this.authService.getCurrentRole();
-    return role === 'superadmin' || role === 'operator_admin';
+    return role === 'operator_admin';
   }
 
   private loadUserData(): void {
@@ -205,7 +215,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   private refreshMenuItems(): void {
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadAssociations(): void {

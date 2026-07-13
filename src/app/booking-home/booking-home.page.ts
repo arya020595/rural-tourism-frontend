@@ -341,7 +341,7 @@ export class BookingHomePage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private async loadBookings(): Promise<void> {

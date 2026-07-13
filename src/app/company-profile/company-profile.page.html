@@ -102,7 +102,11 @@
               ></ion-input>
             </div>
 
-            <div class="detail-row" [class.edit-mode]="isEditing">
+            <div
+              class="detail-row"
+              [class.edit-mode]="isEditing"
+              *ngIf="!isSuperadmin"
+            >
               <div class="label">
                 Persatuan/Association
                 <span class="readonly-hint" *ngIf="isEditing"
@@ -193,7 +197,7 @@
             </div>
           </div>
 
-          <div class="section-panel">
+          <div class="section-panel" *ngIf="!isSuperadmin">
             <div class="section-heading">Bilangan Kakitangan/No. of Staff</div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
@@ -229,7 +233,7 @@
             </div>
           </div>
 
-          <div class="section-panel">
+          <div class="section-panel" *ngIf="!isSuperadmin">
             <div class="section-heading">Melihat Dokumen/View Documents</div>
 
             <div class="document-row" *ngFor="let field of documentFields">

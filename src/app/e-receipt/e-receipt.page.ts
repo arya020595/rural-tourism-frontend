@@ -120,7 +120,7 @@ export class EReceiptPage implements OnInit, OnDestroy {
 
   private refreshMenuItems(): void {
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   onMenuItemTap(item: MenuItem): void {

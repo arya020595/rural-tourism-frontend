@@ -1,0 +1,99 @@
+ion-content {
+  --ion-background-color: #282c28;
+}
+
+ion-toolbar {
+  --background: #282c28;
+  --box-shadow: none !important;
+  --border-width: 0px !important;
+  color: inherit;
+  padding: 0;
+}
+
+ion-menu.side-menu {
+  --background: #f0f0f0;
+}
+
+.item-nav {
+  --padding-start: 0;
+  --border-width: 0;
+  --border-style: none !important;
+  margin-left: 5%;
+}
+
+.side-menu {
+  --ion-background-color: white !important;
+}
+
+h1 {
+  font-weight: 900;
+  margin-left: 20px;
+  color: #000;
+}
+
+p {
+  margin-left: 20px;
+  color: #656565;
+  width: 80%;
+}
+
+hr {
+  border: none;
+  width: 90%;
+  height: 1px;
+  background-color: #024e25;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+#container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dashboard-content {
+  margin-top: 8px;
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+  --padding-top: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.bi-dashboard-container {
+  width: 100%;
+  margin: 0 0 16px 0;
+}
+
+.bi-iframe {
+  width: 100%;
+  height: 75vh;
+  border: none;
+  display: block;
+}
+
+.main-Container {
+  --ion-background-color: transparent;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+  margin-top: 5vh;
+  border-radius: 30px;
+  min-height: 90vh;
+  background-color: white;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 5% 8px;
+}
