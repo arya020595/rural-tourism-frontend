@@ -230,7 +230,40 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   getFilteredServices(index: number): Array<{ id: number; name: string }> {
-    return this.filteredServices[index] || [];
+    const services = this.filteredServices[index] || [];
+
+    // Exclude services already picked in other rows of the SAME company, so the
+    // same activity/accommodation can't be added twice for one company.
+    const takenNames = this.getServiceNamesTakenByOtherRows(index);
+    if (takenNames.size === 0) {
+      return services;
+    }
+
+    return services.filter((s) => !takenNames.has(s.name));
+  }
+
+  /**
+   * Service names already selected in other package rows that share the same
+   * company as the row at `index`. Used to hide duplicates from the dropdown.
+   */
+  private getServiceNamesTakenByOtherRows(index: number): Set<string> {
+    const currentCompanyId = Number(this.packageItems[index]?.companyId || 0);
+    const taken = new Set<string>();
+    if (!currentCompanyId) {
+      return taken;
+    }
+
+    this.packageItems.forEach((item, i) => {
+      if (i === index) {
+        return;
+      }
+      const sameCompany = Number(item.companyId || 0) === currentCompanyId;
+      if (sameCompany && item.serviceName) {
+        taken.add(item.serviceName);
+      }
+    });
+
+    return taken;
   }
 
   getServiceSearchText(index: number): string {

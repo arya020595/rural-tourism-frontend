@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
@@ -82,6 +83,18 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   formData: CompanyProfileFormData = this.createEmptyFormData();
   private initialFormData: CompanyProfileFormData = this.createEmptyFormData();
 
+  // Document preview modal state (mirrors the report modal in My Transaction)
+  isPreviewOpen = false;
+  isPreviewClosing = false;
+  previewTitle = '';
+  previewIsPdf = false;
+  // PDFs render in an iframe (needs a trusted resource URL); images use the raw
+  // URL directly (safe in the img context — no bypass needed).
+  previewFrameUrl: SafeResourceUrl | null = null;
+  previewImageUrl: string | null = null;
+  private previewObjectUrl: string | null = null;
+  private previewCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private userService: UserService,
     private companyService: CompanyService,
@@ -92,6 +105,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     private menuService: MenuService,
     private router: Router,
     private toastController: ToastController,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
@@ -104,6 +118,15 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.clearSelectedLogo();
     this.generatedObjectUrls.forEach((url) => URL.revokeObjectURL(url));
     this.generatedObjectUrls = [];
+
+    if (this.previewCloseTimeout) {
+      clearTimeout(this.previewCloseTimeout);
+      this.previewCloseTimeout = null;
+    }
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
   }
 
   ionViewWillEnter(): void {
@@ -720,12 +743,59 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       source = this.buildUploadsUrl(source);
     }
 
-    const popup = window.open(source, '_blank');
-    if (!popup) {
-      this.showError(
-        'Unable to open document. Please allow popups and try again.',
-      );
+    this.openPreview(source, fallbackMimeType, this.getDocumentFieldLabel(field));
+  }
+
+  /**
+   * Opens the resolved document in an in-page preview modal (same styling as
+   * the report modal in My Transaction). PDFs render in an iframe; images in an
+   * <img>. Replaces the previous behaviour of opening a new browser tab.
+   */
+  private openPreview(source: string, mimeType: string, title: string): void {
+    // Track blob: URLs so we can revoke them when the preview closes.
+    if (source.startsWith('blob:')) {
+      this.previewObjectUrl = source;
     }
+
+    const isPdf =
+      mimeType === 'application/pdf' ||
+      source.toLowerCase().includes('.pdf');
+
+    this.previewIsPdf = isPdf;
+    this.previewTitle = title;
+    if (isPdf) {
+      this.previewFrameUrl =
+        this.sanitizer.bypassSecurityTrustResourceUrl(source);
+      this.previewImageUrl = null;
+    } else {
+      this.previewImageUrl = source;
+      this.previewFrameUrl = null;
+    }
+    this.isPreviewClosing = false;
+    this.isPreviewOpen = true;
+  }
+
+  closePreviewModal(): void {
+    if (!this.isPreviewOpen || this.isPreviewClosing) {
+      return;
+    }
+
+    // Play the closing animation, then tear down (mirrors report modal timing).
+    this.isPreviewClosing = true;
+    this.previewCloseTimeout = setTimeout(() => {
+      this.isPreviewOpen = false;
+      this.isPreviewClosing = false;
+      this.previewFrameUrl = null;
+      this.previewImageUrl = null;
+      this.previewIsPdf = false;
+      this.previewTitle = '';
+
+      if (this.previewObjectUrl) {
+        URL.revokeObjectURL(this.previewObjectUrl);
+        this.previewObjectUrl = null;
+      }
+      this.previewCloseTimeout = null;
+    }, 300);
   }
 
   private detectMimeTypeFromValue(value: string): string {

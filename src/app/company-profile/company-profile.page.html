@@ -348,4 +348,41 @@
       </div>
     </div>
   </div>
+
+  <!-- ── Document preview modal (styled like the report modal) ── -->
+  <div
+    class="rpt-overlay"
+    *ngIf="isPreviewOpen"
+    [class.rpt-closing]="isPreviewClosing"
+  >
+    <div class="rpt-backdrop" (click)="closePreviewModal()"></div>
+
+    <div class="rpt-dialog">
+      <!-- Header -->
+      <div class="rpt-header">
+        <h2 class="rpt-title">{{ previewTitle }}</h2>
+        <button type="button" class="rpt-close" (click)="closePreviewModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <hr class="rpt-divider" />
+
+      <!-- Preview body -->
+      <div class="doc-preview-body">
+        <iframe
+          *ngIf="previewIsPdf"
+          [src]="previewFrameUrl"
+          class="doc-preview-frame"
+          title="Document preview"
+        ></iframe>
+
+        <img
+          *ngIf="!previewIsPdf"
+          [src]="previewImageUrl"
+          class="doc-preview-image"
+          alt="Document preview"
+        />
+      </div>
+    </div>
+  </div>
 </ion-content>
