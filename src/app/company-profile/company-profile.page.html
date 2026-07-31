@@ -349,40 +349,43 @@
     </div>
   </div>
 
-  <!-- ── Document preview modal (styled like the report modal) ── -->
-  <div
-    class="rpt-overlay"
-    *ngIf="isPreviewOpen"
-    [class.rpt-closing]="isPreviewClosing"
-  >
-    <div class="rpt-backdrop" (click)="closePreviewModal()"></div>
+</ion-content>
 
-    <div class="rpt-dialog">
-      <!-- Header -->
-      <div class="rpt-header">
-        <h2 class="rpt-title">{{ previewTitle }}</h2>
-        <button type="button" class="rpt-close" (click)="closePreviewModal()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-      <hr class="rpt-divider" />
+<!-- ── Document preview modal (styled like the report modal) ──
+     Placed OUTSIDE ion-content so it stacks above the page header/status bar
+     on native (a child of ion-content is trapped below ion-header). -->
+<div
+  class="rpt-overlay"
+  *ngIf="isPreviewOpen"
+  [class.rpt-closing]="isPreviewClosing"
+>
+  <div class="rpt-backdrop" (click)="closePreviewModal()"></div>
 
-      <!-- Preview body -->
-      <div class="doc-preview-body">
-        <iframe
-          *ngIf="previewIsPdf"
-          [src]="previewFrameUrl"
-          class="doc-preview-frame"
-          title="Document preview"
-        ></iframe>
+  <div class="rpt-dialog">
+    <!-- Header -->
+    <div class="rpt-header">
+      <h2 class="rpt-title">{{ previewTitle }}</h2>
+      <button type="button" class="rpt-close" (click)="closePreviewModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <hr class="rpt-divider" />
 
-        <img
-          *ngIf="!previewIsPdf"
-          [src]="previewImageUrl"
-          class="doc-preview-image"
-          alt="Document preview"
-        />
-      </div>
+    <!-- Preview body -->
+    <div class="doc-preview-body">
+      <iframe
+        *ngIf="previewIsPdf"
+        [src]="previewFrameUrl"
+        class="doc-preview-frame"
+        title="Document preview"
+      ></iframe>
+
+      <img
+        *ngIf="!previewIsPdf"
+        [src]="previewImageUrl"
+        class="doc-preview-image"
+        alt="Document preview"
+      />
     </div>
   </div>
-</ion-content>
+</div>
