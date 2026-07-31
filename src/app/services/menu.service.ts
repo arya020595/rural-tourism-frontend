@@ -57,7 +57,7 @@ export class MenuService {
     },
     {
       id: 'dashboard',
-      label: 'Dashboard / Papan Pemuka',
+      label: 'My Dashboard / Dashboard Anda',
       icon: 'grid-outline',
       route: '/home',
       permission: ['dashboard:read', 'booking:read'],
@@ -65,7 +65,7 @@ export class MenuService {
     },
     {
       id: 'company-profile',
-      label: 'Company Profile / Profil Syarikat',
+      label: 'My Profile / Profil Anda',
       icon: 'business-outline',
       route: '/company-profile',
       permission: 'profile:read',
@@ -98,7 +98,7 @@ export class MenuService {
     },
     {
       id: 'e-receipt',
-      label: 'E-Receipt / Resit Elektronik',
+      label: 'E-Receipt / E-Resit',
       icon: 'document-text-outline',
       route: '/e-receipt',
       permission: 'receipt:create',
@@ -107,7 +107,7 @@ export class MenuService {
     },
     {
       id: 'users',
-      label: 'Users / Pengguna',
+      label: 'User Management / Pengurusan Pengguna',
       icon: 'people-outline',
       route: '/users',
       permission: 'user:read',
