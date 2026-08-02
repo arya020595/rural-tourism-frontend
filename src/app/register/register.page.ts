@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
@@ -29,6 +30,8 @@ export class RegisterPage implements OnInit {
   isSuccessAlertOpen = false;
   showPassword = false;
   showConfirmPassword = false;
+  agreedToPrivacy = false;
+  agreedToDeclaration = false;
 
   associations: AssociationItem[] = [];
 
@@ -80,6 +83,7 @@ export class RegisterPage implements OnInit {
     private associationService: AssociationService,
     private navCtrl: NavController,
     private toastController: ToastController,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -101,7 +105,7 @@ export class RegisterPage implements OnInit {
   loadAssociations() {
     this.associationService.getAssociationList().subscribe({
       next: (res) => {
-        this.associations = res?.data || [];
+        this.associations = Array.isArray(res?.data) ? res.data : [];
       },
       error: () => {
         this.showError('Failed to load association list.');
@@ -177,8 +181,14 @@ export class RegisterPage implements OnInit {
       validEmail &&
       this.formData.password.length >= 8 &&
       this.hasConfirmedPassword &&
-      !this.passwordMismatch
+      !this.passwordMismatch &&
+      this.agreedToPrivacy &&
+      this.agreedToDeclaration
     );
+  }
+
+  openPrivacyPolicy() {
+    this.router.navigate(['/privacy-policy']);
   }
 
   private normalizeInput(value: unknown): string {
@@ -186,13 +196,12 @@ export class RegisterPage implements OnInit {
   }
 
   private isValidStaffCount(value: string | number): boolean {
-    const normalized = `${value ?? ''}`.trim();
-
-    if (normalized.length === 0) {
-      return false;
+    if (value === null || value === undefined || value === '') {
+      return true;
     }
 
-    return /^\d+$/.test(normalized);
+    const numericValue = Number(value);
+    return Number.isInteger(numericValue) && numericValue >= 0;
   }
 
   goToSection2() {

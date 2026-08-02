@@ -1,28 +1,51 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
+import { Subscription, interval } from 'rxjs';
+import { distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
-import { UserService } from './services/user.service';
+import { InactivityService } from './services/inactivity.service';
+import { NetworkService } from './services/network.service';
+import { NotificationService } from './services/notification.service';
+import { OfflineQueueService } from './services/offline-queue.service';
+import { SyncService } from './services/sync.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   uid: string | null = null;
   user: any = null;
+
+  private pollingSub?: Subscription;
+  private inactivitySub?: Subscription;
 
   constructor(
     private platform: Platform,
     private router: Router,
-    private userService: UserService,
     private authService: AuthService,
+    private inactivityService: InactivityService,
+    private networkService: NetworkService,
+    private syncService: SyncService,
+    private offlineQueue: OfflineQueueService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit() {
-    this.platform.ready().then(() => {
+    this.platform.ready().then(async () => {
+      const isAvailable = await this.offlineQueue.isAvailable();
+      if (isAvailable) {
+        await this.networkService.initialize();
+        await this.syncService.initialize();
+      } else {
+        console.warn('IndexedDB unavailable — offline mode disabled');
+      }
+
       this.loadUserData();
+      this.startNotificationPolling();
+      this.startInactivityTracking();
       this.applyStandaloneClass();
 
       this.router.events.subscribe((event) => {
@@ -43,26 +66,77 @@ export class AppComponent implements OnInit {
   }
 
   private loadUserData(): void {
-    this.uid = localStorage.getItem('uid');
+    this.uid = this.authService.getUserId();
+    this.user = this.authService.currentUser;
 
-    const storedUser = localStorage.getItem('user');
-    this.user = storedUser ? JSON.parse(storedUser) : null;
+    if (!this.authService.isAuthenticated) {
+      return;
+    }
 
-    if (!this.uid) return;
-
-    this.loadUser();
+    this.loadCurrentSessionUser();
   }
 
-  private loadUser(): void {
-    if (!this.uid) return;
-
-    this.userService.getUserByID(this.uid).subscribe({
-      next: (data: any) => {
-        this.authService.syncUserProfile(data);
-        this.user = this.authService.currentUser || data;
+  private loadCurrentSessionUser(): void {
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
       },
-      error: (err: any) => console.error('Error loading user:', err),
+      error: (err: any) => console.error('Error loading session user:', err),
     });
+  }
+
+  private isOperatorUser(): boolean {
+    const user: any = this.authService.currentUser;
+    const roleName = String(
+      user?.role?.name || user?.role || user?.user_type || '',
+    ).toLowerCase();
+    return (
+      !!user?.company_id ||
+      roleName === 'operator' ||
+      roleName === 'operator_admin' ||
+      roleName === 'operator_staff'
+    );
+  }
+
+  private startNotificationPolling(): void {
+    // Wait for auth to be confirmed (fires immediately if already authenticated,
+    // or after refreshSession() resolves on app startup).
+    this.pollingSub = this.authService.isAuthenticated$
+      .pipe(
+        distinctUntilChanged(),
+        filter((authenticated) => authenticated),
+        switchMap(() => {
+          const uid = this.authService.getUserId();
+          // Notifications are an operator-only feature; other user types
+          // (association, tourist) can't access the endpoint and would 403.
+          if (!uid || !this.isOperatorUser()) return [];
+          // Fetch immediately, then repeat every 60 seconds
+          this.notificationService.getUnreadCount(uid).subscribe();
+          return interval(60_000).pipe(
+            switchMap(() => this.notificationService.getUnreadCount(uid)),
+          );
+        }),
+      )
+      .subscribe();
+  }
+
+  private startInactivityTracking(): void {
+    this.inactivitySub = this.authService.isAuthenticated$
+      .pipe(distinctUntilChanged())
+      .subscribe((authenticated) => {
+        if (authenticated) {
+          this.inactivityService.start();
+        } else {
+          this.inactivityService.stop();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.pollingSub?.unsubscribe();
+    this.inactivitySub?.unsubscribe();
+    this.inactivityService.stop();
   }
 
   applyStandaloneClass() {

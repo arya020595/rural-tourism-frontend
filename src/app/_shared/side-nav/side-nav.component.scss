@@ -8,6 +8,21 @@
   --border-style: none !important;
   margin-left: 5%;
   margin-top: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.item-nav.item-nav-active {
+  --background: #e4f1ea;
+  --color: #04552f;
+  border-left: 4px solid #04552f;
+  padding-left: 8px;
+  font-weight: 700;
+}
+
+.item-nav.item-nav-active ion-icon,
+.item-nav.item-nav-active ion-text {
+  color: #04552f;
 }
 
 .logo-side-panel {
@@ -21,9 +36,31 @@
 }
 
 .user-summary {
-  margin-left: 5%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 5%;
   border-bottom: 2px solid #6b6b6b;
-  padding-bottom: 10px;
+  padding: 10px 0;
+
+  ion-avatar {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #555;
+  }
 }
 
 .guest-details {

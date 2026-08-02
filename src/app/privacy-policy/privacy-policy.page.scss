@@ -1,0 +1,154 @@
+ion-content.pp-background {
+  --background: url(../../assets/login.jpg) center/cover no-repeat;
+}
+
+.pp-wrapper {
+  min-height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 40px 48px;
+}
+
+.pp-card {
+  width: min(1000px, 100%);
+  background: rgba(243, 243, 243, 0.97);
+  border-radius: 20px;
+  padding: 24px 48px 36px;
+}
+
+/* Back button */
+.pp-back-row {
+  margin-bottom: 16px;
+}
+
+.pp-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0c4e2c;
+  padding: 4px 0;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Logo */
+.pp-logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.pp-logo {
+  width: 160px;
+}
+
+/* Title */
+.pp-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0c4e2c;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+/* Meta dates */
+.pp-meta {
+  text-align: center;
+  font-size: 13px;
+  color: #444;
+
+  p {
+    margin: 2px 0;
+  }
+}
+
+.pp-divider {
+  border: none;
+  border-top: 1px solid #d2d2d2;
+  margin: 20px 0;
+}
+
+/* Body sections */
+.pp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pp-section {
+  h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 8px;
+  }
+
+  p, li {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+    margin: 0 0 4px;
+  }
+
+  ul {
+    margin: 6px 0 0 20px;
+    padding: 0;
+
+    li {
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.pp-contact {
+  border-top: 1px solid #d2d2d2;
+  padding-top: 20px;
+
+  h2 {
+    color: #0c4e2c;
+  }
+
+  .pp-org {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .pp-wrapper {
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .pp-card {
+    width: 100%;
+    border-radius: 0;
+    padding: 16px 18px 40px;
+    min-height: 100vh;
+  }
+
+  .pp-title {
+    font-size: 22px;
+  }
+
+  .pp-logo {
+    width: 130px;
+  }
+
+  .pp-section h2 {
+    font-size: 15px;
+  }
+}

@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
@@ -7,10 +8,7 @@ import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
 import { CompanyService } from '../services/company.service';
 import { MenuItem, MenuService } from '../services/menu.service';
-import {
-  Notification,
-  NotificationService,
-} from '../services/notification.service';
+import { StorageService } from '../services/storage.service';
 import { UserService } from '../services/user.service';
 
 type DocumentField =
@@ -49,9 +47,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   uid: string | null = null;
   user: any = null;
   menuItems: MenuItem[] = [];
-  unreadCount = 0;
-  notifications: Notification[] = [];
-
   isLoading = true;
   isEditing = false;
   isSaving = false;
@@ -88,24 +83,34 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   formData: CompanyProfileFormData = this.createEmptyFormData();
   private initialFormData: CompanyProfileFormData = this.createEmptyFormData();
 
+  // Document preview modal state (mirrors the report modal in My Transaction)
+  isPreviewOpen = false;
+  isPreviewClosing = false;
+  previewTitle = '';
+  previewIsPdf = false;
+  // PDFs render in an iframe (needs a trusted resource URL); images use the raw
+  // URL directly (safe in the img context — no bypass needed).
+  previewFrameUrl: SafeResourceUrl | null = null;
+  previewImageUrl: string | null = null;
+  private previewObjectUrl: string | null = null;
+  private previewCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private userService: UserService,
     private companyService: CompanyService,
     private associationService: AssociationService,
     private authService: AuthService,
+    private storageService: StorageService,
     private menuCtrl: MenuController,
     private menuService: MenuService,
-    private notificationService: NotificationService,
     private router: Router,
     private toastController: ToastController,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
     this.loadAssociations();
     this.loadUserData();
-    this.notificationService.unreadCount$.subscribe((count) => {
-      this.unreadCount = count;
-    });
   }
 
   ngOnDestroy(): void {
@@ -113,11 +118,29 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.clearSelectedLogo();
     this.generatedObjectUrls.forEach((url) => URL.revokeObjectURL(url));
     this.generatedObjectUrls = [];
+
+    if (this.previewCloseTimeout) {
+      clearTimeout(this.previewCloseTimeout);
+      this.previewCloseTimeout = null;
+    }
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
   }
 
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'company-profile-menu');
     this.loadUserData();
+  }
+
+  /**
+   * superadmin has no company of its own, so the operator-specific
+   * "No. of Staff" and "View Documents" sections are hidden for them in both
+   * view and edit modes.
+   */
+  get isSuperadmin(): boolean {
+    return this.authService.getCurrentRole() === 'superadmin';
   }
 
   get companyLogoSrc(): string {
@@ -176,22 +199,46 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     return { ...data };
   }
 
+  get canUpdateCompany(): boolean {
+    // superadmin has no company of its own, so it can't create/update one here.
+    const role = this.authService.getCurrentRole();
+    return role === 'operator_admin';
+  }
+
   private loadUserData(): void {
     this.uid = this.authService.getUserId();
     this.user = this.authService.currentUser;
     this.refreshMenuItems();
 
-    if (!this.uid) {
+    if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
       return;
     }
 
-    this.loadProfile(this.uid);
-    this.loadNotifications();
+    this.loadCurrentSessionUser();
+  }
+
+  private loadCurrentSessionUser(): void {
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
+        if (!this.uid) {
+          this.router.navigate(['/login']);
+          return;
+        }
+        this.refreshMenuItems();
+        this.loadProfile(this.uid);
+          },
+      error: () => {
+        this.router.navigate(['/login']);
+      },
+    });
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadAssociations(): void {
@@ -241,9 +288,10 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       association_id: toString(
         data?.association_id ?? data?.associationId ?? data?.association?.id,
       ),
-      owner_full_name: toString(
-        data?.owner_full_name ?? data?.full_name ?? data?.name,
-      ),
+      // Owner = the company's operator_admin (provided by the backend as
+      // owner_full_name). Do NOT fall back to the logged-in user's name, or a
+      // staff account would show its own name instead of the owner's.
+      owner_full_name: toString(data?.owner_full_name),
       contact_no: toString(data?.contact_no ?? data?.company?.contact_no),
       business_address: toString(
         data?.business_address ?? data?.company?.address,
@@ -466,7 +514,27 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.isSaving = true;
 
     this.companyService.updateCompanyById(companyId, payload).subscribe({
-      next: (_response: any) => {
+      next: (response: any) => {
+        // The update response always includes operator_logo_image from the DB —
+        // use this as the authoritative source regardless of whether a new logo
+        // was uploaded in this save or not.
+        const updatedLogo: string | null =
+          response?.data?.operator_logo_image ?? null;
+
+        if (updatedLogo) {
+          // Write fresh logo into IndexedDB — notification panel and notifications
+          // page use cache-first so they show the new logo immediately.
+          this.storageService.setCompanyLogo(companyId, updatedLogo);
+
+          // Patch company_logo on the stored user so HeaderLogoComponent (which
+          // reads localStorage) reflects the new logo without requiring re-login.
+          // auth.service.ts refreshSession() now preserves this field so it
+          // survives /auth/me calls that don't return company_logo.
+          this.authService.syncUserProfile({ company_logo: updatedLogo } as any);
+        } else {
+          this.storageService.clearCompanyLogo(companyId);
+        }
+
         // Reload the full user profile to get the latest merged data
         this.loadProfile(this.uid!);
 
@@ -675,12 +743,59 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       source = this.buildUploadsUrl(source);
     }
 
-    const popup = window.open(source, '_blank');
-    if (!popup) {
-      this.showError(
-        'Unable to open document. Please allow popups and try again.',
-      );
+    this.openPreview(source, fallbackMimeType, this.getDocumentFieldLabel(field));
+  }
+
+  /**
+   * Opens the resolved document in an in-page preview modal (same styling as
+   * the report modal in My Transaction). PDFs render in an iframe; images in an
+   * <img>. Replaces the previous behaviour of opening a new browser tab.
+   */
+  private openPreview(source: string, mimeType: string, title: string): void {
+    // Track blob: URLs so we can revoke them when the preview closes.
+    if (source.startsWith('blob:')) {
+      this.previewObjectUrl = source;
     }
+
+    const isPdf =
+      mimeType === 'application/pdf' ||
+      source.toLowerCase().includes('.pdf');
+
+    this.previewIsPdf = isPdf;
+    this.previewTitle = title;
+    if (isPdf) {
+      this.previewFrameUrl =
+        this.sanitizer.bypassSecurityTrustResourceUrl(source);
+      this.previewImageUrl = null;
+    } else {
+      this.previewImageUrl = source;
+      this.previewFrameUrl = null;
+    }
+    this.isPreviewClosing = false;
+    this.isPreviewOpen = true;
+  }
+
+  closePreviewModal(): void {
+    if (!this.isPreviewOpen || this.isPreviewClosing) {
+      return;
+    }
+
+    // Play the closing animation, then tear down (mirrors report modal timing).
+    this.isPreviewClosing = true;
+    this.previewCloseTimeout = setTimeout(() => {
+      this.isPreviewOpen = false;
+      this.isPreviewClosing = false;
+      this.previewFrameUrl = null;
+      this.previewImageUrl = null;
+      this.previewIsPdf = false;
+      this.previewTitle = '';
+
+      if (this.previewObjectUrl) {
+        URL.revokeObjectURL(this.previewObjectUrl);
+        this.previewObjectUrl = null;
+      }
+      this.previewCloseTimeout = null;
+    }, 300);
   }
 
   private detectMimeTypeFromValue(value: string): string {
@@ -801,39 +916,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   trackMenuItem(_index: number, item: MenuItem): string {
     return item.id;
-  }
-
-  private loadNotifications(): void {
-    if (!this.uid) {
-      return;
-    }
-
-    this.notificationService.getNotifications(this.uid).subscribe({
-      next: (notifications: Notification[]) => {
-        this.notifications = notifications;
-      },
-      error: () => {
-        // No-op because notification errors should not block this page.
-      },
-    });
-  }
-
-  goToNotifications(): void {
-    if (!this.uid) {
-      return;
-    }
-
-    this.router.navigate(['/notifications']);
-    this.notificationService.markAllAsRead(this.uid).subscribe({
-      next: () => {
-        this.notifications.forEach((notification) => {
-          notification.read = true;
-        });
-      },
-      error: () => {
-        // No-op for non-blocking notification updates.
-      },
-    });
   }
 
   closeMenu(): void {

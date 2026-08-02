@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { AlertController, MenuController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { ProductService } from '../services/product.service';
@@ -46,8 +45,9 @@ export class MasterDataPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   currentPage = 1;
-  pageSize = 7;
+  pageSize = 10;
   totalItems = 0;
+  readonly perPageOptions = [10, 25, 50, 100];
   totalPages = 1;
 
   data: MasterDataRow[] = [];
@@ -60,7 +60,6 @@ export class MasterDataPage implements OnInit {
     private productService: ProductService,
     private alertCtrl: AlertController,
     private menuService: MenuService,
-    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -76,7 +75,8 @@ export class MasterDataPage implements OnInit {
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private createEmptyDraft(): MasterDataDraft {
@@ -87,7 +87,9 @@ export class MasterDataPage implements OnInit {
   }
 
   private normalizeProductType(value: unknown): 'activity' | 'accommodation' {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     return normalized === 'accommodation' ? 'accommodation' : 'activity';
   }
 
@@ -103,11 +105,19 @@ export class MasterDataPage implements OnInit {
     };
   }
 
-  private setPagination(page: number, totalItems: number, totalPages: number): void {
+  private setPagination(
+    page: number,
+    totalItems: number,
+    totalPages: number,
+  ): void {
     this.currentPage = page;
     this.totalItems = totalItems;
     this.totalPages = Math.max(1, totalPages);
     this.visiblePages = this.getVisiblePages();
+  }
+
+  private clampPage(page: number): number {
+    return Math.min(Math.max(1, page), this.totalPages);
   }
 
   private getVisiblePages(): (number | string)[] {
@@ -149,7 +159,11 @@ export class MasterDataPage implements OnInit {
     }
 
     // Always show last few pages
-    for (let i = Math.max(rangeEnd + 1, totalPages - edgeSize + 1); i <= totalPages; i++) {
+    for (
+      let i = Math.max(rangeEnd + 1, totalPages - edgeSize + 1);
+      i <= totalPages;
+      i++
+    ) {
       if (!pages.includes(i)) {
         pages.push(i);
       }
@@ -174,36 +188,45 @@ export class MasterDataPage implements OnInit {
     this.isLoading = true;
     this.pageErrorMessage = '';
 
-    this.productService.getAllProducts({ page, per_page: this.pageSize }).subscribe({
-      next: (response) => {
-        const rows = this.extractRows(response).map((record, index) =>
-          this.mapRow(record, index),
-        );
-        const pagination = response?.pagination;
-        const totalPages = Math.max(1, pagination?.total_pages ?? 1);
-        const totalItems = pagination?.total ?? rows.length;
-        const resolvedPage = pagination?.page ?? page;
+    this.productService
+      .getAllProducts({ page, per_page: this.pageSize })
+      .subscribe({
+        next: (response) => {
+          const rows = this.extractRows(response).map((record, index) =>
+            this.mapRow(record, index),
+          );
+          const pagination = response?.meta;
+          const totalItems = pagination?.total ?? rows.length;
+          const totalPages = Math.max(
+            1,
+            Math.ceil(totalItems / this.pageSize),
+          );
+          const requestedPage = pagination?.page ?? page;
+          const resolvedPage = Math.min(
+            Math.max(1, requestedPage),
+            totalPages,
+          );
 
-        if (resolvedPage > totalPages && totalPages > 0) {
+          if (resolvedPage > totalPages && totalPages > 0) {
+            this.isLoading = false;
+            this.loadMasterData(totalPages);
+            return;
+          }
+
+          this.data = rows;
+          this.pagedData = rows;
+          this.setPagination(resolvedPage, totalItems, totalPages);
           this.isLoading = false;
-          this.loadMasterData(totalPages);
-          return;
-        }
-
-        this.data = rows;
-        this.pagedData = rows;
-        this.setPagination(resolvedPage, totalItems, totalPages);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.data = [];
-        this.pagedData = [];
-        this.setPagination(1, 0, 1);
-        this.pageErrorMessage =
-          error?.error?.message || 'Unable to load master data records.';
-        this.isLoading = false;
-      },
-    });
+        },
+        error: (error) => {
+          this.data = [];
+          this.pagedData = [];
+          this.setPagination(1, 0, 1);
+          this.pageErrorMessage =
+            error?.error?.message || 'Unable to load master data records.';
+          this.isLoading = false;
+        },
+      });
   }
 
   get startItem(): number {
@@ -213,7 +236,10 @@ export class MasterDataPage implements OnInit {
 
   get endItem(): number {
     if (this.totalItems === 0) return 0;
-    return Math.min(this.startItem + this.pagedData.length - 1, this.totalItems);
+    return Math.min(
+      this.startItem + this.pagedData.length - 1,
+      this.totalItems,
+    );
   }
 
   onPageSizeChange(): void {
@@ -222,7 +248,7 @@ export class MasterDataPage implements OnInit {
   }
 
   goToPage(page: number): void {
-    this.loadMasterData(page);
+    this.loadMasterData(this.clampPage(page));
   }
 
   onPageClick(page: number | string): void {
@@ -231,16 +257,16 @@ export class MasterDataPage implements OnInit {
     }
   }
 
+  trackByPage(index: number, page: number | string): number | string {
+    return typeof page === 'number' ? page : `ellipsis-${index}`;
+  }
+
   prevPage(): void {
-    if (this.currentPage > 1) {
-      this.loadMasterData(this.currentPage - 1);
-    }
+    this.loadMasterData(this.clampPage(this.currentPage - 1));
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.loadMasterData(this.currentPage + 1);
-    }
+    this.loadMasterData(this.clampPage(this.currentPage + 1));
   }
 
   openAddModal(): void {
@@ -269,7 +295,7 @@ export class MasterDataPage implements OnInit {
   async openDeleteModal(item: MasterDataRow): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: 'Delete Master Data',
-      message: 'Are you sure you want to delete this master data item?',
+      message: `Are you sure you want to delete "${item.name}"? This action cannot be undone. Deletion will be blocked if there are existing bookings that use this item.`,
       buttons: [
         {
           text: 'Cancel',
@@ -315,7 +341,9 @@ export class MasterDataPage implements OnInit {
   }
 
   removePendingItem(tempId: number): void {
-    this.pendingItems = this.pendingItems.filter((item) => item.tempId !== tempId);
+    this.pendingItems = this.pendingItems.filter(
+      (item) => item.tempId !== tempId,
+    );
   }
 
   closeModal(): void {
@@ -329,7 +357,8 @@ export class MasterDataPage implements OnInit {
 
   async saveMasterData(): Promise<void> {
     if (this.modalMode === 'create' && this.pendingItems.length === 0) {
-      this.formErrorMessage = 'Add at least one master data item before saving.';
+      this.formErrorMessage =
+        'Add at least one master data item before saving.';
       return;
     }
 
@@ -420,10 +449,6 @@ export class MasterDataPage implements OnInit {
     const displayHours = String(hours % 12 || 12).padStart(2, '0');
 
     return `${day}-${month}-${year}, ${displayHours}:${minutes}${suffix}`;
-  }
-
-  goToNotifications(): void {
-    this.router.navigate(['/notifications']);
   }
 
   onMenuItemTap(_item: MenuItem): void {

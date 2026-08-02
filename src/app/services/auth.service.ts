@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StorageService } from './storage.service';
+import { OfflineQueueService } from './offline-queue.service';
 import { sanitizePowerBiUrl } from '../utils/power-bi-url.util';
 
 export type UserRoleName =
@@ -101,6 +102,7 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private storage: StorageService,
+    private offlineQueue: OfflineQueueService,
   ) {
     this.initializeAuthState();
   }
@@ -227,6 +229,9 @@ export class AuthService {
   }
 
   private clearSessionState(): void {
+    // Drop already-synced offline-queue items so the transient "Synced"
+    // indicator doesn't reappear after logging back in. Fire-and-forget.
+    void this.offlineQueue.clearSyncedItems();
     this.storage.clearAuth();
     this.storage.remove('association_user');
     this.storage.remove('association_user_id');
@@ -267,11 +272,17 @@ export class AuthService {
         }
 
         const storedUser = this.storage.getUser<User>();
+        const storedAny = storedUser as any;
         const mergedUser = {
           ...(storedUser || {}),
           ...response.data.user,
           permissions:
             response.data.user.permissions || storedUser?.permissions || [],
+          // /auth/me does not return company_logo — preserve the value that was
+          // set at login or patched after a profile update, so HeaderLogoComponent
+          // keeps showing the correct logo without requiring re-login.
+          company_logo:
+            (response.data.user as any).company_logo ?? storedAny?.company_logo ?? null,
         } as User;
 
         this.persistSession(token, mergedUser);
@@ -302,6 +313,14 @@ export class AuthService {
         : currentUser?.permissions || [],
       username: profile.username || currentUser?.username || '',
     } as User;
+
+    // Strip large binary fields before persisting — company logo is fetched
+    // separately via CompanyService and must not bloat localStorage.
+    const mergedAny = mergedUser as any;
+    if (mergedAny.company?.operator_logo_image) {
+      const { operator_logo_image: _logo, ...rest } = mergedAny.company;
+      mergedAny.company = rest;
+    }
 
     const token = this.storage.getToken();
     if (!token) {
@@ -376,6 +395,12 @@ export class AuthService {
     );
   }
 
+  hasPermission(permission: string): boolean {
+    if (this.isAdmin()) return true;
+    const user = this.currentUser;
+    return Array.isArray(user?.permissions) && user.permissions.includes(permission);
+  }
+
   // ── Auth HTTP calls ──────────────────────────────────────────────
 
   register(payload: any, userType: 'operator' | 'tourist'): Observable<any> {
@@ -408,5 +433,22 @@ export class AuthService {
       token,
       password,
     });
+  }
+
+  changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/change-password`, {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  }
+
+  updateProfile(
+    userId: string | number,
+    updates: { name?: string; username?: string; email?: string },
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${userId}`, updates);
   }
 }

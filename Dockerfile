@@ -21,7 +21,7 @@ RUN npm ci --legacy-peer-deps
 COPY . .
 
 # Build the production app
-RUN ionic build --prod -- --output-path=www
+RUN npx ng build --configuration production --output-path www
 
 # ============================================
 # Nginx runtime stage

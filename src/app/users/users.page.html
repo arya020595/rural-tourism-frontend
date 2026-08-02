@@ -15,41 +15,25 @@
       <ion-menu-button menu="users-menu" class="menu-toggle"></ion-menu-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button
-        class="notification-button"
-        (click)="goToNotifications()"
-        *hasPermission="'booking:read'"
-      >
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-        <ion-badge
-          *ngIf="unreadCount > 0"
-          color="danger"
-          class="notification-badge"
-        >
-          {{ unreadCount }}
-        </ion-badge>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" id="users-main-content" class="um-content">
-  <!-- ── Shared header logo ────────────────────────────────────────────── -->
-  <div class="um-logo-section">
-    <app-header-logo></app-header-logo>
-  </div>
+<app-notification-panel #notifPanel></app-notification-panel>
 
-  <div class="um-container">
+<ion-content [fullscreen]="true" id="users-main-content" class="um-content">
+  <div class="surface-card">
+    <div class="um-container">
+      <!-- ── Shared header logo ───────────────────────────────────────────── -->
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
     <!-- ── Page header row (title + Add button) ───────────────────────────── -->
     <div class="um-page-header">
-      <h1 class="um-page-header__title">
-        Pengurusan Pengguna/<em>User Management</em>
-      </h1>
-      <hr class="um-page-header__divider" />
+      <div class="page-title-row">
+        <h1>Pengurusan Pengguna/<br class="mobile-break"><em>User Management</em></h1>
+      </div>
       <div class="um-page-header__actions">
         <button
           class="um-add-btn"
@@ -85,8 +69,8 @@
             <th class="col-actions"></th>
             <th class="col-id">User ID</th>
             <th class="col-name">Full Name</th>
-            <th class="col-email hide-mobile">Email Address</th>
-            <th class="col-date hide-sm">Created At</th>
+            <th class="col-email">Email Address</th>
+            <th class="col-date">Created At</th>
           </tr>
         </thead>
         <tbody>
@@ -95,34 +79,40 @@
             <td class="col-actions">
               <div class="um-action-btns">
                 <button
+                  type="button"
                   class="um-btn um-btn--info"
                   title="Lihat / View"
+                  aria-label="View user"
                   (click)="openViewModal(u)"
                 >
-                  <ion-icon name="information-circle-outline"></ion-icon>
+                  <ion-icon name="information-circle"></ion-icon>
                 </button>
                 <button
+                  type="button"
                   class="um-btn um-btn--edit"
                   title="Kemaskini / Edit"
+                  aria-label="Edit user"
                   (click)="openEditModal(u)"
                   *hasPermission="'user:update'"
                 >
-                  <ion-icon name="create-outline"></ion-icon>
+                  <ion-icon name="create"></ion-icon>
                 </button>
                 <button
+                  type="button"
                   class="um-btn um-btn--delete"
                   title="Padam / Delete"
+                  aria-label="Delete user"
                   (click)="openDeleteModal(u)"
                   *hasPermission="'user:delete'"
                 >
-                  <ion-icon name="trash-outline"></ion-icon>
+                  <ion-icon name="trash"></ion-icon>
                 </button>
               </div>
             </td>
             <td class="col-id">{{ formatUserId(u.id) }}</td>
             <td class="col-name">{{ u.name }}</td>
-            <td class="col-email hide-mobile">{{ u.email }}</td>
-            <td class="col-date hide-sm">{{ formatDate(u.created_at) }}</td>
+            <td class="col-email">{{ u.email }}</td>
+            <td class="col-date">{{ formatDate(u.created_at) }}</td>
           </tr>
 
           <!-- Empty state -->
@@ -188,6 +178,7 @@
           Next &raquo;
         </button>
       </nav>
+    </div>
     </div>
   </div>
 </ion-content>

@@ -11,8 +11,17 @@
     </ion-button>
 
     <div class="header-center">
-      <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
-      <h2 class="page-title">Notifications</h2>
+      <div class="header-logos">
+        <img *ngIf="companyLogoUrl" [src]="companyLogoUrl" alt="Company Logo" class="header-logo" />
+        <div *ngIf="!companyLogoUrl" class="header-logo-placeholder">
+          <ion-icon name="business-outline"></ion-icon>
+        </div>
+        <div class="header-logo-divider"></div>
+        <img src="../../assets/icon/explore_sabah-without_bg.png" alt="Explore Sabah" class="header-logo" />
+      </div>
+      <div class="page-title-row">
+        <h1>Notifications/<em>Pemberitahuan</em></h1>
+      </div>
     </div>
 
     <div class="divider"></div>
@@ -45,5 +54,12 @@
       src="../../assets/icon/no-notifications-icon.png"
     ></ion-img>
     <p class="no-text">No new notifications yet...</p>
+  </div>
+
+  <!-- Fixed bottom button -->
+  <div class="mark-all-footer" *ngIf="hasUnread">
+    <button class="mark-all-btn" (click)="markAllAsRead()">
+      Mark all as read
+    </button>
   </div>
 </ion-content>

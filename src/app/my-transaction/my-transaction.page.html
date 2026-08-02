@@ -16,12 +16,12 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button class="notification-button" aria-label="Notifications">
-        <ion-icon class="notification-bell" slot="icon-only" name="notifications"></ion-icon>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="my-transaction-main-content">
   <div class="surface-card">
@@ -39,6 +39,11 @@
           {{ selectedDateLabel }}
         </button>
         <button type="button" class="date-btn reset" (click)="onResetDate()">Reset Date</button>
+
+        <button *ngIf="canGenerateReport" type="button" class="date-btn report-trigger" (click)="openReportModal()">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Generate Report
+        </button>
       </div>
 
       <div class="tab-row" role="tablist" aria-label="Transaction category tabs">
@@ -68,57 +73,340 @@
         </button>
       </div>
 
-      <div class="card-grid">
-        <article class="transaction-card" *ngFor="let trx of visibleTransactions">
-          <h3>{{ trx.title }}</h3>
-
-          <div class="trx-body">
-            <div class="trx-meta">
-              <p><strong>Name:</strong> {{ trx.name }}</p>
-              <p><strong>Date:</strong> {{ trx.date }}</p>
-              <p><strong>Time:</strong> {{ trx.time }}</p>
-              <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
-              <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
-              <p class="status-line">
-                <strong>Status:</strong>
-                <span class="status-pill" [class.paid]="getStatusClass(trx.status) === 'paid'" [class.void]="getStatusClass(trx.status) === 'void'" [class.booked]="getStatusClass(trx.status) === 'booked'">
-                  {{ trx.status }}
-                </span>
-              </p>
-            </div>
-
-            <button type="button" class="receipt-btn" (click)="viewReceipt(trx)">
-              <ion-icon name="receipt-outline"></ion-icon>
-              <span>View Receipt</span>
-            </button>
-          </div>
-        </article>
+      <div *ngIf="isLoading" class="loading-state">
+        Loading transactions...
       </div>
 
-      <div class="table-footer">
+      <div *ngIf="isPageLoading" class="loading-state">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <div *ngIf="!isLoading && !isPageLoading && visibleTransactions.length === 0" class="empty-state">
+        No paid transactions found.
+      </div>
+
+      <div class="card-grid" *ngIf="!isLoading && !isPageLoading && visibleTransactions.length > 0">
+        <ng-container *ngFor="let trx of visibleTransactions">
+
+          <!-- Company A: package booking creator — one card with full package list -->
+          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && !trx.isReferral" (click)="navigateToDetail(trx)">
+            <h3>Package</h3>
+
+            <div class="trx-body">
+              <div class="trx-meta">
+                <p><strong>Name:</strong> {{ trx.name }}</p>
+                <p *ngIf="trx.packageCompanies && trx.packageCompanies.length > 0">
+                  <strong>Package List:</strong>
+                </p>
+                <ul class="package-list" *ngIf="trx.packageCompanies && trx.packageCompanies.length > 0">
+                  <li *ngFor="let pkg of trx.packageCompanies">{{ pkg.description }}</li>
+                </ul>
+                <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
+                <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+                <p class="status-line">
+                  <strong>Status:</strong>
+                  <span class="status-pill paid">Paid</span>
+                </p>
+                <p *ngIf="trx.receiptCreatedAt"><strong>Receipt Date:</strong> {{ trx.receiptCreatedAt }}</p>
+              </div>
+
+              <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span>View Receipt</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Company B: referral recipient — one card per referral row -->
+          <article class="transaction-card" *ngIf="trx.bookingType === 'package' && trx.isReferral">
+            <h3>{{ trx.title }}</h3>
+
+            <div class="trx-body">
+              <div class="trx-meta">
+                <p><strong>Name:</strong> {{ trx.name }}</p>
+                <p><strong>Date:</strong> {{ trx.date }}</p>
+                <p><strong>Package Name:</strong> {{ trx.packageName }}</p>
+                <p><strong>Referral By:</strong> {{ trx.referralBy }}</p>
+                <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+                <p class="status-line">
+                  <strong>Status:</strong>
+                  <span class="status-pill paid">Paid</span>
+                </p>
+                <p *ngIf="trx.receiptCreatedAt"><strong>Receipt Date:</strong> {{ trx.receiptCreatedAt }}</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Activity and Accommodation cards -->
+          <article class="transaction-card" *ngIf="trx.bookingType !== 'package'" (click)="navigateToDetail(trx)">
+            <h3>{{ trx.title }}</h3>
+
+            <div class="trx-body">
+              <div class="trx-meta">
+                <p><strong>Name:</strong> {{ trx.name }}</p>
+                <p><strong>Date:</strong> {{ trx.date }}</p>
+                <p *ngIf="trx.time"><strong>Time:</strong> {{ trx.time }}</p>
+                <p *ngIf="trx.checkInDate"><strong>Check-in:</strong> {{ trx.checkInDate }}</p>
+                <p *ngIf="trx.checkOutDate"><strong>Check-out:</strong> {{ trx.checkOutDate }}</p>
+                <p><strong>No. of Pax:</strong> {{ trx.pax }}</p>
+                <p><strong>Total Price:</strong> RM {{ trx.totalPrice | number : '1.2-2' }}</p>
+                <p class="status-line">
+                  <strong>Status:</strong>
+                  <span class="status-pill paid">Paid</span>
+                </p>
+                <p *ngIf="trx.receiptCreatedAt"><strong>Receipt Date:</strong> {{ trx.receiptCreatedAt }}</p>
+              </div>
+
+              <button type="button" class="receipt-btn" (click)="$event.stopPropagation(); viewReceipt(trx)">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span>View Receipt</span>
+              </button>
+            </div>
+          </article>
+
+        </ng-container>
+      </div>
+
+      <div class="table-footer" *ngIf="!isLoading && filteredTransactions.length > 0">
         <div class="entries-control">
           <span>Show</span>
-          <select>
-            <option selected>10</option>
+          <select [value]="pageSize" (change)="onPageSizeChange($event)">
+            <option [value]="6">6</option>
+            <option [value]="12">12</option>
+            <option [value]="24">24</option>
+            <option [value]="50">50</option>
           </select>
           <span>entries</span>
         </div>
 
         <div class="entries-summary">
-          Showing 1 to {{ visibleTransactions.length }} out of {{ visibleTransactions.length }} entries ({{ activeTabLabel }})
+          Showing {{ startEntry }} to {{ endEntry }} out of {{ filteredTransactions.length }} entries ({{ activeTabLabel }})
         </div>
 
         <div class="pagination">
-          <button type="button" class="page-btn">&laquo; Previous</button>
-          <button type="button" class="page-btn active">1</button>
-          <button type="button" class="page-btn">2</button>
-          <button type="button" class="page-btn">3</button>
-          <button type="button" class="page-btn">...</button>
-          <button type="button" class="page-btn">19</button>
-          <button type="button" class="page-btn">20</button>
-          <button type="button" class="page-btn">Next &raquo;</button>
+          <button type="button" class="page-btn" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+            &laquo; Previous
+          </button>
+          <div class="page-number-group">
+            <button
+              type="button"
+              class="page-btn"
+              *ngFor="let page of pageNumbers"
+              [class.active]="page === currentPage"
+              (click)="changePage(page)"
+            >
+              {{ page }}
+            </button>
+          </div>
+          <button type="button" class="page-btn" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            Next &raquo;
+          </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── Report overlay modal ── -->
+  <div class="rpt-overlay" *ngIf="isReportModalOpen" [class.rpt-closing]="isReportModalClosing">
+    <div class="rpt-backdrop" (click)="closeReportModal()"></div>
+
+    <div class="rpt-dialog">
+      <!-- Header -->
+      <div class="rpt-header">
+        <h2 class="rpt-title">Generate Report</h2>
+        <button type="button" class="rpt-close" (click)="closeReportModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+      <hr class="rpt-divider" />
+
+      <!-- Scrollable body: filters + preview scroll together on mobile -->
+      <div class="rpt-body">
+
+      <!-- Filters row -->
+      <div class="rpt-filters">
+        <div class="rpt-field">
+          <label class="rpt-label">Year</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportYear" class="rpt-select">
+              <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+            </select>
+            <ion-icon name="calendar-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-field">
+          <label class="rpt-label">Type</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportType" class="rpt-select">
+              <option value="all">All</option>
+              <option value="activity">Activity</option>
+              <option value="accommodation">Accommodation</option>
+              <option value="package">Package</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-field">
+          <label class="rpt-label">From Month</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportFromMonth" (ngModelChange)="onFromMonthChange()" class="rpt-select">
+              <option [ngValue]="null" disabled>Select Month</option>
+              <option *ngFor="let m of monthNames; let i = index" [ngValue]="i + 1">{{ m }}</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-field">
+          <label class="rpt-label">To Month</label>
+          <div class="rpt-select-wrap">
+            <select [(ngModel)]="reportToMonth" class="rpt-select" [disabled]="reportFromMonth === null">
+              <option [ngValue]="null" disabled>Select Month</option>
+              <option *ngFor="let m of monthNames; let i = index" [ngValue]="i + 1" [disabled]="reportFromMonth === null || i + 1 < fromMonthValue || i + 1 > fromMonthValue + maxMonthRange - 1">{{ m }}</option>
+            </select>
+            <ion-icon name="chevron-down-outline" class="rpt-select-icon"></ion-icon>
+          </div>
+        </div>
+
+        <div class="rpt-actions">
+          <button
+            type="button"
+            class="rpt-btn generate"
+            (click)="generateReport()"
+            [disabled]="isGeneratingReport || !reportFromMonth || !reportToMonth"
+          >
+            <ion-icon name="document-outline"></ion-icon>
+            {{ isGeneratingReport ? 'Generating...' : 'Generate Report' }}
+          </button>
+          <button
+            *ngIf="reportGenerated"
+            type="button"
+            class="rpt-btn download"
+            (click)="downloadReport()"
+            [disabled]="isDownloadingReport"
+          >
+            <ion-icon name="document-outline"></ion-icon>
+            {{ isDownloadingReport ? 'Downloading...' : 'Download Report' }}
+          </button>
+        </div>
+      </div>
+
+      <hr class="rpt-divider" />
+
+      <!-- Preview area -->
+      <div class="rpt-preview">
+        <div *ngIf="!reportGenerated && !isGeneratingReport" class="rpt-empty">
+          <ion-icon name="document-outline" class="rpt-empty-icon"></ion-icon>
+          <p>Select Year and Type to Generate Report</p>
+        </div>
+
+        <div *ngIf="isGeneratingReport" class="rpt-empty">
+          <p>Generating report...</p>
+        </div>
+
+        <div *ngIf="reportGenerated && reportData" class="rpt-doc">
+          <!-- Company logo + name -->
+          <div class="rpt-doc-logo-row">
+            <img *ngIf="getLogoSrc()" [src]="getLogoSrc()" class="rpt-doc-logo" alt="Company Logo" />
+            <div *ngIf="!getLogoSrc()" class="rpt-doc-logo-placeholder">
+              {{ (reportData.company?.name || '?').slice(0, 2).toUpperCase() }}
+            </div>
+          </div>
+          <div class="rpt-doc-company-name">{{ reportData.company?.name || '-' }}</div>
+          <div class="rpt-doc-company-est">Est. {{ reportData.company?.establishedYear }}</div>
+
+          <!-- Business Details -->
+          <div class="rpt-doc-section-header">Butiran Perniagaan/Business Details</div>
+          <table class="rpt-doc-details-table">
+            <tr>
+              <td>Nama Perniagaan/Business Name</td>
+              <td>{{ reportData.company?.name || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Nama Pemilik/Owner Name</td>
+              <td>{{ reportData.ownerName || '-' }}</td>
+            </tr>
+            <tr>
+              <td>No. Perhubungan/Contact No.</td>
+              <td>{{ reportData.company?.contactNo || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Alamat Perniagaan/Business Address</td>
+              <td>{{ reportData.company?.address || '-' }}</td>
+            </tr>
+            <tr>
+              <td>Lokasi/Location</td>
+              <td>{{ reportData.company?.location || '-' }}</td>
+            </tr>
+          </table>
+
+          <!-- Account Statement header + date range -->
+          <div class="rpt-doc-account-header">
+            <span>Penyata Akaun/Account Statement</span>
+            <span>Created at: {{ reportData.createdAt }}</span>
+          </div>
+          <div class="rpt-doc-date-range">From {{ reportData.fromDate }} to {{ reportData.toDate }}</div>
+
+          <!-- Transaction table -->
+          <table class="rpt-doc-trx-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Type</th>
+                <th>Name</th>
+                <th>No. of Pax</th>
+                <th>Total Price (RM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of reportData.transactions">
+                <td>{{ t.year }}</td>
+                <td>{{ t.month }}</td>
+                <td>{{ t.type }}</td>
+                <td>{{ t.name }}</td>
+                <td>{{ t.noOfPax }}</td>
+                <td>RM {{ t.totalPrice }}</td>
+              </tr>
+              <tr *ngIf="reportData.transactions?.length === 0">
+                <td colspan="6" class="rpt-doc-empty-row">No transactions found for {{ reportData.year }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Summary -->
+          <div class="rpt-doc-section-header" style="margin-top:48px">Ringkasan Akaun/Summary of Account</div>
+          <table class="rpt-doc-trx-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Total No. of Tourist</th>
+                <th>Total Revenue (RM)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of (reportData.summary || [])">
+                <td>{{ s.no }}</td>
+                <td>{{ s.name }}</td>
+                <td>{{ s.type }}</td>
+                <td>{{ s.totalPax }}</td>
+                <td>RM {{ s.totalRevenue }}</td>
+              </tr>
+              <tr class="rpt-doc-summary-total">
+                <td colspan="3">Overall Total</td>
+                <td>{{ reportData.overallTotal?.totalPax }}</td>
+                <td>RM {{ reportData.overallTotal?.totalRevenue }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      </div><!-- /.rpt-body -->
     </div>
   </div>
 
@@ -134,6 +422,7 @@
           <ion-datetime
             presentation="date"
             [showDefaultButtons]="false"
+            [preferWheel]="false"
             [(ngModel)]="selectedDateIso"
           ></ion-datetime>
 

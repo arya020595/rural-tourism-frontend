@@ -16,13 +16,40 @@ ion-content {
   text-align: left;
 }
 
-.logo {
-  width: 60%;
-  max-width: 90%;
+.header-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   margin-top: 30px;
   margin-bottom: 8px;
-  margin-left: auto;
-  margin-right: auto;
+}
+
+.header-logo {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+}
+
+.header-logo-divider {
+  width: 1px;
+  height: 48px;
+  background: #ccc;
+}
+
+.header-logo-placeholder {
+  height: 52px;
+  width: 52px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 28px;
+    color: #888;
+  }
 }
 
 .back-button {
@@ -40,13 +67,29 @@ ion-content {
   font-size: 22px;
 }
 
-.page-title {
-  font-size: 30px;
-  text-align: left;
-  font-weight: 800;
-  margin-left: 20px;
-  margin-bottom: 5px;
-  color: #222;
+
+.mark-all-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px;
+  background: #ffffff;
+  border-top: 1px solid #e0e0e0;
+}
+
+.mark-all-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: #025930;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
 }
 
 .divider {

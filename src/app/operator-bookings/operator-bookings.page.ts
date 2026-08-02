@@ -149,9 +149,9 @@ export class OperatorBookingsPage implements OnInit {
 
   getStatusColor(status: string) {
     switch ((status || '').toLowerCase()) {
-      case 'booked':
-        return 'warning';
       case 'pending':
+        return 'warning';
+      case 'booked':
         return 'warning';
       case 'cancelled':
       case 'canceled':

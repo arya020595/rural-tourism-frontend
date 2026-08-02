@@ -365,18 +365,16 @@ export class TransactionPage implements OnInit {
   }
 
   fetchTransactions(): void {
-    this.http
-      .get('http://localhost:3000/api/receipt') // Update with your actual endpoint
-      .subscribe(
-        (response: any) => {
-          // Assuming 'response' contains the list of transactions
-          this.transactions = response.data; // Update the transactions array
-          console.log('Transactions fetched successfully', this.transactions);
-        },
-        (error) => {
-          console.error('Failed to fetch transactions', error);
-        },
-      );
+    this.http.get(`${environment.apiUrl}/receipt`).subscribe(
+      (response: any) => {
+        // Assuming 'response' contains the list of transactions
+        this.transactions = response.data; // Update the transactions array
+        console.log('Transactions fetched successfully', this.transactions);
+      },
+      (error) => {
+        console.error('Failed to fetch transactions', error);
+      },
+    );
   }
 
   isVoided(status: string): boolean {

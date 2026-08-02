@@ -19,70 +19,32 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .user-form-modal {
   --border-radius: #{$um-modal-radius};
   --box-shadow: #{$um-modal-shadow};
+  --width: min(92%, 500px);
+  --height: auto;
+  --max-height: 90dvh;
+  --ion-safe-area-top: 0;
+  --ion-safe-area-bottom: 0;
 
-  @media (min-width: 576px) {
-    --width: 500px;
-    --max-height: 90vh;
+  ion-toolbar {
+    --color: white;
   }
 
-  .ion-page {
-    position: relative;
-    contain: layout style;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  // Wrapper div: fills remaining modal height and scrolls
-  .ufm-content {
-    background: #fff;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-
-  .ufm-header {
-    position: relative;
-    padding: 20px 24px 0;
-  }
-
-  .ufm-close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: none;
-    border: none;
-    font-size: 1.6rem;
-    line-height: 1;
-    color: #555;
-    cursor: pointer;
-    padding: 0 4px;
-
-    &:hover {
-      color: #000;
+  ion-header {
+    box-shadow: none !important;
+    &::after {
+      display: none;
     }
   }
 
-  .ufm-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1a4d2e;
-    margin: 0 0 16px;
-    padding-right: 32px;
-  }
-
-  .ufm-divider {
-    border: none;
-    border-top: 1.5px solid #e0e0e0;
-    margin: 0 0 16px;
+  .ufm-scroll-content {
+    overflow-y: auto;
+    max-height: calc(90dvh - 56px);
+    padding: 16px;
+    box-sizing: border-box;
   }
 
   .ufm-field {
-    padding: 0 24px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
   .ufm-label {
@@ -91,6 +53,10 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     font-weight: 700;
     color: #222;
     margin-bottom: 6px;
+
+    em {
+      font-style: normal;
+    }
   }
 
   .ufm-required {
@@ -106,27 +72,63 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   }
 
   .ufm-input {
-    --border-radius: 10px;
-    --border-color: #ccc;
-    --border-width: 1.5px;
-    --padding-start: 14px;
-    --padding-end: 14px;
-    font-size: 0.9rem;
-  }
-
-  .ufm-select {
     width: 100%;
     padding: 10px 14px;
     font-size: 0.9rem;
     border: 1.5px solid #ccc;
     border-radius: 10px;
     background: #fff;
-    color: var(--ion-text-color, #000);
-    appearance: auto;
     outline: none;
+    box-sizing: border-box;
+    color: #111;
 
     &:focus {
-      border-color: var(--ion-color-primary, #024e25);
+      border-color: var(--ion-color-primary);
+    }
+
+    &:disabled {
+      background: #f5f5f5;
+      color: #888;
+    }
+  }
+
+  .ufm-select {
+    appearance: auto;
+    cursor: pointer;
+  }
+
+  // Password field with show/hide toggle.
+  .ufm-input-wrap {
+    position: relative;
+  }
+
+  .ufm-input--password {
+    // Leave room for the eye toggle button.
+    padding-right: 44px;
+  }
+
+  .ufm-toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 1.25rem;
+    }
+
+    &:hover {
+      color: var(--ion-color-primary);
     }
   }
 
@@ -139,26 +141,17 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   .ufm-api-error {
     color: var(--ion-color-danger);
     font-size: 0.85rem;
-    margin: 4px 24px 0;
+    margin: 0 0 8px;
     padding: 8px 12px;
     background: rgba(255, 0, 0, 0.06);
     border-radius: 8px;
   }
 
-  .ufm-footer {
+  .ufm-actions {
     display: flex;
     justify-content: flex-end;
-    padding: 16px 24px 24px;
-  }
-
-  .ufm-save-btn {
-    --background: #1a4d2e;
-    --background-activated: #153d25;
-    --border-radius: 10px;
-    --padding-start: 20px;
-    --padding-end: 20px;
-    font-weight: 600;
-    font-size: 0.95rem;
+    gap: 8px;
+    padding-top: 12px;
   }
 }
 
@@ -166,16 +159,8 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .user-view-modal {
   --border-radius: #{$um-modal-radius};
   --box-shadow: #{$um-modal-shadow};
-
-  .ion-page {
-    height: auto;
-    min-height: 0;
-  }
-
-  @media (min-width: 576px) {
-    --width: 440px;
-    --max-height: 90vh;
-  }
+  --width: min(92%, 480px);
+  --max-height: 90dvh;
 
   ion-toolbar {
     --background: var(--ion-color-primary);
@@ -192,14 +177,76 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 
   // Wrapper div replacing ion-content
   .uvm-scroll-content {
+    flex: 1;
     overflow-y: auto;
-    max-height: calc(90vh - 56px);
+    max-height: calc(90dvh - 56px);
     padding: 24px 16px;
     box-sizing: border-box;
   }
 
   .view-container {
-    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .avatar-section {
+    text-align: center;
+    padding: 24px 0 16px;
+  }
+
+  .avatar-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--ion-color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+
+    ion-icon {
+      font-size: 36px;
+      color: white;
+    }
+  }
+
+  .avatar-section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 8px 0 4px;
+  }
+
+  .detail-card {
+    background: var(--ion-color-light);
+    border-radius: 12px;
+    padding: 4px 0;
+    margin-top: 16px;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ion-color-light-shade);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .detail-label {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    flex: 1;
+  }
+
+  .detail-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex: 1.5;
+    text-align: right;
+    word-break: break-all;
   }
 }
 
@@ -207,26 +254,117 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 .user-delete-modal {
   --border-radius: #{$um-modal-radius};
   --box-shadow: #{$um-modal-shadow};
+  // Compact on ALL screen sizes — never full-screen
+  --height: auto;
+  --width: min(92%, 480px);
 
-  .ion-page {
-    height: auto;
-    min-height: 0;
+  ion-toolbar {
+    --background: var(--ion-color-danger);
+    --color: white;
   }
 
-  @media (min-width: 576px) {
-    --width: 420px;
-    --max-height: 80vh;
+  ion-buttons ion-button {
+    --color: white;
   }
 
-  // Wrapper div replacing ion-content
-  .udm-scroll-content {
-    overflow-y: auto;
-    max-height: calc(80vh - 56px);
-    padding: 24px 16px;
+  // ── Body: natural height, no flex-stretch ─────────────────────────────
+  .udm-body {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px 16px;
+    box-sizing: border-box;
+    gap: 16px;
+  }
+
+  // ── User target card ─────────────────────────────────────────────────
+  .udm-target-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff5f5;
+    border: 1.5px solid var(--ion-color-danger);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  .udm-person-icon {
+    font-size: 2.8rem;
+    color: var(--ion-color-danger);
+    flex-shrink: 0;
+  }
+
+  .udm-target-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .udm-target-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    word-break: break-word;
+  }
+
+  .udm-target-sub {
+    font-size: 0.84rem;
+    color: #777;
+    word-break: break-all;
+  }
+
+  // ── Centre zone — symmetric padding creates visual centring ─────────────
+  .udm-center-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 0;
+  }
+
+  // ── Warning text ───────────────────────────────────────────────────────
+  .udm-warning {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .udm-warning-main {
+    margin: 0 0 8px;
+    color: #444;
+
+    em {
+      font-style: italic;
+      color: #777;
+    }
+  }
+
+  .udm-warning-sub {
+    margin: 0;
+    font-weight: 700;
+    color: var(--ion-color-danger);
+
+    em {
+      font-style: italic;
+    }
+  }
+
+  // ── API error ──────────────────────────────────────────────────────────
+  .udm-api-error {
+    margin: 0;
+    color: var(--ion-color-danger);
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    background: rgba(255, 0, 0, 0.06);
+    border-radius: 8px;
+    width: 100%;
     box-sizing: border-box;
   }
 
-  .confirm-container {
-    width: 100%;
+  // ── Action buttons (stacked, delete on top) ────────────────────────────
+  .udm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 }

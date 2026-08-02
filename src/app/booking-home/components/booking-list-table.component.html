@@ -1,13 +1,25 @@
-<div class="table-wrapper">
+<div class="table-spinner" *ngIf="isLoading">
+  <ion-spinner name="crescent" color="primary"></ion-spinner>
+</div>
+
+<div class="table-wrapper" *ngIf="!isLoading">
   <table>
     <thead>
       <tr>
-        <th>Action</th>
+        <th></th>
         <th>Booking ID</th>
         <th>Booked Date</th>
         <th>Service Name</th>
-        <th>Type</th>
-        <th>Status</th>
+        <th>
+          <button type="button" class="status-filter-btn" (click)="onTypeFilterClick()">
+            {{ typeFilterLabel }}
+          </button>
+        </th>
+        <th>
+          <button type="button" class="status-filter-btn" (click)="onStatusFilterClick()">
+            {{ statusFilterLabel }}
+          </button>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -26,15 +38,20 @@
               type="button"
               class="icon-btn edit"
               aria-label="Edit booking"
+              [disabled]="booking.status !== 'pending'"
+              (click)="onEditBooking(booking)"
             >
               <ion-icon name="create"></ion-icon>
             </button>
             <button
+              *ngIf="canCancel"
               type="button"
-              class="icon-btn delete"
-              aria-label="Delete booking"
+              class="icon-btn cancel"
+              aria-label="Cancel booking"
+              [disabled]="booking.status !== 'pending'"
+              (click)="onCancelBooking(booking)"
             >
-              <ion-icon name="trash"></ion-icon>
+              <ion-icon name="ban-outline"></ion-icon>
             </button>
           </div>
         </td>
@@ -45,11 +62,30 @@
         <td>
           <span
             class="status-pill"
-            [class.paid]="booking.status === 'Paid'"
-            [class.pending]="booking.status !== 'Paid'"
+            [class.paid]="booking.status === 'paid'"
+            [class.pending]="booking.status === 'pending'"
+            [class.cancelled]="booking.status === 'cancelled'"
           >
-            {{ booking.status === "Paid" ? "Paid" : "Booked" }}
+            {{
+              booking.status === "paid"
+                ? "Paid"
+                : booking.status === "cancelled"
+                  ? "Cancelled"
+                  : "Pending"
+            }}
           </span>
+          <ng-container *ngIf="getSyncStatus(booking) as syncStatus">
+            <div
+              class="sync-dot-row"
+              [title]="syncDotLabel(syncStatus)"
+            >
+              <span
+                class="sync-dot"
+                [style.background]="syncDotColor(syncStatus)"
+              ></span>
+              <span class="sync-dot-label">{{ syncDotLabel(syncStatus) }}</span>
+            </div>
+          </ng-container>
         </td>
       </tr>
     </tbody>
@@ -59,19 +95,44 @@
 <div class="table-footer">
   <div class="entries-control">
     <span>Show</span>
-    <select>
-      <option selected>10</option>
+    <select [value]="pageSize" (change)="pageSizeChange.emit(+$any($event.target).value)">
+      <option *ngFor="let opt of perPageOptions" [value]="opt">{{ opt }}</option>
     </select>
     <span>entries</span>
   </div>
 
   <div class="entries-summary">
-    Showing 1 to 10 out of {{ bookings.length }} entries
+    Showing {{ startEntry }} to {{ endEntry }} out of
+    {{ totalBookings }} entries
   </div>
 
   <div class="pagination">
-    <button type="button" class="page-btn">&laquo; Previous</button>
-    <button type="button" class="page-btn active">1</button>
-    <button type="button" class="page-btn">Next &raquo;</button>
+    <button
+      type="button"
+      class="page-btn"
+      (click)="goToPreviousPage()"
+      [disabled]="currentPage === 1"
+    >
+      &laquo; Previous
+    </button>
+    <div class="page-number-group">
+      <button
+        type="button"
+        class="page-btn"
+        *ngFor="let page of pageNumbers; trackBy: trackByPage"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    <button
+      type="button"
+      class="page-btn"
+      (click)="goToNextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Next &raquo;
+    </button>
   </div>
 </div>

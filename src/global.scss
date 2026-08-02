@@ -42,7 +42,7 @@
 @media (min-width: 768px) {
   .date-picker-modal {
     --width: 400px;
-    --height: 620px;
+    --height: 480px;
     --border-radius: 16px;
     --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 
@@ -52,7 +52,17 @@
 
     ion-datetime {
       --background: #ffffff;
+      --wheel-fade-background-rgb: 255, 255, 255;
       width: 100%;
+    }
+
+    ion-datetime::part(wheel-item) {
+      color: #888888;
+    }
+
+    ion-datetime::part(wheel-item active) {
+      color: #111111;
+      font-weight: 700;
     }
   }
 }
@@ -79,10 +89,20 @@
   --button-color: white;
 }
 
+.alert-btn-danger {
+  color: #ef1616 !important;
+  font-weight: 700;
+}
+
 /* ============================================
    USER MANAGEMENT MODALS
    ============================================ */
 @import "app/users/users-modals";
+
+/* ============================================
+   ROLE MANAGEMENT MODALS
+   ============================================ */
+@import "app/role-management/role-management-modals";
 
 .info-toast {
   --background: #2196f3;
@@ -177,6 +197,69 @@ ion-router-outlet {
 .standalone-app .home.page {
   display: block;
   height: 100%;
+}
+
+/* ============================================
+   PAGE HEADER — shared across all module pages
+   ============================================ */
+
+.page-title-row {
+  margin-top: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #dadada;
+  padding-bottom: 12px;
+
+  h1 {
+    margin: 0 0 12px;
+    color: #04552f;
+    font-size: 48px;
+    font-weight: 800;
+
+    em {
+      font-style: italic;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-title-row h1 {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-title-row h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title-row h1,
+  .page-title-row h1 {
+    font-size: 22px !important;
+    text-align: center;
+    width: 100%;
+  }
+
+  .title-row h1 {
+    white-space: nowrap;
+  }
+
+  .title-row,
+  .page-title-row {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+.mobile-break {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-break {
+    display: block;
+  }
 }
 
 /* ============================================
@@ -302,4 +385,43 @@ ion-popover.rt-register-select-popover ion-item.item-radio-checked {
 .email-sent-alert .alert-button {
   color: #0b4f28;
   font-weight: 700;
+}
+
+/* ── Dashboard chart custom tooltip (sorted highest → lowest) ──
+   ApexCharts appends the custom tooltip to <body>, so these must be global. */
+.apex-tt {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #202020;
+  min-width: 140px;
+}
+
+.apex-tt-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111;
+}
+
+.apex-tt-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.apex-tt-marker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.apex-tt-name {
+  color: #555;
+}
+
+.apex-tt-value {
+  margin-left: auto;
+  font-weight: 700;
+  color: #111;
 }

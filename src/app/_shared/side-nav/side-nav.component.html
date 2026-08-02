@@ -49,27 +49,32 @@
             src="https://ionicframework.com/docs/img/demos/avatar.svg"
           />
         </ion-avatar>
-        <h3>{{ displayName }}</h3>
-        <p style="margin-top: 2%">{{ displayEmail }}</p>
+        <div>
+          <h3>{{ displayName }}</h3>
+          <p>{{ displayEmail }}</p>
+        </div>
       </div>
 
-      <ion-item
-        class="item-nav"
+      <ng-container *ngFor="let item of menuItems; trackBy: trackMenuItem">
+        <ion-item
+          *ngIf="isOnline || item.offlineCapable"
+          class="item-nav"
+          [class.item-nav-active]="isActiveItem(item)"
         detail="false"
-        lines="none"
-        mode="ios"
-        menuClose
-        *ngFor="let item of menuItems; trackBy: trackMenuItem"
-        [routerLink]="item.route || null"
-        (click)="onMenuItemTap(item)"
-      >
-        <ion-icon [name]="item.icon" slot="start"></ion-icon>
-        <ion-text>{{ item.label }}</ion-text>
+          lines="none"
+          mode="ios"
+          menuClose
+          [routerLink]="item.route || null"
+          (click)="onMenuItemTap(item)"
+        >
+          <ion-icon [name]="item.icon" slot="start"></ion-icon>
+          <ion-text>{{ item.label }}</ion-text>
 
-        <ion-badge *ngIf="getBadgeCount(item.id) > 0" color="danger" slot="end">
-          {{ getBadgeCount(item.id) }}
-        </ion-badge>
-      </ion-item>
+          <ion-badge *ngIf="getBadgeCount(item.id) > 0" color="danger" slot="end">
+            {{ getBadgeCount(item.id) }}
+          </ion-badge>
+        </ion-item>
+      </ng-container>
 
       <ion-item
         (click)="onLogoutTap()"

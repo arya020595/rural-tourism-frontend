@@ -1,0 +1,60 @@
+<!-- Side Menu -->
+<app-side-nav
+  [menuId]="'admin-menu'"
+  [contentId]="'main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<!-- Main content -->
+<ion-header style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="admin-menu" style="color: white"></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="main-content">
+  <ion-card class="main-Container ion-no-margin">
+    <ion-col class="center">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+    </ion-col>
+
+    <ion-card-content class="dashboard-content">
+      <h1>Papan Pemuka Admin/Admin Dashboard</h1>
+      <hr />
+
+      <!-- Power BI iframe -->
+      <div
+        class="bi-dashboard-container"
+        *ngIf="biDashboardUrl; else noDashboard"
+      >
+        <iframe
+          [src]="biDashboardUrl"
+          class="bi-iframe"
+          frameborder="0"
+          title="Admin overall performance dashboard"
+          sandbox="allow-scripts allow-forms allow-popups"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="fullscreen"
+          allowfullscreen="true"
+        ></iframe>
+      </div>
+
+      <!-- Fallback when no URL is configured -->
+      <ng-template #noDashboard>
+        <p>
+          Unfortunately, the dashboard is not available in this system at the
+          moment...
+        </p>
+      </ng-template>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

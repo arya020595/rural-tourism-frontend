@@ -1,6 +1,48 @@
 <ion-content [fullscreen]="true">
   <div id="container">
-    <form (ngSubmit)="submitForm(myForm)" #myForm="ngForm">
+    <form
+      (ngSubmit)="submitForm(myForm)"
+      #myForm="ngForm"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      novalidate
+    >
+      <!-- Anti-autofill dummy fields (keep hidden) -->
+      <input
+        type="text"
+        autocomplete="username"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+      />
+      <input
+        type="password"
+        autocomplete="new-password"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+      />
+      <!-- Hidden trap fields to absorb browser autofill (name, phone, email) -->
+      <input
+        type="text"
+        name="given-name"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+        autocomplete="off"
+      />
+      <input
+        type="tel"
+        name="tel"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+        autocomplete="off"
+      />
+      <input
+        type="email"
+        name="email"
+        style="position: absolute; left: -9999px; top: -9999px; opacity: 0"
+        tabindex="-1"
+        autocomplete="off"
+      />
       <ion-card class="main-Container">
         <!-- Back Button -->
         <ion-buttons class="back-btn-wrapper">
@@ -74,13 +116,15 @@
                   #searchInput
                   type="text"
                   [(ngModel)]="touristSearchQuery"
-                  name="tourist_search"
+                  name="accoF01"
                   placeholder="Sila pilih pendaftaran pelancong / Select Tourist Booking"
                   (input)="onTouristSearchInput(searchInput.value)"
                   (focus)="onTouristSearchFocus()"
                   (blur)="onTouristSearchBlur()"
                   class="tourist-search-input"
                   autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
                 />
                 <ion-icon
                   *ngIf="touristSearchQuery || touristSelected"
@@ -135,7 +179,7 @@
                   #manualSearchInput
                   type="text"
                   [(ngModel)]="form.manual_tourist_name"
-                  name="manual_tourist_name"
+                  name="accoF02"
                   placeholder="Taip atau pilih nama pelancong / Type or select tourist name"
                   required
                   (input)="onManualTouristSearchInput(manualSearchInput.value)"
@@ -143,6 +187,8 @@
                   (blur)="onManualTouristSearchBlur()"
                   class="tourist-search-input"
                   autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
                 />
                 <ion-icon
                   *ngIf="form.manual_tourist_name"
@@ -392,8 +438,10 @@
                     [clearInput]="true"
                     placeholder="Nama Pengandali/Operator"
                     [(ngModel)]="form.issuer"
-                    name="issuer"
+                    name="accoF03"
                     #issuerInput="ngModel"
+                    autocomplete="off"
+                    autocorrect="off"
                   ></ion-input>
                 </ion-item>
               </ng-container>
@@ -562,8 +610,10 @@
                     [clearInput]="true"
                     placeholder="Nama Pengandali/Operator"
                     [(ngModel)]="form.issuer"
-                    name="issuer_int"
+                    name="accoF04"
                     #issuerIntInput="ngModel"
+                    autocomplete="off"
+                    autocorrect="off"
                   ></ion-input>
                 </ion-item>
               </ng-container>
@@ -758,8 +808,10 @@
                         [clearInput]="true"
                         placeholder="Nama Pengandali/Operator"
                         [(ngModel)]="form.issuer"
-                        name="issuer_mix"
+                        name="accoF05"
                         #issuerMixInput="ngModel"
+                        autocomplete="off"
+                        autocorrect="off"
                       ></ion-input>
                     </ion-item>
                   </div>

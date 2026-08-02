@@ -49,7 +49,68 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
     return value.length > 100 && /^[A-Za-z0-9+/=\r\n]+$/.test(value);
   }
 
+  // Association logos are bundled with the frontend so they always render,
+  // independent of the backend /uploads volume. Keyed by short code.
+  private readonly associationLogoByCode: Record<string, string> = {
+    KOBETA: 'assets/icon/associations/kobeta_logo.jpg',
+    RATA: 'assets/icon/associations/rata_logo.jpg',
+    KOMTDA: 'assets/icon/associations/komtda_logo.jpg',
+    USTA: 'assets/icon/associations/usta_logo.jpg',
+    NTA: 'assets/icon/associations/nta_logo.jpg',
+    KATA: 'assets/icon/associations/kata_logo.jpg',
+    KTA: 'assets/icon/associations/kta_logo.jpg',
+  };
+
+  get exploreSabahLogoSrc(): string {
+    return localStorage.getItem('explore_sabah_logo') || 'assets/icon/explore_sabah-without_bg.png';
+  }
+
+  private isAssociationUser(): boolean {
+    const roleName = String(
+      this.user?.role?.name || this.user?.role || this.user?.user_type || '',
+    ).toLowerCase();
+    // Operators have a company; association users do not.
+    return roleName === 'association' && !this.user?.company_id;
+  }
+
+  private resolveBundledAssociationLogo(): string {
+    // Only association accounts should show the association logo here.
+    // Operators belong to an association too, but must show their company logo.
+    if (!this.isAssociationUser()) {
+      return '';
+    }
+
+    const assoc = this.user?.association;
+    if (!assoc) {
+      return '';
+    }
+
+    // Match the short code in parentheses, e.g. "... (KOBETA)" -> KOBETA.
+    const name = String(assoc.name || '').toUpperCase();
+    const match = name.match(/\(([A-Z]+)\)/);
+    const code = match ? match[1] : '';
+
+    if (code && this.associationLogoByCode[code]) {
+      return this.associationLogoByCode[code];
+    }
+
+    // Fall back to scanning for any known code anywhere in the name.
+    for (const knownCode of Object.keys(this.associationLogoByCode)) {
+      if (name.includes(knownCode)) {
+        return this.associationLogoByCode[knownCode];
+      }
+    }
+
+    return '';
+  }
+
   get companyLogoSrc(): string {
+    // Prefer a bundled association logo (always available, no /uploads dependency).
+    const bundledAssociationLogo = this.resolveBundledAssociationLogo();
+    if (bundledAssociationLogo) {
+      return bundledAssociationLogo;
+    }
+
     const logo =
       this.user?.company_logo ||
       this.user?.company?.operator_logo_image ||

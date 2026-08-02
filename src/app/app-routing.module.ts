@@ -37,7 +37,7 @@ const routes: Routes = [
     path: 'unauthorized',
     loadChildren: () =>
       import('./unauthorized/unauthorized.module').then(
-        (m) => m.UnauthorizedPageModule,
+        (m) => m.UnauthorizedPageModule
       ),
   },
   {
@@ -80,7 +80,7 @@ const routes: Routes = [
     path: 'activity-form',
     loadChildren: () =>
       import('./activity-form/activity-form.module').then(
-        (m) => m.ActivityFormPageModule,
+        (m) => m.ActivityFormPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -92,7 +92,7 @@ const routes: Routes = [
     path: 'receipt-activity/:receipt_id',
     loadChildren: () =>
       import('./receipt-activity/receipt-activity.module').then(
-        (m) => m.ReceiptActivityPageModule,
+        (m) => m.ReceiptActivityPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -104,21 +104,21 @@ const routes: Routes = [
     path: 'reset-passs',
     loadChildren: () =>
       import('./reset-passs/reset-passs.module').then(
-        (m) => m.ResetPasssPageModule,
+        (m) => m.ResetPasssPageModule
       ),
   },
   {
     path: 'forgot-password',
     loadChildren: () =>
       import('./reset-passs/reset-passs.module').then(
-        (m) => m.ResetPasssPageModule,
+        (m) => m.ResetPasssPageModule
       ),
   },
   {
     path: 'package-form',
     loadChildren: () =>
       import('./package-form/package-form.module').then(
-        (m) => m.PackageFormPageModule,
+        (m) => m.PackageFormPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -130,7 +130,7 @@ const routes: Routes = [
     path: 'receipt-package/:receipt_id',
     loadChildren: () =>
       import('./receipt-package/receipt-package.module').then(
-        (m) => m.ReceiptPackagePageModule,
+        (m) => m.ReceiptPackagePageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -142,7 +142,7 @@ const routes: Routes = [
     path: 'transaction',
     loadChildren: () =>
       import('./transaction/transaction.module').then(
-        (m) => m.TransactionPageModule,
+        (m) => m.TransactionPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -154,15 +154,19 @@ const routes: Routes = [
     path: 'my-transaction',
     loadChildren: () =>
       import('./my-transaction/my-transaction.module').then(
-        (m) => m.MyTransactionPageModule,
+        (m) => m.MyTransactionPageModule
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['receipt:read'],
+    },
   },
   {
     path: 'my-transaction/receipt',
     loadChildren: () =>
       import('./my-transaction-receipt/my-transaction-receipt.module').then(
-        (m) => m.MyTransactionReceiptPageModule,
+        (m) => m.MyTransactionReceiptPageModule
       ),
     canActivate: [authGuard],
   },
@@ -170,7 +174,7 @@ const routes: Routes = [
     path: 'tourist/transaction',
     loadChildren: () =>
       import('./transaction/transaction.module').then(
-        (m) => m.TransactionPageModule,
+        (m) => m.TransactionPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -182,7 +186,7 @@ const routes: Routes = [
     path: 'view-receipt/:receipt_id',
     loadChildren: () =>
       import('./view-receipt/view-receipt.module').then(
-        (m) => m.ViewReceiptPageModule,
+        (m) => m.ViewReceiptPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -199,25 +203,57 @@ const routes: Routes = [
     path: 'booking-home',
     loadChildren: () =>
       import('./booking-home/booking-home.module').then(
-        (m) => m.BookingHomePageModule,
+        (m) => m.BookingHomePageModule
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:read'],
+    },
   },
   {
     path: 'booking-home/add',
     loadChildren: () =>
       import('./booking-add/booking-add.module').then(
-        (m) => m.BookingAddPageModule,
+        (m) => m.BookingAddPageModule
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:create'],
+    },
   },
   {
     path: 'booking-home/detail/:id',
     loadChildren: () =>
       import('./booking-detail/booking-detail.module').then(
-        (m) => m.BookingDetailPageModule,
+        (m) => m.BookingDetailPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:read'],
+    },
+  },
+  {
+    path: 'booking-home/edit/:id',
+    loadChildren: () =>
+      import('./booking-edit/booking-edit.module').then(
+        (m) => m.BookingEditPageModule
       ),
     canActivate: [authGuard],
+  },
+  {
+    path: 'booking-home/conflict-resolve',
+    loadChildren: () =>
+      import('./conflict-resolve/conflict-resolve.module').then(
+        (m) => m.ConflictResolvePageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['booking:update'],
+    },
   },
   {
     path: 'about',
@@ -232,14 +268,14 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'operator_admin',
-      permissions: ['booking:read'],
+      permissions: ['dashboard:read', 'booking:read'],
     },
   },
   {
     path: 'company-profile',
     loadChildren: () =>
       import('./company-profile/company-profile.module').then(
-        (m) => m.CompanyProfilePageModule,
+        (m) => m.CompanyProfilePageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -254,7 +290,19 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'operator_admin',
-      permissions: ['booking:read'],
+      permissions: ['receipt:create'],
+    },
+  },
+  {
+    path: 'e-receipt/add/:type',
+    loadChildren: () =>
+      import('./ereceipt-add/ereceipt-add.module').then(
+        (m) => m.EreceiptAddPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['receipt:create'],
     },
   },
   {
@@ -271,7 +319,7 @@ const routes: Routes = [
     path: 'tourist/activity-detail/:id',
     loadChildren: () =>
       import('./tourist/activity-detail/activity-detail.module').then(
-        (m) => m.ActivityDetailPageModule,
+        (m) => m.ActivityDetailPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -283,12 +331,36 @@ const routes: Routes = [
     path: 'tourist/accommodation-detail/:id',
     loadChildren: () =>
       import('./tourist/accomodation-detail/accomodation-detail.module').then(
-        (m) => m.AccomodationDetailPageModule,
+        (m) => m.AccomodationDetailPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'tourist',
       permissions: ['accommodation:read'],
+    },
+  },
+  {
+    path: 'role-management',
+    loadChildren: () =>
+      import('./role-management/role-management.module').then(
+        (m) => m.RoleManagementPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'superadmin',
+      permissions: ['role:read'],
+    },
+  },
+  {
+    path: 'admin/dashboard',
+    loadChildren: () =>
+      import('./admin/dashboard/dashboard.module').then(
+        (m) => m.AdminDashboardPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'superadmin',
+      permissions: ['role:read'],
     },
   },
   {
@@ -305,16 +377,16 @@ const routes: Routes = [
     path: 'tourist/register',
     loadChildren: () =>
       import('./tourist/register/register.module').then(
-        (m) => m.RegisterPageModule,
+        (m) => m.RegisterPageModule
       ),
     canActivate: [loginRedirectGuard],
   },
   {
     path: 'tourist/activity-operator-list/:activityId',
     loadChildren: () =>
-      import('./tourist/activity-operator-list/activity-operator-list.module').then(
-        (m) => m.ActivityOperatorListPageModule,
-      ),
+      import(
+        './tourist/activity-operator-list/activity-operator-list.module'
+      ).then((m) => m.ActivityOperatorListPageModule),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'tourist',
@@ -324,9 +396,9 @@ const routes: Routes = [
   {
     path: 'activity-operator-detail/:id',
     loadChildren: () =>
-      import('./tourist/activity-operator-detail/activity-operator-detail.module').then(
-        (m) => m.ActivityOperatorDetailPageModule,
-      ),
+      import(
+        './tourist/activity-operator-detail/activity-operator-detail.module'
+      ).then((m) => m.ActivityOperatorDetailPageModule),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'tourist',
@@ -338,7 +410,7 @@ const routes: Routes = [
     path: 'tourist/activity-booking',
     loadChildren: () =>
       import('./tourist/activity-booking/activity-booking.module').then(
-        (m) => m.ActivityBookingPageModule,
+        (m) => m.ActivityBookingPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -349,9 +421,9 @@ const routes: Routes = [
   {
     path: 'tourist/confirm-booking-details',
     loadChildren: () =>
-      import('./tourist/confirm-booking-details/confirm-booking-details.module').then(
-        (m) => m.ConfirmBookingDetailsPageModule,
-      ),
+      import(
+        './tourist/confirm-booking-details/confirm-booking-details.module'
+      ).then((m) => m.ConfirmBookingDetailsPageModule),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'tourist',
@@ -361,9 +433,9 @@ const routes: Routes = [
   {
     path: 'tourist/accommodation-booking',
     loadChildren: () =>
-      import('./tourist/accommodation-booking/accommodation-booking.module').then(
-        (m) => m.AccommodationBookingPageModule,
-      ),
+      import(
+        './tourist/accommodation-booking/accommodation-booking.module'
+      ).then((m) => m.AccommodationBookingPageModule),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'tourist',
@@ -373,9 +445,9 @@ const routes: Routes = [
   {
     path: 'tourist/confirm-booking-accommodation-details',
     loadChildren: () =>
-      import('./tourist/confirm-booking-accommodation-details/confirm-booking-accommodation-details.module').then(
-        (m) => m.ConfirmBookingAccommodationDetailsPageModule,
-      ),
+      import(
+        './tourist/confirm-booking-accommodation-details/confirm-booking-accommodation-details.module'
+      ).then((m) => m.ConfirmBookingAccommodationDetailsPageModule),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'tourist',
@@ -386,7 +458,7 @@ const routes: Routes = [
     path: 'notifications',
     loadChildren: () =>
       import('./notifications/notifications.module').then(
-        (m) => m.NotificationsPageModule,
+        (m) => m.NotificationsPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -398,7 +470,7 @@ const routes: Routes = [
     path: 'tourist/tourist-bookings',
     loadChildren: () =>
       import('./tourist/tourist-bookings/tourist-bookings.module').then(
-        (m) => m.TouristBookingsPageModule,
+        (m) => m.TouristBookingsPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -410,7 +482,7 @@ const routes: Routes = [
     path: 'operator-bookings',
     loadChildren: () =>
       import('./operator-bookings/operator-bookings.module').then(
-        (m) => m.OperatorBookingsPageModule,
+        (m) => m.OperatorBookingsPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -421,9 +493,9 @@ const routes: Routes = [
   {
     path: 'activity-and-accommodation-management',
     loadChildren: () =>
-      import('./activity-and-accommodation-management/activity-and-accommodation-management.module').then(
-        (m) => m.ActivityAndAccommodationManagementPageModule,
-      ),
+      import(
+        './activity-and-accommodation-management/activity-and-accommodation-management.module'
+      ).then((m) => m.ActivityAndAccommodationManagementPageModule),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'operator_admin',
@@ -434,12 +506,23 @@ const routes: Routes = [
     path: 'association/dashboard',
     loadChildren: () =>
       import('./association/dashboard/dashboard.module').then(
-        (m) => m.DashboardPageModule,
+        (m) => m.DashboardPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'association',
       permissions: ['bi_dashboard:read'],
+    },
+  },
+  {
+    path: 'association/change-password',
+    loadChildren: () =>
+      import('./association/change-password/change-password.module').then(
+        (m) => m.AssociationChangePasswordPageModule
+      ),
+    canActivate: [authGuard],
+    data: {
+      loginRole: 'association',
     },
   },
   {
@@ -456,7 +539,7 @@ const routes: Routes = [
     path: 'master-data',
     loadChildren: () =>
       import('./master-data/master-data.module').then(
-        (m) => m.MasterDataPageModule,
+        (m) => m.MasterDataPageModule
       ),
     canActivate: [authGuard, permissionGuard],
     data: {
@@ -468,7 +551,11 @@ const routes: Routes = [
     path: 'association/login',
     redirectTo: 'login',
     pathMatch: 'full',
+  },  {
+    path: 'privacy-policy',
+    loadChildren: () => import('./privacy-policy/privacy-policy.module').then( m => m.PrivacyPolicyPageModule)
   },
+
 ];
 
 @NgModule({

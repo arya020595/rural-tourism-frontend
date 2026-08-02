@@ -26,7 +26,6 @@ export class ViewReceiptPage implements OnInit {
   pdfUrl: string = '';
 
   testAPI = environment.API;
-  localAPI = 'http://localhost:3000';
   uid: any;
   user: any;
   packageDescArray: string[] = [];
@@ -54,6 +53,14 @@ export class ViewReceiptPage implements OnInit {
       }
     });
 
+    // Check for download query parameter and auto-download if present
+    this.activatedRoute.queryParams.subscribe((queryParams) => {
+      if (queryParams['download'] === 'true' && queryParams['pdfUrl']) {
+        this.pdfUrl = queryParams['pdfUrl'];
+        setTimeout(() => this.downloadReceipt(), 500);
+      }
+    });
+
     this.loadUser();
   }
 
@@ -65,14 +72,13 @@ export class ViewReceiptPage implements OnInit {
   }
 
   loadUser() {
-    if (this.uid) {
-      this.userService.getUserByID(this.uid).subscribe(
-        (data) => (this.user = data),
-        (error) => console.log(error),
-      );
-    } else {
-      console.log('uid not found in storage');
-    }
+    this.authService.refreshSession().subscribe({
+      next: () => {
+        this.user = this.authService.currentUser;
+        this.uid = this.authService.getUserId();
+      },
+      error: (error) => console.log(error),
+    });
   }
 
   // Get receipt details
@@ -233,5 +239,32 @@ export class ViewReceiptPage implements OnInit {
         alert('Error Generating PDF');
         console.error('Error capturing receipt:', error);
       });
+  }
+
+  // Method to download the receipt PDF
+  downloadReceipt(): void {
+    if (!this.pdfUrl) {
+      console.error('No PDF URL available for download');
+      return;
+    }
+
+    try {
+      const fullPdfUrl = this.pdfUrl.startsWith('http')
+        ? this.pdfUrl
+        : this.testAPI + this.pdfUrl;
+
+      const link = document.createElement('a');
+      link.href = fullPdfUrl;
+      link.download = `receipt-${this.receiptId}.pdf`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log('Receipt download initiated:', fullPdfUrl);
+    } catch (error) {
+      console.error('Error downloading receipt:', error);
+      alert('Failed to download receipt');
+    }
   }
 }

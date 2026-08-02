@@ -1,0 +1,160 @@
+.table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+thead th {
+  background: #015c2f;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 16px 12px;
+  text-align: center;
+  white-space: nowrap;
+
+  &:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+}
+
+tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #d6d6d6;
+  color: #121212;
+  font-size: 18px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.info-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.75;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}
+
+.icon-cell ion-icon {
+  font-size: 28px;
+  color: #245a94;
+}
+
+.table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.entries-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #555;
+
+  select {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    background: white;
+    cursor: pointer;
+  }
+}
+
+.entries-summary {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &.active {
+    background: #015c2f;
+    color: #ffffff;
+    border-color: #015c2f;
+    font-weight: 700;
+  }
+
+  &:hover:not(.active):not(:disabled) {
+    background: #f0f0f0;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 992px) {
+  tbody td,
+  thead th {
+    font-size: 16px;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pagination {
+    order: 1;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .entries-summary {
+    order: 2;
+    text-align: center;
+  }
+
+  .entries-control {
+    order: 3;
+    text-align: center;
+  }
+}

@@ -1,17 +1,18 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'Rural Tourism Sabah',
+  appId: 'com.sabah.ruraltourism',
+  appName: 'RUTeC',
   webDir: 'www',
   server: {
-    // If you need to use cleartext (http://) for local testing or for specific use cases
+    androidScheme: 'http',
+    // Allow HTTP for staging — REMOVE before Play Store release
     cleartext: true,
   },
   android: {
-    // Optional: Enabling cleartext on Android for local HTTP (not recommended for production)
-    allowMixedContent: true,  // Allow HTTP content on HTTPS app (only for testing)
-  }
+    // Allow HTTP mixed content for staging — REMOVE before Play Store release
+    allowMixedContent: true,
+  },
 };
 
 export default config;

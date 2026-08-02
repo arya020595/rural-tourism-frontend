@@ -19,27 +19,12 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button
-        (click)="goToNotifications()"
-        class="notification-button"
-        *hasPermission="'booking:read'"
-      >
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-        <ion-badge
-          *ngIf="unreadCount > 0"
-          color="danger"
-          class="notification-badge"
-        >
-          {{ unreadCount }}
-        </ion-badge>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="company-profile-main-content">
   <div class="surface-card">
@@ -55,9 +40,9 @@
         <div class="title-row">
           <h1>Profil Anda/My Profile</h1>
           <button
-            *ngIf="!isEditing"
+            *ngIf="!isEditing && canUpdateCompany"
             type="button"
-            class="edit-toggle-button"
+            class="edit-toggle-button desktop-update-btn"
             (click)="startEdit()"
           >
             <ion-icon name="create-outline"></ion-icon>
@@ -117,22 +102,27 @@
               ></ion-input>
             </div>
 
-            <div class="detail-row" [class.edit-mode]="isEditing">
-              <div class="label">Persatuan/Association</div>
+            <div
+              class="detail-row"
+              [class.edit-mode]="isEditing"
+              *ngIf="!isSuperadmin"
+            >
+              <div class="label">
+                Persatuan/Association
+                <span class="readonly-hint" *ngIf="isEditing"
+                  >(Tidak boleh diubah / Read-only)</span
+                >
+              </div>
               <div class="value" *ngIf="!isEditing">
                 {{ displayOrDash(selectedAssociationName) }}
               </div>
-              <select
+              <ion-input
                 *ngIf="isEditing"
-                class="field-input native-select"
-                [(ngModel)]="formData.association_id"
-                [ngModelOptions]="{ standalone: true }"
-              >
-                <option value="" disabled hidden>Sila pilih persatuan</option>
-                <option *ngFor="let item of associations" [value]="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
+                class="field-input field-input--readonly"
+                fill="outline"
+                readonly
+                [value]="displayOrDash(selectedAssociationName)"
+              ></ion-input>
             </div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
@@ -207,7 +197,7 @@
             </div>
           </div>
 
-          <div class="section-panel">
+          <div class="section-panel" *ngIf="!isSuperadmin">
             <div class="section-heading">Bilangan Kakitangan/No. of Staff</div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
@@ -243,7 +233,7 @@
             </div>
           </div>
 
-          <div class="section-panel">
+          <div class="section-panel" *ngIf="!isSuperadmin">
             <div class="section-heading">Melihat Dokumen/View Documents</div>
 
             <div class="document-row" *ngFor="let field of documentFields">
@@ -280,7 +270,17 @@
             </div>
           </div>
 
-          <div class="footer-actions" *ngIf="isEditing">
+          <button
+            *ngIf="!isEditing && canUpdateCompany"
+            type="button"
+            class="edit-toggle-button mobile-update-btn"
+            (click)="startEdit()"
+          >
+            <ion-icon name="create-outline"></ion-icon>
+            <span>Kemaskini/Update</span>
+          </button>
+
+          <div class="footer-actions" *ngIf="isEditing && canUpdateCompany">
             <button
               type="button"
               class="save-profile-button"
@@ -348,4 +348,44 @@
       </div>
     </div>
   </div>
+
 </ion-content>
+
+<!-- ── Document preview modal (styled like the report modal) ──
+     Placed OUTSIDE ion-content so it stacks above the page header/status bar
+     on native (a child of ion-content is trapped below ion-header). -->
+<div
+  class="rpt-overlay"
+  *ngIf="isPreviewOpen"
+  [class.rpt-closing]="isPreviewClosing"
+>
+  <div class="rpt-backdrop" (click)="closePreviewModal()"></div>
+
+  <div class="rpt-dialog">
+    <!-- Header -->
+    <div class="rpt-header">
+      <h2 class="rpt-title">{{ previewTitle }}</h2>
+      <button type="button" class="rpt-close" (click)="closePreviewModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    <hr class="rpt-divider" />
+
+    <!-- Preview body -->
+    <div class="doc-preview-body">
+      <iframe
+        *ngIf="previewIsPdf"
+        [src]="previewFrameUrl"
+        class="doc-preview-frame"
+        title="Document preview"
+      ></iframe>
+
+      <img
+        *ngIf="!previewIsPdf"
+        [src]="previewImageUrl"
+        class="doc-preview-image"
+        alt="Document preview"
+      />
+    </div>
+  </div>
+</div>

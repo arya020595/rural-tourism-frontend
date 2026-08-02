@@ -117,7 +117,7 @@ export class HomePage implements OnInit {
   }
 
   private refreshMenuItems() {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('tourist');
+    this.menuItems = this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   onMenuItemTap(item: MenuItem) {

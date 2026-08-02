@@ -97,6 +97,26 @@ ion-content {
   cursor: pointer;
 }
 
+.mobile-update-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-update-btn {
+    display: none;
+  }
+
+  .mobile-update-btn {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+    font-size: 15px;
+    border-radius: 8px;
+    margin-top: 16px;
+  }
+}
+
 .avatar-block {
   display: flex;
   flex-direction: column;
@@ -252,6 +272,16 @@ ion-content {
   text-align: right;
 }
 
+// Inline hint under a label marking a field as non-editable (e.g. Association).
+.readonly-hint {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
+  color: #8a8a8a;
+}
+
 .address-value {
   white-space: normal;
 }
@@ -271,6 +301,16 @@ ion-textarea.field-input {
 ion-textarea.field-input {
   margin-top: 8px;
   margin-bottom: 8px;
+}
+
+// Read-only field shown in edit mode (e.g. Association). Greyed out with a
+// not-allowed cursor so it is clearly distinct from the editable inputs.
+ion-input.field-input--readonly {
+  --background: #ececec;
+  --border-color: #d9d9d9;
+  --color: #6b6b6b;
+  cursor: not-allowed;
+  opacity: 0.85;
 }
 
 select.native-select {
@@ -422,6 +462,12 @@ select.native-select:invalid {
 
   .title-row h1 {
     font-size: 22px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .title-row {
+    justify-content: center;
   }
 
   .edit-toggle-button {
@@ -440,6 +486,16 @@ select.native-select:invalid {
   .value {
     text-align: left;
     padding-top: 0;
+  }
+
+  ion-input.field-input,
+  ion-textarea.field-input {
+    margin: 4px 0;
+  }
+
+  select.native-select {
+    margin: 4px 0;
+    width: 100%;
   }
 
   .document-actions {
@@ -495,5 +551,160 @@ select.native-select:invalid {
     min-height: 30px;
     padding: 0 8px;
     font-size: 11px;
+  }
+}
+
+/* ── Document preview modal (mirrors the report modal in My Transaction) ── */
+@keyframes rpt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes rpt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes rpt-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes rpt-sheet-down {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+.rpt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Respect the status-bar / notch safe area on native so the dialog doesn't
+     tuck under the top nav. */
+  padding: calc(16px + env(safe-area-inset-top)) 16px
+    calc(16px + env(safe-area-inset-bottom));
+  animation: rpt-fade-in 0.25s ease;
+}
+
+.rpt-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.rpt-dialog {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 860px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  animation: rpt-sheet-up 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.rpt-closing {
+  animation: rpt-fade-out 0.3s ease forwards;
+
+  .rpt-dialog {
+    animation: rpt-sheet-down 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+}
+
+.rpt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+  flex-shrink: 0;
+}
+
+.rpt-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111;
+}
+
+.rpt-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+
+  &:hover { color: #111; }
+}
+
+.rpt-divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 14px 0 0;
+  flex-shrink: 0;
+}
+
+/* Preview body: fills remaining height, scrolls if needed */
+.doc-preview-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  /* Top-align so wide/short images read like a document instead of floating
+     in the middle of a lot of grey space. */
+  align-items: flex-start;
+  justify-content: center;
+  overflow: auto;
+  background: #f4f4f4;
+  padding: 16px;
+}
+
+.doc-preview-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
+}
+
+.doc-preview-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  /* Dialog becomes a bottom sheet (matches the report modal). Keep the top
+     safe-area inset so the sheet's header clears the status bar on native. */
+  .rpt-overlay {
+    padding: env(safe-area-inset-top) 0 0;
+    align-items: flex-end;
+  }
+
+  .rpt-dialog {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .rpt-header {
+    padding: 16px 16px 0;
+  }
+
+  .rpt-title {
+    font-size: 17px;
+  }
+
+  .doc-preview-body {
+    padding: 12px;
   }
 }

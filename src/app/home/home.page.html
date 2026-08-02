@@ -1,4 +1,3 @@
-<!-- side menu -->
 <app-side-nav
   [menuId]="'home-menu'"
   [contentId]="'home-main-content'"
@@ -10,8 +9,6 @@
   (logoutTap)="logOut()"
 ></app-side-nav>
 
-<!-- main content -->
-
 <ion-header style="height: 5vh; box-shadow: none">
   <ion-toolbar>
     <ion-buttons slot="start">
@@ -19,66 +16,144 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
-      <ion-button
-        (click)="goToNotifications()"
-        class="notification-button"
-        *hasPermission="'booking:read'"
-      >
-        <ion-icon
-          class="notification-bell"
-          slot="icon-only"
-          name="notifications"
-        ></ion-icon>
-        <ion-badge
-          *ngIf="unreadCount > 0"
-          color="danger"
-          class="notification-badge"
-        >
-          {{ unreadCount }}
-        </ion-badge>
-      </ion-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
+<app-notification-panel #notifPanel></app-notification-panel>
+
 <ion-content [fullscreen]="true" id="home-main-content">
-  <ion-card class="main-Container ion-no-margin">
-    <!-- <ion-button expand="block" (click)="openFirstMenu()">Open First Menu</ion-button> -->
-
-    <!-- <ion-card-header style="position: relative; right: 0; left: 0;"> -->
-    <!-- <ion-col size-md="3" size="6" class="ion-padding ion-blue-bkg"> -->
-    <ion-card-content>
-      <ion-col class="center">
-        <!-- <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img> -->
+  <div class="dashboard-shell">
+    <div class="dashboard-container">
+      <div class="logo-row">
         <app-header-logo></app-header-logo>
-      </ion-col>
-    </ion-card-content>
+      </div>
 
-    <!-- </ion-col> -->
+      <div class="title-row">
+        <h1>My Dashboard/<em>Dashboard Anda</em></h1>
+      </div>
 
-    <!-- <div id="container"> -->
-    <!-- </div> -->
-
-    <!-- </ion-card-header> -->
-
-    <!-- <h2>{{ user.username }}</h2> -->
-    <ion-card-content
-      style="margin-top: 15%; padding-left: 0%; padding-right: 0%"
-    >
-      <ion-card class="dashboard-placeholder-card">
-        <ion-card-content class="dashboard-placeholder-content">
-          <ion-icon
-            name="grid-outline"
-            class="dashboard-placeholder-icon"
-          ></ion-icon>
-          <ion-card-title class="dashboard-placeholder-title"
-            >Dashboard</ion-card-title
+      <div class="mode-row">
+        <div class="mode-buttons">
+          <button
+            type="button"
+            class="mode-btn"
+            [class.active]="mode === 'today'"
+            (click)="switchMode('today')"
           >
-          <ion-text class="dashboard-placeholder-text">
-            Dashboard is not finished yet.
-          </ion-text>
-        </ion-card-content>
-      </ion-card>
-    </ion-card-content>
-  </ion-card>
+            Today
+          </button>
+          <button
+            type="button"
+            class="mode-btn"
+            [class.active]="mode === 'trend'"
+            (click)="switchMode('trend')"
+          >
+            Trend
+          </button>
+        </div>
+
+        <div class="asof" *ngIf="mode === 'today'">As of: {{ todayAsOfText }}</div>
+      </div>
+
+      <section class="trend-filter" *ngIf="mode === 'trend'">
+        <h3>Select Month -Year Range</h3>
+        <div class="filter-controls">
+          <label>
+            <span>From</span>
+            <button
+              type="button"
+              class="month-picker-trigger"
+              (click)="openTrendPicker('from', $event)"
+            >
+              <strong>{{ trendFromLabel }}</strong>
+              <ion-icon name="calendar-outline"></ion-icon>
+            </button>
+          </label>
+          <label>
+            <span>To</span>
+            <button
+              type="button"
+              class="month-picker-trigger"
+              (click)="openTrendPicker('to', $event)"
+            >
+              <strong>{{ trendToLabel }}</strong>
+              <ion-icon name="calendar-outline"></ion-icon>
+            </button>
+          </label>
+          <button type="button" class="filter-btn apply" (click)="applyTrendFilter()">
+            Filter
+          </button>
+          <button type="button" class="filter-btn reset" (click)="resetTrendFilter()">
+            Reset
+          </button>
+        </div>
+      </section>
+
+      <ion-popover
+        cssClass="trend-month-popover"
+        [isOpen]="trendPickerTarget !== null"
+        [event]="trendPickerEvent"
+        [showBackdrop]="true"
+        (didDismiss)="closeTrendPicker()"
+      >
+        <ng-template>
+          <ion-datetime
+            class="trend-month-datetime"
+            presentation="month-year"
+            preferWheel="true"
+            [showDefaultButtons]="true"
+            doneText="Done"
+            cancelText="Cancel"
+            [min]="trendMinDate"
+            [max]="trendMaxDate"
+            [value]="getTrendPickerValue()"
+            (ionCancel)="closeTrendPicker()"
+            (ionChange)="onTrendMonthChange($event); closeTrendPicker()"
+          ></ion-datetime>
+        </ng-template>
+      </ion-popover>
+
+      <section class="summary-section">
+        <app-dashboard-summary-cards [summary]="activeSummary"></app-dashboard-summary-cards>
+      </section>
+
+      <section class="charts-section">
+        <div class="chart-grid">
+          <app-dashboard-chart-panel
+            [title]="'Total Revenue (RM)'"
+            [type]="revenueChartType"
+            [categories]="revenueCategories"
+            [series]="revenueSeries"
+          ></app-dashboard-chart-panel>
+
+          <app-dashboard-chart-panel
+            [title]="'Total No. of Receipts'"
+            [type]="receiptsChartType"
+            [categories]="receiptsCategories"
+            [series]="receiptsSeries"
+          ></app-dashboard-chart-panel>
+
+          <app-dashboard-chart-panel
+            [title]="'Total No. of Tourists'"
+            [type]="touristsChartType"
+            [categories]="touristsCategories"
+            [series]="touristsSeries"
+          ></app-dashboard-chart-panel>
+        </div>
+      </section>
+
+      <section class="receipt-list-section">
+        <h2>Receipt List/<em>Senarai Resit</em></h2>
+        <app-dashboard-receipt-list-table
+          [receipts]="activeReceipts"
+          [meta]="receiptMeta"
+          (pageChange)="onReceiptPageChange($event)"
+          (pageSizeChange)="onReceiptPageSizeChange($event)"
+        ></app-dashboard-receipt-list-table>
+      </section>
+    </div>
+  </div>
 </ion-content>
+

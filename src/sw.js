@@ -1,21 +1,52 @@
-// sw.js (minimal functional service worker)
+// sw.js — cache-first for same-origin app assets, network-only for API calls
 
-// Install event (runs once when the worker is installed)
+const CACHE_NAME = 'app-shell-v1';
+
 self.addEventListener('install', event => {
-  console.log('[SW] Installed');
-  // Activate immediately after installation
   self.skipWaiting();
 });
 
-// Activate event (runs after installation, takes control)
 self.addEventListener('activate', event => {
-  console.log('[SW] Activated');
-  // Claim clients so it starts controlling open tabs
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME && key !== 'prewarm-assets-v1')
+          .map(key => caches.delete(key))
+      )
+    ).then(() => clients.claim())
+  );
 });
 
-// Fetch event (intercepts network requests)
 self.addEventListener('fetch', event => {
-  // Right now just passes everything through
-  event.respondWith(fetch(event.request));
+  const url = new URL(event.request.url);
+
+  // Let API calls and external requests go straight to network (will fail offline — handled by app)
+  if (url.origin !== location.origin || url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Cache-first for same-origin app assets
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+
+      return fetch(event.request).then(response => {
+        // Only cache successful same-origin GET responses
+        if (!response || response.status !== 200 || event.request.method !== 'GET') {
+          return response;
+        }
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return response;
+      }).catch(() => {
+        // For navigation requests offline, return index.html so Angular router works
+        if (event.request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
+        return new Response('', { status: 503 });
+      });
+    })
+  );
 });

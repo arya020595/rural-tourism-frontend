@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { MockTransaction } from '../my-transaction/my-transaction.models';
+import { Transaction } from '../my-transaction/my-transaction.models';
 
 interface ReceiptViewModel {
   receiptDateLabel: string;
@@ -59,7 +59,7 @@ export class MyTransactionReceiptPage implements OnInit {
     // TODO: On real API integration, use transactionId from state/query
     // and fetch full receipt details from backend.
     const state = this.router.getCurrentNavigation()?.extras?.state || history.state;
-    const trx = state?.transaction as MockTransaction | undefined;
+    const trx = state?.transaction as Transaction | undefined;
 
     if (!trx) {
       return;
@@ -76,7 +76,7 @@ export class MyTransactionReceiptPage implements OnInit {
       issuedBy: 'PANDA COMPANY CO.',
       issuerEmail: 'pandacompany@gmail.com',
       totalLabel: `RM ${trx.totalPrice.toFixed(2)}`,
-      transactionId: trx.id,
+      transactionId: String(trx.id),
     };
   }
 

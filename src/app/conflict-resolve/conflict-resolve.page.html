@@ -1,0 +1,107 @@
+<ion-header class="booking-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" aria-label="Back">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="surface-card">
+    <div class="booking-container">
+
+      <ng-container *ngIf="queueItem; else noItemTemplate">
+
+        <!-- Header -->
+        <div class="conflict-header">
+          <div class="conflict-icon">
+            <ion-icon name="git-compare-outline"></ion-icon>
+          </div>
+          <h1>Sync Conflict</h1>
+          <p class="conflict-subtitle">Konflik Segerak</p>
+        </div>
+
+        <!-- Conflict reason banner -->
+        <div class="conflict-banner">
+          <ion-icon name="warning-outline"></ion-icon>
+          <span>{{ conflictReason }}</span>
+        </div>
+
+        <!-- Explanation -->
+        <div class="conflict-explanation">
+          <p>A conflict was detected between your offline changes and the server data. Review the differences below and choose which version to keep.</p>
+        </div>
+
+        <!-- Diff table -->
+        <div class="conflict-diff-grid">
+          <div class="diff-header">
+            <div class="diff-col-spacer"></div>
+            <div class="diff-col-label mine">
+              <ion-icon name="person-outline"></ion-icon>
+              <span>My Changes</span>
+            </div>
+            <div class="diff-col-label server">
+              <ion-icon name="cloud-outline"></ion-icon>
+              <span>Server Version</span>
+            </div>
+          </div>
+
+          <div
+            class="diff-row"
+            *ngFor="let field of displayFields"
+            [class.diff-changed]="isChanged(field)"
+          >
+            <div class="diff-field-name">
+              <span class="field-label">{{ humanizeField(field) }}</span>
+              <span class="field-key">{{ field }}</span>
+            </div>
+            <div class="diff-value mine">
+              <span class="changed-badge" *ngIf="isChanged(field)">Changed</span>
+              <pre class="value-text">{{ formatValue(myData[field]) }}</pre>
+            </div>
+            <div class="diff-value server">
+              <pre class="value-text">{{ formatValue(serverData?.[field]) }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resolution actions -->
+        <div class="action-cards">
+          <div class="action-card server-card" (click)="!isResolving && acceptServerVersion()" [class.disabled]="isResolving">
+            <div class="action-card-icon">
+              <ion-icon name="cloud-download-outline"></ion-icon>
+            </div>
+            <div class="action-card-content">
+              <div class="action-card-title">Use Server Version</div>
+              <div class="action-card-subtitle">Guna Versi Pelayan — discard my offline changes</div>
+            </div>
+          </div>
+
+          <div class="action-card mine-card" (click)="!isResolving && forceMyVersion()" [class.disabled]="isResolving">
+            <div class="action-card-icon">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+            </div>
+            <div class="action-card-content">
+              <div class="action-card-title">Keep My Version</div>
+              <div class="action-card-subtitle">Hantar Semula — override server with my changes</div>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+
+      <ng-template #noItemTemplate>
+        <div class="no-data-message">
+          <ion-icon name="checkmark-circle-outline" style="font-size: 3rem; color: var(--ion-color-success);"></ion-icon>
+          <p>No conflict data available.</p>
+          <button type="button" class="bottom-action submit" (click)="goBack()">
+            <span>Kembali / Back</span>
+          </button>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+</ion-content>

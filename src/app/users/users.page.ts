@@ -10,10 +10,6 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { User, UserMeta } from '../models/user.model';
 import { AuthService } from '../services/auth.service';
 import { MenuItem, MenuService } from '../services/menu.service';
-import {
-  Notification,
-  NotificationService,
-} from '../services/notification.service';
 import { UserService } from '../services/user.service';
 import { UserDeleteModalComponent } from './components/user-delete-modal.component';
 import { UserFormModalComponent } from './components/user-form-modal.component';
@@ -28,9 +24,6 @@ export class UsersPage implements OnInit, OnDestroy {
   uid: string | null = null;
   user: any = null;
   menuItems: MenuItem[] = [];
-  unreadCount = 0;
-  notifications: Notification[] = [];
-
   users: User[] = [];
   meta: UserMeta = {
     total: 0,
@@ -52,7 +45,6 @@ export class UsersPage implements OnInit, OnDestroy {
     private userService: UserService,
     private authService: AuthService,
     private menuService: MenuService,
-    private notificationService: NotificationService,
     private menuCtrl: MenuController,
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
@@ -70,9 +62,6 @@ export class UsersPage implements OnInit, OnDestroy {
 
     this.loadUserData();
 
-    this.notificationService.unreadCount$.subscribe((count) => {
-      this.unreadCount = count;
-    });
   }
 
   ionViewWillEnter(): void {
@@ -98,24 +87,11 @@ export class UsersPage implements OnInit, OnDestroy {
     }
 
     this.loadUsers();
-    this.loadNotifications();
   }
 
   private refreshMenuItems(): void {
-    this.menuItems = this.menuService.getVisibleMenuItemsForContext('operator');
-  }
-
-  private loadNotifications(): void {
-    if (!this.uid) return;
-
-    this.notificationService.getNotifications(this.uid).subscribe({
-      next: (notifications: Notification[]) => {
-        this.notifications = notifications;
-      },
-      error: () => {
-        // Non-blocking — do not disrupt the page on notification errors.
-      },
-    });
+    this.menuItems =
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   loadUsers(): void {
@@ -274,20 +250,6 @@ export class UsersPage implements OnInit, OnDestroy {
     this.user = null;
     this.menuCtrl.enable(false, 'users-menu');
     this.menuCtrl.close();
-  }
-
-  goToNotifications(): void {
-    if (!this.uid) return;
-
-    this.router.navigate(['/notifications']);
-    this.notificationService.markAllAsRead(this.uid).subscribe({
-      next: () => {
-        this.notifications.forEach((n) => (n.read = true));
-      },
-      error: () => {
-        // Non-blocking.
-      },
-    });
   }
 
   // ── Display helpers ───────────────────────────────────────────────────────
