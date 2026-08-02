@@ -39,6 +39,10 @@ export class HomePage implements OnInit {
   notifications: Notification[] = [];
   pendingBookingsCount: number = 0;
 
+  private static readonly DASHBOARD_MODE_KEY = 'dashboard.mode';
+  private static readonly DASHBOARD_TREND_FROM_KEY = 'dashboard.trendFrom';
+  private static readonly DASHBOARD_TREND_TO_KEY = 'dashboard.trendTo';
+
   mode: DashboardMode = 'today';
 
   todayData: TodayDashboardData | null = null;
@@ -105,7 +109,49 @@ export class HomePage implements OnInit {
     this.menuCtrl.enable(true, 'home-menu');
     this.loadUserData();
     this.resetDashboardState();
+
+    // Restore the last dashboard view (e.g. after viewing a receipt and coming
+    // back) so returning to TREND doesn't snap back to TODAY.
+    const savedMode = this.readSavedMode();
+    if (savedMode === 'trend') {
+      this.restoreSavedTrendRange();
+      this.switchMode('trend');
+      return;
+    }
+
     this.loadDashboardData();
+  }
+
+  private readSavedMode(): DashboardMode | null {
+    try {
+      const saved = sessionStorage.getItem(HomePage.DASHBOARD_MODE_KEY);
+      return saved === 'trend' || saved === 'today' ? saved : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private saveMode(mode: DashboardMode): void {
+    try {
+      sessionStorage.setItem(HomePage.DASHBOARD_MODE_KEY, mode);
+      if (mode === 'trend') {
+        sessionStorage.setItem(HomePage.DASHBOARD_TREND_FROM_KEY, this.trendFrom);
+        sessionStorage.setItem(HomePage.DASHBOARD_TREND_TO_KEY, this.trendTo);
+      }
+    } catch {
+      // Ignore storage failures (private mode / quota) — view just won't persist.
+    }
+  }
+
+  private restoreSavedTrendRange(): void {
+    try {
+      const from = sessionStorage.getItem(HomePage.DASHBOARD_TREND_FROM_KEY);
+      const to = sessionStorage.getItem(HomePage.DASHBOARD_TREND_TO_KEY);
+      if (from) this.trendFrom = from;
+      if (to) this.trendTo = to;
+    } catch {
+      // Fall back to the default range set in resetDashboardState/ngOnInit.
+    }
   }
 
   private resetDashboardState(): void {
@@ -130,6 +176,7 @@ export class HomePage implements OnInit {
   switchMode(mode: DashboardMode): void {
     this.mode = mode;
     this.receiptMeta = { ...this.receiptMeta, page: 1 };
+    this.saveMode(mode);
 
     if (mode === 'trend') {
       this.applyTrendFilter();
@@ -264,6 +311,10 @@ export class HomePage implements OnInit {
     if (!this.trendFrom || !this.trendTo) {
       return;
     }
+
+    // Persist the current trend range so returning to the dashboard (e.g. after
+    // viewing a receipt) restores TREND with the same range.
+    this.saveMode('trend');
 
     this.dashboardApiService.getTrendDashboard(this.trendFrom, this.trendTo).subscribe({
       next: (response) => {

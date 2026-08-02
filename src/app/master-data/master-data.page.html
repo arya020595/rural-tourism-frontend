@@ -253,12 +253,14 @@
           </ng-container>
         </div>
 
-        <div class="modal-footer">
+        <!-- Detail mode closes via the top-right X only; the form keeps its
+             Cancel + Save actions. -->
+        <div class="modal-footer" *ngIf="modalMode !== 'detail'">
           <ion-button fill="outline" class="cancel-btn" (click)="closeModal()">
-            {{ modalMode === 'detail' ? 'Close/Tutup' : 'Cancel/Batal' }}
+            Cancel/Batal
           </ion-button>
 
-          <ion-button class="save-btn" *ngIf="modalMode !== 'detail'" (click)="saveMasterData()" [disabled]="isLoading">
+          <ion-button class="save-btn" (click)="saveMasterData()" [disabled]="isLoading">
             <ion-icon name="save" slot="start"></ion-icon>
             Save/Simpan
           </ion-button>
