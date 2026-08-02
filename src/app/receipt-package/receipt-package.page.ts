@@ -492,7 +492,10 @@ export class ReceiptPackagePage implements OnInit, AfterViewInit {
 
   formatMyDate(dateStr: string | null | undefined): string {
     if (!dateStr) return '-';
-    const months = ['JAN','FEB','MAC','APR','MEI','JUN','JUL','OGO','SEP','OKT','NOV','DIS'];
+    const months = [
+      'JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN',
+      'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER',
+    ];
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return '-';
     const day = String(d.getDate()).padStart(2, '0');

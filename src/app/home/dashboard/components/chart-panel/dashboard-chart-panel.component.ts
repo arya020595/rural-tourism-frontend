@@ -56,7 +56,43 @@ export class DashboardChartPanelComponent implements OnChanges {
     horizontalAlign: 'center',
     labels: { colors: '#7a7a7a' },
   };
-  tooltip: ApexTooltip = { theme: 'light' };
+  tooltip: ApexTooltip = {
+    theme: 'light',
+    shared: true,
+    intersect: false,
+    // Render tooltip rows sorted by value, highest first.
+    custom: ({ series, dataPointIndex, w }) => {
+      // Use the configured categories (month names). w.globals.labels can fall
+      // back to the numeric index on line charts, so prefer our own array.
+      const category =
+        this.categories?.[dataPointIndex] ??
+        w?.globals?.categoryLabels?.[dataPointIndex] ??
+        w?.globals?.labels?.[dataPointIndex] ??
+        '';
+
+      const rows = (series as number[][])
+        .map((seriesData, seriesIndex) => ({
+          name: w.globals.seriesNames[seriesIndex] as string,
+          color: w.globals.colors[seriesIndex] as string,
+          value: Number(seriesData?.[dataPointIndex] ?? 0),
+        }))
+        .sort((a, b) => b.value - a.value);
+
+      const header = `<div class="apex-tt-title">${category}</div>`;
+      const body = rows
+        .map(
+          (row) => `
+            <div class="apex-tt-row">
+              <span class="apex-tt-marker" style="background:${row.color}"></span>
+              <span class="apex-tt-name">${row.name}:</span>
+              <span class="apex-tt-value">${row.value.toLocaleString()}</span>
+            </div>`,
+        )
+        .join('');
+
+      return `<div class="apex-tt">${header}${body}</div>`;
+    },
+  };
   titleConfig: ApexTitleSubtitle = {
     text: '',
     align: 'center',
