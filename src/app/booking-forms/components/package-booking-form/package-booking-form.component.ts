@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CompanyService } from '../../../services/company.service';
 import { ProductService } from '../../../services/product.service';
+import { OfflineQueueService } from '../../../services/offline-queue.service';
 
 @Component({
   selector: 'app-package-booking-form',
@@ -77,6 +78,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   constructor(
     private companyService: CompanyService,
     private productService: ProductService,
+    private offlineQueue: OfflineQueueService,
   ) {}
 
   /** Displayed field number for a given base number, shifted by numberOffset.
@@ -472,8 +474,6 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   private loadCompanies(): void {
-    const cacheKey = 'package_companies_cache';
-
     const applyCompanies = (data: any[]) => {
       this.companies = data
         .map((company: any) => ({
@@ -494,12 +494,18 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.companyService.getPackageCompanies().subscribe({
       next: (response) => {
         const data = Array.isArray(response?.data) ? response.data : [];
-        localStorage.setItem(cacheKey, JSON.stringify(data));
+        // Apply first, then cache to IndexedDB (best-effort). IndexedDB replaces
+        // localStorage here — the company/product lists overflowed the ~5MB
+        // localStorage quota, which crashed this dropdown in production.
         applyCompanies(data);
+        void this.offlineQueue.cachePackageCompanies(data).catch(() => {});
       },
       error: () => {
-        const cached = localStorage.getItem(cacheKey);
-        applyCompanies(cached ? JSON.parse(cached) : []);
+        // Offline / request failed — fall back to the IndexedDB cache.
+        this.offlineQueue
+          .getCachedPackageCompanies()
+          .then((cached) => applyCompanies(cached))
+          .catch(() => applyCompanies([]));
       },
     });
   }
@@ -517,8 +523,6 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       }
       return;
     }
-
-    const cacheKey = `products_cache_${companyId}`;
 
     const applyProducts = (data: any[]) => {
       const services = data
@@ -548,13 +552,16 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       .subscribe({
         next: (response) => {
           const data = Array.isArray(response?.data) ? response.data : [];
-          localStorage.setItem(cacheKey, JSON.stringify(data));
+          // Apply first, then cache to IndexedDB (best-effort).
           applyProducts(data);
+          void this.offlineQueue.cacheProducts(companyId, data).catch(() => {});
         },
         error: () => {
-          const cached = localStorage.getItem(cacheKey);
-          const data = cached ? JSON.parse(cached) : [];
-          applyProducts(data);
+          // Offline / request failed — fall back to the IndexedDB cache.
+          this.offlineQueue
+            .getCachedProducts(companyId)
+            .then((cached) => applyProducts(cached))
+            .catch(() => applyProducts([]));
         },
       });
   }

@@ -346,12 +346,10 @@ export class EreceiptAddPage implements OnInit {
 
     const companyId = this.authService.currentUser?.company_id;
     if (companyId) {
-      const cached = localStorage.getItem(`products_cache_${companyId}`);
-      if (cached) {
-        const match = findInList(JSON.parse(cached));
-        if (match?.id) {
-          return { id: Number(match.id), name: String(match.name || '').trim() };
-        }
+      const cached = await this.offlineQueue.getCachedProducts(Number(companyId));
+      const match = findInList(cached);
+      if (match?.id) {
+        return { id: Number(match.id), name: String(match.name || '').trim() };
       }
     }
 

@@ -231,6 +231,9 @@ export class BookingAddPage implements OnInit {
       citizenship: payload.nationality || 'domestic',
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
+      // Package bookings carry a single date (no time). Send it so it persists
+      // and shows on the receipt/PDF — previously it was dropped here.
+      activity_date: this.buildActivityDateTime(payload.bookingDate, ''),
       total_price: totalPrice,
       total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
@@ -287,18 +290,16 @@ export class BookingAddPage implements OnInit {
       // offline — fall through to local cache
     }
 
-    // Fall back to per-company product cache
+    // Fall back to the per-company product cache (IndexedDB, offline).
     const companyId = this.authService.currentUser?.company_id;
     if (companyId) {
-      const cached = localStorage.getItem(`products_cache_${companyId}`);
-      if (cached) {
-        const match = findInList(JSON.parse(cached));
-        if (match?.id) {
-          return {
-            id: Number(match.id),
-            name: String(match.name || '').trim(),
-          };
-        }
+      const cached = await this.offlineQueue.getCachedProducts(Number(companyId));
+      const match = findInList(cached);
+      if (match?.id) {
+        return {
+          id: Number(match.id),
+          name: String(match.name || '').trim(),
+        };
       }
     }
 

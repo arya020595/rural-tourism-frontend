@@ -268,7 +268,7 @@ const routes: Routes = [
     canActivate: [authGuard, permissionGuard],
     data: {
       loginRole: 'operator_admin',
-      permissions: ['dashboard:read', 'booking:read'],
+      permissions: ['dashboard:read'],
     },
   },
   {
