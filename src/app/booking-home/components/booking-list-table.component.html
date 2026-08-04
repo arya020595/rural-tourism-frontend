@@ -68,10 +68,10 @@
           >
             {{
               booking.status === "paid"
-                ? "Paid"
+                ? "Booked/Paid"
                 : booking.status === "cancelled"
                   ? "Cancelled"
-                  : "Pending"
+                  : "Booked/Deposit"
             }}
           </span>
           <ng-container *ngIf="getSyncStatus(booking) as syncStatus">

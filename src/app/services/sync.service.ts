@@ -320,24 +320,25 @@ export class SyncService {
       }
     } catch { /* non-critical */ }
 
-    // 2. Operator's own products
+    // 2. Operator's own products (cached in IndexedDB, not localStorage — the
+    //    per-company product lists overflow localStorage's ~5MB quota).
     if (companyId) {
       try {
         const res = await firstValueFrom(
           this.productService.getProductsByCompany(companyId, { per_page: 1000 }),
         );
         if (Array.isArray(res?.data)) {
-          localStorage.setItem(`products_cache_${companyId}`, JSON.stringify(res.data));
+          await this.offlineQueue.cacheProducts(companyId, res.data);
         }
       } catch { /* non-critical */ }
     }
 
-    // 3. Package companies + their products
+    // 3. Package companies + their products (all in IndexedDB).
     try {
       const res = await firstValueFrom(this.companyService.getPackageCompanies());
       const companies = Array.isArray(res?.data) ? res.data : [];
       if (companies.length) {
-        localStorage.setItem('package_companies_cache', JSON.stringify(companies));
+        await this.offlineQueue.cachePackageCompanies(companies);
         for (const company of companies) {
           const id = Number(company.id);
           if (!id) continue;
@@ -346,7 +347,7 @@ export class SyncService {
               this.productService.getProductsByCompany(id, { per_page: 1000 }),
             );
             if (Array.isArray(pRes?.data)) {
-              localStorage.setItem(`products_cache_${id}`, JSON.stringify(pRes.data));
+              await this.offlineQueue.cacheProducts(id, pRes.data);
             }
           } catch { /* non-critical */ }
         }

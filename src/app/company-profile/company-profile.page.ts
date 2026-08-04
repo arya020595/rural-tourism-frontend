@@ -27,6 +27,7 @@ interface CompanyProfileFormData {
   association_id: string;
   owner_full_name: string;
   contact_no: string;
+  email: string;
   business_address: string;
   location: string;
   no_of_full_time_staff: string | number;
@@ -183,6 +184,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       association_id: '',
       owner_full_name: '',
       contact_no: '',
+      email: '',
       business_address: '',
       location: '',
       no_of_full_time_staff: '',
@@ -293,6 +295,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       // staff account would show its own name instead of the owner's.
       owner_full_name: toString(data?.owner_full_name),
       contact_no: toString(data?.contact_no ?? data?.company?.contact_no),
+      email: toString(data?.email ?? data?.company?.email),
       business_address: toString(
         data?.business_address ?? data?.company?.address,
       ),
@@ -473,6 +476,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       'contact_no',
       this.normalizeString(this.formData.contact_no),
     );
+    payload.append('email', this.normalizeString(this.formData.email));
     payload.append(
       'address',
       this.normalizeString(this.formData.business_address),

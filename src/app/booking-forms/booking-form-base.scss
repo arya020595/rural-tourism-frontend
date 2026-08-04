@@ -165,19 +165,32 @@
   width: 50%;
 }
 
+/* Medium widths: the 75%/50% constraint squeezes the columns so the longest
+   label (e.g. "Domestik/Antarabangsa") wraps and the row looks uneven. Give the
+   grids full width here so the three cards keep one line each before they stack
+   at 768px. */
+@media (max-width: 1100px) {
+  .radio-grid.three-col,
+  .radio-grid.two-col {
+    width: 100%;
+  }
+}
+
 .radio-card {
   min-height: 52px;
   border: 1px solid #217048;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 16px;
+  padding: 8px 16px;
   font-size: 16px;
   font-weight: 700;
   color: #306c4d;
   background: #ffffff;
-  white-space: nowrap;
   cursor: pointer;
+  /* Let the label wrap inside the card instead of overflowing on narrow
+     screens (e.g. the "Domestik/Antarabangsa" option). */
+  overflow: hidden;
 }
 
 .radio-card input {
@@ -206,8 +219,10 @@
 }
 
 .radio-card span {
-  display: inline-block;
-  line-height: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.2;
+  overflow-wrap: break-word;
 }
 
 .radio-card.active {
