@@ -226,6 +226,13 @@ export class BookingService {
     });
   }
 
+  // Payment receipt PDF (the same document the receipt QR code links to).
+  downloadReceiptPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/bookings/${id}/receipt-pdf`, {
+      responseType: 'blob',
+    });
+  }
+
   getStatementPreview(year: number, type: string, fromMonth: number, toMonth: number): Observable<any> {
     const params = new HttpParams()
       .set('year', String(year))

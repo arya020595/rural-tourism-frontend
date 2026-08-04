@@ -60,7 +60,7 @@ export class MenuService {
       label: 'My Dashboard / Dashboard Anda',
       icon: 'grid-outline',
       route: '/home',
-      permission: ['dashboard:read', 'booking:read'],
+      permission: 'dashboard:read',
       roles: ['operator_admin', 'operator_staff'],
     },
     {

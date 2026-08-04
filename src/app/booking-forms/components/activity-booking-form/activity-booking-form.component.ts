@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { ProductService } from '../../../services/product.service';
+import { OfflineQueueService } from '../../../services/offline-queue.service';
 
 @Component({
   selector: 'app-activity-booking-form',
@@ -59,6 +60,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   constructor(
     private productService: ProductService,
     private authService: AuthService,
+    private offlineQueue: OfflineQueueService,
   ) {}
 
   /** Displayed field number for a given base number, shifted by numberOffset.
@@ -211,29 +213,29 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
       return;
     }
 
-    const cacheKey = `products_cache_${companyId}`;
+    const applyProducts = (products: any[]) => {
+      const names = (Array.isArray(products) ? products : [])
+        .filter((item: any) => item?.product_type === 'activity')
+        .map((item: any) => String(item?.name || '').trim())
+        .filter((name: string) => name.length > 0);
+      this.activityOptions = this.uniqueSorted(names);
+    };
 
     this.productService
       .getProductsByCompany(companyId, { page: 1, per_page: 1000 })
       .subscribe({
         next: (response) => {
           const products = Array.isArray(response?.data) ? response.data : [];
-          localStorage.setItem(cacheKey, JSON.stringify(products));
-          const names = products
-            .filter((item: any) => item?.product_type === 'activity')
-            .map((item: any) => String(item?.name || '').trim())
-            .filter((name: string) => name.length > 0);
-
-          this.activityOptions = this.uniqueSorted(names);
+          applyProducts(products);
+          // Cache to IndexedDB (best-effort) — replaces localStorage, which
+          // overflowed its quota and crashed the booking forms.
+          void this.offlineQueue.cacheProducts(companyId, products).catch(() => {});
         },
         error: () => {
-          const cached = localStorage.getItem(cacheKey);
-          const products = cached ? JSON.parse(cached) : [];
-          const names = products
-            .filter((item: any) => item?.product_type === 'activity')
-            .map((item: any) => String(item?.name || '').trim())
-            .filter((name: string) => name.length > 0);
-          this.activityOptions = this.uniqueSorted(names);
+          this.offlineQueue
+            .getCachedProducts(companyId)
+            .then((cached) => applyProducts(cached))
+            .catch(() => applyProducts([]));
         },
       });
   }

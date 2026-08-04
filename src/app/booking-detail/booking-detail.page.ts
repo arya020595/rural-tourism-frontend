@@ -296,6 +296,41 @@ export class BookingDetailPage implements OnInit {
     }
   }
 
+  /**
+   * Download the payment receipt PDF directly (the same document the receipt
+   * QR code links to), so operators don't have to show the QR to the customer.
+   * Only used for paid bookings.
+   */
+  async downloadReceiptPdf(): Promise<void> {
+    if (this.isGeneratingPdf) {
+      return;
+    }
+    if (!this.booking?.numericId) {
+      this.toastService.error('PDF receipt is not available for this booking.');
+      return;
+    }
+
+    this.isGeneratingPdf = true;
+    try {
+      await this.loadingService.show('Menjana PDF / Generating PDF...');
+      const blob = await firstValueFrom(
+        this.bookingService.downloadReceiptPdf(this.booking.numericId),
+      );
+      await this.nativeDownload.downloadBlob(
+        blob,
+        `receipt-${this.booking.id ?? this.booking.numericId}.pdf`,
+      );
+    } catch (err) {
+      console.error('Failed to download receipt PDF:', err);
+      this.toastService.error(
+        'Failed to download the receipt PDF. Please try again.',
+      );
+    } finally {
+      await this.loadingService.hide();
+      this.isGeneratingPdf = false;
+    }
+  }
+
   private loadUser(): void {
     const rawUser = localStorage.getItem('user');
     this.user = this.authService.currentUser;

@@ -35,7 +35,7 @@ ion-content {
   grid-row: 1 !important;
 }
 
-.receipt-capture-clone .receipt-row--pax {
+.receipt-capture-clone .receipt-row--business {
   grid-column: 2 !important;
   grid-row: 1 !important;
 }
@@ -45,9 +45,14 @@ ion-content {
   grid-row: 2 !important;
 }
 
-.receipt-capture-clone .receipt-row--status {
+.receipt-capture-clone .receipt-row--pax {
   grid-column: 2 !important;
   grid-row: 2 !important;
+}
+
+.receipt-capture-clone .receipt-row--status {
+  grid-column: 1 !important;
+  grid-row: 3 !important;
 }
 
 .receipt-capture-clone .receipt-footer {
@@ -434,7 +439,7 @@ qrcode {
     grid-row: 1;
   }
 
-  .receipt-row--pax {
+  .receipt-row--business {
     grid-column: 2;
     grid-row: 1;
   }
@@ -444,8 +449,13 @@ qrcode {
     grid-row: 2;
   }
 
-  .receipt-row--status {
+  .receipt-row--pax {
     grid-column: 2;
     grid-row: 2;
+  }
+
+  .receipt-row--status {
+    grid-column: 1;
+    grid-row: 3;
   }
 }

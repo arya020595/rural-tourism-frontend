@@ -32,6 +32,12 @@ class OfflineDatabase extends Dexie {
   offline_booking_queue!: Table<QueueItem, number>;
   booking_cache!: Table<any, number>;
   sync_lock!: Table<any, string>;
+  // Products cached per company (key = company_id) and the package-companies
+  // list (single fixed key). Moved here from localStorage — the per-company
+  // product lists overflowed localStorage's ~5MB quota. IndexedDB has ample
+  // space, so offline caching no longer breaks the dropdowns.
+  product_cache!: Table<any, number>;
+  company_cache!: Table<any, string>;
 
   constructor() {
     super('rural_tourism_offline');
@@ -41,6 +47,11 @@ class OfflineDatabase extends Dexie {
         '++id, idempotency_key, local_booking_id, status, company_id, created_at',
       booking_cache: 'id, company_id, cached_at',
       sync_lock: 'id',
+    });
+
+    this.version(2).stores({
+      product_cache: 'company_id, cached_at',
+      company_cache: 'key, cached_at',
     });
   }
 }
@@ -309,6 +320,42 @@ export class OfflineQueueService {
 
   async removeCachedBooking(id: number): Promise<void> {
     await this.db.booking_cache.delete(id);
+  }
+
+  // ─── Product / Company Cache (moved off localStorage) ────────────────────────
+
+  /** Cache a company's product/service list for offline booking. */
+  async cacheProducts(companyId: number, products: any[]): Promise<void> {
+    const id = Number(companyId);
+    if (!id) return;
+    await this.db.product_cache.put({
+      company_id: id,
+      products: Array.isArray(products) ? products : [],
+      cached_at: new Date(),
+    });
+  }
+
+  /** Read a company's cached products (empty array if none). */
+  async getCachedProducts(companyId: number): Promise<any[]> {
+    const id = Number(companyId);
+    if (!id) return [];
+    const row = await this.db.product_cache.get(id);
+    return Array.isArray(row?.products) ? row.products : [];
+  }
+
+  /** Cache the package-companies dropdown list. */
+  async cachePackageCompanies(companies: any[]): Promise<void> {
+    await this.db.company_cache.put({
+      key: 'package_companies',
+      companies: Array.isArray(companies) ? companies : [],
+      cached_at: new Date(),
+    });
+  }
+
+  /** Read the cached package-companies list (empty array if none). */
+  async getCachedPackageCompanies(): Promise<any[]> {
+    const row = await this.db.company_cache.get('package_companies');
+    return Array.isArray(row?.companies) ? row.companies : [];
   }
 
   // ─── Utility ───────────────────────────────────────────────────────────────
