@@ -165,6 +165,17 @@
   width: 50%;
 }
 
+/* Medium widths: the 75%/50% constraint squeezes the columns so the longest
+   label (e.g. "Domestik/Antarabangsa") wraps and the row looks uneven. Give the
+   grids full width here so the three cards keep one line each before they stack
+   at 768px. */
+@media (max-width: 1100px) {
+  .radio-grid.three-col,
+  .radio-grid.two-col {
+    width: 100%;
+  }
+}
+
 .radio-card {
   min-height: 52px;
   border: 1px solid #217048;
