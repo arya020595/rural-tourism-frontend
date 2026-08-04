@@ -160,6 +160,23 @@
             </div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
+              <div class="label">E-mel/Email</div>
+              <div class="value" *ngIf="!isEditing">
+                {{ displayOrDash(formData.email) }}
+              </div>
+              <ion-input
+                *ngIf="isEditing"
+                class="field-input"
+                fill="outline"
+                type="email"
+                inputmode="email"
+                autocomplete="off"
+                [(ngModel)]="formData.email"
+                [ngModelOptions]="{ standalone: true }"
+              ></ion-input>
+            </div>
+
+            <div class="detail-row" [class.edit-mode]="isEditing">
               <div class="label">Alamat Perniagaan/Business Address</div>
               <div class="value address-value" *ngIf="!isEditing">
                 {{ displayOrDash(formData.business_address) }}
