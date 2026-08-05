@@ -56,6 +56,13 @@ export class MenuService {
       roles: ['superadmin'],
     },
     {
+      id: 'association-stats',
+      label: 'Statistik Persatuan / Association Statistics',
+      icon: 'stats-chart-outline',
+      route: '/admin/association-stats',
+      roles: ['superadmin'],
+    },
+    {
       id: 'dashboard',
       label: 'My Dashboard / Dashboard Anda',
       icon: 'grid-outline',

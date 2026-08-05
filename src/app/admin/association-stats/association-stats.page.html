@@ -1,0 +1,95 @@
+<!-- Side Menu -->
+<app-side-nav
+  [menuId]="'assoc-stats-menu'"
+  [contentId]="'assoc-stats-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<!-- Main content -->
+<ion-header style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button
+        menu="assoc-stats-menu"
+        style="color: white"
+      ></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" id="assoc-stats-content">
+  <ion-card class="main-Container ion-no-margin">
+    <ion-col class="center">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+    </ion-col>
+
+    <ion-card-content class="stats-content">
+      <h1>Statistik Persatuan/Association Statistics</h1>
+      <hr />
+
+      <!-- Loading -->
+      <div class="state-msg" *ngIf="isLoading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading association statistics...</p>
+      </div>
+
+      <!-- Error -->
+      <div class="state-msg" *ngIf="loadError && !isLoading">
+        <p>Unable to load association statistics. Please try again.</p>
+      </div>
+
+      <ng-container *ngIf="!isLoading && !loadError">
+        <!-- Overall totals -->
+        <div class="totals-row">
+          <div class="total-tile">
+            <div class="total-label">Total Bookings</div>
+            <div class="total-value">{{ totals.totalBookings | number }}</div>
+          </div>
+          <div class="total-tile">
+            <div class="total-label">Total Receipts</div>
+            <div class="total-value">{{ totals.totalReceipts | number }}</div>
+          </div>
+          <div class="total-tile">
+            <div class="total-label">Total Tourists</div>
+            <div class="total-value">{{ totals.totalTourists | number }}</div>
+          </div>
+        </div>
+
+        <!-- Per-association cards -->
+        <div class="assoc-grid">
+          <div
+            class="assoc-card"
+            *ngFor="let a of associations; trackBy: trackAssociation"
+          >
+            <div class="assoc-name">{{ a.associationName }}</div>
+            <div class="assoc-metrics">
+              <div class="metric">
+                <div class="metric-value">{{ a.totalBookings | number }}</div>
+                <div class="metric-label">Bookings</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">{{ a.totalReceipts | number }}</div>
+                <div class="metric-label">Receipts</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">{{ a.totalTourists | number }}</div>
+                <div class="metric-label">Tourists</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="empty-msg" *ngIf="associations.length === 0">
+          No association data available.
+        </p>
+      </ng-container>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
