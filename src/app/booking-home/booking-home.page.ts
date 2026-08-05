@@ -263,16 +263,10 @@ export class BookingHomePage implements OnInit {
       .filter((booking) => {
         if (booking.status === 'cancelled') return false;
 
-        // For accommodation, match any date within check-in to check-out range
-        if (
-          booking.type === 'Accommodation' &&
-          booking.checkInDate &&
-          booking.checkOutDate
-        ) {
-          return (
-            this.selectedDateKey! >= booking.checkInDate &&
-            this.selectedDateKey! <= booking.checkOutDate
-          );
+        // For accommodation, match only the check-in date (the calendar marks
+        // check-in only, not the whole stay range).
+        if (booking.type === 'Accommodation' && booking.checkInDate) {
+          return this.selectedDateKey! === booking.checkInDate;
         }
 
         // For activity/package, match the single booked date
@@ -451,25 +445,19 @@ export class BookingHomePage implements OnInit {
         return;
       }
 
-      // For accommodation, mark every date from check-in to check-out
-      if (
-        booking.type === 'Accommodation' &&
-        booking.checkInDate &&
-        booking.checkOutDate
-      ) {
-        const start = new Date(booking.checkInDate);
-        const end = new Date(booking.checkOutDate);
-        for (
-          const d = new Date(start);
-          d <= end;
-          d.setDate(d.getDate() + 1)
+      // For accommodation, mark only the check-in date (not the whole stay
+      // range — the check-out date is no longer highlighted on the calendar).
+      if (booking.type === 'Accommodation' && booking.checkInDate) {
+        // checkInDate is already a YYYY-MM-DD key; parse locally to avoid the
+        // UTC shift new Date('YYYY-MM-DD') causes in negative-offset zones.
+        const checkIn = this.parseDateKey(booking.checkInDate);
+        if (
+          checkIn.getFullYear() === year &&
+          checkIn.getMonth() === month
         ) {
-          if (d.getFullYear() === year && d.getMonth() === month) {
-            const key = this.toDateKey(new Date(d));
-            const current = bookingsByDate.get(key) || [];
-            if (!current.includes(booking)) current.push(booking);
-            bookingsByDate.set(key, current);
-          }
+          const current = bookingsByDate.get(booking.checkInDate) || [];
+          if (!current.includes(booking)) current.push(booking);
+          bookingsByDate.set(booking.checkInDate, current);
         }
         return;
       }
