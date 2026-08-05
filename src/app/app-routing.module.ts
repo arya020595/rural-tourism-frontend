@@ -364,6 +364,18 @@ const routes: Routes = [
     },
   },
   {
+    path: 'admin/association-stats',
+    loadChildren: () =>
+      import('./admin/association-stats/association-stats.module').then(
+        (m) => m.AssociationStatsPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'superadmin',
+      permissions: ['role:read'],
+    },
+  },
+  {
     path: 'role',
     redirectTo: 'login',
     pathMatch: 'full',

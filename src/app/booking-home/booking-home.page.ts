@@ -254,7 +254,7 @@ export class BookingHomePage implements OnInit {
     )}`;
   }
 
-  get selectedDateBookings(): BookingRow[] {
+  get selectedDateBookings(): BookingDetail[] {
     if (!this.selectedDateKey) {
       return [];
     }
@@ -445,16 +445,35 @@ export class BookingHomePage implements OnInit {
         return;
       }
 
-      // For accommodation, mark only the check-in date (not the whole stay
-      // range — the check-out date is no longer highlighted on the calendar).
+      // For accommodation, colour every NIGHT of the stay: from check-in up to
+      // (but not including) the check-out date. e.g. check-in 7th, check-out 9th
+      // colours the 7th and 8th. The detail panel (selectedDateBookings) still
+      // only surfaces the booking on the check-in date.
+      if (
+        booking.type === 'Accommodation' &&
+        booking.checkInDate &&
+        booking.checkOutDate
+      ) {
+        // Parse locally (avoids the UTC shift new Date('YYYY-MM-DD') causes).
+        const night = this.parseDateKey(booking.checkInDate);
+        const checkOut = this.parseDateKey(booking.checkOutDate);
+        // Iterate nights: check-in inclusive, check-out exclusive.
+        while (night < checkOut) {
+          if (night.getFullYear() === year && night.getMonth() === month) {
+            const key = this.toDateKey(night);
+            const current = bookingsByDate.get(key) || [];
+            if (!current.includes(booking)) current.push(booking);
+            bookingsByDate.set(key, current);
+          }
+          night.setDate(night.getDate() + 1);
+        }
+        return;
+      }
+
+      // Accommodation with a check-in but no check-out: colour the single night.
       if (booking.type === 'Accommodation' && booking.checkInDate) {
-        // checkInDate is already a YYYY-MM-DD key; parse locally to avoid the
-        // UTC shift new Date('YYYY-MM-DD') causes in negative-offset zones.
         const checkIn = this.parseDateKey(booking.checkInDate);
-        if (
-          checkIn.getFullYear() === year &&
-          checkIn.getMonth() === month
-        ) {
+        if (checkIn.getFullYear() === year && checkIn.getMonth() === month) {
           const current = bookingsByDate.get(booking.checkInDate) || [];
           if (!current.includes(booking)) current.push(booking);
           bookingsByDate.set(booking.checkInDate, current);
