@@ -38,4 +38,28 @@ export class DashboardApiService {
       { params },
     );
   }
+
+  // Superadmin-only: all-time totals per association.
+  getAssociationStats(): Observable<ApiResponse<AssociationStatsData>> {
+    return this.http.get<ApiResponse<AssociationStatsData>>(
+      `${this.apiUrl}/dashboard/association-stats`,
+    );
+  }
+}
+
+export interface AssociationStatRow {
+  associationId: number;
+  associationName: string;
+  totalBookings: number;
+  totalReceipts: number;
+  totalTourists: number;
+}
+
+export interface AssociationStatsData {
+  associations: AssociationStatRow[];
+  totals: {
+    totalBookings: number;
+    totalReceipts: number;
+    totalTourists: number;
+  };
 }
