@@ -47,12 +47,19 @@ export class DashboardApiService {
   }
 }
 
+export interface AssociationCompany {
+  companyId: number;
+  companyName: string;
+}
+
 export interface AssociationStatRow {
   associationId: number;
   associationName: string;
   totalBookings: number;
   totalReceipts: number;
   totalTourists: number;
+  totalCancelled: number;
+  companies: AssociationCompany[];
 }
 
 export interface AssociationStatsData {
@@ -61,5 +68,6 @@ export interface AssociationStatsData {
     totalBookings: number;
     totalReceipts: number;
     totalTourists: number;
+    totalCancelled: number;
   };
 }

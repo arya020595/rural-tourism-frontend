@@ -22,7 +22,12 @@ export class AssociationStatsPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   associations: AssociationStatRow[] = [];
-  totals = { totalBookings: 0, totalReceipts: 0, totalTourists: 0 };
+  totals = {
+    totalBookings: 0,
+    totalReceipts: 0,
+    totalTourists: 0,
+    totalCancelled: 0,
+  };
   isLoading = false;
   loadError = false;
 
@@ -58,12 +63,17 @@ export class AssociationStatsPage implements OnInit {
     this.loadError = false;
     this.dashboardApi.getAssociationStats().subscribe({
       next: (res) => {
-        this.associations = res?.data?.associations ?? [];
+        // Rank the cards by total bookings (most active first) so the top
+        // performers surface instead of alphabetical order.
+        this.associations = [...(res?.data?.associations ?? [])].sort(
+          (a, b) => b.totalBookings - a.totalBookings,
+        );
         this.totals =
           res?.data?.totals ?? {
             totalBookings: 0,
             totalReceipts: 0,
             totalTourists: 0,
+            totalCancelled: 0,
           };
         this.isLoading = false;
       },
