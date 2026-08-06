@@ -60,6 +60,10 @@
             <div class="total-label">Total Tourists</div>
             <div class="total-value">{{ totals.totalTourists | number }}</div>
           </div>
+          <div class="total-tile">
+            <div class="total-label">Booking Cancelled</div>
+            <div class="total-value">{{ totals.totalCancelled | number }}</div>
+          </div>
         </div>
 
         <!-- Per-association cards -->
@@ -82,6 +86,10 @@
                 <div class="metric-value">{{ a.totalTourists | number }}</div>
                 <div class="metric-label">Tourists</div>
               </div>
+              <div class="metric">
+                <div class="metric-value">{{ a.totalCancelled | number }}</div>
+                <div class="metric-label">Cancelled</div>
+              </div>
             </div>
           </div>
         </div>
@@ -89,6 +97,51 @@
         <p class="empty-msg" *ngIf="associations.length === 0">
           No association data available.
         </p>
+
+        <!-- Companies grouped by association -->
+        <div class="companies-section" *ngIf="associations.length > 0">
+          <h2 class="section-title">
+            Syarikat mengikut Persatuan / Companies by Association
+          </h2>
+          <div class="companies-table-scroll">
+            <table class="companies-table">
+              <thead>
+                <tr>
+                  <th *ngFor="let a of associations; trackBy: trackAssociation">
+                    {{ a.associationName }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td
+                    *ngFor="let a of associations; trackBy: trackAssociation"
+                  >
+                    <div
+                      class="company-item"
+                      *ngFor="let c of a.companies"
+                    >
+                      {{ c.companyName }}
+                    </div>
+                    <div class="company-empty" *ngIf="a.companies.length === 0">
+                      —
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td
+                    class="company-total"
+                    *ngFor="let a of associations; trackBy: trackAssociation"
+                  >
+                    Total: {{ a.companies.length }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
       </ng-container>
     </ion-card-content>
   </ion-card>

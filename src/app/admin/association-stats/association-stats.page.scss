@@ -59,7 +59,7 @@ hr {
 /* Overall totals */
 .totals-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -116,8 +116,8 @@ hr {
 
 .assoc-metrics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 8px;
 }
 
 .metric {
@@ -145,8 +145,80 @@ hr {
   padding: 24px 0;
 }
 
+/* Companies-by-association table */
+.companies-section {
+  margin-top: 32px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #04552f;
+  margin-bottom: 14px;
+}
+
+.companies-table-scroll {
+  overflow-x: auto;
+}
+
+.companies-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  table-layout: fixed;
+}
+
+.companies-table th {
+  background: #04552f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: top;
+  border: 1px solid #033d22;
+}
+
+.companies-table td {
+  border: 1px solid #dbe5df;
+  padding: 8px 12px;
+  vertical-align: top;
+  background: #fbfdfc;
+}
+
+.company-item {
+  font-size: 13px;
+  color: #222;
+  padding: 3px 0;
+  border-bottom: 1px dashed #e4ece8;
+  word-break: break-word;
+}
+.company-item:last-child {
+  border-bottom: none;
+}
+
+.company-empty {
+  color: #999;
+  text-align: center;
+  padding: 6px 0;
+}
+
+.companies-table td.company-total {
+  background: #eaf3ee;
+  font-size: 13px;
+  font-weight: 800;
+  color: #04552f;
+  text-align: center;
+}
+
 /* Tablet: 2 cards per row (still centered on a partial last row). */
 @media (max-width: 992px) {
+  .totals-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .assoc-card {
     flex-basis: calc((100% - 16px) / 2);
     max-width: calc((100% - 16px) / 2);
