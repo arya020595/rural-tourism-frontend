@@ -143,6 +143,47 @@ export class BookingDetailPage implements OnInit {
     await alert.present();
   }
 
+  async recallBooking(): Promise<void> {
+    if (!this.booking || this.booking.status !== 'paid') {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Recall Booking',
+      message:
+        'Recall this booking back to Pending? The receipt will be removed and the booking can be edited again.',
+      buttons: [
+        { text: 'No', role: 'cancel' },
+        {
+          text: 'Yes, Recall',
+          handler: async () => {
+            await this.loadingService.show('Recalling booking...');
+            this.bookingService.recallBooking(String(this.booking!.id)).subscribe({
+              next: async () => {
+                this.booking = { ...this.booking!, status: 'pending' };
+                await this.offlineQueue.recordSyncedEdit(
+                  this.booking.numericId ?? Number(this.booking.id),
+                  { status: 'pending' },
+                );
+                await this.loadingService.hide();
+                await this.toastService.success('Booking recalled to pending');
+                this.goBack();
+              },
+              error: async (error) => {
+                await this.loadingService.hide();
+                await this.toastService.error(
+                  error?.error?.message || 'Failed to recall booking',
+                );
+              },
+            });
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
   editBooking(): void {
     if (!this.booking || this.booking.status !== 'pending') {
       return;
