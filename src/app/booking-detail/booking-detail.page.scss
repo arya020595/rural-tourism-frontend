@@ -370,6 +370,15 @@ ion-content {
   }
 }
 
+/* Red "Recall Booking" action (paid bookings) */
+.bottom-action.recall {
+  background-color: #c62828;
+
+  &:hover {
+    background-color: #b71c1c;
+  }
+}
+
 @media (max-width: 992px) {
   .back-link,
   .title-row h1 {

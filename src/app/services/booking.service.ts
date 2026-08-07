@@ -129,6 +129,11 @@ export class BookingService {
     return this.http.patch(`${this.apiUrl}/bookings/${bookingId}/payment`, {});
   }
 
+  // Recall a paid booking back to pending (clears the receipt).
+  recallBooking(bookingId: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/bookings/${bookingId}/recall`, {});
+  }
+
   getBookings(params?: {
     page?: number;
     per_page?: number;
