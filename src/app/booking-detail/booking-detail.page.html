@@ -143,7 +143,15 @@
         <ng-container
           *ngIf="booking.status === 'paid'; else bookedButtonsTemplate"
         >
-          <div class="action-row action-row-two">
+          <div class="action-row action-row-three">
+            <button
+              type="button"
+              class="bottom-action recall"
+              (click)="recallBooking()"
+            >
+              <ion-icon name="arrow-undo-outline"></ion-icon>
+              <span>Panggil Semula/Recall Booking</span>
+            </button>
             <button
               type="button"
               class="bottom-action submit"
