@@ -548,6 +548,18 @@ const routes: Routes = [
     },
   },
   {
+    path: 'deletion-requests',
+    loadChildren: () =>
+      import('./deletion-requests/deletion-requests.module').then(
+        (m) => m.DeletionRequestsPageModule,
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'superadmin',
+      permissions: ['user:delete'],
+    },
+  },
+  {
     path: 'master-data',
     loadChildren: () =>
       import('./master-data/master-data.module').then(

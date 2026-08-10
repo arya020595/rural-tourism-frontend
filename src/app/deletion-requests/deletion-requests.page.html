@@ -1,0 +1,141 @@
+<app-side-nav
+  [menuId]="'deletion-requests-menu'"
+  [contentId]="'deletion-requests-main-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="dr-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button
+        menu="deletion-requests-menu"
+        class="menu-toggle"
+      ></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content
+  [fullscreen]="true"
+  id="deletion-requests-main-content"
+  class="dr-content"
+>
+  <div class="surface-card">
+    <div class="dr-container">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="dr-page-header">
+        <h1>
+          Permintaan Penghapusan Akaun/<br class="mobile-break" />
+          <em>Account Deletion Requests</em>
+        </h1>
+      </div>
+
+      <div class="dr-spinner" *ngIf="isLoading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div class="dr-table-wrap" *ngIf="!isLoading">
+        <table class="dr-table">
+          <thead>
+            <tr>
+              <th class="col-actions"></th>
+              <th class="col-id">User ID</th>
+              <th class="col-name">Full Name</th>
+              <th class="col-email">Email Address</th>
+              <th class="col-date">Requested At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users">
+              <td class="col-actions">
+                <div class="dr-action-btns">
+                  <button
+                    type="button"
+                    class="dr-btn dr-btn--info"
+                    title="Lihat / View"
+                    aria-label="View user"
+                    (click)="openViewModal(u)"
+                  >
+                    <ion-icon name="information-circle"></ion-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="dr-btn dr-btn--reject"
+                    title="Tolak / Reject"
+                    aria-label="Reject deletion request"
+                    (click)="rejectRequest(u)"
+                    [disabled]="actioningUserId === u.id"
+                    *hasPermission="'user:delete'"
+                  >
+                    <ion-icon name="close-circle"></ion-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="dr-btn dr-btn--approve"
+                    title="Luluskan &amp; Padam / Approve &amp; Delete"
+                    aria-label="Approve and delete account"
+                    (click)="openApproveModal(u)"
+                    *hasPermission="'user:delete'"
+                  >
+                    <ion-icon name="trash"></ion-icon>
+                  </button>
+                </div>
+              </td>
+              <td class="col-id">{{ formatUserId(u.id) }}</td>
+              <td class="col-name">{{ u.name }}</td>
+              <td class="col-email">{{ u.email }}</td>
+              <td class="col-date">{{ formatDate(u.deletion_requested_at) }}</td>
+            </tr>
+
+            <tr *ngIf="users.length === 0">
+              <td colspan="5" class="dr-empty">
+                <ion-icon name="checkmark-done-outline"></ion-icon>
+                <p>
+                  Tiada permintaan penghapusan akaun / No pending deletion
+                  requests.
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dr-footer" *ngIf="!isLoading && meta.total > 0">
+        <p class="dr-count">
+          Showing {{ showingFrom }} to {{ showingTo }} out of {{ meta.total }}
+          entries
+        </p>
+
+        <nav class="dr-pagination" aria-label="Pagination" *ngIf="meta.total_pages > 1">
+          <button
+            class="dr-page-btn"
+            [disabled]="!meta.has_prev"
+            (click)="goToPage(meta.page - 1)"
+          >
+            &laquo; Previous
+          </button>
+          <button
+            class="dr-page-btn"
+            [disabled]="!meta.has_next"
+            (click)="goToPage(meta.page + 1)"
+          >
+            Next &raquo;
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</ion-content>

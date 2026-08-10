@@ -33,6 +33,10 @@ export interface User {
   role?: UserRole | null;
   association?: UserAssociation | null;
   company?: UserCompany | null;
+  deletion_requested_at?: string | null;
+  deletion_reason?: string | null;
+  deletion_reviewed_by?: string | null;
+  deletion_reviewed_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -90,4 +94,5 @@ export interface UserListParams {
   page?: number;
   per_page?: number;
   search?: string;
+  pending_deletion?: boolean;
 }
