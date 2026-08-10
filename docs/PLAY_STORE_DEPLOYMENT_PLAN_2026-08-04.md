@@ -1,9 +1,9 @@
-# Play Store Deployment Plan — RUTeC
+# Play Store Deployment Plan — RuTEC
 
 **Actionable plan to publish the app to the Google Play Store.**
 
 > Created: 2026-08-04
-> App: Rural Tourism Sabah (RUTeC) · `com.sabah.ruraltourism`
+> App: Rural Tourism Sabah (RuTEC) · `com.sabah.ruraltourism`
 > Stack: Ionic 8 + Angular 18 + Capacitor 7
 
 This is the **plan and the runbook** — what is done, what is blocking, and a
@@ -19,26 +19,26 @@ Developer-account creation:
 
 ---
 
-## 1. Current status (verified 2026-08-04)
+## 1. Current status
 
 | Item | State | Notes |
 |---|---|---|
 | Google Play developer account | ✅ Have | Account exists |
-| Domain name | ✅ Have | Purchased — **not yet serving the API** |
+| Domain name | ✅ Have | `rutec.my` (frontend), `api.rutec.my` (backend) |
 | App ID `com.sabah.ruraltourism` | ✅ Done | `capacitor.config.ts` + `build.gradle` |
 | `native` build config + npm scripts | ✅ Done | `full-release`, `android:sync`, `android:apk`, `android:release` |
 | `versionCode` / `versionName` | ✅ Done | `1` / `1.0.0` |
 | `.gitignore` protects keystore | ✅ Done | `key.properties`, `*.keystore`, `*.jks` |
 | In-app privacy policy page | ✅ Exists | `src/app/privacy-policy` — still needs a **public HTTPS URL** |
-| **HTTPS production API** | ❌ **BLOCKER** | Only `http://46.202.163.155:3008` responds; HTTPS on that host fails |
-| **`environment.native.ts` uses HTTPS** | ❌ **BLOCKER** | Currently `http://46.202.163.155:3008` (staging IP, cleartext) |
-| **`capacitor.config.ts` production-safe** | ❌ **BLOCKER** | Still has `cleartext: true`, `allowMixedContent: true`, `androidScheme: 'http'` |
+| **HTTPS production API** | ✅ **Done (verified 2026-08-10)** | `https://api.rutec.my/api` returns 200; CORS allows `capacitor://localhost`, so `NODE_ENV=production` is set correctly |
+| **`environment.native.ts` uses HTTPS** | ✅ **Done (2026-08-10)** | Now `https://api.rutec.my/api` |
+| **`capacitor.config.ts` production-safe** | ✅ **Done (2026-08-10)** | `cleartext` / `allowMixedContent` removed, `androidScheme: 'https'` |
 | **Signing keystore + `signingConfigs`** | ❌ **BLOCKER** | No `key.properties`; no `signingConfigs` block in `build.gradle` |
 | Store assets (icon, feature graphic, screenshots) | ❌ Not prepared | No `resources/` directory yet |
 
-**Verdict:** having the domain and the developer account is necessary but **not
-sufficient**. Four blockers remain; the HTTPS API is the critical path because
-every other step depends on the final API URL.
+**Verdict:** the infrastructure blocker (HTTPS backend) is resolved and the app
+now points at it. The remaining blocker is **code signing** (Step 6–8) — build
+the AAB after that. Store assets can be prepared in parallel.
 
 ---
 
@@ -365,7 +365,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.sabah.ruraltourism',
-  appName: 'RUTeC',
+  appName: 'RuTEC',
   webDir: 'www',
   server: {
     androidScheme: 'https',
@@ -513,7 +513,7 @@ Check: login works, bookings load, a receipt PDF opens.
 ### STEP 11 🌐 — Create the app in Play Console
 
 1. [play.google.com/console](https://play.google.com/console) → **Create app**
-2. Name `RUTeC` (or `Rural Tourism Sabah`), language, **App**, **Free**.
+2. Name `RuTEC` (or `Rural Tourism Sabah`), language, **App**, **Free**.
 3. Complete each checklist section:
    - **App access** — provide a reviewer test login (an operator account with
      sample data) or Google cannot review the app.
