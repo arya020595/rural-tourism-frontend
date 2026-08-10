@@ -40,6 +40,10 @@
         <span class="detail-label">E-mel/Email</span>
         <span class="detail-value">{{ user.email }}</span>
       </div>
+      <div class="detail-row" *ngIf="user.company?.contact_no">
+        <span class="detail-label">No. Telefon/Phone Number</span>
+        <span class="detail-value">{{ user.company?.contact_no }}</span>
+      </div>
       <div class="detail-row" *ngIf="user.role">
         <span class="detail-label">Peranan/Role</span>
         <span class="detail-value">{{ user.role.name }}</span>

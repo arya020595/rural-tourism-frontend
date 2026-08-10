@@ -430,6 +430,58 @@ select.native-select:invalid {
   cursor: not-allowed;
 }
 
+.danger-zone {
+  border-color: #f0c2c2;
+  margin-top: 18px;
+}
+
+.danger-zone .section-heading {
+  background: #c62828;
+}
+
+.danger-zone-description,
+.danger-zone-pending {
+  padding: 12px;
+  margin: 0;
+  font-size: 13px;
+  color: #5a5a5a;
+  line-height: 1.5;
+}
+
+.danger-zone-pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8a6d00;
+  background: #fff8e1;
+}
+
+.request-deletion-button {
+  border: none;
+  background: #c62828;
+  color: #ffffff;
+  border-radius: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  margin: 0 12px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.request-deletion-button:hover {
+  background: #b71c1c;
+}
+
+.request-deletion-button[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .loading-wrapper {
   min-height: 60vh;
   display: flex;

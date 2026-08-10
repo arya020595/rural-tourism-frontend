@@ -1,0 +1,229 @@
+// ── Toolbar (matches Users page pattern) ───────────────────────────────────
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
+.dr-header ion-toolbar {
+  --background: #2b2f2b;
+  --box-shadow: none;
+  --border-width: 0;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #ffffff;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.menu-toggle {
+  color: #ffffff;
+}
+
+.dr-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.dr-page-header {
+  margin-bottom: 16px;
+}
+
+// ── Spinner ────────────────────────────────────────────────────────────────
+.dr-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+// ── Table ──────────────────────────────────────────────────────────────────
+.dr-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.dr-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+
+  thead th {
+    background: #c62828;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 16px 12px;
+    text-align: center;
+    white-space: nowrap;
+
+    &:first-child {
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+    }
+  }
+
+  tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #d6d6d6;
+    color: #121212;
+    font-size: 18px;
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
+.col-actions {
+  width: 140px;
+}
+.col-id {
+  width: 100px;
+  white-space: nowrap;
+}
+.col-name {
+  min-width: 140px;
+}
+.col-email {
+  min-width: 200px;
+}
+.col-date {
+  width: 170px;
+  white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+  .dr-table thead th,
+  .dr-table tbody td {
+    font-size: 16px;
+  }
+}
+
+// ── Action buttons ─────────────────────────────────────────────────────────
+.dr-action-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dr-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 28px;
+  }
+
+  &:hover {
+    opacity: 0.75;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &--info {
+    color: #245a94;
+  }
+  &--reject {
+    color: #f28a00;
+  }
+  &--approve {
+    color: #ef1616;
+  }
+}
+
+// ── Empty state ────────────────────────────────────────────────────────────
+.dr-empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 48px;
+    display: block;
+    margin: 0 auto 8px;
+    color: #2e7d32;
+  }
+  p {
+    margin: 0;
+  }
+}
+
+// ── Footer ─────────────────────────────────────────────────────────────────
+.dr-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dr-count {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 0;
+}
+
+.dr-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.dr-page-btn {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #f0f0f0;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 480px) {
+  .dr-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+  .dr-pagination {
+    order: 1;
+    justify-content: center;
+    width: 100%;
+  }
+  .dr-count {
+    order: 2;
+    text-align: center;
+  }
+}

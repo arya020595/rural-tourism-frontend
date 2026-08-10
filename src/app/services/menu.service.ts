@@ -121,6 +121,14 @@ export class MenuService {
       roles: ['superadmin', 'operator_admin'],
     },
     {
+      id: 'deletion-requests',
+      label: 'Deletion Requests / Permintaan Penghapusan',
+      icon: 'trash-outline',
+      route: '/deletion-requests',
+      permission: 'user:delete',
+      roles: ['superadmin'],
+    },
+    {
       id: 'role-management',
       label: 'Pengurusan Peranan / Role Management',
       icon: 'shield-outline',
