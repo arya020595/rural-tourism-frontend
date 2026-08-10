@@ -3,7 +3,7 @@
 **Step-by-step guide to fix all blockers and publish the app to Google Play Store.**
 
 > Created: May 12, 2026  
-> App: Rural Tourism Sabah (RUTeC)  
+> App: Rural Tourism Sabah (RuTEC)  
 > Stack: Ionic 8 + Angular 18 + Capacitor 7
 
 > **Opening the developer account?** Account creation (Organization type, D-U-N-S number,
@@ -16,7 +16,7 @@
 | Item | Value |
 |---|---|
 | Application ID | `com.sabah.ruraltourism` |
-| App name | RUTeC |
+| App name | RuTEC |
 | `minSdkVersion` | 23 |
 | `targetSdkVersion` / `compileSdkVersion` | 35 |
 | Current `versionCode` / `versionName` | 1 / 1.0 |

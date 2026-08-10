@@ -263,9 +263,17 @@ export class BookingHomePage implements OnInit {
       .filter((booking) => {
         if (booking.status === 'cancelled') return false;
 
-        // For accommodation, match only the check-in date (the calendar marks
-        // check-in only, not the whole stay range).
+        // For accommodation, match any night of the stay: check-in inclusive,
+        // check-out exclusive (same range the calendar colours). e.g. check-in
+        // 10 Aug / check-out 12 Aug shows the booking on the 10th and 11th, but
+        // not the 12th (the checkout day itself isn't a booked night).
         if (booking.type === 'Accommodation' && booking.checkInDate) {
+          if (booking.checkOutDate) {
+            return (
+              this.selectedDateKey! >= booking.checkInDate &&
+              this.selectedDateKey! < booking.checkOutDate
+            );
+          }
           return this.selectedDateKey! === booking.checkInDate;
         }
 
