@@ -312,6 +312,41 @@
               </span>
             </button>
           </div>
+
+          <div class="section-panel danger-zone" *ngIf="canUpdateCompany">
+            <div class="section-heading">Buang Akaun / Delete Account</div>
+
+            <p class="danger-zone-description" *ngIf="!deletionRequestedAt">
+              Meminta pembuangan akaun secara kekal. Permintaan ini akan
+              disemak oleh pentadbir./Request for permanent account deletion. This request will be review by the administrator.
+            </p>
+            <p class="danger-zone-pending" *ngIf="deletionRequestedAt">
+              <ion-icon name="time-outline"></ion-icon>
+              Permintaan penghapusan akaun anda sedang disemak./Your account
+              deletion request is pending review.
+            </p>
+
+            <button
+              *ngIf="!deletionRequestedAt"
+              type="button"
+              class="request-deletion-button"
+              (click)="requestAccountDeletion()"
+              [disabled]="isRequestingDeletion"
+            >
+              <ion-spinner
+                *ngIf="isRequestingDeletion"
+                name="crescent"
+              ></ion-spinner>
+              <ion-icon
+                *ngIf="!isRequestingDeletion"
+                name="trash-outline"
+              ></ion-icon>
+              <span>
+                {{ isRequestingDeletion ? 'Menghantar/Submitting...' :
+                'Permintaan Buang Akaun/Request Account Deletion' }}
+              </span>
+            </button>
+          </div>
         </form>
       </div>
     </ng-container>

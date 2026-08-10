@@ -24,6 +24,9 @@ export class UserService {
     if (params.per_page != null)
       httpParams = httpParams.set('per_page', params.per_page);
     if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.pending_deletion) {
+      httpParams = httpParams.set('pending_deletion', 'true');
+    }
     return this.http.get<UserListResponse>(`${this.apiUrl}/users`, {
       params: httpParams,
     });
@@ -54,6 +57,25 @@ export class UserService {
   deleteUser(id: number): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${this.apiUrl}/users/${id}`,
+    );
+  }
+
+  /** Self-service: request deletion of one's own account */
+  requestDeletion(
+    id: number,
+    reason?: string,
+  ): Observable<UserSingleResponse> {
+    return this.http.patch<UserSingleResponse>(
+      `${this.apiUrl}/users/${id}/request-deletion`,
+      { reason },
+    );
+  }
+
+  /** Admin: reject a pending deletion request */
+  rejectDeletion(id: number): Observable<UserSingleResponse> {
+    return this.http.patch<UserSingleResponse>(
+      `${this.apiUrl}/users/${id}/reject-deletion`,
+      {},
     );
   }
 

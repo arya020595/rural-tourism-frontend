@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { MenuController, ToastController } from '@ionic/angular';
+import { AlertController, MenuController, ToastController } from '@ionic/angular';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { environment } from '../../environments/environment';
 import { AssociationService } from '../services/association.service';
@@ -51,6 +51,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   isLoading = true;
   isEditing = false;
   isSaving = false;
+  isRequestingDeletion = false;
+  deletionRequestedAt: string | null = null;
 
   private readonly maxFileSizeBytes = 1 * 1024 * 1024;
   private readonly maxTotalUploadSizeBytes = 10 * 1024 * 1024;
@@ -107,6 +109,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     private router: Router,
     private toastController: ToastController,
     private sanitizer: DomSanitizer,
+    private alertCtrl: AlertController,
   ) {}
 
   ngOnInit(): void {
@@ -266,6 +269,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
         const mapped = this.mapUserToFormData(data);
         this.formData = mapped;
         this.initialFormData = this.cloneFormData(mapped);
+        this.deletionRequestedAt = data?.deletion_requested_at || null;
         this.isLoading = false;
       },
       error: () => {
@@ -924,6 +928,51 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   closeMenu(): void {
     this.menuCtrl.close();
+  }
+
+  async requestAccountDeletion(): Promise<void> {
+    if (this.isRequestingDeletion || this.deletionRequestedAt || !this.uid) {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Request Account Deletion',
+      message:
+        'This will submit a request to delete your account. An administrator will review your request. If approved, your account (login access, profile, and business documents) will be permanently deleted and cannot be recovered. Your existing booking and receipt records will be retained as historical data. Continue?',
+      buttons: [
+        {
+          text: 'Yes, Request Deletion',
+          role: 'destructive',
+          handler: () => this.submitDeletionRequest(),
+        },
+        { text: 'Cancel', role: 'cancel' },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  private submitDeletionRequest(): void {
+    if (!this.uid) {
+      return;
+    }
+
+    this.isRequestingDeletion = true;
+    this.userService.requestDeletion(Number(this.uid)).subscribe({
+      next: () => {
+        this.isRequestingDeletion = false;
+        this.deletionRequestedAt = new Date().toISOString();
+        this.showSuccess(
+          'Account deletion requested. An administrator will review your request.',
+        );
+      },
+      error: (error: any) => {
+        this.isRequestingDeletion = false;
+        this.showError(
+          error?.error?.message || 'Failed to submit deletion request.',
+        );
+      },
+    });
   }
 
   logOut(): void {
