@@ -88,13 +88,17 @@
         [totalPages]="totalBookingPages"
         [queueStatusMap]="queueStatusMap"
         [statusFilter]="statusFilter"
+        [typeFilter]="typeFilter"
         [isLoading]="loadingPage"
         [perPageOptions]="perPageOptions"
+        [canCancel]="canCancelBooking"
         (pageChange)="changeBookingPage($event)"
         (pageSizeChange)="changePageSize($event)"
         (viewDetails)="viewBookingDetails($event)"
         (editBooking)="editBooking($event)"
+        (cancelBooking)="cancelBooking($event)"
         (statusFilterChange)="cycleStatusFilter()"
+        (typeFilterChange)="cycleTypeFilter()"
       ></app-booking-list-table>
 
       <section *ngIf="viewMode === 'calendar'" class="calendar-layout">
@@ -177,6 +181,9 @@
                 [class.pending]="getBookingStatusClass(booking) === 'pending'"
                 (click)="viewBookingDetails(booking)"
               >
+                <div class="booking-chip-tourist" *ngIf="booking.fullName">
+                  Name : {{ booking.fullName }}
+                </div>
                 <div class="booking-chip-title">{{ booking.serviceName }} <span class="booking-chip-id">(#{{ booking.id }})</span></div>
                 <div class="booking-chip-meta">
                   {{ booking.type }} - {{ getBookingStatusText(booking) }}

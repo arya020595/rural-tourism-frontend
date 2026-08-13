@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { ProductService } from '../../../services/product.service';
+import { OfflineQueueService } from '../../../services/offline-queue.service';
 
 @Component({
   selector: 'app-activity-booking-form',
@@ -24,8 +25,19 @@ import { ProductService } from '../../../services/product.service';
 export class ActivityBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
+  @Input() hideCancel = false;
+  // Shifts the displayed field numbers. booking-add renders a "1. Select Type"
+  // field before this form, so its fields start at 2 (offset 0). The e-receipt
+  // page has no preceding field, so it passes -1 to start the numbering at 1.
+  @Input() numberOffset = 0;
+  // Hides the Deposit field (e.g. on the e-receipt walk-in flow, which has no
+  // pending/deposit concept). Field numbers after the deposit shift up by one.
+  @Input() hideDeposit = false;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
+
+  /** Deposit field base number; fields after it shift when deposit is hidden. */
+  private readonly depositFieldNumber = 11;
 
   selectedNationality = 'domestic';
   bookingDate = '12/03/2026';
@@ -38,14 +50,26 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   internationalPax = '';
   activity = '';
   total = '';
+  totalDeposit = '';
   operatorName = '';
   activityOptions: string[] = [];
   activitySelectionError = '';
+  emailError = '';
+  validationErrors: string[] = [];
 
   constructor(
     private productService: ProductService,
     private authService: AuthService,
+    private offlineQueue: OfflineQueueService,
   ) {}
+
+  /** Displayed field number for a given base number, shifted by numberOffset.
+   *  When the deposit is hidden, fields numbered after it shift up by one. */
+  n(base: number): number {
+    const depositShift =
+      this.hideDeposit && base > this.depositFieldNumber ? -1 : 0;
+    return base + this.numberOffset + depositShift;
+  }
 
   ngOnInit(): void {
     this.loadActivityOptions();
@@ -74,9 +98,9 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   }
 
   get submitLabel(): string {
-    return this.mode === 'edit'
-      ? 'Kemaskini Tempahan/Update Booking'
-      : 'Hantar Tempahan/Submit Booking';
+    if (this.mode === 'edit') return 'Kemaskini Tempahan/Update Booking';
+    if (this.hideCancel) return 'Hantar/Submit';
+    return 'Hantar Tempahan/Submit Booking';
   }
 
   get isViewMode(): boolean {
@@ -84,10 +108,24 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   }
 
   submitForm(): void {
-    if (!this.isViewMode && !this.hasValidActivitySelection()) {
-      this.activitySelectionError =
-        'Please select an activity from the existing product list.';
-      return;
+    this.validationErrors = [];
+    this.activitySelectionError = '';
+    this.emailError = '';
+
+    if (!this.isViewMode) {
+      if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      if (this.email.trim() && !this.isValidEmail(this.email)) {
+        this.emailError = 'Please enter a valid email address.';
+        this.validationErrors.push('Please enter a valid email address.');
+      }
+      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      if (!this.bookingDate) this.validationErrors.push('Booking date is required.');
+      if (!this.total || Number(this.total) <= 0) this.validationErrors.push('Total amount is required.');
+      if (!this.hasValidActivitySelection()) {
+        this.activitySelectionError = 'Please select an activity from the existing product list.';
+        this.validationErrors.push('Please select a valid activity.');
+      }
+      if (this.validationErrors.length > 0) return;
     }
 
     const selectedActivity = this.getCanonicalOption(
@@ -111,6 +149,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
       internationalPax: this.internationalPax,
       activity: selectedActivity,
       total: this.total,
+      totalDeposit: this.totalDeposit,
       operatorName: this.operatorName,
     });
   }
@@ -154,12 +193,16 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     this.email = this.booking.email || '';
     this.domesticPax = this.booking.domesticPax?.toString() || '';
     this.internationalPax = this.booking.internationalPax?.toString() || '';
-    this.paxCount =
-      this.booking.domesticPax?.toString() ||
-      this.booking.internationalPax?.toString() ||
-      '';
+    // For a single-nationality booking the pax sits in either domestic or
+    // international. Use whichever is non-zero (a plain `||` would treat a
+    // domestic value of 0 as truthy via "0" and hide an international count).
+    const domesticPaxNum = Number(this.booking.domesticPax || 0);
+    const internationalPaxNum = Number(this.booking.internationalPax || 0);
+    const singlePax = domesticPaxNum || internationalPaxNum;
+    this.paxCount = singlePax ? String(singlePax) : '';
     this.activity = this.booking.activityName || this.booking.serviceName || '';
     this.total = this.booking.totalAmount?.toString() || '';
+    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
     this.operatorName = this.booking.operatorName || '';
   }
 
@@ -170,29 +213,29 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
       return;
     }
 
-    const cacheKey = `products_cache_${companyId}`;
+    const applyProducts = (products: any[]) => {
+      const names = (Array.isArray(products) ? products : [])
+        .filter((item: any) => item?.product_type === 'activity')
+        .map((item: any) => String(item?.name || '').trim())
+        .filter((name: string) => name.length > 0);
+      this.activityOptions = this.uniqueSorted(names);
+    };
 
     this.productService
       .getProductsByCompany(companyId, { page: 1, per_page: 1000 })
       .subscribe({
         next: (response) => {
           const products = Array.isArray(response?.data) ? response.data : [];
-          localStorage.setItem(cacheKey, JSON.stringify(products));
-          const names = products
-            .filter((item: any) => item?.product_type === 'activity')
-            .map((item: any) => String(item?.name || '').trim())
-            .filter((name: string) => name.length > 0);
-
-          this.activityOptions = this.uniqueSorted(names);
+          applyProducts(products);
+          // Cache to IndexedDB (best-effort) — replaces localStorage, which
+          // overflowed its quota and crashed the booking forms.
+          void this.offlineQueue.cacheProducts(companyId, products).catch(() => {});
         },
         error: () => {
-          const cached = localStorage.getItem(cacheKey);
-          const products = cached ? JSON.parse(cached) : [];
-          const names = products
-            .filter((item: any) => item?.product_type === 'activity')
-            .map((item: any) => String(item?.name || '').trim())
-            .filter((name: string) => name.length > 0);
-          this.activityOptions = this.uniqueSorted(names);
+          this.offlineQueue
+            .getCachedProducts(companyId)
+            .then((cached) => applyProducts(cached))
+            .catch(() => applyProducts([]));
         },
       });
   }
@@ -209,6 +252,10 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
 
   private hasExistingOption(value: string, options: string[]): boolean {
     return !!this.getCanonicalOption(value, options);
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
   private getCanonicalOption(value: string, options: string[]): string {

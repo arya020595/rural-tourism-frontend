@@ -41,7 +41,7 @@ export class AssociationDashboardPage implements OnInit {
     this.user =
       this.authService.currentUser || storedAssociationUser || storedUser;
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('association');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
 
     if (!this.user) {
       this.biDashboardUrl = null;

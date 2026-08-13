@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
+import { NativeDownloadService } from '../services/native-download.service';
 import { Transaction, TransactionTab } from './my-transaction.models';
 
 @Component({
@@ -27,12 +28,42 @@ export class MyTransactionPage implements OnInit {
 
   private allTransactions: Transaction[] = [];
 
+  // ── Report modal ──────────────────────────────────────────────────
+  isReportModalOpen = false;
+  isReportModalClosing = false;
+  reportYear = new Date().getFullYear();
+  reportType = 'all';
+  reportFromMonth: number | null = null;
+  reportToMonth: number | null = null;
+  isGeneratingReport = false;
+  isDownloadingReport = false;
+  reportGenerated = false;
+  reportData: any = null;
+
+  readonly monthNames = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December',
+  ];
+
+  readonly maxMonthRange = 3;
+
+  get fromMonthValue(): number { return this.reportFromMonth ?? 0; }
+
+  get canGenerateReport(): boolean {
+    return this.authService.hasPermission('booking:export');
+  }
+
+  get availableYears(): number[] {
+    return [new Date().getFullYear()];
+  }
+
   constructor(
     private menuCtrl: MenuController,
     private menuService: MenuService,
     private authService: AuthService,
     private bookingService: BookingService,
     private router: Router,
+    private nativeDownload: NativeDownloadService,
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +127,15 @@ export class MyTransactionPage implements OnInit {
       list = list.filter((t) => t.date.slice(0, 10) === this.selectedDateIso);
     }
 
-    return list;
+    // Latest receipt first (by receipt_created_at); rows without a date go last.
+    return [...list].sort((a, b) => {
+      const aDate = a.receiptCreatedAt || '';
+      const bDate = b.receiptCreatedAt || '';
+      if (aDate && bDate) return bDate.localeCompare(aDate);
+      if (aDate) return -1;
+      if (bDate) return 1;
+      return 0;
+    });
   }
 
   get totalPages(): number {
@@ -157,6 +196,72 @@ export class MyTransactionPage implements OnInit {
     const id = transaction.numericId ?? Number(transaction.id);
     const route = this.getReceiptRoute(transaction.bookingType);
     this.router.navigate([route, id], { state: { booking: transaction._raw ?? transaction } });
+  }
+
+  openReportModal(): void {
+    this.reportYear = new Date().getFullYear();
+    this.reportType = 'all';
+    this.reportFromMonth = null;
+    this.reportToMonth = null;
+    this.reportData = null;
+    this.reportGenerated = false;
+    this.isReportModalOpen = true;
+  }
+
+  onFromMonthChange(): void {
+    this.reportToMonth = null;
+  }
+
+  closeReportModal(): void {
+    this.isReportModalClosing = true;
+    setTimeout(() => {
+      this.isReportModalOpen = false;
+      this.isReportModalClosing = false;
+      this.reportData = null;
+      this.reportGenerated = false;
+    }, 320);
+  }
+
+  generateReport(): void {
+    if (this.isGeneratingReport || !this.reportFromMonth || !this.reportToMonth) return;
+    this.isGeneratingReport = true;
+    this.reportData = null;
+    this.reportGenerated = false;
+
+    this.bookingService.getStatementPreview(this.reportYear, this.reportType, this.reportFromMonth, this.reportToMonth).subscribe({
+      next: (res) => {
+        this.reportData = res?.data ?? res;
+        this.reportGenerated = true;
+        this.isGeneratingReport = false;
+      },
+      error: (err) => {
+        console.error('[GenerateReport] error:', err);
+        this.isGeneratingReport = false;
+      },
+    });
+  }
+
+  downloadReport(): void {
+    if (this.isDownloadingReport || !this.reportFromMonth || !this.reportToMonth) return;
+    this.isDownloadingReport = true;
+
+    const filename = `statement-${this.reportYear}-m${this.reportFromMonth}-m${this.reportToMonth}-${this.reportType}.pdf`;
+    this.bookingService.downloadStatementPdf(this.reportYear, this.reportType, this.reportFromMonth, this.reportToMonth).subscribe({
+      next: async (blob) => {
+        await this.nativeDownload.downloadBlob(blob, filename);
+        this.isDownloadingReport = false;
+      },
+      error: (err) => {
+        console.error('[DownloadReport] error:', err);
+        this.isDownloadingReport = false;
+      },
+    });
+  }
+
+  getLogoSrc(): string {
+    const logo = this.reportData?.company?.logoBase64;
+    if (!logo) return '';
+    return logo.startsWith('data:') ? logo : `data:image/png;base64,${logo}`;
   }
 
   private getReceiptRoute(type: TransactionTab): string {
@@ -229,6 +334,7 @@ export class MyTransactionPage implements OnInit {
       pax,
       totalPrice: Number(b.total_price || 0),
       status: b.status || 'paid',
+      receiptCreatedAt: (b.receipt_created_at || '').slice(0, 10),
       bookingType: 'package',
       numericId: Number(b.id),
       packageCompanies: Array.isArray(b.package_companies) ? b.package_companies : [],
@@ -256,6 +362,7 @@ export class MyTransactionPage implements OnInit {
       pax: Number(booking.total_pax || 0),
       totalPrice: Number(r.per_price || 0),
       status: booking.status || 'paid',
+      receiptCreatedAt: (booking.receipt_created_at || '').slice(0, 10),
       bookingType: 'package',
       numericId: Number(booking.id),
       packageName: r.description || '',
@@ -292,6 +399,7 @@ export class MyTransactionPage implements OnInit {
       pax,
       totalPrice: Number(b.total_price || 0),
       status: 'Paid',
+      receiptCreatedAt: (b.receipt_created_at || '').slice(0, 10),
       bookingType: validType,
       numericId: Number(b.id),
       checkInDate: validType === 'accommodation' ? (b.check_in_date || '').slice(0, 10) : undefined,
@@ -321,7 +429,7 @@ export class MyTransactionPage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private formatDateLabel(isoDate: string): string {

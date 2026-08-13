@@ -62,7 +62,7 @@
             <div class="section-head-row">
               <h3>1. Select Type</h3>
               <button
-                *ngIf="booking?.status !== 'cancelled'"
+                *ngIf="booking?.status !== 'cancelled' && booking?.status !== 'paid'"
                 type="button"
                 class="pdf-button"
                 (click)="viewPaymentReceipt()"
@@ -74,7 +74,7 @@
                   class="pdf-spinner"
                 ></ion-spinner>
                 <ion-icon name="document-text-outline"></ion-icon>
-                <span>{{ isOffline ? 'PDF Unavailable Offline' : 'Manjana PDF/Generate PDF' }}</span>
+                <span>{{ isOffline ? 'PDF Unavailable Offline' : 'Resit Deposit/Deposit Receipt' }}</span>
               </button>
             </div>
             <div class="radio-grid three-col">
@@ -143,7 +143,15 @@
         <ng-container
           *ngIf="booking.status === 'paid'; else bookedButtonsTemplate"
         >
-          <div class="action-row action-row-single-center">
+          <div class="action-row action-row-three">
+            <button
+              type="button"
+              class="bottom-action recall"
+              (click)="recallBooking()"
+            >
+              <ion-icon name="arrow-undo-outline"></ion-icon>
+              <span>Panggil Semula/Recall Booking</span>
+            </button>
             <button
               type="button"
               class="bottom-action submit"
@@ -152,7 +160,22 @@
               <ion-icon name="receipt-outline"></ion-icon>
               <span>Resit Bayaran/Payment Receipt</span>
             </button>
+            <button
+              type="button"
+              class="bottom-action download"
+              (click)="downloadReceiptPdf()"
+              [disabled]="isGeneratingPdf || !booking.numericId || isOffline"
+            >
+              <ion-spinner
+                *ngIf="isGeneratingPdf"
+                name="crescent"
+                class="pdf-spinner"
+              ></ion-spinner>
+              <ion-icon *ngIf="!isGeneratingPdf" name="download-outline"></ion-icon>
+              <span>{{ isOffline ? 'PDF Unavailable Offline' : 'Muat Turun PDF/Download PDF' }}</span>
+            </button>
           </div>
+
         </ng-container>
 
         <ng-template #bookedButtonsTemplate>

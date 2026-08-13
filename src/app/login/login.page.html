@@ -5,10 +5,19 @@
     <ion-card>
       <ion-row>
         <ion-col class="ion-blue-bkg">
-          <img
-            src="../../assets/icon/explore_sabah-without_bg.png"
-            class="borneo"
-          />
+          <div class="logo-row">
+            <img
+              src="../../assets/icon/explore_sabah-without_bg.png"
+              class="borneo"
+              alt="Explore Sabah"
+            />
+            <span class="logo-divider"></span>
+            <img
+              src="../../assets/icon/rutec_icon.png"
+              class="rutec-logo"
+              alt="RuTEC"
+            />
+          </div>
         </ion-col>
 
         <ion-col class="title-col" size="12">
@@ -26,7 +35,7 @@
                   mode="md"
                   [(ngModel)]="username"
                   name="username"
-                  label="Nama Pengguna/Username"
+                  label="Nama Pengguna atau E-mel / Username or Email"
                   label-placement="floating"
                   fill="outline"
                   placeholder="Enter text"

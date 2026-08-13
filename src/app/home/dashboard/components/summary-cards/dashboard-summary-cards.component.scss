@@ -21,15 +21,16 @@
   background: #106532;
   color: #e8f4ed;
   text-align: center;
-  font-size: 56px;
+  font-size: clamp(24px, 2.8vw, 42px);
   font-weight: 700;
   padding: 24px 12px;
-  line-height: 1.1;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 @media (max-width: 1200px) {
   .summary-value {
-    font-size: 42px;
+    font-size: clamp(20px, 2.4vw, 34px);
   }
 
   .summary-header {
@@ -43,6 +44,6 @@
   }
 
   .summary-value {
-    font-size: 36px;
+    font-size: 32px;
   }
 }

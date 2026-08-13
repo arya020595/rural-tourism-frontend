@@ -4,6 +4,7 @@ import { Platform } from '@ionic/angular';
 import { Subscription, interval } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
+import { InactivityService } from './services/inactivity.service';
 import { NetworkService } from './services/network.service';
 import { NotificationService } from './services/notification.service';
 import { OfflineQueueService } from './services/offline-queue.service';
@@ -19,11 +20,13 @@ export class AppComponent implements OnInit, OnDestroy {
   user: any = null;
 
   private pollingSub?: Subscription;
+  private inactivitySub?: Subscription;
 
   constructor(
     private platform: Platform,
     private router: Router,
     private authService: AuthService,
+    private inactivityService: InactivityService,
     private networkService: NetworkService,
     private syncService: SyncService,
     private offlineQueue: OfflineQueueService,
@@ -42,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       this.loadUserData();
       this.startNotificationPolling();
+      this.startInactivityTracking();
       this.applyStandaloneClass();
 
       this.router.events.subscribe((event) => {
@@ -82,6 +86,19 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  private isOperatorUser(): boolean {
+    const user: any = this.authService.currentUser;
+    const roleName = String(
+      user?.role?.name || user?.role || user?.user_type || '',
+    ).toLowerCase();
+    return (
+      !!user?.company_id ||
+      roleName === 'operator' ||
+      roleName === 'operator_admin' ||
+      roleName === 'operator_staff'
+    );
+  }
+
   private startNotificationPolling(): void {
     // Wait for auth to be confirmed (fires immediately if already authenticated,
     // or after refreshSession() resolves on app startup).
@@ -91,7 +108,9 @@ export class AppComponent implements OnInit, OnDestroy {
         filter((authenticated) => authenticated),
         switchMap(() => {
           const uid = this.authService.getUserId();
-          if (!uid) return [];
+          // Notifications are an operator-only feature; other user types
+          // (association, tourist) can't access the endpoint and would 403.
+          if (!uid || !this.isOperatorUser()) return [];
           // Fetch immediately, then repeat every 60 seconds
           this.notificationService.getUnreadCount(uid).subscribe();
           return interval(60_000).pipe(
@@ -102,8 +121,22 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  private startInactivityTracking(): void {
+    this.inactivitySub = this.authService.isAuthenticated$
+      .pipe(distinctUntilChanged())
+      .subscribe((authenticated) => {
+        if (authenticated) {
+          this.inactivityService.start();
+        } else {
+          this.inactivityService.stop();
+        }
+      });
+  }
+
   ngOnDestroy(): void {
     this.pollingSub?.unsubscribe();
+    this.inactivitySub?.unsubscribe();
+    this.inactivityService.stop();
   }
 
   applyStandaloneClass() {

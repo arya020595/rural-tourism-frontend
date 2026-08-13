@@ -42,9 +42,47 @@ export class ConflictResolvePage implements OnInit {
     const mine = Object.keys(this.myData);
     const server = this.serverData ? Object.keys(this.serverData) : [];
     const all = new Set([...mine, ...server]);
-    // Skip internal sync fields
     const skip = new Set(['idempotency_key', 'base_version']);
     return [...all].filter((k) => !skip.has(k));
+  }
+
+  isChanged(field: string): boolean {
+    const mine = JSON.stringify(this.myData[field] ?? null);
+    const server = JSON.stringify(this.serverData?.[field] ?? null);
+    return mine !== server;
+  }
+
+  humanizeField(field: string): string {
+    const labels: Record<string, string> = {
+      booking_type: 'Booking Type',
+      customer_type: 'Customer Type',
+      tourist_full_name: 'Full Name',
+      phone_number: 'Phone Number',
+      email: 'Email',
+      citizenship: 'Nationality',
+      no_of_pax_domestik: 'Domestic Pax',
+      no_of_pax_antarbangsa: 'International Pax',
+      total_price: 'Total Price (RM)',
+      total_deposit: 'Deposit (RM)',
+      operator_name: 'Operator Name',
+      package_companies: 'Package Items',
+      product_id: 'Product ID',
+      product_name: 'Product',
+      activity_date: 'Activity Date',
+      check_in_date: 'Check-In Date',
+      check_out_date: 'Check-Out Date',
+      total_of_night: 'Nights',
+      status: 'Status',
+    };
+    return labels[field] ?? field.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  formatValue(value: any): string {
+    if (value === null || value === undefined) return '—';
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
+    return String(value);
   }
 
   async acceptServerVersion(): Promise<void> {

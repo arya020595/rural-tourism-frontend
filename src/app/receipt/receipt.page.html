@@ -30,6 +30,11 @@
               <div class="row-value">{{ bookedByName }}</div>
             </div>
 
+            <div class="receipt-row receipt-row--business">
+              <div class="row-label">NAMA PERNIAGAAN/BUSINESS NAME</div>
+              <div class="row-value">{{ companyName }}</div>
+            </div>
+
             <div class="receipt-row receipt-row--accommodation">
               <div class="row-label">PENGINAPAN/ACCOMMODATION</div>
               <div class="row-value">
@@ -60,10 +65,10 @@
 
             <div class="receipt-row receipt-row--rooms">
               <div class="row-label">
-                JUMLAH BILANGAN BILIK/TOTAL NO. OF ROOMS
+                JUMLAH BILANGAN ORANG/TOTAL NO. OF PAX
               </div>
               <div class="row-value">
-                {{ receipt?.total_rooms || 0 }} BILIK/ROOMS
+                {{ receipt?.total_rooms || 0 }} ORANG/PAX
               </div>
             </div>
 
@@ -79,7 +84,7 @@
         <div class="receipt-footer">
           <div class="issued-block">
             <div class="row-label">DIKELUARKAN OLEH/ISSUED BY:</div>
-            <div class="issued-name">{{ companyName }}</div>
+            <div class="issued-name">{{ issuedByName }}</div>
             <div class="issued-email">{{ companyEmail }}</div>
           </div>
 
@@ -109,7 +114,7 @@
           <ion-item color="warning" lines="none" style="margin: 12px 0; border-radius: 8px;">
             <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
             <ion-label class="ion-text-wrap">
-              QR code will be available once booking is confirmed online. / Kod QR akan tersedia setelah tempahan disahkan dalam talian.
+              QR Code will be available once you are connected to the internet / Kod QR akan tersedia apabila anda mempunyai sambungan internet.
             </ion-label>
           </ion-item>
         </ng-template>

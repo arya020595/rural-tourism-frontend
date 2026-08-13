@@ -113,7 +113,8 @@ export class BookingService {
   }
 
   getReceiptPdfUrl(bookingId: string | number): string {
-    return `${this.apiUrl}/bookings/${bookingId}/receipt-pdf`;
+    const origin = (environment.API || window.location.origin).replace(/\/$/, '');
+    return `${origin}/api/bookings/${bookingId}/receipt-pdf`;
   }
 
   updateBooking(bookingId: string, data: any): Observable<any> {
@@ -126,6 +127,11 @@ export class BookingService {
 
   markBookingAsPaid(bookingId: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/bookings/${bookingId}/payment`, {});
+  }
+
+  // Recall a paid booking back to pending (clears the receipt).
+  recallBooking(bookingId: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/bookings/${bookingId}/recall`, {});
   }
 
   getBookings(params?: {
@@ -222,6 +228,34 @@ export class BookingService {
   downloadBookingPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/bookings/${id}/pdf`, {
       responseType: 'blob',
+    });
+  }
+
+  // Payment receipt PDF (the same document the receipt QR code links to).
+  downloadReceiptPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/bookings/${id}/receipt-pdf`, {
+      responseType: 'blob',
+    });
+  }
+
+  getStatementPreview(year: number, type: string, fromMonth: number, toMonth: number): Observable<any> {
+    const params = new HttpParams()
+      .set('year', String(year))
+      .set('type', type)
+      .set('fromMonth', String(fromMonth))
+      .set('toMonth', String(toMonth));
+    return this.http.get(`${this.apiUrl}/bookings/statement/preview`, { params });
+  }
+
+  downloadStatementPdf(year: number, type: string, fromMonth: number, toMonth: number): Observable<Blob> {
+    const params = new HttpParams()
+      .set('year', String(year))
+      .set('type', type)
+      .set('fromMonth', String(fromMonth))
+      .set('toMonth', String(toMonth));
+    return this.http.get(`${this.apiUrl}/bookings/statement/pdf`, {
+      responseType: 'blob',
+      params,
     });
   }
 }

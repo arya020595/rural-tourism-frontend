@@ -2,7 +2,7 @@
 
 **Complete guide for developing, building, and publishing the Rural Tourism Sabah mobile application to Google Play Store.**
 
-> Last Updated: May 7, 2026  
+> Last Updated: June 3, 2026  
 > App Version: 0.0.1  
 > Tech Stack: Ionic 8 + Angular 18 + Capacitor 7
 
@@ -1601,6 +1601,42 @@ cd android
 3. **Build and upload AAB**
 4. **Request Expedited Review** (in Play Console)
 5. **Monitor closely** after rollout
+
+---
+
+### Capacitor Plugins
+
+The following Capacitor plugins are installed and synced to the Android project:
+
+| Plugin | Version | Purpose |
+|---|---|---|
+| `@capacitor/app` | 6.0.1 | App lifecycle events |
+| `@capacitor/haptics` | 6.0.1 | Haptic feedback |
+| `@capacitor/keyboard` | 6.0.2 | Keyboard handling |
+| `@capacitor/network` | 7.0.4 | Network status detection |
+| `@capacitor/status-bar` | 6.0.1 | Status bar styling |
+| `@capacitor/filesystem` | 6.0.4 | Write files to device storage (PDF downloads) |
+| `@capacitor/share` | 6.0.4 | Open native share sheet (PDF downloads) |
+
+#### PDF Download on Android
+
+On Android, `URL.createObjectURL()` + anchor click does not work inside the Capacitor WebView. A `NativeDownloadService` (`src/app/services/native-download.service.ts`) handles this:
+
+- **On Android (native):** Converts the blob to base64, writes it to the cache directory via `@capacitor/filesystem`, then opens the system share sheet via `@capacitor/share` so the user can open or save the PDF.
+- **On web (browser):** Falls back to the standard blob + anchor click download.
+
+This applies to:
+- Booking confirmation PDF (`booking-detail` page)
+- Monthly statement PDF (`my-transaction` page)
+
+When adding new Capacitor plugins, always run:
+
+```bash
+npm install @capacitor/plugin-name@6 --legacy-peer-deps
+npx cap sync android
+```
+
+> **Note:** The project uses `--legacy-peer-deps` due to mixed Capacitor v6/v7 plugin versions. Do not run `npm install` without this flag.
 
 ---
 

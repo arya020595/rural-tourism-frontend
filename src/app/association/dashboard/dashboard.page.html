@@ -4,8 +4,7 @@
   [contentId]="'main-content'"
   [user]="user"
   [menuItems]="menuItems"
-  [showHeaderLogo]="false"
-  [logoSrc]="'../../assets/icon/rt logo.png'"
+  [showHeaderLogo]="true"
   [logoutLabel]="'Log Out'"
   (menuItemTap)="onMenuItemTap($event)"
   (logoutTap)="logOut()"
@@ -23,7 +22,9 @@
 <ion-content [fullscreen]="true" id="main-content">
   <ion-card class="main-Container ion-no-margin">
     <ion-col class="center">
-      <ion-img class="logo" src="../../assets/icon/rt logo.png"></ion-img>
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
     </ion-col>
 
     <ion-card-content class="dashboard-content">

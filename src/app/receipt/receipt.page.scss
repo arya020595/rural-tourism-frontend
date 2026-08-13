@@ -30,12 +30,13 @@ ion-content {
   row-gap: 16px !important;
 }
 .receipt-capture-clone .receipt-row--booked { grid-column: 1 !important; grid-row: 1 !important; }
-.receipt-capture-clone .receipt-row--accommodation { grid-column: 2 !important; grid-row: 1 !important; }
-.receipt-capture-clone .receipt-row--checkin { grid-column: 1 !important; grid-row: 2 !important; }
-.receipt-capture-clone .receipt-row--checkout { grid-column: 2 !important; grid-row: 2 !important; }
-.receipt-capture-clone .receipt-row--nights { grid-column: 1 !important; grid-row: 3 !important; }
-.receipt-capture-clone .receipt-row--rooms { grid-column: 2 !important; grid-row: 3 !important; }
-.receipt-capture-clone .receipt-row--status { grid-column: 1 !important; grid-row: 4 !important; }
+.receipt-capture-clone .receipt-row--business { grid-column: 2 !important; grid-row: 1 !important; }
+.receipt-capture-clone .receipt-row--accommodation { grid-column: 1 !important; grid-row: 2 !important; }
+.receipt-capture-clone .receipt-row--nights { grid-column: 2 !important; grid-row: 2 !important; }
+.receipt-capture-clone .receipt-row--checkin { grid-column: 1 !important; grid-row: 3 !important; }
+.receipt-capture-clone .receipt-row--checkout { grid-column: 2 !important; grid-row: 3 !important; }
+.receipt-capture-clone .receipt-row--rooms { grid-column: 1 !important; grid-row: 4 !important; }
+.receipt-capture-clone .receipt-row--status { grid-column: 2 !important; grid-row: 4 !important; }
 .receipt-capture-clone .receipt-footer {
   grid-template-columns: 1fr auto !important;
   gap: 24px !important;
@@ -128,28 +129,32 @@ ion-content {
   order: 1;
 }
 
-.receipt-row--accommodation {
+.receipt-row--business {
   order: 2;
 }
 
-.receipt-row--checkin {
+.receipt-row--accommodation {
   order: 3;
 }
 
-.receipt-row--checkout {
+.receipt-row--nights {
   order: 4;
 }
 
-.receipt-row--nights {
+.receipt-row--checkin {
   order: 5;
 }
 
-.receipt-row--rooms {
+.receipt-row--checkout {
   order: 6;
 }
 
-.receipt-row--status {
+.receipt-row--rooms {
   order: 7;
+}
+
+.receipt-row--status {
+  order: 8;
 }
 
 .row-label {
@@ -245,15 +250,15 @@ ion-content {
 }
 
 .qr-code-container {
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 qrcode {
-  transform: scale(0.5);
+  transform: scale(0.8);
   transform-origin: center;
 }
 
@@ -387,7 +392,7 @@ qrcode {
   }
 
   qrcode {
-    transform: scale(0.5);
+    transform: scale(0.8);
   }
 
   .btn-back {
@@ -410,33 +415,38 @@ qrcode {
     grid-row: 1;
   }
 
-  .receipt-row--accommodation {
+  .receipt-row--business {
     grid-column: 2;
     grid-row: 1;
   }
 
-  .receipt-row--checkin {
+  .receipt-row--accommodation {
     grid-column: 1;
-    grid-row: 2;
-  }
-
-  .receipt-row--checkout {
-    grid-column: 2;
     grid-row: 2;
   }
 
   .receipt-row--nights {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .receipt-row--checkin {
     grid-column: 1;
     grid-row: 3;
   }
 
-  .receipt-row--rooms {
+  .receipt-row--checkout {
     grid-column: 2;
     grid-row: 3;
   }
 
-  .receipt-row--status {
+  .receipt-row--rooms {
     grid-column: 1;
+    grid-row: 4;
+  }
+
+  .receipt-row--status {
+    grid-column: 2;
     grid-row: 4;
   }
 }

@@ -215,15 +215,15 @@ ion-content {
 }
 
 .qr-code-container {
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 qrcode {
-  transform: scale(0.5);
+  transform: scale(0.8);
   transform-origin: center;
 }
 
@@ -362,7 +362,7 @@ qrcode {
   }
 
   qrcode {
-    transform: scale(0.5);
+    transform: scale(0.8);
   }
 
   .btn-back {
@@ -385,7 +385,7 @@ qrcode {
     grid-row: 1;
   }
 
-  .receipt-row--activity {
+  .receipt-row--company {
     grid-column: 2;
     grid-row: 1;
   }
@@ -395,7 +395,7 @@ qrcode {
     grid-row: 2;
   }
 
-  .receipt-row--company {
+  .receipt-row--activity {
     grid-column: 2;
     grid-row: 2;
   }

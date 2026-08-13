@@ -15,13 +15,17 @@ export class BookingListTableComponent {
   @Input() totalPages = 1;
   @Input() queueStatusMap: Record<string, QueueStatus> = {};
   @Input() statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
+  @Input() typeFilter: 'all' | 'Activity' | 'Accommodation' | 'Package' = 'all';
   @Input() isLoading = false;
   @Input() perPageOptions: number[] = [10, 25, 50, 100];
+  @Input() canCancel = false;
   @Output() viewDetails = new EventEmitter<BookingDetail>();
   @Output() editBooking = new EventEmitter<BookingDetail>();
+  @Output() cancelBooking = new EventEmitter<BookingDetail>();
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
   @Output() statusFilterChange = new EventEmitter<void>();
+  @Output() typeFilterChange = new EventEmitter<void>();
 
   trackByIndex(index: number): number {
     return index;
@@ -74,8 +78,21 @@ export class BookingListTableComponent {
     }
   }
 
+  get typeFilterLabel(): string {
+    switch (this.typeFilter) {
+      case 'Activity': return 'Activity ▲';
+      case 'Accommodation': return 'Accommodation ▲';
+      case 'Package': return 'Package ▲';
+      default: return 'Type ⇅';
+    }
+  }
+
   onStatusFilterClick(): void {
     this.statusFilterChange.emit();
+  }
+
+  onTypeFilterClick(): void {
+    this.typeFilterChange.emit();
   }
 
   onViewDetails(booking: BookingDetail): void {
@@ -88,6 +105,14 @@ export class BookingListTableComponent {
     }
 
     this.editBooking.emit(booking);
+  }
+
+  onCancelBooking(booking: BookingDetail): void {
+    if (booking.status !== 'pending') {
+      return;
+    }
+
+    this.cancelBooking.emit(booking);
   }
 
   get startEntry(): number {

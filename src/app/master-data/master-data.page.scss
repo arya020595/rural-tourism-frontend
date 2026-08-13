@@ -383,11 +383,33 @@ ion-content {
   margin-bottom: 0;
 }
 
-.inline-input-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: center;
+// Native dropdown for Jenis/Type: full modal width with the browser's arrow at
+// the far-right end (matches the registration page dropdowns).
+.modal-native-select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #c5c5c5;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: #fff;
+  font-size: 18px;
+  font-family: inherit;
+  font-weight: 400;
+  line-height: 1.35;
+  color: #000;
+  outline: none;
+}
+
+.modal-native-select:focus {
+  border-color: #0d4e2c;
+}
+
+// Product Name input is full width; the Add button sits on its own line,
+// aligned to the right beneath it.
+.add-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
 }
 
 .inline-add-btn,
@@ -525,8 +547,9 @@ ion-content {
     font-size: 30px;
   }
 
-  .inline-input-row {
-    grid-template-columns: 1fr;
+  // On mobile the Add button spans the full width under the input.
+  .add-row {
+    justify-content: stretch;
   }
 
   .inline-add-btn {

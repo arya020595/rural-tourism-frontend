@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+  <!-- Production domain: HTTPS only (no cleartext exception needed). -->
+  <domain-config cleartextTrafficPermitted="false">
+    <domain includeSubdomains="true">rutec.my</domain>
+  </domain-config>
+  <!-- Local/staging cleartext access — dev and staging builds only. -->
   <domain-config cleartextTrafficPermitted="true">
     <domain includeSubdomains="true">192.168.140.175</domain>
     <domain includeSubdomains="true">46.202.163.155</domain>

@@ -11,17 +11,21 @@ import { ToastController } from '@ionic/angular';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { LoadingService } from './loading.service';
+import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpInterceptorService implements HttpInterceptor {
+  private isRedirectingToLogin = false;
+
   constructor(
     private router: Router,
     private toastController: ToastController,
     private loadingService: LoadingService,
     private storageService: StorageService,
+    private networkService: NetworkService,
   ) {}
 
   intercept(
@@ -78,6 +82,8 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     switch (error.status) {
       case 0:
+        // User is already aware they're offline via the offline banner — skip toast
+        if (!this.networkService.isOnline) return;
         message =
           'Unable to connect to server. Please check your internet connection.';
         break;
@@ -86,16 +92,20 @@ export class HttpInterceptorService implements HttpInterceptor {
           error.error?.message || 'Bad request. Please check your input.';
         break;
       case 401: {
-        // Check if current request is the canonical auth login endpoint
         const isLoginRequest = request?.url.includes('/auth/login');
 
         if (!isLoginRequest) {
-          // For protected APIs, clear auth and redirect
+          // If already redirecting, suppress duplicate toasts from in-flight requests
+          if (this.isRedirectingToLogin) return;
+          this.isRedirectingToLogin = true;
+
           message = 'Session expired. Please login again.';
           this.storageService.clearAuth();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login']).then(() => {
+            // Reset flag after navigation so future real session expiries work
+            this.isRedirectingToLogin = false;
+          });
         } else {
-          // For login attempts with wrong credentials, just show toast
           return;
         }
         break;

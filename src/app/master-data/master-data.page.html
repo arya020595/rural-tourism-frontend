@@ -182,30 +182,28 @@
           <ng-container *ngIf="modalMode !== 'detail'">
             <div class="field-block">
               <label class="field-label">Jenis/Type<span>*</span></label>
-              <ion-select
+              <select
                 [(ngModel)]="draft.product_type"
-                interface="popover"
-                placeholder="Sila pilih jenis/Select Type"
-                class="modal-select"
+                class="modal-native-select"
               >
-                <ion-select-option value="activity">Activity</ion-select-option>
-                <ion-select-option value="accommodation">Accommodation</ion-select-option>
-              </ion-select>
+                <option value="" disabled selected hidden>
+                  Sila pilih jenis/Select Type
+                </option>
+                <option value="activity">Activity</option>
+                <option value="accommodation">Accommodation</option>
+              </select>
             </div>
 
             <ng-container *ngIf="modalMode === 'create'">
-              <div class="field-block inline-field">
-                <div class="inline-label-wrap">
-                  <label class="field-label">Nama Produk/Product Name<span>*</span></label>
-                </div>
+              <div class="field-block">
+                <label class="field-label">Nama Produk/Product Name<span>*</span></label>
+                <ion-input
+                  [(ngModel)]="draft.name"
+                  placeholder="Sila isi nama produk/Enter product name"
+                  class="modal-input"
+                ></ion-input>
 
-                <div class="inline-input-row">
-                  <ion-input
-                    [(ngModel)]="draft.name"
-                    placeholder="Sila isi nama produk/Enter product name"
-                    class="modal-input"
-                  ></ion-input>
-
+                <div class="add-row">
                   <ion-button class="inline-add-btn" (click)="addPendingItem()">
                     <ion-icon name="add-circle" slot="start"></ion-icon>
                     Tambah/Add
@@ -234,7 +232,7 @@
                     </tr>
                     <tr *ngIf="!pendingItems.length">
                       <td class="empty-state" colspan="3">
-                        No 'Master Data' here. Fill in the fields above and click 'Tambah/Add' to add new data.
+                        Belum ada produk / No items yet
                       </td>
                     </tr>
                   </tbody>
@@ -255,12 +253,14 @@
           </ng-container>
         </div>
 
-        <div class="modal-footer">
+        <!-- Detail mode closes via the top-right X only; the form keeps its
+             Cancel + Save actions. -->
+        <div class="modal-footer" *ngIf="modalMode !== 'detail'">
           <ion-button fill="outline" class="cancel-btn" (click)="closeModal()">
-            {{ modalMode === 'detail' ? 'Close/Tutup' : 'Cancel/Batal' }}
+            Cancel/Batal
           </ion-button>
 
-          <ion-button class="save-btn" *ngIf="modalMode !== 'detail'" (click)="saveMasterData()" [disabled]="isLoading">
+          <ion-button class="save-btn" (click)="saveMasterData()" [disabled]="isLoading">
             <ion-icon name="save" slot="start"></ion-icon>
             Save/Simpan
           </ion-button>

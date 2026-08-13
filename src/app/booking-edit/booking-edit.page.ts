@@ -157,7 +157,7 @@ export class BookingEditPage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadBooking(): void {
@@ -230,6 +230,7 @@ export class BookingEditPage implements OnInit {
       domesticPax: Number(record?.no_of_pax_domestik || 0),
       internationalPax: Number(record?.no_of_pax_antarbangsa || 0),
       totalAmount: Number(record?.total_price || 0),
+      totalDeposit: Number(record?.total_deposit || 0),
       operatorName: String(record?.operator_name || ''),
       activityName:
         type === 'Activity' ? String(record?.product_name || '') : undefined,
@@ -277,14 +278,27 @@ export class BookingEditPage implements OnInit {
       return undefined;
     }
 
-    const date = new Date(raw);
-    if (Number.isNaN(date.getTime())) {
-      return raw || undefined;
+    // Read the literal HH:MM from the string without timezone conversion.
+    // The backend stores activity_date as a datetime; when no time was picked
+    // it is midnight, and `new Date(...).getHours()` would shift it by the
+    // local UTC offset (e.g. 00:00 UTC -> 08:00 in UTC+8). Parsing the raw
+    // string avoids that and lets us treat midnight as "no time".
+    const match = raw.match(/[T\s](\d{2}):(\d{2})/);
+    if (match) {
+      const [, hours, minutes] = match;
+      if (hours === '00' && minutes === '00') {
+        return undefined;
+      }
+      return `${hours}:${minutes}`;
     }
 
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+    // A bare time string (e.g. "14:30") came from a real activity_time field.
+    const timeOnly = raw.match(/^(\d{1,2}):(\d{2})/);
+    if (timeOnly) {
+      return `${timeOnly[1].padStart(2, '0')}:${timeOnly[2]}`;
+    }
+
+    return undefined;
   }
 
   private async buildUpdatePayload(
@@ -329,6 +343,7 @@ export class BookingEditPage implements OnInit {
         payload.bookingTime,
       ),
       total_price: Number(payload.total || 0),
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
     };
   }
@@ -359,6 +374,7 @@ export class BookingEditPage implements OnInit {
           ? Number(payload.nights)
           : undefined,
       total_price: Number(payload.total || 0),
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
     };
   }
@@ -398,14 +414,25 @@ export class BookingEditPage implements OnInit {
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
       total_price: totalPrice,
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
       package_companies: packageItems.map((item: any) => ({
         referrer_id: currentCompanyId,
         referee_id: Number(item.companyId),
-        description: item.description || '',
+        description: item.serviceName || item.description || '',
         per_price: Number(item.price || 0),
       })),
     };
+  }
+
+  private normalizeDeposit(value: any): number | undefined {
+    if (value === 0) return 0;
+    if (value === undefined || value === null) return undefined;
+    const raw = String(value).trim();
+    if (!raw) return undefined;
+    const parsed = Number(raw);
+    if (Number.isNaN(parsed)) return undefined;
+    return Math.trunc(parsed);
   }
 
   private async findProductByName(

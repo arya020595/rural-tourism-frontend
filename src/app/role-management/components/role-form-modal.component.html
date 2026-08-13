@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon
+          name="close-outline"
+          slot="icon-only"
+          style="color: white"
+        ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<div class="rfm-scroll-content ion-padding">
+  <!-- Loading permissions -->
+  <div *ngIf="isLoadingPermissions" class="rfm-spinner">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoadingPermissions">
+    <!-- Role name -->
+    <div class="rfm-field">
+      <label class="rfm-label">
+        Nama Peranan / <em>Role Name</em> <span class="required">*</span>
+      </label>
+      <input
+        class="rfm-input"
+        type="text"
+        [(ngModel)]="roleName"
+        placeholder="Enter role name"
+        [disabled]="isSaving"
+        maxlength="50"
+      />
+    </div>
+
+    <!-- Permissions -->
+    <div class="rfm-permissions-section">
+      <h4 class="rfm-section-heading">
+        Kebenaran / <em>Permissions</em>
+        <span class="rfm-count"
+          >({{ selectedPermissionIds.size }} selected)</span
+        >
+      </h4>
+
+      <div *ngFor="let section of sectionKeys" class="rfm-section-block">
+        <!-- Section header (select all toggle) -->
+        <div
+          class="rfm-section-header"
+          [class.rfm-section-header--checked]="isSectionAllChecked(section)"
+          (click)="toggleSection(section)"
+        >
+          <div class="rfm-checkbox-wrap">
+            <input
+              type="checkbox"
+              [checked]="isSectionAllChecked(section)"
+              (click)="$event.stopPropagation()"
+              (change)="toggleSection(section)"
+            />
+          </div>
+          <span class="rfm-section-name">{{ section }}</span>
+        </div>
+
+        <!-- Permission checkboxes -->
+        <div class="rfm-perms-list">
+          <label
+            *ngFor="let perm of getPermissionsForSection(section)"
+            class="rfm-perm-item"
+          >
+            <input
+              type="checkbox"
+              [checked]="isChecked(perm.id)"
+              (change)="togglePermission(perm.id)"
+            />
+            <span class="rfm-perm-name">{{ perm.name }}</span>
+            <span class="rfm-perm-code">{{ perm.code }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <p class="rfm-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <!-- Actions -->
+    <div class="rfm-actions">
+      <ion-button
+        fill="outline"
+        color="medium"
+        (click)="dismiss()"
+        [disabled]="isSaving"
+      >
+        Batal / Cancel
+      </ion-button>
+      <ion-button color="primary" (click)="submit()" [disabled]="isSaving">
+        <ion-icon name="save-outline" slot="start"></ion-icon>
+        {{ isSaving ? "Menyimpan..." : "Simpan / Save" }}
+      </ion-button>
+    </div>
+  </ng-container>
+</div>

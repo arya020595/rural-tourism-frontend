@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController, NavController } from '@ionic/angular';
+import { AlertController, MenuController, NavController } from '@ionic/angular';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingStateService } from '../services/booking-state.service';
@@ -56,6 +56,7 @@ export class BookingHomePage implements OnInit {
 
   bookings: BookingDetail[] = [];
   statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
+  typeFilter: 'all' | 'Activity' | 'Accommodation' | 'Package' = 'all';
 
   constructor(
     private menuCtrl: MenuController,
@@ -67,7 +68,8 @@ export class BookingHomePage implements OnInit {
     private syncService: SyncService,
     private router: Router,
     private navCtrl: NavController,
-    private bookingStateService: BookingStateService
+    private bookingStateService: BookingStateService,
+    private alertCtrl: AlertController
   ) {}
 
   ngOnInit(): void {
@@ -102,8 +104,11 @@ export class BookingHomePage implements OnInit {
   }
 
   get filteredBookings(): BookingDetail[] {
-    if (this.statusFilter === 'all') return this.bookings;
-    return this.bookings.filter((b) => b.status === this.statusFilter);
+    return this.bookings.filter((b) => {
+      const statusMatch = this.statusFilter === 'all' || b.status === this.statusFilter;
+      const typeMatch = this.typeFilter === 'all' || b.type === this.typeFilter;
+      return statusMatch && typeMatch;
+    });
   }
 
   get totalBookingPages(): number {
@@ -117,13 +122,19 @@ export class BookingHomePage implements OnInit {
 
   cycleStatusFilter(): void {
     const order: Array<'all' | 'pending' | 'paid' | 'cancelled'> = [
-      'all',
-      'pending',
-      'paid',
-      'cancelled',
+      'all', 'pending', 'paid', 'cancelled',
     ];
     const next = (order.indexOf(this.statusFilter) + 1) % order.length;
     this.statusFilter = order[next];
+    this.currentPage = 1;
+  }
+
+  cycleTypeFilter(): void {
+    const order: Array<'all' | 'Activity' | 'Accommodation' | 'Package'> = [
+      'all', 'Activity', 'Accommodation', 'Package',
+    ];
+    const next = (order.indexOf(this.typeFilter) + 1) % order.length;
+    this.typeFilter = order[next];
     this.currentPage = 1;
   }
 
@@ -152,6 +163,10 @@ export class BookingHomePage implements OnInit {
     });
   }
 
+  get canCancelBooking(): boolean {
+    return this.authService.hasPermission('booking:cancel');
+  }
+
   editBooking(booking: BookingDetail): void {
     if (booking.status !== 'pending') {
       return;
@@ -160,6 +175,33 @@ export class BookingHomePage implements OnInit {
     this.router.navigate(['/booking-home/edit', booking.id], {
       state: { booking },
     });
+  }
+
+  async cancelBooking(booking: BookingDetail): Promise<void> {
+    if (booking.status !== 'pending' || !booking.id) {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Cancel Booking',
+      message: `Are you sure you want to cancel booking #${booking.id}? This action cannot be undone.`,
+      buttons: [
+        { text: 'No', role: 'cancel' },
+        {
+          text: 'Yes, Cancel',
+          role: 'confirm',
+          cssClass: 'alert-btn-danger',
+          handler: () => {
+            this.bookingService.cancelBooking(booking.id!).subscribe({
+              next: () => this.loadBookings(),
+              error: (err) => console.error('[CancelBooking] error:', err),
+            });
+          },
+        },
+      ],
+    });
+
+    await alert.present();
   }
 
   goToPreviousMonth(): void {
@@ -212,14 +254,32 @@ export class BookingHomePage implements OnInit {
     )}`;
   }
 
-  get selectedDateBookings(): BookingRow[] {
+  get selectedDateBookings(): BookingDetail[] {
     if (!this.selectedDateKey) {
       return [];
     }
 
     return this.bookings
-      .filter((booking) => booking.bookedDate === this.selectedDateKey)
-      .filter((booking) => booking.status !== 'cancelled')
+      .filter((booking) => {
+        if (booking.status === 'cancelled') return false;
+
+        // For accommodation, match any night of the stay: check-in inclusive,
+        // check-out exclusive (same range the calendar colours). e.g. check-in
+        // 10 Aug / check-out 12 Aug shows the booking on the 10th and 11th, but
+        // not the 12th (the checkout day itself isn't a booked night).
+        if (booking.type === 'Accommodation' && booking.checkInDate) {
+          if (booking.checkOutDate) {
+            return (
+              this.selectedDateKey! >= booking.checkInDate &&
+              this.selectedDateKey! < booking.checkOutDate
+            );
+          }
+          return this.selectedDateKey! === booking.checkInDate;
+        }
+
+        // For activity/package, match the single booked date
+        return booking.bookedDate === this.selectedDateKey;
+      })
       .sort((a, b) => a.serviceName.localeCompare(b.serviceName));
   }
 
@@ -283,7 +343,7 @@ export class BookingHomePage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private async loadBookings(): Promise<void> {
@@ -306,7 +366,6 @@ export class BookingHomePage implements OnInit {
         this.bookingService.getBookings({
           page: 1,
           per_page: 1000,
-          user_id: String(operatorId),
         })
       );
 
@@ -316,8 +375,8 @@ export class BookingHomePage implements OnInit {
         .filter((booking: BookingDetail | null): booking is BookingDetail => {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
-        .sort(
-          (a: BookingDetail, b: BookingDetail) => Number(b.id) - Number(a.id)
+        .sort((a: BookingDetail, b: BookingDetail) =>
+          this.compareBookings(a, b)
         );
       this.currentPage = 1;
       this.isOffline = false;
@@ -342,8 +401,8 @@ export class BookingHomePage implements OnInit {
         .filter((booking: BookingDetail | null): booking is BookingDetail => {
           return !!booking && !!booking.bookedDate && !!booking.id;
         })
-        .sort(
-          (a: BookingDetail, b: BookingDetail) => Number(b.id) - Number(a.id)
+        .sort((a: BookingDetail, b: BookingDetail) =>
+          this.compareBookings(a, b)
         );
       this.currentPage = 1;
       this.isOffline = !this.networkService.isOnline;
@@ -394,6 +453,43 @@ export class BookingHomePage implements OnInit {
         return;
       }
 
+      // For accommodation, colour every NIGHT of the stay: from check-in up to
+      // (but not including) the check-out date. e.g. check-in 7th, check-out 9th
+      // colours the 7th and 8th. The detail panel (selectedDateBookings) still
+      // only surfaces the booking on the check-in date.
+      if (
+        booking.type === 'Accommodation' &&
+        booking.checkInDate &&
+        booking.checkOutDate
+      ) {
+        // Parse locally (avoids the UTC shift new Date('YYYY-MM-DD') causes).
+        const night = this.parseDateKey(booking.checkInDate);
+        const checkOut = this.parseDateKey(booking.checkOutDate);
+        // Iterate nights: check-in inclusive, check-out exclusive.
+        while (night < checkOut) {
+          if (night.getFullYear() === year && night.getMonth() === month) {
+            const key = this.toDateKey(night);
+            const current = bookingsByDate.get(key) || [];
+            if (!current.includes(booking)) current.push(booking);
+            bookingsByDate.set(key, current);
+          }
+          night.setDate(night.getDate() + 1);
+        }
+        return;
+      }
+
+      // Accommodation with a check-in but no check-out: colour the single night.
+      if (booking.type === 'Accommodation' && booking.checkInDate) {
+        const checkIn = this.parseDateKey(booking.checkInDate);
+        if (checkIn.getFullYear() === year && checkIn.getMonth() === month) {
+          const current = bookingsByDate.get(booking.checkInDate) || [];
+          if (!current.includes(booking)) current.push(booking);
+          bookingsByDate.set(booking.checkInDate, current);
+        }
+        return;
+      }
+
+      // For activity/package, mark the single booked date
       const bookingDate = new Date(booking.bookedDate);
       if (
         bookingDate.getFullYear() === year &&
@@ -455,6 +551,25 @@ export class BookingHomePage implements OnInit {
     this.selectedDateKey = firstBookedDate?.key || null;
   }
 
+  /**
+   * Order bookings newest-first. Offline-created bookings have a UUID id (not
+   * numeric) and are always the most recent, so they sort ahead of any
+   * server booking. Among server bookings, higher numeric id wins.
+   * Using Number(id) alone would yield NaN for UUIDs and drop offline
+   * bookings out of the table's first page (they only showed in the calendar).
+   */
+  private compareBookings(a: BookingDetail, b: BookingDetail): number {
+    const aNum = Number(a.id);
+    const bNum = Number(b.id);
+    const aIsNumeric = Number.isFinite(aNum);
+    const bIsNumeric = Number.isFinite(bNum);
+
+    if (aIsNumeric && bIsNumeric) return bNum - aNum;
+    if (aIsNumeric) return 1; // b is offline (UUID) → b first
+    if (bIsNumeric) return -1; // a is offline (UUID) → a first
+    return 0; // both offline → keep insertion order
+  }
+
   private mapBookingRow(record: any): BookingDetail | null {
     const bookingType = String(record?.booking_type || '').toLowerCase();
     const bookedDate = this.resolveBookedDate(record);
@@ -485,6 +600,7 @@ export class BookingHomePage implements OnInit {
       domesticPax: this.toNumber(record?.no_of_pax_domestik),
       internationalPax: this.toNumber(record?.no_of_pax_antarbangsa),
       totalAmount: this.toNumber(record?.total_price),
+      totalDeposit: this.toNumber(record?.total_deposit),
       operatorName: String(record?.operator_name || ''),
       activityName:
         type === 'Activity' ? String(record?.product_name || '') : undefined,

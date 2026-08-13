@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CompanyService } from '../../../services/company.service';
 import { ProductService } from '../../../services/product.service';
+import { OfflineQueueService } from '../../../services/offline-queue.service';
 
 @Component({
   selector: 'app-package-booking-form',
@@ -24,20 +25,35 @@ import { ProductService } from '../../../services/product.service';
 export class PackageBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
+  @Input() hideCancel = false;
+  // Shifts the displayed field numbers. booking-add renders a "1. Select Type"
+  // field before this form, so its numbered fields start at 3 (offset 0). The
+  // e-receipt page has no preceding field, so it passes -1; the customer-type
+  // selector then becomes "1." and the rest start at 2.
+  @Input() numberOffset = 0;
+  // Hides the Deposit field (e.g. on the e-receipt walk-in flow, which has no
+  // pending/deposit concept). Field numbers after the deposit shift up by one.
+  @Input() hideDeposit = false;
   @Output() bookingCancel = new EventEmitter<void>();
   @Output() bookingSubmit = new EventEmitter<Record<string, unknown>>();
+
+  /** Deposit field base number; fields after it shift when deposit is hidden. */
+  private readonly depositFieldNumber = 10;
 
   customerType = 'tourist';
   selectedNationality = 'domestic';
   fullName = '';
   phone = '';
   email = '';
+  emailError = '';
+  validationErrors: string[] = [];
   paxCount = '';
   domesticPax = '';
   internationalPax = '';
   bookingDate = '';
   packageName = '';
   packagePrice = '';
+  totalDeposit = '';
   serviceName = '';
   operatorName = '';
   // Dynamic package items (company selection + price + description)
@@ -62,7 +78,25 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   constructor(
     private companyService: CompanyService,
     private productService: ProductService,
+    private offlineQueue: OfflineQueueService,
   ) {}
+
+  /** Displayed field number for a given base number, shifted by numberOffset.
+   *  When the deposit is hidden, fields numbered after it shift up by one. */
+  n(base: number): number {
+    const depositShift =
+      this.hideDeposit && base > this.depositFieldNumber ? -1 : 0;
+    return base + this.numberOffset + depositShift;
+  }
+
+  /**
+   * Number for the customer-type selector. It sits immediately before field 3,
+   * so it is one less than n(3): "2" on the booking pages (after their
+   * "1. Select Type" field) and "1" on the e-receipt page (numberOffset -1).
+   */
+  get customerTypeNumber(): number {
+    return this.n(3) - 1;
+  }
 
   ngOnInit(): void {
     this.loadCompanies();
@@ -116,7 +150,13 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.serviceSearchText[index] = '';
     this.showServiceDropdown[index] = false;
 
-    if (company.id && !this.serviceOptionsByCompanyId[company.id]) {
+    // Always reload from API when the user actively picks a company — clears
+    // any synthetic seed that was pre-populated from existing booking data.
+    const existing = this.serviceOptionsByCompanyId[company.id];
+    const isSyntheticOnly =
+      existing?.length === 1 && existing[0]?.id === 0;
+    if (company.id && (!existing || isSyntheticOnly)) {
+      delete this.serviceOptionsByCompanyId[company.id];
       this.loadServicesForCompany(company.id, index);
     } else if (company.id) {
       this.filteredServices[index] = [
@@ -192,7 +232,40 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   getFilteredServices(index: number): Array<{ id: number; name: string }> {
-    return this.filteredServices[index] || [];
+    const services = this.filteredServices[index] || [];
+
+    // Exclude services already picked in other rows of the SAME company, so the
+    // same activity/accommodation can't be added twice for one company.
+    const takenNames = this.getServiceNamesTakenByOtherRows(index);
+    if (takenNames.size === 0) {
+      return services;
+    }
+
+    return services.filter((s) => !takenNames.has(s.name));
+  }
+
+  /**
+   * Service names already selected in other package rows that share the same
+   * company as the row at `index`. Used to hide duplicates from the dropdown.
+   */
+  private getServiceNamesTakenByOtherRows(index: number): Set<string> {
+    const currentCompanyId = Number(this.packageItems[index]?.companyId || 0);
+    const taken = new Set<string>();
+    if (!currentCompanyId) {
+      return taken;
+    }
+
+    this.packageItems.forEach((item, i) => {
+      if (i === index) {
+        return;
+      }
+      const sameCompany = Number(item.companyId || 0) === currentCompanyId;
+      if (sameCompany && item.serviceName) {
+        taken.add(item.serviceName);
+      }
+    });
+
+    return taken;
   }
 
   getServiceSearchText(index: number): string {
@@ -252,9 +325,9 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   get submitLabel(): string {
-    return this.mode === 'edit'
-      ? 'Kemaskini Tempahan/Update Booking'
-      : 'Hantar Tempahan/Submit Booking';
+    if (this.mode === 'edit') return 'Kemaskini Tempahan/Update Booking';
+    if (this.hideCancel) return 'Hantar/Submit';
+    return 'Hantar Tempahan/Submit Booking';
   }
 
   get isViewMode(): boolean {
@@ -262,6 +335,27 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   submitForm(): void {
+    this.validationErrors = [];
+    this.emailError = '';
+
+    if (!this.isViewMode) {
+      if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      if (this.email.trim() && !this.isValidEmail(this.email)) {
+        this.emailError = 'Please enter a valid email address.';
+        this.validationErrors.push('Please enter a valid email address.');
+      }
+      if (!this.bookingDate) this.validationErrors.push('Booking date is required.');
+      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      const validItems = this.packageItems.filter(item => item.companyId);
+      if (validItems.length === 0) this.validationErrors.push('At least one package item with a company is required.');
+      for (let i = 0; i < validItems.length; i++) {
+        const item = validItems[i];
+        if (!item.serviceName && !item.description) this.validationErrors.push(`Package item ${i + 1}: service/description is required.`);
+        if (!item.price || Number(item.price) <= 0) this.validationErrors.push(`Package item ${i + 1}: price must be greater than 0.`);
+      }
+      if (this.validationErrors.length > 0) return;
+    }
+
     this.bookingSubmit.emit({
       bookingType: 'package',
       customerType: this.customerType,
@@ -276,6 +370,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       packageName: this.packageName,
       packagePrice: this.packagePrice,
       serviceName: this.serviceName,
+      totalDeposit: this.totalDeposit,
       packageItems: this.packageItems.map((item) => ({
         companyId: item.companyId,
         serviceName: item.serviceName || item.description || '',
@@ -306,16 +401,20 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.email = this.booking.email || '';
     this.domesticPax = this.booking.domesticPax?.toString() || '';
     this.internationalPax = this.booking.internationalPax?.toString() || '';
-    this.paxCount =
-      this.booking.domesticPax?.toString() ||
-      this.booking.internationalPax?.toString() ||
-      '';
+    // For a single-nationality booking the pax sits in either domestic or
+    // international. Use whichever is non-zero (a plain `||` would treat a
+    // domestic value of 0 as truthy via "0" and hide an international count).
+    const domesticPaxNum = Number(this.booking.domesticPax || 0);
+    const internationalPaxNum = Number(this.booking.internationalPax || 0);
+    const singlePax = domesticPaxNum || internationalPaxNum;
+    this.paxCount = singlePax ? String(singlePax) : '';
     this.bookingDate = this.normalizeDateForInput(
       this.booking.bookedDate || '',
     );
     this.packageName =
       this.booking.packageName || this.booking.serviceName || '';
     this.packagePrice = this.booking.packagePrice?.toString() || '';
+    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
     this.serviceName = this.booking.serviceName || '';
     this.operatorName = this.booking.operatorName || '';
 
@@ -347,15 +446,34 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
               '',
           ).trim();
           this.serviceSearchText[idx] = item.serviceName || '';
-          this.loadServicesForCompany(item.companyId, idx);
+
+          // Seed the dropdown immediately with the saved description so the
+          // current value shows before the API responds. Then fetch the full
+          // product list in the background so the user can pick a different one.
+          const companyId = Number(item.companyId);
+          if (companyId) {
+            if (!this.serviceOptionsByCompanyId[companyId]) {
+              const syntheticService = item.serviceName
+                ? [{ id: 0, name: item.serviceName }]
+                : [];
+              this.serviceOptionsByCompanyId = {
+                ...this.serviceOptionsByCompanyId,
+                [companyId]: syntheticService,
+              };
+              this.filteredServices[idx] = [...syntheticService];
+            }
+            if (this.mode === 'edit') {
+              // Remove synthetic seed so loadServicesForCompany fetches real data
+              delete this.serviceOptionsByCompanyId[companyId];
+              this.loadServicesForCompany(companyId, idx);
+            }
+          }
         }
       }
     }
   }
 
   private loadCompanies(): void {
-    const cacheKey = 'package_companies_cache';
-
     const applyCompanies = (data: any[]) => {
       this.companies = data
         .map((company: any) => ({
@@ -376,28 +494,18 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.companyService.getPackageCompanies().subscribe({
       next: (response) => {
         const data = Array.isArray(response?.data) ? response.data : [];
-        localStorage.setItem(cacheKey, JSON.stringify(data));
+        // Apply first, then cache to IndexedDB (best-effort). IndexedDB replaces
+        // localStorage here — the company/product lists overflowed the ~5MB
+        // localStorage quota, which crashed this dropdown in production.
         applyCompanies(data);
-        // Pre-fetch and cache products for all companies while online
-        data.forEach((company: any) => {
-          const id = Number(company.id);
-          if (!id) return;
-          const productCacheKey = `products_cache_${id}`;
-          if (localStorage.getItem(productCacheKey)) return; // already cached
-          this.productService
-            .getProductsByCompany(id, { page: 1, per_page: 1000 })
-            .subscribe({
-              next: (res) => {
-                const products = Array.isArray(res?.data) ? res.data : [];
-                localStorage.setItem(productCacheKey, JSON.stringify(products));
-              },
-              error: () => {},
-            });
-        });
+        void this.offlineQueue.cachePackageCompanies(data).catch(() => {});
       },
       error: () => {
-        const cached = localStorage.getItem(cacheKey);
-        applyCompanies(cached ? JSON.parse(cached) : []);
+        // Offline / request failed — fall back to the IndexedDB cache.
+        this.offlineQueue
+          .getCachedPackageCompanies()
+          .then((cached) => applyCompanies(cached))
+          .catch(() => applyCompanies([]));
       },
     });
   }
@@ -415,8 +523,6 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       }
       return;
     }
-
-    const cacheKey = `products_cache_${companyId}`;
 
     const applyProducts = (data: any[]) => {
       const services = data
@@ -446,15 +552,22 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
       .subscribe({
         next: (response) => {
           const data = Array.isArray(response?.data) ? response.data : [];
-          localStorage.setItem(cacheKey, JSON.stringify(data));
+          // Apply first, then cache to IndexedDB (best-effort).
           applyProducts(data);
+          void this.offlineQueue.cacheProducts(companyId, data).catch(() => {});
         },
         error: () => {
-          const cached = localStorage.getItem(cacheKey);
-          const data = cached ? JSON.parse(cached) : [];
-          applyProducts(data);
+          // Offline / request failed — fall back to the IndexedDB cache.
+          this.offlineQueue
+            .getCachedProducts(companyId)
+            .then((cached) => applyProducts(cached))
+            .catch(() => applyProducts([]));
         },
       });
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
   private normalizeDateForInput(value: string): string {

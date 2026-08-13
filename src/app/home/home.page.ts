@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController, ToastController } from '@ionic/angular';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { MenuItem, MenuService } from '../services/menu.service';
@@ -38,6 +38,10 @@ export class HomePage implements OnInit {
   unreadCount: number = 0;
   notifications: Notification[] = [];
   pendingBookingsCount: number = 0;
+
+  private static readonly DASHBOARD_MODE_KEY = 'dashboard.mode';
+  private static readonly DASHBOARD_TREND_FROM_KEY = 'dashboard.trendFrom';
+  private static readonly DASHBOARD_TREND_TO_KEY = 'dashboard.trendTo';
 
   mode: DashboardMode = 'today';
 
@@ -104,11 +108,75 @@ export class HomePage implements OnInit {
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'home-menu');
     this.loadUserData();
+    this.resetDashboardState();
+
+    // Restore the last dashboard view (e.g. after viewing a receipt and coming
+    // back) so returning to TREND doesn't snap back to TODAY.
+    const savedMode = this.readSavedMode();
+    if (savedMode === 'trend') {
+      this.restoreSavedTrendRange();
+      this.switchMode('trend');
+      return;
+    }
+
+    this.loadDashboardData();
+  }
+
+  private readSavedMode(): DashboardMode | null {
+    try {
+      const saved = sessionStorage.getItem(HomePage.DASHBOARD_MODE_KEY);
+      return saved === 'trend' || saved === 'today' ? saved : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private saveMode(mode: DashboardMode): void {
+    try {
+      sessionStorage.setItem(HomePage.DASHBOARD_MODE_KEY, mode);
+      if (mode === 'trend') {
+        sessionStorage.setItem(HomePage.DASHBOARD_TREND_FROM_KEY, this.trendFrom);
+        sessionStorage.setItem(HomePage.DASHBOARD_TREND_TO_KEY, this.trendTo);
+      }
+    } catch {
+      // Ignore storage failures (private mode / quota) — view just won't persist.
+    }
+  }
+
+  private restoreSavedTrendRange(): void {
+    try {
+      const from = sessionStorage.getItem(HomePage.DASHBOARD_TREND_FROM_KEY);
+      const to = sessionStorage.getItem(HomePage.DASHBOARD_TREND_TO_KEY);
+      if (from) this.trendFrom = from;
+      if (to) this.trendTo = to;
+    } catch {
+      // Fall back to the default range set in resetDashboardState/ngOnInit.
+    }
+  }
+
+  private resetDashboardState(): void {
+    this.mode = 'today';
+    this.todayData = null;
+    this.trendData = null;
+    this.activeSummary = null;
+    this.activeReceipts = [];
+    this.revenueSeries = [];
+    this.receiptsSeries = [];
+    this.touristsSeries = [];
+    this.receiptMeta = {
+      total: 0,
+      page: 1,
+      per_page: 10,
+      total_pages: 1,
+      has_next: false,
+      has_prev: false,
+    };
   }
 
   switchMode(mode: DashboardMode): void {
     this.mode = mode;
     this.receiptMeta = { ...this.receiptMeta, page: 1 };
+    this.saveMode(mode);
 
     if (mode === 'trend') {
       this.applyTrendFilter();
@@ -223,6 +291,7 @@ export class HomePage implements OnInit {
 
   private loadDashboardData(): void {
     this.loadTodayDashboard();
+    this.loadReceiptsFromBookingList();
   }
 
   private loadTodayDashboard(): void {
@@ -242,6 +311,10 @@ export class HomePage implements OnInit {
     if (!this.trendFrom || !this.trendTo) {
       return;
     }
+
+    // Persist the current trend range so returning to the dashboard (e.g. after
+    // viewing a receipt) restores TREND with the same range.
+    this.saveMode('trend');
 
     this.dashboardApiService.getTrendDashboard(this.trendFrom, this.trendTo).subscribe({
       next: (response) => {
@@ -361,19 +434,14 @@ export class HomePage implements OnInit {
     if (this.mode === 'trend' && this.trendFrom && this.trendTo) {
       params.start_date = `${this.trendFrom}-01`;
       params.end_date = this.getLastDayOfMonth(this.trendTo);
-      params.page = this.receiptMeta.page;
-      params.per_page = this.receiptMeta.per_page;
-
-      const currentRole = this.authService.getCurrentRole();
-      const shouldSendUserId = currentRole !== 'superadmin';
-      if (this.uid && shouldSendUserId) {
-        params.user_id = this.uid;
-      }
     }
 
-    this.bookingService.getBookings(params).subscribe({
-      next: (response: any) => {
-        const meta = response?.meta || {};
+    forkJoin({
+      bookings: this.bookingService.getBookings(params),
+      referrals: this.bookingService.getPackageBookings({ status: 'paid,completed', per_page: 1000 }),
+    }).subscribe({
+      next: ({ bookings, referrals }: any) => {
+        const meta = bookings?.meta || {};
         this.receiptMeta = {
           total: Number(meta.total ?? 0),
           page: Number(meta.page ?? 1),
@@ -383,20 +451,38 @@ export class HomePage implements OnInit {
           has_prev: Boolean(meta.has_prev),
         };
 
-        const rows = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response?.data?.items)
-            ? response.data.items
-            : Array.isArray(response?.items)
-              ? response.items
-              : [];
+        const bookingRows: any[] = Array.isArray(bookings?.data) ? bookings.data : [];
 
-        this.activeReceipts =
-          rows.length > 0
-            ? rows.map((item: any, index: number) =>
-                this.mapBookingToReceiptItem(item, index),
-              )
-            : [];
+        // Get referral rows where this company is the referee (received referrals)
+        // and filter by the same date range used for bookings
+        const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+        const startDate = params.start_date;
+        const endDate = params.end_date;
+        const referralRows: any[] = (Array.isArray(referrals?.data) ? referrals.data : [])
+          .filter((r: any) => {
+            if (Number(r.referee_id) !== myCompanyId || Number(r.referrer_id) === myCompanyId) return false;
+            const dateRaw = r.booking?.receipt_created_at || r.booking?.created_at || r.created_at || '';
+            if (!dateRaw) return false;
+            const date = dateRaw.slice(0, 10);
+            return date >= startDate && date <= endDate;
+          })
+          .map((r: any) => ({
+            id: r.booking?.id || r.id,
+            booking_type: 'package',
+            tourist_full_name: r.booking?.tourist_full_name || r.booking?.company_name || '-',
+            product_name: r.description || 'Package',
+            total_price: r.per_price,
+            status: r.booking?.status || 'paid',
+            created_at: r.booking?.created_at || r.created_at,
+            receipt_created_at: r.booking?.receipt_created_at,
+            _isReferral: true,
+            _referralBy: r.referral_company || '',
+          }));
+
+        const allRows = [...bookingRows, ...referralRows];
+        this.activeReceipts = allRows.length > 0
+          ? allRows.map((item: any, index: number) => this.mapBookingToReceiptItem(item, index))
+          : [];
       },
       error: () => {
         this.activeReceipts = [];
@@ -460,6 +546,7 @@ export class HomePage implements OnInit {
         : '';
     const receiptId = item?.receipt_id || item?.receiptId || item?.id || `RES_${index + 1}`;
     const bookedBy =
+      item?.tourist_full_name ||
       item?.user_fullname ||
       item?.booked_by ||
       item?.tourist_name ||
@@ -469,16 +556,17 @@ export class HomePage implements OnInit {
       '-';
     const serviceName =
       item?.product_name || item?.service_name || item?.title || item?.activity_name || '-';
-    const createdAtRaw = item?.created_at || item?.createdAt || '-';
+    const createdAtRaw = item?.receipt_created_at || item?.created_at || item?.createdAt || '-';
     const createdAt = this.formatDateTime(createdAtRaw);
 
     return {
-      bookingId,
+      bookingId: item?._isReferral ? undefined : bookingId,
       receiptId: String(receiptId),
       bookedBy: String(bookedBy),
       serviceName: String(serviceName),
       type,
       createdAt,
+      isReferral: Boolean(item?._isReferral),
     };
   }
 
@@ -542,7 +630,7 @@ export class HomePage implements OnInit {
 
   private refreshMenuItems(): void {
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadCurrentSessionUser(): void {

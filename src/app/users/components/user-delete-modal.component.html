@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar color="danger">
-    <ion-title>Padam Pengguna/Delete User</ion-title>
+    <ion-title>Padam Pengguna / Delete User</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="dismiss()" fill="clear">
         <ion-icon
@@ -13,45 +13,51 @@
   </ion-toolbar>
 </ion-header>
 
-<div class="udm-scroll-content ion-padding">
-  <div class="confirm-container">
-    <div class="warning-icon">
-      <ion-icon name="warning-outline" color="danger"></ion-icon>
+<div class="udm-body">
+  <!-- User target card -->
+  <div class="udm-target-card">
+    <ion-icon name="person-circle-outline" class="udm-person-icon"></ion-icon>
+    <div class="udm-target-info">
+      <span class="udm-target-name">{{ user.name }}</span>
+      <span class="udm-target-sub">{{ user.username }}</span>
+      <span class="udm-target-sub">{{ user.email }}</span>
     </div>
+  </div>
 
-    <h3>Padam Pengguna?<br /><small>Delete User?</small></h3>
-
-    <p class="confirm-text">
-      Anda akan memadam pengguna berikut secara kekal:<br />
-      <em>You are about to permanently delete:</em>
-    </p>
-
-    <div class="user-info-block">
-      <strong>{{ user.name }}</strong>
-      <span>{{ user.username }}</span>
-      <span>{{ user.email }}</span>
+  <!-- Warning text — centred -->
+  <div class="udm-center-zone">
+    <div class="udm-warning">
+      <p class="udm-warning-main">
+        Anda akan memadam pengguna ini secara kekal.<br />
+        <em>You are about to permanently delete this user.</em>
+      </p>
+      <p class="udm-warning-sub">
+        Tindakan ini tidak boleh dibatalkan.<br />
+        <em>This action cannot be undone.</em>
+      </p>
     </div>
+    <p class="udm-api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
 
-    <p class="warn-text">
-      Tindakan ini tidak boleh dibatalkan.<br />
-      <em>This action cannot be undone.</em>
-    </p>
-
-    <p class="api-error" *ngIf="errorMessage">{{ errorMessage }}</p>
-
-    <div class="action-row">
-      <ion-button
-        fill="outline"
-        color="medium"
-        (click)="dismiss()"
-        [disabled]="isDeleting"
-      >
-        Batal/Cancel
-      </ion-button>
-      <ion-button color="danger" (click)="confirm()" [disabled]="isDeleting">
-        <ion-icon name="trash-outline" slot="start"></ion-icon>
-        {{ isDeleting ? "Memadam..." : "Padam/Delete" }}
-      </ion-button>
-    </div>
+  <!-- Action buttons -->
+  <div class="udm-actions">
+    <ion-button
+      expand="block"
+      color="danger"
+      (click)="confirm()"
+      [disabled]="isDeleting"
+    >
+      <ion-icon name="trash-outline" slot="start"></ion-icon>
+      {{ isDeleting ? "Memadam..." : "Padam / Delete" }}
+    </ion-button>
+    <ion-button
+      expand="block"
+      fill="outline"
+      color="medium"
+      (click)="dismiss()"
+      [disabled]="isDeleting"
+    >
+      Batal / Cancel
+    </ion-button>
   </div>
 </div>

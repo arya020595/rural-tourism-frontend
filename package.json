@@ -17,7 +17,10 @@
     "android:open": "npx cap open android",
     "android:release": "cd android && (gradlew.bat bundleRelease || ./gradlew bundleRelease)",
     "android:apk": "cd android && (gradlew.bat assembleRelease || ./gradlew assembleRelease)",
-    "full-release": "npm run android:build:native && npm run android:sync"
+    "full-release": "npm run android:build:native && npm run android:sync",
+    "ios:sync": "npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:build": "npm run android:build:native && npx cap sync ios"
   },
   "private": true,
   "dependencies": {
@@ -34,9 +37,11 @@
     "@capacitor/android": "^7.2.0",
     "@capacitor/app": "6.0.1",
     "@capacitor/core": "^7.2.0",
+    "@capacitor/filesystem": "^6.0.4",
     "@capacitor/haptics": "6.0.1",
     "@capacitor/keyboard": "6.0.2",
     "@capacitor/network": "^7.0.4",
+    "@capacitor/share": "^6.0.4",
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
     "@ionic/cli": "^7.2.0",

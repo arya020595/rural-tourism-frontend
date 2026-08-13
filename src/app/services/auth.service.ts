@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { StorageService } from './storage.service';
+import { OfflineQueueService } from './offline-queue.service';
 import { sanitizePowerBiUrl } from '../utils/power-bi-url.util';
 
 export type UserRoleName =
@@ -101,6 +102,7 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private storage: StorageService,
+    private offlineQueue: OfflineQueueService,
   ) {
     this.initializeAuthState();
   }
@@ -227,6 +229,9 @@ export class AuthService {
   }
 
   private clearSessionState(): void {
+    // Drop already-synced offline-queue items so the transient "Synced"
+    // indicator doesn't reappear after logging back in. Fire-and-forget.
+    void this.offlineQueue.clearSyncedItems();
     this.storage.clearAuth();
     this.storage.remove('association_user');
     this.storage.remove('association_user_id');
@@ -390,6 +395,12 @@ export class AuthService {
     );
   }
 
+  hasPermission(permission: string): boolean {
+    if (this.isAdmin()) return true;
+    const user = this.currentUser;
+    return Array.isArray(user?.permissions) && user.permissions.includes(permission);
+  }
+
   // ── Auth HTTP calls ──────────────────────────────────────────────
 
   register(payload: any, userType: 'operator' | 'tourist'): Observable<any> {
@@ -422,5 +433,22 @@ export class AuthService {
       token,
       password,
     });
+  }
+
+  changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/change-password`, {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  }
+
+  updateProfile(
+    userId: string | number,
+    updates: { name?: string; username?: string; email?: string },
+  ): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${userId}`, updates);
   }
 }

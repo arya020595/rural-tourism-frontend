@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { MenuController, ToastController } from '@ionic/angular';
+import { AlertController, MenuController, ToastController } from '@ionic/angular';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { environment } from '../../environments/environment';
 import { AssociationService } from '../services/association.service';
@@ -26,6 +27,7 @@ interface CompanyProfileFormData {
   association_id: string;
   owner_full_name: string;
   contact_no: string;
+  email: string;
   business_address: string;
   location: string;
   no_of_full_time_staff: string | number;
@@ -49,6 +51,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   isLoading = true;
   isEditing = false;
   isSaving = false;
+  isRequestingDeletion = false;
+  deletionRequestedAt: string | null = null;
 
   private readonly maxFileSizeBytes = 5 * 1024 * 1024;
   private readonly maxTotalUploadSizeBytes = 20 * 1024 * 1024;
@@ -82,6 +86,18 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   formData: CompanyProfileFormData = this.createEmptyFormData();
   private initialFormData: CompanyProfileFormData = this.createEmptyFormData();
 
+  // Document preview modal state (mirrors the report modal in My Transaction)
+  isPreviewOpen = false;
+  isPreviewClosing = false;
+  previewTitle = '';
+  previewIsPdf = false;
+  // PDFs render in an iframe (needs a trusted resource URL); images use the raw
+  // URL directly (safe in the img context — no bypass needed).
+  previewFrameUrl: SafeResourceUrl | null = null;
+  previewImageUrl: string | null = null;
+  private previewObjectUrl: string | null = null;
+  private previewCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private userService: UserService,
     private companyService: CompanyService,
@@ -92,6 +108,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     private menuService: MenuService,
     private router: Router,
     private toastController: ToastController,
+    private sanitizer: DomSanitizer,
+    private alertCtrl: AlertController,
   ) {}
 
   ngOnInit(): void {
@@ -104,11 +122,29 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.clearSelectedLogo();
     this.generatedObjectUrls.forEach((url) => URL.revokeObjectURL(url));
     this.generatedObjectUrls = [];
+
+    if (this.previewCloseTimeout) {
+      clearTimeout(this.previewCloseTimeout);
+      this.previewCloseTimeout = null;
+    }
+    if (this.previewObjectUrl) {
+      URL.revokeObjectURL(this.previewObjectUrl);
+      this.previewObjectUrl = null;
+    }
   }
 
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'company-profile-menu');
     this.loadUserData();
+  }
+
+  /**
+   * superadmin has no company of its own, so the operator-specific
+   * "No. of Staff" and "View Documents" sections are hidden for them in both
+   * view and edit modes.
+   */
+  get isSuperadmin(): boolean {
+    return this.authService.getCurrentRole() === 'superadmin';
   }
 
   get companyLogoSrc(): string {
@@ -151,6 +187,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       association_id: '',
       owner_full_name: '',
       contact_no: '',
+      email: '',
       business_address: '',
       location: '',
       no_of_full_time_staff: '',
@@ -165,6 +202,12 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   private cloneFormData(data: CompanyProfileFormData): CompanyProfileFormData {
     return { ...data };
+  }
+
+  get canUpdateCompany(): boolean {
+    // superadmin has no company of its own, so it can't create/update one here.
+    const role = this.authService.getCurrentRole();
+    return role === 'operator_admin';
   }
 
   private loadUserData(): void {
@@ -200,7 +243,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   private refreshMenuItems(): void {
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadAssociations(): void {
@@ -226,6 +269,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
         const mapped = this.mapUserToFormData(data);
         this.formData = mapped;
         this.initialFormData = this.cloneFormData(mapped);
+        this.deletionRequestedAt = data?.deletion_requested_at || null;
         this.isLoading = false;
       },
       error: () => {
@@ -250,10 +294,12 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       association_id: toString(
         data?.association_id ?? data?.associationId ?? data?.association?.id,
       ),
-      owner_full_name: toString(
-        data?.owner_full_name ?? data?.full_name ?? data?.name,
-      ),
+      // Owner = the company's operator_admin (provided by the backend as
+      // owner_full_name). Do NOT fall back to the logged-in user's name, or a
+      // staff account would show its own name instead of the owner's.
+      owner_full_name: toString(data?.owner_full_name),
       contact_no: toString(data?.contact_no ?? data?.company?.contact_no),
+      email: toString(data?.email ?? data?.company?.email),
       business_address: toString(
         data?.business_address ?? data?.company?.address,
       ),
@@ -434,6 +480,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       'contact_no',
       this.normalizeString(this.formData.contact_no),
     );
+    payload.append('email', this.normalizeString(this.formData.email));
     payload.append(
       'address',
       this.normalizeString(this.formData.business_address),
@@ -704,12 +751,59 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       source = this.buildUploadsUrl(source);
     }
 
-    const popup = window.open(source, '_blank');
-    if (!popup) {
-      this.showError(
-        'Unable to open document. Please allow popups and try again.',
-      );
+    this.openPreview(source, fallbackMimeType, this.getDocumentFieldLabel(field));
+  }
+
+  /**
+   * Opens the resolved document in an in-page preview modal (same styling as
+   * the report modal in My Transaction). PDFs render in an iframe; images in an
+   * <img>. Replaces the previous behaviour of opening a new browser tab.
+   */
+  private openPreview(source: string, mimeType: string, title: string): void {
+    // Track blob: URLs so we can revoke them when the preview closes.
+    if (source.startsWith('blob:')) {
+      this.previewObjectUrl = source;
     }
+
+    const isPdf =
+      mimeType === 'application/pdf' ||
+      source.toLowerCase().includes('.pdf');
+
+    this.previewIsPdf = isPdf;
+    this.previewTitle = title;
+    if (isPdf) {
+      this.previewFrameUrl =
+        this.sanitizer.bypassSecurityTrustResourceUrl(source);
+      this.previewImageUrl = null;
+    } else {
+      this.previewImageUrl = source;
+      this.previewFrameUrl = null;
+    }
+    this.isPreviewClosing = false;
+    this.isPreviewOpen = true;
+  }
+
+  closePreviewModal(): void {
+    if (!this.isPreviewOpen || this.isPreviewClosing) {
+      return;
+    }
+
+    // Play the closing animation, then tear down (mirrors report modal timing).
+    this.isPreviewClosing = true;
+    this.previewCloseTimeout = setTimeout(() => {
+      this.isPreviewOpen = false;
+      this.isPreviewClosing = false;
+      this.previewFrameUrl = null;
+      this.previewImageUrl = null;
+      this.previewIsPdf = false;
+      this.previewTitle = '';
+
+      if (this.previewObjectUrl) {
+        URL.revokeObjectURL(this.previewObjectUrl);
+        this.previewObjectUrl = null;
+      }
+      this.previewCloseTimeout = null;
+    }, 300);
   }
 
   private detectMimeTypeFromValue(value: string): string {
@@ -834,6 +928,51 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
   closeMenu(): void {
     this.menuCtrl.close();
+  }
+
+  async requestAccountDeletion(): Promise<void> {
+    if (this.isRequestingDeletion || this.deletionRequestedAt || !this.uid) {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Request Account Deletion',
+      message:
+        'This will submit a request to delete your account. An administrator will review your request. If approved, your account (login access, profile, and business documents) will be permanently deleted and cannot be recovered. Your existing booking and receipt records will be retained as historical data. Continue?',
+      buttons: [
+        {
+          text: 'Yes, Request Deletion',
+          role: 'destructive',
+          handler: () => this.submitDeletionRequest(),
+        },
+        { text: 'Cancel', role: 'cancel' },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  private submitDeletionRequest(): void {
+    if (!this.uid) {
+      return;
+    }
+
+    this.isRequestingDeletion = true;
+    this.userService.requestDeletion(Number(this.uid)).subscribe({
+      next: () => {
+        this.isRequestingDeletion = false;
+        this.deletionRequestedAt = new Date().toISOString();
+        this.showSuccess(
+          'Account deletion requested. An administrator will review your request.',
+        );
+      },
+      error: (error: any) => {
+        this.isRequestingDeletion = false;
+        this.showError(
+          error?.error?.message || 'Failed to submit deletion request.',
+        );
+      },
+    });
   }
 
   logOut(): void {

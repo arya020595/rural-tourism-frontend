@@ -16,6 +16,7 @@ import { MenuItem, MenuService } from '../services/menu.service';
 import { NetworkService } from '../services/network.service';
 import { OfflineQueueService } from '../services/offline-queue.service';
 import { ToastService } from '../services/toast.service';
+import { NativeDownloadService } from '../services/native-download.service';
 
 @Component({
   selector: 'app-booking-detail',
@@ -45,6 +46,7 @@ export class BookingDetailPage implements OnInit {
     private offlineQueue: OfflineQueueService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
+    private nativeDownload: NativeDownloadService,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state?.['booking']) {
@@ -114,6 +116,12 @@ export class BookingDetailPage implements OnInit {
                     ...this.booking!,
                     status: 'cancelled',
                   };
+                  // Record the change so the booking list shows the "Synced"
+                  // indicator, consistent with other status changes.
+                  await this.offlineQueue.recordSyncedEdit(
+                    this.booking.numericId ?? Number(this.booking.id),
+                    { status: 'cancelled' },
+                  );
                   await this.loadingService.hide();
                   await this.toastService.success(
                     'Booking cancelled successfully',
@@ -127,6 +135,47 @@ export class BookingDetailPage implements OnInit {
                   );
                 },
               });
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  async recallBooking(): Promise<void> {
+    if (!this.booking || this.booking.status !== 'paid') {
+      return;
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'Recall Booking',
+      message:
+        'Recall this booking back to Pending? The receipt will be removed and the booking can be edited again.',
+      buttons: [
+        { text: 'No', role: 'cancel' },
+        {
+          text: 'Yes, Recall',
+          handler: async () => {
+            await this.loadingService.show('Recalling booking...');
+            this.bookingService.recallBooking(String(this.booking!.id)).subscribe({
+              next: async () => {
+                this.booking = { ...this.booking!, status: 'pending' };
+                await this.offlineQueue.recordSyncedEdit(
+                  this.booking.numericId ?? Number(this.booking.id),
+                  { status: 'pending' },
+                );
+                await this.loadingService.hide();
+                await this.toastService.success('Booking recalled to pending');
+                this.goBack();
+              },
+              error: async (error) => {
+                await this.loadingService.hide();
+                await this.toastService.error(
+                  error?.error?.message || 'Failed to recall booking',
+                );
+              },
+            });
           },
         },
       ],
@@ -233,6 +282,12 @@ export class BookingDetailPage implements OnInit {
           );
           const data = response?.data ?? response;
           this.booking = data ? this.mapBookingToDetail(data) : this.booking;
+          // Record the change so the booking list shows the "Synced" indicator,
+          // consistent with edits made through the offline queue.
+          await this.offlineQueue.recordSyncedEdit(
+            this.booking.numericId ?? Number(this.booking.id),
+            { status: 'paid' },
+          );
         } catch (error) {
           await this.loadingService.hide();
           const err = error as any;
@@ -267,20 +322,49 @@ export class BookingDetailPage implements OnInit {
       const blob = await firstValueFrom(
         this.bookingService.downloadBookingPdf(this.booking.numericId),
       );
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `booking-${this.booking.id ?? this.booking.numericId}.pdf`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(anchor);
-      }, 100);
+      await this.nativeDownload.downloadBlob(
+        blob,
+        `booking-${this.booking.id ?? this.booking.numericId}.pdf`,
+      );
     } catch (err) {
       console.error('Failed to download booking PDF:', err);
       this.toastService.error(
         'Failed to download the booking PDF. Please try again.',
+      );
+    } finally {
+      await this.loadingService.hide();
+      this.isGeneratingPdf = false;
+    }
+  }
+
+  /**
+   * Download the payment receipt PDF directly (the same document the receipt
+   * QR code links to), so operators don't have to show the QR to the customer.
+   * Only used for paid bookings.
+   */
+  async downloadReceiptPdf(): Promise<void> {
+    if (this.isGeneratingPdf) {
+      return;
+    }
+    if (!this.booking?.numericId) {
+      this.toastService.error('PDF receipt is not available for this booking.');
+      return;
+    }
+
+    this.isGeneratingPdf = true;
+    try {
+      await this.loadingService.show('Menjana PDF / Generating PDF...');
+      const blob = await firstValueFrom(
+        this.bookingService.downloadReceiptPdf(this.booking.numericId),
+      );
+      await this.nativeDownload.downloadBlob(
+        blob,
+        `receipt-${this.booking.id ?? this.booking.numericId}.pdf`,
+      );
+    } catch (err) {
+      console.error('Failed to download receipt PDF:', err);
+      this.toastService.error(
+        'Failed to download the receipt PDF. Please try again.',
       );
     } finally {
       await this.loadingService.hide();
@@ -301,7 +385,7 @@ export class BookingDetailPage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 
   private loadBooking(): void {
@@ -401,6 +485,7 @@ export class BookingDetailPage implements OnInit {
       domesticPax: Number(record?.no_of_pax_domestik || 0),
       internationalPax: Number(record?.no_of_pax_antarbangsa || 0),
       totalAmount: Number(record?.total_price || 0),
+      totalDeposit: Number(record?.total_deposit || 0),
       operatorName: String(record?.operator_name || ''),
       activityName:
         type === 'Activity' ? String(record?.product_name || '') : undefined,
@@ -448,13 +533,26 @@ export class BookingDetailPage implements OnInit {
       return undefined;
     }
 
-    const date = new Date(raw);
-    if (Number.isNaN(date.getTime())) {
-      return raw || undefined;
+    // Read the literal HH:MM from the string without timezone conversion.
+    // The backend stores activity_date as a datetime; when no time was picked
+    // it is midnight, and `new Date(...).getHours()` would shift it by the
+    // local UTC offset (e.g. 00:00 UTC -> 08:00 in UTC+8). Parsing the raw
+    // string avoids that and lets us treat midnight as "no time".
+    const match = raw.match(/[T\s](\d{2}):(\d{2})/);
+    if (match) {
+      const [, hours, minutes] = match;
+      if (hours === '00' && minutes === '00') {
+        return undefined;
+      }
+      return `${hours}:${minutes}`;
     }
 
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+    // A bare time string (e.g. "14:30") came from a real activity_time field.
+    const timeOnly = raw.match(/^(\d{1,2}):(\d{2})/);
+    if (timeOnly) {
+      return `${timeOnly[1].padStart(2, '0')}:${timeOnly[2]}`;
+    }
+
+    return undefined;
   }
 }

@@ -2,6 +2,37 @@
   display: block;
 }
 
+.validation-error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fdecea;
+  border: 1px solid #f5c6c3;
+  border-left: 4px solid var(--ion-color-danger);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+
+  ion-icon {
+    font-size: 1.2rem;
+    color: var(--ion-color-danger);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 16px;
+    list-style: disc;
+
+    li {
+      font-size: 0.85rem;
+      color: #c0392b;
+      line-height: 1.6;
+    }
+  }
+}
+
 .form-section {
   margin-bottom: 12px;
   --input-label-size: 14px;
@@ -134,19 +165,32 @@
   width: 50%;
 }
 
+/* Medium widths: the 75%/50% constraint squeezes the columns so the longest
+   label (e.g. "Domestik/Antarabangsa") wraps and the row looks uneven. Give the
+   grids full width here so the three cards keep one line each before they stack
+   at 768px. */
+@media (max-width: 1100px) {
+  .radio-grid.three-col,
+  .radio-grid.two-col {
+    width: 100%;
+  }
+}
+
 .radio-card {
   min-height: 52px;
   border: 1px solid #217048;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 16px;
+  padding: 8px 16px;
   font-size: 16px;
   font-weight: 700;
   color: #306c4d;
   background: #ffffff;
-  white-space: nowrap;
   cursor: pointer;
+  /* Let the label wrap inside the card instead of overflowing on narrow
+     screens (e.g. the "Domestik/Antarabangsa" option). */
+  overflow: hidden;
 }
 
 .radio-card input {
@@ -175,8 +219,10 @@
 }
 
 .radio-card span {
-  display: inline-block;
-  line-height: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.2;
+  overflow-wrap: break-word;
 }
 
 .radio-card.active {
@@ -195,6 +241,19 @@
 .booking-form.view-mode .field input::placeholder,
 .booking-form.view-mode .field select {
   color: #777;
+}
+
+/* Always-read-only field (e.g. auto-calculated Total No. of Nights). Greyed
+   out with a not-allowed cursor so it reads as non-editable in every mode. */
+.field input.field-input--readonly {
+  background: #e8e8e8;
+  color: #666;
+  cursor: not-allowed;
+  border-color: #bbb;
+}
+
+.field input.field-input--readonly::placeholder {
+  color: #888;
 }
 
 .booking-form.view-mode .input-with-icon ion-icon {
@@ -233,6 +292,10 @@
   margin-top: 18px;
 }
 
+.action-row.single-action {
+  grid-template-columns: 1fr;
+}
+
 .bottom-action {
   border: none;
   border-radius: 12px;
@@ -257,6 +320,10 @@
 
 .bottom-action.submit {
   background: #015c2f;
+}
+
+.bottom-action.back {
+  background: #6b7280;
 }
 
 @media (max-width: 992px) {

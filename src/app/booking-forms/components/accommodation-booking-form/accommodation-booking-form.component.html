@@ -36,7 +36,7 @@
     <div class="field-grid two-col">
       <div class="field">
         <label
-          >2. Tarikh Daftar Masuk/Check In Date<span class="required"
+          >{{ n(2) }}. Tarikh Daftar Masuk/Check In Date<span class="required"
             >*</span
           ></label
         >
@@ -59,7 +59,7 @@
 
       <div class="field">
         <label
-          >3. Tarikh Daftar Keluar/Check Out Date<span class="required"
+          >{{ n(3) }}. Tarikh Daftar Keluar/Check Out Date<span class="required"
             >*</span
           ></label
         >
@@ -84,7 +84,7 @@
 
     <div class="field-grid one-col">
       <div class="field">
-        <label>4. Nama Penuh Pelancong/Tourist Full Name</label>
+        <label>{{ n(4) }}. Nama Penuh Pelancong/Tourist Full Name<span class="required">*</span></label>
         <input
           type="text"
           [(ngModel)]="fullName"
@@ -100,7 +100,7 @@
 
     <div class="field-grid two-col">
       <div class="field">
-        <label>5. No. Telefon/Telephone No.</label>
+        <label>{{ n(5) }}. No. Telefon/Telephone No.</label>
         <input
           type="text"
           inputmode="numeric"
@@ -120,9 +120,9 @@
       </div>
 
       <div class="field">
-        <label>6. Emel/Email</label>
+        <label>{{ n(6) }}. Emel/Email</label>
         <input
-          type="text"
+          type="email"
           [(ngModel)]="email"
           name="acF03"
           autocomplete="off"
@@ -131,12 +131,13 @@
           placeholder="Sila masukkan emel/Please enter email"
           [readonly]="isViewMode"
         />
+        <span *ngIf="emailError" class="field-error">{{ emailError }}</span>
       </div>
     </div>
 
     <section class="form-section">
       <h2 class="form-input-label">
-        7. Domestik/Antarabangsa<span class="required">*</span>
+        {{ n(7) }}. Domestik/Antarabangsa<span class="required">*</span>
       </h2>
       <div class="radio-grid three-col">
         <label
@@ -185,7 +186,7 @@
       <div class="field-grid two-col">
         <div class="field">
           <label
-            >8(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
+            >{{ n(8) }}(a). Bilangan Orang/No. of Pax (Domestik)<span class="required"
               >*</span
             ></label
           >
@@ -205,7 +206,7 @@
 
         <div class="field">
           <label
-            >8(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
+            >{{ n(8) }}(b). Bilangan Orang/No. of Pax (Antarabangsa)<span
               class="required"
               >*</span
             ></label
@@ -230,7 +231,7 @@
       <div class="field-grid two-col">
         <div class="field">
           <label
-            >9. Jumlah Malam/Total No. of Nights<span class="required"
+            >{{ n(9) }}. Jumlah Malam/Total No. of Nights<span class="required"
               >*</span
             ></label
           >
@@ -240,16 +241,16 @@
             pattern="\d*"
             min="0"
             step="1"
-            [(ngModel)]="nights"
+            [ngModel]="nights"
             name="accommodationNightsMixed"
-            placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
-            [readonly]="isViewMode"
-            (input)="onNumericInput('nights', $any($event.target).value)"
+            class="field-input--readonly"
+            placeholder="Dikira automatik/Auto-calculated from dates"
+            readonly
           />
         </div>
 
         <div class="field">
-          <label>10. Penginapan/Homestay<span class="required">*</span></label>
+          <label>{{ n(10) }}. Penginapan/Homestay<span class="required">*</span></label>
           <select
             class="field-input native-select"
             [(ngModel)]="homestay"
@@ -273,7 +274,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>11. Jumlah/Total (RM)<span class="required">*</span></label>
+          <label>{{ n(11) }}. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
             type="tel"
             inputmode="numeric"
@@ -288,13 +289,44 @@
           />
         </div>
 
-        <div class="field">
-          <label>12. Nama Pengandali/Operator Name</label>
+        <div class="field" *ngIf="!hideDeposit">
+          <label>{{ n(12) }}. Deposit/Total Deposit (RM)</label>
+          <input
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [(ngModel)]="totalDeposit"
+            name="accommodationDepositMixed"
+            placeholder="Sila isi deposit/Please insert deposit"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('totalDeposit', $event)"
+          />
+        </div>
+
+        <!-- When deposit is hidden, Operator sits beside Total. -->
+        <div class="field" *ngIf="hideDeposit">
+          <label>{{ n(13) }}. Nama Pengendali/Operator Name</label>
           <input
             type="text"
             [(ngModel)]="operatorName"
             name="accommodationOperatorMixed"
-            placeholder="Sila isi nama pengandali/Enter operator name"
+            placeholder="Sila isi nama pengendali/Enter operator name"
+            [readonly]="isViewMode"
+          />
+        </div>
+      </div>
+
+      <!-- Operator row (shown only when deposit is visible). -->
+      <div class="field-grid two-col" *ngIf="!hideDeposit">
+        <div class="field">
+          <label>{{ n(13) }}. Nama Pengendali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="accommodationOperatorMixedAlt"
+            placeholder="Sila isi nama pengendali/Enter operator name"
             [readonly]="isViewMode"
           />
         </div>
@@ -305,7 +337,7 @@
       <div class="field-grid two-col">
         <div class="field">
           <label
-            >8. Bilangan Orang/No. of Pax<span class="required">*</span></label
+            >{{ n(8) }}. Bilangan Orang/No. of Pax<span class="required">*</span></label
           >
           <input
             type="number"
@@ -323,7 +355,7 @@
 
         <div class="field">
           <label
-            >9. Jumlah Malam/Total No. of Nights<span class="required"
+            >{{ n(9) }}. Jumlah Malam/Total No. of Nights<span class="required"
               >*</span
             ></label
           >
@@ -333,18 +365,18 @@
             pattern="\d*"
             min="0"
             step="1"
-            [(ngModel)]="nights"
+            [ngModel]="nights"
             name="accommodationNightsSingle"
-            placeholder="Sila pilih bilangan malam/Please choose total no. of nights"
-            [readonly]="isViewMode"
-            (input)="onNumericInput('nights', $any($event.target).value)"
+            class="field-input--readonly"
+            placeholder="Dikira automatik/Auto-calculated from dates"
+            readonly
           />
         </div>
       </div>
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>10. Penginapan/Homestay<span class="required">*</span></label>
+          <label>{{ n(10) }}. Penginapan/Homestay<span class="required">*</span></label>
           <select
             class="field-input native-select"
             [(ngModel)]="homestay"
@@ -366,7 +398,7 @@
         </div>
 
         <div class="field">
-          <label>11. Jumlah/Total (RM)<span class="required">*</span></label>
+          <label>{{ n(11) }}. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
             type="tel"
             inputmode="numeric"
@@ -380,28 +412,62 @@
             (paste)="onNumericPaste('total', $event)"
           />
         </div>
-      </div>
 
-      <div class="field-grid two-col">
-        <div class="field">
-          <label>12. Nama Pengandali/Operator Name</label>
+        <!-- When deposit is hidden, Operator sits beside Total. -->
+        <div class="field" *ngIf="hideDeposit">
+          <label>{{ n(13) }}. Nama Pengendali/Operator Name</label>
           <input
             type="text"
             [(ngModel)]="operatorName"
             name="accommodationOperatorSingle"
-            placeholder="Sila isi nama pengandali/Enter operator name"
+            placeholder="Sila isi nama pengendali/Enter operator name"
             [readonly]="isViewMode"
           />
         </div>
+      </div>
 
-        <div class="field" aria-hidden="true"></div>
+      <!-- Deposit + Operator row (shown only when deposit is visible). -->
+      <div class="field-grid two-col" *ngIf="!hideDeposit">
+        <div class="field">
+          <label>{{ n(12) }}. Deposit/Total Deposit (RM)</label>
+          <input
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [(ngModel)]="totalDeposit"
+            name="accommodationDepositSingle"
+            placeholder="Sila isi deposit/Please insert deposit"
+            [readonly]="isViewMode"
+            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
+            (keydown)="onNumericKeydown($event)"
+            (paste)="onNumericPaste('totalDeposit', $event)"
+          />
+        </div>
+
+        <div class="field">
+          <label>{{ n(13) }}. Nama Pengendali/Operator Name</label>
+          <input
+            type="text"
+            [(ngModel)]="operatorName"
+            name="accommodationOperatorSingleAlt"
+            placeholder="Sila isi nama pengendali/Enter operator name"
+            [readonly]="isViewMode"
+          />
+        </div>
       </div>
     </ng-template>
 
-    <div *ngIf="!isViewMode" class="action-row">
-      <button type="button" class="bottom-action cancel" (click)="onCancel()">
+    <div class="validation-error-box" *ngIf="validationErrors.length > 0">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <ul>
+        <li *ngFor="let err of validationErrors">{{ err }}</li>
+      </ul>
+    </div>
+
+    <div *ngIf="!isViewMode" class="action-row" [class.single-action]="hideCancel">
+      <button *ngIf="!hideCancel" type="button" class="bottom-action cancel" (click)="onCancel()">
         <ion-icon name="close-circle-outline"></ion-icon>
-        <span>Batal Tempahan/Cancel Booking</span>
+        <span>{{ mode === 'edit' ? 'Batal Edit/Cancel Edit' : 'Batal Tempahan/Cancel Booking' }}</span>
       </button>
 
       <button type="submit" class="bottom-action submit">

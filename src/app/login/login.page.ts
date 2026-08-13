@@ -111,13 +111,23 @@ export class LoginPage implements OnInit {
     // Pre-warm all caches immediately after login so offline mode works right away
     void this.syncService.prewarmCaches();
 
+    if (role === 'superadmin') {
+      this.navCtrl.navigateRoot(redirectUrl || '/admin/dashboard');
+      return;
+    }
+
     if (role === 'association') {
       this.navCtrl.navigateRoot(redirectUrl || '/association/dashboard');
       return;
     }
 
-    if (role === 'operator_admin' || role === 'operator_staff') {
+    if (role === 'operator_admin') {
       this.navCtrl.navigateRoot('/home');
+      return;
+    }
+
+    if (role === 'operator_staff') {
+      this.navCtrl.navigateRoot('/booking-home');
       return;
     }
 

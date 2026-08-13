@@ -32,6 +32,12 @@ class OfflineDatabase extends Dexie {
   offline_booking_queue!: Table<QueueItem, number>;
   booking_cache!: Table<any, number>;
   sync_lock!: Table<any, string>;
+  // Products cached per company (key = company_id) and the package-companies
+  // list (single fixed key). Moved here from localStorage — the per-company
+  // product lists overflowed localStorage's ~5MB quota. IndexedDB has ample
+  // space, so offline caching no longer breaks the dropdowns.
+  product_cache!: Table<any, number>;
+  company_cache!: Table<any, string>;
 
   constructor() {
     super('rural_tourism_offline');
@@ -41,6 +47,11 @@ class OfflineDatabase extends Dexie {
         '++id, idempotency_key, local_booking_id, status, company_id, created_at',
       booking_cache: 'id, company_id, cached_at',
       sync_lock: 'id',
+    });
+
+    this.version(2).stores({
+      product_cache: 'company_id, cached_at',
+      company_cache: 'key, cached_at',
     });
   }
 }
@@ -131,6 +142,57 @@ export class OfflineQueueService {
     return idempotency_key;
   }
 
+  /**
+   * Records an edit that was already applied directly to the server (online
+   * path, e.g. marking a booking paid while connected). Stored as 'synced' so
+   * the booking list shows the transient "Synced" indicator, consistent with
+   * edits that went through the offline queue.
+   */
+  async recordSyncedEdit(
+    serverBookingId: number,
+    payload: Record<string, any> = {},
+  ): Promise<void> {
+    try {
+      const idempotency_key = uuidv4();
+      const now = new Date();
+
+      const existing = await this.db.offline_booking_queue
+        .where('local_booking_id')
+        .equals(String(serverBookingId))
+        .filter((item) => item.operation === 'EDIT')
+        .first();
+
+      if (existing?.id) {
+        await this.db.offline_booking_queue.update(existing.id, {
+          status: 'synced',
+          payload: { ...payload, idempotency_key },
+          error_message: null,
+          conflict_data: null,
+          updated_at: now,
+        });
+        return;
+      }
+
+      await this.db.offline_booking_queue.add({
+        idempotency_key,
+        operation: 'EDIT',
+        local_booking_id: String(serverBookingId),
+        server_booking_id: serverBookingId,
+        payload: { ...payload, idempotency_key },
+        base_version: 0,
+        status: 'synced',
+        retry_count: 0,
+        error_message: null,
+        conflict_data: null,
+        company_id: this.companyId,
+        created_at: now,
+        updated_at: now,
+      });
+    } catch (err) {
+      console.warn('[OfflineQueue] Failed to record synced edit:', err);
+    }
+  }
+
   async getPendingItems(): Promise<QueueItem[]> {
     return this.db.offline_booking_queue
       .where('status')
@@ -172,6 +234,22 @@ export class OfflineQueueService {
       updated_at: new Date(),
       ...extras,
     });
+  }
+
+  /**
+   * Removes already-synced queue items. Called on logout so the transient
+   * "Synced" indicator does not reappear after logging back in — only genuinely
+   * pending/failed items (or new changes made in the next session) keep a badge.
+   */
+  async clearSyncedItems(): Promise<void> {
+    try {
+      await this.db.offline_booking_queue
+        .where('status')
+        .equals('synced')
+        .delete();
+    } catch (err) {
+      console.warn('[OfflineQueue] Failed to clear synced items:', err);
+    }
   }
 
   async resetStaleSyncingItems(): Promise<void> {
@@ -242,6 +320,42 @@ export class OfflineQueueService {
 
   async removeCachedBooking(id: number): Promise<void> {
     await this.db.booking_cache.delete(id);
+  }
+
+  // ─── Product / Company Cache (moved off localStorage) ────────────────────────
+
+  /** Cache a company's product/service list for offline booking. */
+  async cacheProducts(companyId: number, products: any[]): Promise<void> {
+    const id = Number(companyId);
+    if (!id) return;
+    await this.db.product_cache.put({
+      company_id: id,
+      products: Array.isArray(products) ? products : [],
+      cached_at: new Date(),
+    });
+  }
+
+  /** Read a company's cached products (empty array if none). */
+  async getCachedProducts(companyId: number): Promise<any[]> {
+    const id = Number(companyId);
+    if (!id) return [];
+    const row = await this.db.product_cache.get(id);
+    return Array.isArray(row?.products) ? row.products : [];
+  }
+
+  /** Cache the package-companies dropdown list. */
+  async cachePackageCompanies(companies: any[]): Promise<void> {
+    await this.db.company_cache.put({
+      key: 'package_companies',
+      companies: Array.isArray(companies) ? companies : [],
+      cached_at: new Date(),
+    });
+  }
+
+  /** Read the cached package-companies list (empty array if none). */
+  async getCachedPackageCompanies(): Promise<any[]> {
+    const row = await this.db.company_cache.get('package_companies');
+    return Array.isArray(row?.companies) ? row.companies : [];
   }
 
   // ─── Utility ───────────────────────────────────────────────────────────────

@@ -26,6 +26,7 @@ export interface BookingDetail extends BookingRow {
   domesticPax?: number;
   internationalPax?: number;
   totalAmount?: number;
+  totalDeposit?: number;
   operatorName?: string;
 
   // Activity specific

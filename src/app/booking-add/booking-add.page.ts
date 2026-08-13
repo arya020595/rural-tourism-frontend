@@ -158,6 +158,7 @@ export class BookingAddPage implements OnInit {
       product_name: product.name,
       activity_date: activityDateTime,
       total_price: Number(payload.total || 0),
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
     };
   }
@@ -191,6 +192,7 @@ export class BookingAddPage implements OnInit {
           ? Number(payload.nights)
           : undefined,
       total_price: Number(payload.total || 0),
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
     };
   }
@@ -229,15 +231,29 @@ export class BookingAddPage implements OnInit {
       citizenship: payload.nationality || 'domestic',
       no_of_pax_domestik: this.resolveDomesticPax(payload),
       no_of_pax_antarbangsa: this.resolveInternationalPax(payload),
+      // Package bookings carry a single date (no time). Send it so it persists
+      // and shows on the receipt/PDF — previously it was dropped here.
+      activity_date: this.buildActivityDateTime(payload.bookingDate, ''),
       total_price: totalPrice,
+      total_deposit: this.normalizeDeposit(payload.totalDeposit),
       operator_name: payload.operatorName || '',
       package_companies: packageItems.map((item: any) => ({
         referrer_id: operatorCompanyId,
         referee_id: Number(item.companyId),
-        description: item.description || '',
+        description: item.serviceName || item.description || '',
         per_price: Number(item.price || 0),
       })),
     };
+  }
+
+  private normalizeDeposit(value: any): number | undefined {
+    if (value === 0) return 0;
+    if (value === undefined || value === null) return undefined;
+    const raw = String(value).trim();
+    if (!raw) return undefined;
+    const parsed = Number(raw);
+    if (Number.isNaN(parsed)) return undefined;
+    return Math.trunc(parsed);
   }
 
   private async findProductByName(
@@ -274,18 +290,16 @@ export class BookingAddPage implements OnInit {
       // offline — fall through to local cache
     }
 
-    // Fall back to per-company product cache
+    // Fall back to the per-company product cache (IndexedDB, offline).
     const companyId = this.authService.currentUser?.company_id;
     if (companyId) {
-      const cached = localStorage.getItem(`products_cache_${companyId}`);
-      if (cached) {
-        const match = findInList(JSON.parse(cached));
-        if (match?.id) {
-          return {
-            id: Number(match.id),
-            name: String(match.name || '').trim(),
-          };
-        }
+      const cached = await this.offlineQueue.getCachedProducts(Number(companyId));
+      const match = findInList(cached);
+      if (match?.id) {
+        return {
+          id: Number(match.id),
+          name: String(match.name || '').trim(),
+        };
       }
     }
 
@@ -410,6 +424,6 @@ export class BookingAddPage implements OnInit {
     }
 
     this.menuItems =
-      this.menuService.getVisibleMenuItemsForContext('operator_admin');
+      this.menuService.getVisibleMenuItemsForCurrentUser();
   }
 }
