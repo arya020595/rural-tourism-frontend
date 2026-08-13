@@ -50,8 +50,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   isEditing = false;
   isSaving = false;
 
-  private readonly maxFileSizeBytes = 1 * 1024 * 1024;
-  private readonly maxTotalUploadSizeBytes = 10 * 1024 * 1024;
+  private readonly maxFileSizeBytes = 5 * 1024 * 1024;
+  private readonly maxTotalUploadSizeBytes = 20 * 1024 * 1024;
 
   associations: AssociationItem[] = [];
   readonly locationOptions: string[] = [
@@ -311,7 +311,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     if (file.size > this.maxFileSizeBytes) {
-      this.showError('Logo file must be 1MB or smaller.');
+      this.showError('Logo file must be 5MB or smaller.');
       input.value = '';
       return;
     }
@@ -352,7 +352,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     if (croppedFile.size > this.maxFileSizeBytes) {
-      this.showError('Cropped logo file must be 1MB or smaller.');
+      this.showError('Cropped logo file must be 5MB or smaller.');
       return;
     }
 
@@ -384,7 +384,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     if (file.size > this.maxFileSizeBytes) {
-      this.showError('Each file must be 1MB or smaller.');
+      this.showError('Each file must be 5MB or smaller.');
       input.value = '';
       return;
     }
@@ -413,7 +413,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
     if (totalUploadSize > this.maxTotalUploadSizeBytes) {
       this.showError(
-        'Total upload size is too large. Please keep it under 10MB.',
+        'Total upload size is too large. Please keep it under 20MB.',
       );
       return;
     }
@@ -519,7 +519,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
         if (error?.status === 413) {
           this.showError(
-            'Upload too large. Please keep each file under 1MB and total uploads under 10MB.',
+            'Upload too large. Please keep each file under 5MB and total uploads under 20MB.',
           );
           return;
         }

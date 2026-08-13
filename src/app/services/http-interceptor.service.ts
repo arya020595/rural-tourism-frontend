@@ -111,6 +111,10 @@ export class HttpInterceptorService implements HttpInterceptor {
         message =
           error.error?.message || 'Validation error. Please check your input.';
         break;
+      case 413:
+        // Upload-size errors are already surfaced by the calling page
+        // (register/company-profile) with a more specific message.
+        return;
       case 500:
         message = 'Server error. Please try again later.';
         break;
