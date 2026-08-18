@@ -1,5 +1,5 @@
 import { Component, DoCheck, OnInit } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { FileUrlService } from '../../services/file-url.service';
 
 @Component({
   selector: 'app-header-logo',
@@ -9,6 +9,8 @@ import { environment } from '../../../environments/environment';
 export class HeaderLogoComponent implements OnInit, DoCheck {
   user: any = null;
   private lastUserSnapshot = '';
+
+  constructor(private fileUrlService: FileUrlService) {}
 
   ngOnInit(): void {
     this.syncUserFromStorage();
@@ -45,10 +47,6 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
     return value.endsWith('/uploads/default-logo.png');
   }
 
-  private isLikelyBase64(value: string): boolean {
-    return value.length > 100 && /^[A-Za-z0-9+/=\r\n]+$/.test(value);
-  }
-
   // Association logos are bundled with the frontend so they always render,
   // independent of the backend /uploads volume. Keyed by short code.
   private readonly associationLogoByCode: Record<string, string> = {
@@ -62,12 +60,15 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
   };
 
   get exploreSabahLogoSrc(): string {
-    return localStorage.getItem('explore_sabah_logo') || 'assets/icon/explore_sabah-without_bg.png';
+    return (
+      localStorage.getItem('explore_sabah_logo') ||
+      'assets/icon/explore_sabah-without_bg.png'
+    );
   }
 
   private isAssociationUser(): boolean {
     const roleName = String(
-      this.user?.role?.name || this.user?.role || this.user?.user_type || '',
+      this.user?.role?.name || this.user?.role || this.user?.user_type || ''
     ).toLowerCase();
     // Operators have a company; association users do not.
     return roleName === 'association' && !this.user?.company_id;
@@ -126,26 +127,6 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
       return '';
     }
 
-    if (
-      normalizedLogo.startsWith('data:') ||
-      normalizedLogo.startsWith('http://') ||
-      normalizedLogo.startsWith('https://')
-    ) {
-      return this.isDefaultLogoPath(normalizedLogo) ? '' : normalizedLogo;
-    }
-
-    if (normalizedLogo.startsWith('/uploads/')) {
-      return `${environment.API}${normalizedLogo}`;
-    }
-
-    if (normalizedLogo.startsWith('uploads/')) {
-      return `${environment.API}/${normalizedLogo}`;
-    }
-
-    if (this.isLikelyBase64(normalizedLogo)) {
-      return `data:image/png;base64,${normalizedLogo}`;
-    }
-
-    return normalizedLogo;
+    return this.fileUrlService.resolve(normalizedLogo);
   }
 }
