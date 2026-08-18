@@ -271,10 +271,40 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
         this.initialFormData = this.cloneFormData(mapped);
         this.deletionRequestedAt = data?.deletion_requested_at || null;
         this.isLoading = false;
+
+        // Documents are fetched separately (large base64 blobs, excluded
+        // from the main user response) — load them after the rest of the
+        // profile has rendered so the page isn't blocked waiting on them.
+        this.loadCompanyDocuments(Number(userId));
       },
       error: () => {
         this.isLoading = false;
         this.showError('Failed to load profile data.');
+      },
+    });
+  }
+
+  private loadCompanyDocuments(userId: number): void {
+    if (this.isSuperadmin) {
+      return;
+    }
+
+    this.userService.getCompanyDocuments(userId).subscribe({
+      next: (response) => {
+        const docs = response?.data;
+        if (!docs) {
+          return;
+        }
+        this.formData = {
+          ...this.formData,
+          motac_license_file: docs.motac_license_file || '',
+          trading_operation_license: docs.trading_operation_license || '',
+          homestay_certificate: docs.homestay_certificate || '',
+        };
+        this.initialFormData = this.cloneFormData(this.formData);
+      },
+      error: () => {
+        // Documents failing to load shouldn't block the rest of the profile.
       },
     });
   }

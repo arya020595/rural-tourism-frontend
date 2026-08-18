@@ -84,6 +84,22 @@ export class UserService {
     return this.http.get<RoleListResponse>(`${this.apiUrl}/roles`);
   }
 
+  /**
+   * Fetch company license/certificate documents separately from the user
+   * record — these are large base64 blobs, only needed by Company Profile's
+   * document viewer, not by every user lookup.
+   */
+  getCompanyDocuments(id: number): Observable<{
+    success: boolean;
+    data: {
+      motac_license_file: string | null;
+      trading_operation_license: string | null;
+      homestay_certificate: string | null;
+    };
+  }> {
+    return this.http.get<any>(`${this.apiUrl}/users/${id}/company-documents`);
+  }
+
   // ── Legacy methods kept for backward compatibility ────────────────────────
 
   getUserByID(user_id: string): Observable<any> {

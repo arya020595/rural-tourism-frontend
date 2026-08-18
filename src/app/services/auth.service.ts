@@ -205,7 +205,29 @@ export class AuthService {
       roleName === 'operator_staff';
 
     this.storage.setToken(token);
-    this.storage.setUser(normalizedUser);
+    // Persist a copy with large binary fields stripped. company_logo is kept
+    // (HeaderLogoComponent reads it on every page load, and it's a single
+    // reasonably-sized image) — but company.* license/certificate documents
+    // are base64 file uploads that can each be several MB, and Company
+    // Profile's own load (GET /users/:id, via syncUserProfile) merges the
+    // *entire* raw company record in, not just the logo. That was hitting
+    // ~9MB in one write and silently failing localStorage's quota
+    // (QuotaExceededError is swallowed by StorageService.set's try/catch),
+    // leaving a stale user object and breaking subsequent pages. The
+    // in-memory currentUserSubject below keeps the full object (including
+    // documents) for Company Profile's own document viewer.
+    const userForStorage = { ...(normalizedUser as any) };
+    if (userForStorage.company) {
+      const {
+        operator_logo_image: _companyLogo,
+        motac_license_file: _motac,
+        trading_operation_license: _trading,
+        homestay_certificate: _homestay,
+        ...restCompany
+      } = userForStorage.company;
+      userForStorage.company = restCompany;
+    }
+    this.storage.setUser(userForStorage as User);
     this.storage.remove('association_user');
     this.storage.remove('association_user_id');
     this.storage.remove('uid');
@@ -220,7 +242,7 @@ export class AuthService {
     }
 
     if (roleName === 'association' && legacyId) {
-      this.storage.set('association_user', normalizedUser);
+      this.storage.set('association_user', userForStorage);
       this.storage.set('association_user_id', legacyId);
     }
 
@@ -313,14 +335,6 @@ export class AuthService {
         : currentUser?.permissions || [],
       username: profile.username || currentUser?.username || '',
     } as User;
-
-    // Strip large binary fields before persisting — company logo is fetched
-    // separately via CompanyService and must not bloat localStorage.
-    const mergedAny = mergedUser as any;
-    if (mergedAny.company?.operator_logo_image) {
-      const { operator_logo_image: _logo, ...rest } = mergedAny.company;
-      mergedAny.company = rest;
-    }
 
     const token = this.storage.getToken();
     if (!token) {
