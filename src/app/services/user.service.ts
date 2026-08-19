@@ -90,6 +90,13 @@ export class UserService {
     return this.http.get(`${this.apiUrl}/users/${user_id}`);
   }
 
+  /** Company license/certificate documents — fetched separately from the
+   * user record since they're large base64 blobs, only needed by the
+   * Company Profile document viewer. */
+  getCompanyDocuments(user_id: string | number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/${user_id}/company-documents`);
+  }
+
   getAllUser(): Observable<any> {
     return this.http.get(`${this.apiUrl}/users`);
   }

@@ -10,6 +10,7 @@ import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
 import { CompanyService } from '../services/company.service';
+import { FileUrlService } from '../services/file-url.service';
 import { FormService } from '../services/form.service';
 import { NetworkService } from '../services/network.service';
 import { OfflineQueueService } from '../services/offline-queue.service';
@@ -46,6 +47,7 @@ export class ReceiptPage implements OnInit, AfterViewInit {
     private offlineQueue: OfflineQueueService,
     private networkService: NetworkService,
     private cdr: ChangeDetectorRef,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit() {
@@ -322,7 +324,10 @@ export class ReceiptPage implements OnInit, AfterViewInit {
       this.user?.company_logo ||
       this.user?.company?.operator_logo_image ||
       '';
-    return this.resolveImageSource(source, 'assets/icon/RuralT Logo.png');
+    const resolved = this.fileUrlService.resolve(source, {
+      base64MimeType: 'image/png',
+    });
+    return resolved || 'assets/icon/RuralT Logo.png';
   }
 
   private unwrapPayload(response: any): any {
@@ -347,26 +352,6 @@ export class ReceiptPage implements OnInit, AfterViewInit {
         console.error('Error loading company profile:', error);
       },
     );
-  }
-
-  private resolveImageSource(source: string, fallback: string): string {
-    const value = String(source || '').trim();
-    if (!value) return fallback;
-    if (
-      value.startsWith('http://') ||
-      value.startsWith('https://') ||
-      value.startsWith('data:') ||
-      value.startsWith('blob:')
-    ) {
-      return value;
-    }
-    if (value.startsWith('/')) {
-      return `${this.localAPI}${value}`;
-    }
-    if (value.includes('/')) {
-      return `${this.localAPI}/${value.replace(/^\/+/, '')}`;
-    }
-    return `data:image/png;base64,${value}`;
   }
 
   private tryAutoGenerateReceipt(): void {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { ActivityService } from 'src/app/services/activity.service';
+import { FileUrlService } from 'src/app/services/file-url.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -17,6 +18,7 @@ export class ActivityOperatorListPage implements OnInit {
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private api: ActivityService,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit() {
@@ -72,19 +74,11 @@ export class ActivityOperatorListPage implements OnInit {
   }
 
   getOperatorImage(imagePath: string): string {
-    if (!imagePath) {
-      return 'assets/icon/placeholder.png';
-    }
-
-    if (
-      imagePath.startsWith('assets/') ||
-      imagePath.startsWith('http') ||
-      imagePath.startsWith('data:image')
-    ) {
-      return imagePath;
-    }
-
-    return `${environment.API}/uploads/operator-activities/${imagePath}`;
+    const resolved = this.fileUrlService.resolve(imagePath, {
+      base64MimeType: 'image/jpeg',
+      legacySubdir: 'operator-activities',
+    });
+    return resolved || 'assets/icon/placeholder.png';
   }
 
   goToOperatorDetail(operatorId: string) {
