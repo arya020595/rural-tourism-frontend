@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 import { AccommodationService } from '../../services/accommodation.service';
 import { ActivityService } from '../../services/activity.service';
 import { AuthService } from '../../services/auth.service';
+import { FileUrlService } from '../../services/file-url.service';
 import { MenuItem, MenuService } from '../../services/menu.service';
 
 @Component({
@@ -45,6 +46,7 @@ export class HomePage implements OnInit {
     private alertController: AlertController,
     private menuService: MenuService,
     private authService: AuthService,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit() {
@@ -370,19 +372,11 @@ export class HomePage implements OnInit {
   }
 
   private buildImageUrl(imagePath: string, folder: string): string {
-    if (!imagePath) {
-      return 'assets/icon/placeholder.png';
-    }
-
-    if (
-      imagePath.startsWith('assets/') ||
-      imagePath.startsWith('http') ||
-      imagePath.startsWith('data:image')
-    ) {
-      return imagePath;
-    }
-
-    return `${environment.API}/uploads/${folder}/${imagePath}`;
+    const resolved = this.fileUrlService.resolve(imagePath, {
+      base64MimeType: 'image/jpeg',
+      legacySubdir: folder,
+    });
+    return resolved || 'assets/icon/placeholder.png';
   }
 
   private async showLogoutToast() {

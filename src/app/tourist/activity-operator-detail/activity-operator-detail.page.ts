@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
 import { AccommodationService } from 'src/app/services/accommodation.service';
 import { ActivityService } from 'src/app/services/activity.service';
+import { FileUrlService } from 'src/app/services/file-url.service';
 
 interface AvailableDate {
   date: string;
@@ -28,6 +29,7 @@ export class ActivityOperatorDetailPage implements OnInit {
     private api: ActivityService,
     private accommodationService: AccommodationService,
     private alertController: AlertController,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit() {
@@ -94,10 +96,9 @@ export class ActivityOperatorDetailPage implements OnInit {
             .subscribe(
               (userRes: any) => {
                 if (userRes?.company_logo) {
-                  this.operatorData.operator_logo =
-                    userRes.company_logo.startsWith('data:')
-                      ? userRes.company_logo
-                      : 'data:image/png;base64,' + userRes.company_logo;
+                  this.operatorData.operator_logo = this.fileUrlService.resolve(
+                    userRes.company_logo,
+                  );
                 }
               },
               (err) => console.error('Error loading operator logo:', err),

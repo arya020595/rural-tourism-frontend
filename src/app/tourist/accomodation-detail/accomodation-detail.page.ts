@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { environment } from '../../../environments/environment';
 import { AccommodationService } from '../../services/accommodation.service';
+import { FileUrlService } from '../../services/file-url.service';
 
 @Component({
   selector: 'app-accomodation-detail',
@@ -23,6 +23,7 @@ export class AccomodationDetailPage implements OnInit {
     private route: ActivatedRoute,
     private apiService: AccommodationService,
     private navCtrl: NavController,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit() {
@@ -99,10 +100,11 @@ export class AccomodationDetailPage implements OnInit {
   }
 
   getAccommodationImage(imageData: string): string {
-    if (!imageData) return 'assets/icon/placeholder.png';
-    if (imageData.startsWith('http') || imageData.startsWith('data:image'))
-      return imageData;
-    return `${environment.API}/uploads/accommodations/${imageData}`;
+    const resolved = this.fileUrlService.resolve(imageData, {
+      base64MimeType: 'image/jpeg',
+      legacySubdir: 'accommodations',
+    });
+    return resolved || 'assets/icon/placeholder.png';
   }
 
   toggleAmenities() {

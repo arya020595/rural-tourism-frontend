@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { CompanyService } from '../../services/company.service';
+import { FileUrlService } from '../../services/file-url.service';
 import {
   Notification,
   NotificationService,
@@ -31,6 +32,7 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private navCtrl: NavController,
     private router: Router,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit(): void {
@@ -132,7 +134,7 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
     // Show cached logo immediately (works offline)
     const cached = await this.storageService.getCompanyLogo(companyId);
     if (cached) {
-      this.companyLogoUrl = cached;
+      this.companyLogoUrl = this.fileUrlService.resolve(cached);
     }
 
     // Fetch fresh from network and update cache
@@ -140,7 +142,7 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
       next: async (res: any) => {
         const logo = res?.data?.operator_logo_image ?? res?.operator_logo_image ?? null;
         if (logo) {
-          this.companyLogoUrl = logo;
+          this.companyLogoUrl = this.fileUrlService.resolve(logo);
           await this.storageService.setCompanyLogo(companyId, logo);
         }
       },

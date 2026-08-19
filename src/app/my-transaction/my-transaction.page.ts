@@ -4,6 +4,7 @@ import { MenuController } from '@ionic/angular';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
+import { FileUrlService } from '../services/file-url.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { NativeDownloadService } from '../services/native-download.service';
 import { Transaction, TransactionTab } from './my-transaction.models';
@@ -64,6 +65,7 @@ export class MyTransactionPage implements OnInit {
     private bookingService: BookingService,
     private router: Router,
     private nativeDownload: NativeDownloadService,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit(): void {
@@ -259,9 +261,9 @@ export class MyTransactionPage implements OnInit {
   }
 
   getLogoSrc(): string {
-    const logo = this.reportData?.company?.logoBase64;
-    if (!logo) return '';
-    return logo.startsWith('data:') ? logo : `data:image/png;base64,${logo}`;
+    return this.fileUrlService.resolve(this.reportData?.company?.logoBase64, {
+      base64MimeType: 'image/png',
+    });
   }
 
   private getReceiptRoute(type: TransactionTab): string {

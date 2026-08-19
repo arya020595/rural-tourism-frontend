@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
 import { CompanyService } from '../services/company.service';
+import { Base64MimeType, FileUrlService } from '../services/file-url.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { StorageService } from '../services/storage.service';
 import { UserService } from '../services/user.service';
@@ -54,8 +55,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   isRequestingDeletion = false;
   deletionRequestedAt: string | null = null;
 
-  private readonly maxFileSizeBytes = 1 * 1024 * 1024;
-  private readonly maxTotalUploadSizeBytes = 10 * 1024 * 1024;
+  private readonly maxFileSizeBytes = 5 * 1024 * 1024;
+  private readonly maxTotalUploadSizeBytes = 20 * 1024 * 1024;
 
   associations: AssociationItem[] = [];
   readonly locationOptions: string[] = [
@@ -110,6 +111,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     private toastController: ToastController,
     private sanitizer: DomSanitizer,
     private alertCtrl: AlertController,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit(): void {
@@ -152,7 +154,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       return this.logoPreviewObjectUrl;
     }
 
-    return this.resolveSource(this.formData.company_logo, 'image/png');
+    return this.fileUrlService.resolve(this.formData.company_logo, {
+      base64MimeType: 'image/png',
+    });
   }
 
   get selectedAssociationName(): string {
@@ -271,10 +275,33 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
         this.initialFormData = this.cloneFormData(mapped);
         this.deletionRequestedAt = data?.deletion_requested_at || null;
         this.isLoading = false;
+
+        this.loadCompanyDocuments(userId);
       },
       error: () => {
         this.isLoading = false;
         this.showError('Failed to load profile data.');
+      },
+    });
+  }
+
+  // Documents (motac_license_file, trading_operation_license,
+  // homestay_certificate) are excluded from GET /users/:id — the base64
+  // blobs are large enough to bloat every user lookup — and must be fetched
+  // separately via this dedicated endpoint instead.
+  private loadCompanyDocuments(userId: string): void {
+    this.userService.getCompanyDocuments(userId).subscribe({
+      next: (response: any) => {
+        const documents = response?.data ?? response;
+        this.documentFields.forEach((field) => {
+          const value = this.normalizeString(documents?.[field]);
+          this.formData[field] = value;
+          this.initialFormData[field] = value;
+        });
+      },
+      error: () => {
+        // Leave document fields empty — degrades to the pre-existing
+        // "No document uploaded yet." state rather than breaking the page.
       },
     });
   }
@@ -357,7 +384,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     if (file.size > this.maxFileSizeBytes) {
-      this.showError('Logo file must be 1MB or smaller.');
+      this.showError('Logo file must be 5MB or smaller.');
       input.value = '';
       return;
     }
@@ -398,7 +425,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     if (croppedFile.size > this.maxFileSizeBytes) {
-      this.showError('Cropped logo file must be 1MB or smaller.');
+      this.showError('Cropped logo file must be 5MB or smaller.');
       return;
     }
 
@@ -430,7 +457,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     }
 
     if (file.size > this.maxFileSizeBytes) {
-      this.showError('Each file must be 1MB or smaller.');
+      this.showError('Each file must be 5MB or smaller.');
       input.value = '';
       return;
     }
@@ -459,7 +486,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
     if (totalUploadSize > this.maxTotalUploadSizeBytes) {
       this.showError(
-        'Total upload size is too large. Please keep it under 10MB.',
+        'Total upload size is too large. Please keep it under 20MB.',
       );
       return;
     }
@@ -566,7 +593,7 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
 
         if (error?.status === 413) {
           this.showError(
-            'Upload too large. Please keep each file under 1MB and total uploads under 10MB.',
+            'Upload too large. Please keep each file under 5MB and total uploads under 20MB.',
           );
           return;
         }
@@ -722,15 +749,17 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       return;
     }
 
-    const fallbackMimeType = this.detectMimeTypeFromValue(rawValue);
-    let source = this.resolveSource(rawValue, fallbackMimeType);
+    const fallbackMimeType = this.detectMimeTypeFromValue(rawValue) as Base64MimeType;
+    let source = this.fileUrlService.resolve(rawValue, {
+      base64MimeType: fallbackMimeType,
+    });
 
     if (source.startsWith('data:')) {
       const blobUrl = this.dataUrlToBlobUrl(source);
       if (blobUrl) {
         source = blobUrl;
       }
-    } else if (this.isLikelyBase64(rawValue)) {
+    } else if (this.fileUrlService.isLikelyBase64(rawValue)) {
       const blobUrl = this.base64ToBlobUrl(rawValue, fallbackMimeType);
       if (blobUrl) {
         source = blobUrl;
@@ -981,40 +1010,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     this.user = null;
     this.menuCtrl.enable(false, 'company-profile-menu');
     this.menuCtrl.close();
-  }
-
-  private isLikelyBase64(value: string): boolean {
-    return value.length > 100 && /^[A-Za-z0-9+/=\r\n]+$/.test(value);
-  }
-
-  private resolveSource(value: string, base64MimeType: string): string {
-    const normalized = String(value || '').trim();
-
-    if (!normalized) {
-      return '';
-    }
-
-    if (
-      normalized.startsWith('data:') ||
-      normalized.startsWith('http://') ||
-      normalized.startsWith('https://')
-    ) {
-      return normalized;
-    }
-
-    if (normalized.startsWith('/uploads/')) {
-      return `${environment.API}${normalized}`;
-    }
-
-    if (normalized.startsWith('uploads/')) {
-      return `${environment.API}/${normalized}`;
-    }
-
-    if (this.isLikelyBase64(normalized)) {
-      return `data:${base64MimeType};base64,${normalized}`;
-    }
-
-    return normalized;
   }
 
   private async showError(message: string): Promise<void> {

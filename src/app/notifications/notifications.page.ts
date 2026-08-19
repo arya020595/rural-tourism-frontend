@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { CompanyService } from '../services/company.service';
+import { FileUrlService } from '../services/file-url.service';
 import { StorageService } from '../services/storage.service';
 import {
   Notification,
@@ -25,6 +26,7 @@ export class NotificationsPage implements OnInit {
     private authService: AuthService,
     private companyService: CompanyService,
     private storageService: StorageService,
+    private fileUrlService: FileUrlService,
   ) {}
 
   ngOnInit() {
@@ -48,7 +50,7 @@ export class NotificationsPage implements OnInit {
     // Show cached logo immediately (works offline)
     const cached = await this.storageService.getCompanyLogo(companyId);
     if (cached) {
-      this.companyLogoUrl = cached;
+      this.companyLogoUrl = this.fileUrlService.resolve(cached);
     }
 
     // Fetch fresh from network and update cache
@@ -56,7 +58,7 @@ export class NotificationsPage implements OnInit {
       next: async (res: any) => {
         const logo = res?.data?.operator_logo_image ?? res?.operator_logo_image ?? null;
         if (logo) {
-          this.companyLogoUrl = logo;
+          this.companyLogoUrl = this.fileUrlService.resolve(logo);
           await this.storageService.setCompanyLogo(companyId, logo);
         }
       },
