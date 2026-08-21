@@ -16,6 +16,8 @@ export class ResetPasssPage implements OnInit {
   resetToken = '';
   newPassword = '';
   confirmPassword = '';
+  showNewPassword = false;
+  showConfirmPassword = false;
   isSendingResetLink = false;
   isResettingPassword = false;
   emailSentAlertOpen = false;
@@ -108,6 +110,14 @@ export class ResetPasssPage implements OnInit {
   backToLogin() {
     this.emailSentAlertOpen = false;
     this.router.navigate(['/login'], { replaceUrl: true });
+  }
+
+  toggleNewPassword() {
+    this.showNewPassword = !this.showNewPassword;
+  }
+
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   submitNewPassword(form: NgForm) {

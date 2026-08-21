@@ -103,6 +103,25 @@ ion-content.background {
   min-height: 38px;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap .form-input {
+  --padding-end: 40px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  z-index: 2;
+}
+
 .button-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

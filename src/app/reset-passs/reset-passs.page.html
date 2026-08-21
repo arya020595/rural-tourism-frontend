@@ -103,16 +103,23 @@
               <ion-label mode="ios" position="stacked" class="field-label">
                 Kata Laluan Baru/New Password<span class="required-mark">*</span>
               </ion-label>
-              <ion-input
-                [(ngModel)]="newPassword"
-                name="newPassword"
-                required
-                minlength="8"
-                type="password"
-                placeholder="Sila isikan semula kata laluan baru/Re-enter your password"
-                class="form-input"
-                #newPasswordInput="ngModel"
-              ></ion-input>
+              <div class="password-input-wrap">
+                <ion-input
+                  [(ngModel)]="newPassword"
+                  name="newPassword"
+                  required
+                  minlength="8"
+                  [type]="showNewPassword ? 'text' : 'password'"
+                  placeholder="Sila isikan semula kata laluan baru/Re-enter your password"
+                  class="form-input"
+                  #newPasswordInput="ngModel"
+                ></ion-input>
+                <ion-icon
+                  [name]="showNewPassword ? 'eye-off-outline' : 'eye-outline'"
+                  class="password-toggle"
+                  (click)="toggleNewPassword()"
+                ></ion-icon>
+              </div>
             </ion-item>
 
             <ion-text
@@ -132,15 +139,22 @@
               <ion-label mode="ios" position="stacked" class="field-label">
                 Sahkan kata laluan/Confirm Password
               </ion-label>
-              <ion-input
-                [(ngModel)]="confirmPassword"
-                name="confirmPassword"
-                required
-                type="password"
-                placeholder="Sahkan kata laluan/Confirm Password"
-                class="form-input"
-                #confirmPasswordInput="ngModel"
-              ></ion-input>
+              <div class="password-input-wrap">
+                <ion-input
+                  [(ngModel)]="confirmPassword"
+                  name="confirmPassword"
+                  required
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  placeholder="Sahkan kata laluan/Confirm Password"
+                  class="form-input"
+                  #confirmPasswordInput="ngModel"
+                ></ion-input>
+                <ion-icon
+                  [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"
+                  class="password-toggle"
+                  (click)="toggleConfirmPassword()"
+                ></ion-icon>
+              </div>
             </ion-item>
 
             <div class="divider"></div>
