@@ -5,11 +5,12 @@ import {
   HttpInterceptor,
   HttpRequest,
 } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 import { LoadingService } from './loading.service';
 import { NetworkService } from './network.service';
 import { StorageService } from './storage.service';
@@ -26,6 +27,10 @@ export class HttpInterceptorService implements HttpInterceptor {
     private loadingService: LoadingService,
     private storageService: StorageService,
     private networkService: NetworkService,
+    // Resolved lazily (not constructor-injected) to avoid a circular
+    // dependency: AuthService itself depends on HttpClient, which this
+    // interceptor wraps.
+    private injector: Injector,
   ) {}
 
   intercept(
@@ -100,9 +105,26 @@ export class HttpInterceptorService implements HttpInterceptor {
           this.isRedirectingToLogin = true;
 
           message = 'Session expired. Please login again.';
-          this.storageService.clearAuth();
+          // Route through AuthService.logout() (resolved lazily via Injector
+          // — see the constructor comment) rather than clearing storage
+          // directly. AuthService also flips isAuthenticatedSubject to
+          // false, which is what actually stops app.component.ts's 60s
+          // notification-polling interval and SyncService's periodic sync.
+          // Clearing storage alone left those running against a wiped
+          // token, so every poll re-hit this same 401 handler and re-showed
+          // this toast every ~60s even while sitting on the login page.
+          //
+          // isRedirectingToLogin must stay true until navigation actually
+          // completes, not reset synchronously — several background
+          // services (notification polling, offline sync) can have
+          // requests already in flight when this fires; if the flag resets
+          // immediately, their 401s slip through and re-trigger this whole
+          // block again a moment later.
+          const authService = this.injector.get(AuthService);
+          // Empty redirectTo: this handler does its own navigation below so
+          // it can reset isRedirectingToLogin only once that completes.
+          authService.logout('');
           this.router.navigate(['/login']).then(() => {
-            // Reset flag after navigation so future real session expiries work
             this.isRedirectingToLogin = false;
           });
         } else {

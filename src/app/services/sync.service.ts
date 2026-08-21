@@ -340,6 +340,14 @@ export class SyncService {
       if (companies.length) {
         await this.offlineQueue.cachePackageCompanies(companies);
         for (const company of companies) {
+          // Re-checked on every iteration, not just once before the loop
+          // started: this loop can run for several seconds (one request per
+          // company). If the user logs out partway through, each remaining
+          // request was still firing with no token, hitting the interceptor's
+          // 401 handler, and popping its own "Session expired" toast — a
+          // burst of duplicate toasts right as the login page loads.
+          if (!this.isTokenValid()) break;
+
           const id = Number(company.id);
           if (!id) continue;
           try {
