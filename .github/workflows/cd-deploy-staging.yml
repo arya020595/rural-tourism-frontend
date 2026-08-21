@@ -88,18 +88,98 @@ jobs:
             # Login to GHCR
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 
+            # Capture the currently-running image so a manual rollback stays
+            # deterministic if this deploy fails the readiness gate below.
+            # (Automatic rollback is not yet implemented — see
+            # docs/UPLOADS_404_POSTMORTEM_2026-08-19.md follow-ups. This is
+            # the minimum requirement: never lose track of "what was running
+            # before".)
+            PREVIOUS_IMAGE=$(docker inspect --format '{{.Image}}' rt_frontend_staging 2>/dev/null || echo "")
+            echo "Previous frontend image: ${PREVIOUS_IMAGE:-none (first deploy)}"
+
             # Pull develop-tagged frontend image
             docker compose pull frontend_staging
 
             # Restart frontend staging
             docker compose up -d frontend_staging
 
-            # Clean up old images
-            docker image prune -f
+            # --- Layered readiness gate ---
+            # Deliberately state-based, not time-based: a deploy is only
+            # "successful" once every layer below passes. Each layer catches
+            # a different failure domain; see the deployment hardening plan
+            # for the full rationale. No `docker image prune` here — cleanup
+            # is a separate, later policy so a bad deploy never destroys the
+            # image needed to roll back to.
 
-            # Verify health
-            sleep 5
+            # Layer 1-2: container running + Docker HEALTHCHECK healthy.
+            # Frontend HEALTHCHECK is --interval=30s --timeout=5s
+            # --start-period=5s --retries=3; 90s gives comfortable margin
+            # over a single check cycle. Tune from observed deploy timing,
+            # not as a fixed assumption.
+            echo "Waiting for rt_frontend_staging to become healthy..."
+            TIMEOUT_SECONDS=90
+            ELAPSED=0
+            HEALTHY=0
+            while [ "$ELAPSED" -lt "$TIMEOUT_SECONDS" ]; do
+              STATUS=$(docker inspect --format '{{.State.Health.Status}}' rt_frontend_staging 2>/dev/null || echo "unknown")
+              if [ "$STATUS" = "healthy" ]; then
+                echo "rt_frontend_staging is healthy"
+                HEALTHY=1
+                break
+              fi
+              sleep 3
+              ELAPSED=$((ELAPSED + 3))
+            done
             docker compose ps
+            if [ "$HEALTHY" != "1" ]; then
+              echo "ERROR: rt_frontend_staging did not become healthy within ${TIMEOUT_SECONDS}s (last status: $STATUS)"
+              docker compose logs --tail=50 frontend_staging
+              exit 1
+            fi
+
+            # Layer 3: local health check (host port, bypasses Cloudflare/DNS).
+            # Port matches FRONTEND_EXTERNAL_PORT's default in
+            # docker-compose.yml (8082) — not read from .env here since this
+            # shell doesn't source it; update if that default ever changes.
+            if ! curl -sf "http://localhost:8082/api/health" > /dev/null; then
+              echo "ERROR: local /api/health check failed (nginx/backend chain broken on host)"
+              exit 1
+            fi
+            echo "Local health check passed"
+
+            # Layer 4: public health check (exercises Cloudflare/DNS/TLS too)
+            if ! curl -sf https://staging.rutec.my/api/health > /dev/null; then
+              echo "ERROR: public /api/health check failed through the public domain"
+              exit 1
+            fi
+            echo "Public health check passed"
+
+            # Layers 5-6: permanent deployment canary under /uploads/,
+            # checked for both HTTP 200 and exact expected content. This is
+            # the layer that actually exercises the nginx location-routing
+            # path that silently broke on 2026-08-19 (see
+            # docs/UPLOADS_404_POSTMORTEM_2026-08-19.md) — none of the health
+            # endpoints above touch that path. A real uploaded document is
+            # deliberately NOT used here: it can be deleted/replaced
+            # independently of deploy health, which would make this check
+            # flaky. Provisioning is idempotent (safe to (re)run every
+            # deploy) and backend-local, since nginx has no volume mount of
+            # its own and only ever reaches /uploads/ by proxying to the
+            # backend container that writes it (confirmed: `docker inspect
+            # rt_frontend_staging --format '{{json .Mounts}}'` → `[]`).
+            docker exec rt_backend_staging sh -c \
+              'mkdir -p /app/uploads/_healthcheck && printf "%s" "RUTEC_UPLOAD_CANARY_V1" > /app/uploads/_healthcheck/deploy-canary.txt'
+
+            CANARY_URL="https://staging.rutec.my/uploads/_healthcheck/deploy-canary.txt"
+            EXPECTED_BODY="RUTEC_UPLOAD_CANARY_V1"
+            RESPONSE=$(curl -s -w '\n%{http_code}' "$CANARY_URL")
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            if [ "$HTTP_CODE" != "200" ] || [ "$BODY" != "$EXPECTED_BODY" ]; then
+              echo "ERROR: uploads canary check failed (HTTP $HTTP_CODE, body: '$BODY')"
+              exit 1
+            fi
+            echo "Uploads canary check passed"
 
       - name: Notify Slack - Staging Deployment Result
         if: always()
