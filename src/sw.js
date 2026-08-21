@@ -21,8 +21,16 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Let API calls and external requests go straight to network (will fail offline — handled by app)
-  if (url.origin !== location.origin || url.pathname.startsWith('/api/')) {
+  // Let API calls, uploaded files, and external requests go straight to network
+  // (will fail offline — handled by app). Uploaded files are backend-proxied,
+  // user-replaceable content, not static app-shell assets — caching them here
+  // risks serving a stale/broken response after a deploy blip long after the
+  // origin has recovered.
+  if (
+    url.origin !== location.origin ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/uploads/')
+  ) {
     event.respondWith(fetch(event.request));
     return;
   }
