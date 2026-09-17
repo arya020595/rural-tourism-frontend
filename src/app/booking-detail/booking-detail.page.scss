@@ -356,6 +356,17 @@ ion-content {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+// Plain status text (cancelled / legacy-record notice) — the base
+// .action-row grid has 2 columns for button pairs, so a single <p> with no
+// modifier class sits in column 1 by default. Span both columns and center
+// the text instead.
+.action-row .cancelled-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #6e6e6e;
+  margin: 0;
+}
+
 /* Blue "Download PDF" action (paid bookings) */
 .bottom-action.download {
   background-color: #1e40af;

@@ -330,6 +330,7 @@ export class MyTransactionPage implements OnInit {
 
     return {
       id: b.id,
+      displayId: b.display_receipt_id ?? b.legacy_receipt_id ?? b.id,
       title: 'Package',
       name: customerName,
       date,
@@ -358,6 +359,7 @@ export class MyTransactionPage implements OnInit {
 
     return {
       id: r.id,
+      displayId: booking.display_receipt_id ?? booking.legacy_receipt_id ?? booking.id ?? r.id,
       title: 'Package (Referral from ' + (r.referral_company || 'Unknown') + ')',
       name: customerName,
       date,
@@ -394,6 +396,7 @@ export class MyTransactionPage implements OnInit {
 
     return {
       id: b.id,
+      displayId: b.display_receipt_id ?? b.legacy_receipt_id ?? b.id,
       title: b.product_name || 'Booking',
       name: b.tourist_full_name || '',
       date,

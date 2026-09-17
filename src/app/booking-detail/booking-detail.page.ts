@@ -92,7 +92,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   async cancelBooking(): Promise<void> {
-    if (!this.booking) {
+    if (!this.booking || this.booking.isLegacy) {
       return;
     }
 
@@ -144,7 +144,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   async recallBooking(): Promise<void> {
-    if (!this.booking || this.booking.status !== 'paid') {
+    if (!this.booking || this.booking.status !== 'paid' || this.booking.isLegacy) {
       return;
     }
 
@@ -185,7 +185,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   editBooking(): void {
-    if (!this.booking || this.booking.status !== 'pending') {
+    if (!this.booking || this.booking.status !== 'pending' || this.booking.isLegacy) {
       return;
     }
 
@@ -249,7 +249,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   async goToReceipt(): Promise<void> {
-    if (!this.booking) {
+    if (!this.booking || this.booking.isLegacy) {
       return;
     }
 
@@ -308,7 +308,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   async viewPaymentReceipt(): Promise<void> {
-    if (this.isGeneratingPdf) {
+    if (this.isGeneratingPdf || this.booking?.isLegacy) {
       return;
     }
     if (!this.booking?.numericId) {
@@ -343,7 +343,7 @@ export class BookingDetailPage implements OnInit {
    * Only used for paid bookings.
    */
   async downloadReceiptPdf(): Promise<void> {
-    if (this.isGeneratingPdf) {
+    if (this.isGeneratingPdf || this.booking?.isLegacy) {
       return;
     }
     if (!this.booking?.numericId) {
@@ -452,6 +452,10 @@ export class BookingDetailPage implements OnInit {
     return {
       id: String(record?.id || ''),
       numericId: Number.isFinite(numericIdValue) ? numericIdValue : undefined,
+      displayId: String(
+        record?.display_receipt_id ?? record?.legacy_receipt_id ?? record?.id ?? '',
+      ),
+      isLegacy: Boolean(record?.legacy_receipt_id),
       bookedDate: String(
         record?.activity_date ||
           record?.check_in_date ||

@@ -214,12 +214,15 @@ export class ReceiptPage implements OnInit, AfterViewInit {
         record?.updatedAt ||
         record?.createdAt,
       company_id: Number(record?.company_id ?? record?.companyId ?? 0) || null,
+      // Never fall back to user_fullname/userFullname here — that is the
+      // operator's own name, not the customer's. See
+      // src/app/receipt-activity/receipt-activity.page.ts for the same fix
+      // and docs/LEGACY_DB_MIGRATION_ANALYSIS.md §5 for why migrated
+      // bookings have no tourist_full_name to begin with.
       guest_name: String(
         record?.tourist_full_name ||
           record?.fullName ||
           record?.tourist_name ||
-          record?.user_fullname ||
-          record?.userFullname ||
           '',
       ),
       accommodation_name: String(

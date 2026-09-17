@@ -39,10 +39,18 @@ export class DashboardApiService {
     );
   }
 
-  // Superadmin-only: all-time totals per association.
-  getAssociationStats(): Observable<ApiResponse<AssociationStatsData>> {
+  // Superadmin-only: totals per association. Omit from/to for all-time.
+  getAssociationStats(
+    from?: string,
+    to?: string,
+  ): Observable<ApiResponse<AssociationStatsData>> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+
     return this.http.get<ApiResponse<AssociationStatsData>>(
       `${this.apiUrl}/dashboard/association-stats`,
+      { params },
     );
   }
 }
@@ -59,6 +67,11 @@ export interface AssociationStatRow {
   totalReceipts: number;
   totalTourists: number;
   totalCancelled: number;
+  /** Sum of total_price for paid bookings only. */
+  totalRevenue: number;
+  totalFulltimeStaff: number;
+  totalParttimeStaff: number;
+  totalStaff: number;
   companies: AssociationCompany[];
 }
 
@@ -69,5 +82,9 @@ export interface AssociationStatsData {
     totalReceipts: number;
     totalTourists: number;
     totalCancelled: number;
+    totalRevenue: number;
+    totalFulltimeStaff: number;
+    totalParttimeStaff: number;
+    totalStaff: number;
   };
 }
