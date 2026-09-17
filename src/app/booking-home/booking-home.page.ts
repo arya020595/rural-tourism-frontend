@@ -168,7 +168,7 @@ export class BookingHomePage implements OnInit {
   }
 
   editBooking(booking: BookingDetail): void {
-    if (booking.status !== 'pending') {
+    if (booking.status !== 'pending' || booking.isLegacy) {
       return;
     }
 
@@ -178,7 +178,7 @@ export class BookingHomePage implements OnInit {
   }
 
   async cancelBooking(booking: BookingDetail): Promise<void> {
-    if (booking.status !== 'pending' || !booking.id) {
+    if (booking.status !== 'pending' || !booking.id || booking.isLegacy) {
       return;
     }
 
@@ -584,6 +584,10 @@ export class BookingHomePage implements OnInit {
 
     return {
       id: String(record?.id || ''),
+      displayId: String(
+        record?.display_receipt_id ?? record?.legacy_receipt_id ?? record?.id ?? '',
+      ),
+      isLegacy: Boolean(record?.legacy_receipt_id),
       bookedDate,
       serviceName,
       type,

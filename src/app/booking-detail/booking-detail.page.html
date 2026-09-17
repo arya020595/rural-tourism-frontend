@@ -39,7 +39,7 @@
       </div>
 
       <div class="title-row">
-        <h1>View Booking Details - {{ booking?.id }}</h1>
+        <h1>View Booking Details - {{ booking?.displayId || booking?.id }}</h1>
         <div class="title-actions">
           <div class="booking-status">
             <span class="status-label">Booking Status</span>
@@ -62,7 +62,7 @@
             <div class="section-head-row">
               <h3>1. Select Type</h3>
               <button
-                *ngIf="booking?.status !== 'cancelled' && booking?.status !== 'paid'"
+                *ngIf="!booking?.isLegacy && booking?.status !== 'cancelled' && booking?.status !== 'paid'"
                 type="button"
                 class="pdf-button"
                 (click)="viewPaymentReceipt()"
@@ -140,6 +140,10 @@
         </div>
 
         <!-- Action Buttons - Outside form so they remain clickable -->
+        <!-- Migrated bookings are read-only historical records: no
+             cancel/edit/recall/receipt actions, since there is no live
+             product or payment flow behind them to act on. -->
+        <ng-container *ngIf="!booking.isLegacy; else legacyRecordTemplate">
         <ng-container
           *ngIf="booking.status === 'paid'; else bookedButtonsTemplate"
         >
@@ -214,6 +218,22 @@
               <p class="cancelled-message">This booking has been cancelled.</p>
             </div>
           </ng-template>
+        </ng-template>
+        </ng-container>
+
+        <ng-template #legacyRecordTemplate>
+          <div class="action-row">
+            <p class="cancelled-message">
+              Ini adalah tempahan lama dari sistem sebelumnya dan dipaparkan untuk rujukan sahaja.
+              Sila semak halaman
+              <a routerLink="/my-transaction">Transaksi Saya/My Transaction</a>
+              untuk melihat resit./
+              This is a historical booking from the old system, shown for reference only.
+              Please refer to the
+              <a routerLink="/my-transaction">My Transaction</a>
+              page to view the receipt.
+            </p>
+          </div>
         </ng-template>
       </ng-container>
 

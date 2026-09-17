@@ -215,6 +215,10 @@ ion-content.background {
     min-height: 44px;
   }
 
+  .password-input-wrap .form-input {
+    --padding-end: 42px;
+  }
+
   .action-button {
     --border-radius: 6px;
     min-height: 46px;

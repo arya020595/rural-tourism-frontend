@@ -35,6 +35,7 @@
               <ion-icon name="information-circle"></ion-icon>
             </button>
             <button
+              *ngIf="!booking.isLegacy"
               type="button"
               class="icon-btn edit"
               aria-label="Edit booking"
@@ -44,7 +45,7 @@
               <ion-icon name="create"></ion-icon>
             </button>
             <button
-              *ngIf="canCancel"
+              *ngIf="canCancel && !booking.isLegacy"
               type="button"
               class="icon-btn cancel"
               aria-label="Cancel booking"
@@ -55,7 +56,7 @@
             </button>
           </div>
         </td>
-        <td class="booking-id">{{ booking.id }}</td>
+        <td class="booking-id">{{ booking.displayId || booking.id }}</td>
         <td>{{ formatDate(booking.bookedDate) }}</td>
         <td class="service-name">{{ booking.serviceName }}</td>
         <td>{{ booking.type }}</td>

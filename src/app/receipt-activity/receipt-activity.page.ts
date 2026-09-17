@@ -234,12 +234,16 @@ export class ReceiptActivityPage implements OnInit, AfterViewInit {
           record?.company?.location ||
           '',
       ),
+      // Never fall back to user_fullname/userFullname here — that is the
+      // operator's own name, not the customer's, and showing it as "Booked
+      // By" is actively misleading (surfaced by a migrated booking whose
+      // tourist_full_name was never captured by the old system — see
+      // docs/LEGACY_DB_MIGRATION_ANALYSIS.md §5). Leave it blank instead
+      // and let bookedByName below render an honest "N/A".
       guest_name: String(
         record?.tourist_full_name ||
           record?.fullName ||
           record?.tourist_name ||
-          record?.user_fullname ||
-          record?.userFullname ||
           '',
       ),
       total_rm: Number(record?.total_price ?? record?.totalAmount ?? 0),

@@ -38,8 +38,83 @@ ion-toolbar {
 
 h1 {
   font-weight: 900;
-  margin-left: 4px;
+  margin: 0;
   color: #000;
+}
+
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: 4px;
+}
+
+.date-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.date-filter label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-filter span {
+  color: #6e6e6e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.date-input {
+  min-height: 38px;
+  min-width: 150px;
+  border: 1px solid #bfc3c2;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 10px;
+  color: #333;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+// Chrome/Edge/Safari render the calendar toggle as an <input>
+// pseudo-element; the default icon is a light grey that reads as
+// invisible against a white field, so darken it to solid black.
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0%) brightness(0%);
+  cursor: pointer;
+}
+
+.date-filter .filter-btn {
+  border: none;
+  min-height: 38px;
+  min-width: 80px;
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.date-filter .filter-btn.apply {
+  background: #015c2f;
+  color: #fff;
+}
+
+.date-filter .filter-btn.reset {
+  background: #ff9500;
+  color: #111;
+}
+
+@media (max-width: 640px) {
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 hr {
@@ -56,20 +131,29 @@ hr {
   padding: 40px 0;
 }
 
-/* Overall totals */
+/* Overall totals: 4 per row, and a partial last row stays centered (flexbox
+   with a fixed basis — grid can't center an incomplete last row). */
 .totals-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
   margin-bottom: 28px;
 }
 
 .total-tile {
+  /* 4 columns: each tile is a quarter of the row minus the gaps. */
+  flex: 0 1 calc((100% - 3 * 16px) / 4);
+  max-width: calc((100% - 3 * 16px) / 4);
+  box-sizing: border-box;
   background: #04552f;
   color: #fff;
   border-radius: 14px;
   padding: 18px 20px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .total-label {
@@ -84,6 +168,20 @@ hr {
   font-size: 30px;
   font-weight: 800;
   margin-top: 6px;
+}
+
+/* Secondary line under a tile value (staff split, revenue basis). */
+.total-sub {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+/* Revenue is a currency string, so it needs more room than a count. */
+.total-tile--revenue .total-value {
+  font-size: 24px;
 }
 
 /* Per-association cards: 4 per row, and a partial last row stays centered
@@ -137,6 +235,33 @@ hr {
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-top: 2px;
+}
+
+/* Revenue sits below the metric grid as a full-width footer row: it is a
+   currency value and does not fit the two-column numeric layout. */
+.assoc-revenue {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #d8e2dc;
+}
+
+.assoc-revenue-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b6b6b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.assoc-revenue-value {
+  font-size: 17px;
+  font-weight: 800;
+  color: #04552f;
+  white-space: nowrap;
 }
 
 .empty-msg {
@@ -215,8 +340,9 @@ hr {
 
 /* Tablet: 2 cards per row (still centered on a partial last row). */
 @media (max-width: 992px) {
-  .totals-row {
-    grid-template-columns: repeat(2, 1fr);
+  .total-tile {
+    flex-basis: calc((100% - 16px) / 2);
+    max-width: calc((100% - 16px) / 2);
   }
 
   .assoc-card {
@@ -226,8 +352,9 @@ hr {
 }
 
 @media (max-width: 640px) {
-  .totals-row {
-    grid-template-columns: 1fr;
+  .total-tile {
+    flex-basis: 100%;
+    max-width: 100%;
   }
   .total-value {
     font-size: 26px;

@@ -31,7 +31,41 @@
     </ion-col>
 
     <ion-card-content class="stats-content">
-      <h1>Statistik Persatuan/Association Statistics</h1>
+      <div class="page-header-row">
+        <h1>Statistik Persatuan/Association Statistics</h1>
+
+        <div class="date-filter">
+          <label>
+            <span>From</span>
+            <input
+              type="date"
+              class="date-input"
+              [max]="todayIsoDate"
+              [(ngModel)]="dateFrom"
+            />
+          </label>
+          <label>
+            <span>To</span>
+            <input
+              type="date"
+              class="date-input"
+              [max]="todayIsoDate"
+              [(ngModel)]="dateTo"
+            />
+          </label>
+          <button type="button" class="filter-btn apply" (click)="applyDateFilter()">
+            Filter
+          </button>
+          <button
+            type="button"
+            class="filter-btn reset"
+            (click)="resetDateFilter()"
+            *ngIf="dateFrom && dateTo"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
       <hr />
 
       <!-- Loading -->
@@ -64,6 +98,25 @@
             <div class="total-label">Booking Cancelled</div>
             <div class="total-value">{{ totals.totalCancelled | number }}</div>
           </div>
+          <div class="total-tile">
+            <div class="total-label">Full-Time Workers</div>
+            <div class="total-value">
+              {{ totals.totalFulltimeStaff | number }}
+            </div>
+          </div>
+          <div class="total-tile">
+            <div class="total-label">Part-Time Workers</div>
+            <div class="total-value">
+              {{ totals.totalParttimeStaff | number }}
+            </div>
+          </div>
+          <div class="total-tile total-tile--revenue">
+            <div class="total-label">Total Revenue</div>
+            <div class="total-value">
+              RM {{ totals.totalRevenue | number: '1.2-2' }}
+            </div>
+            <div class="total-sub">Paid bookings only</div>
+          </div>
         </div>
 
         <!-- Per-association cards -->
@@ -90,6 +143,20 @@
                 <div class="metric-value">{{ a.totalCancelled | number }}</div>
                 <div class="metric-label">Cancelled</div>
               </div>
+              <div class="metric">
+                <div class="metric-value">{{ a.totalFulltimeStaff | number }}</div>
+                <div class="metric-label">Full-time</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">{{ a.totalParttimeStaff | number }}</div>
+                <div class="metric-label">Part-time</div>
+              </div>
+            </div>
+            <div class="assoc-revenue">
+              <span class="assoc-revenue-label">Revenue</span>
+              <span class="assoc-revenue-value">
+                RM {{ a.totalRevenue | number: '1.2-2' }}
+              </span>
             </div>
           </div>
         </div>
