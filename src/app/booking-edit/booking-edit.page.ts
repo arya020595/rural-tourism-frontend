@@ -173,17 +173,38 @@ export class BookingEditPage implements OnInit {
     this.bookingService.getBookingById(id).subscribe({
       next: (response: any) => {
         const data = response?.data ?? response;
-        this.booking = data ? this.mapBookingToDetail(data) : null;
+        const mapped = data ? this.mapBookingToDetail(data) : null;
+        if (mapped?.isLegacy) {
+          this.blockLegacyEdit();
+          return;
+        }
+        this.booking = mapped;
         this.syncSelectedType();
       },
       error: () => {
         const navigation = this.router.getCurrentNavigation();
         const stateBooking = navigation?.extras?.state?.['booking'];
         const fallback = (stateBooking || history.state?.['booking']) ?? null;
-        this.booking = fallback ? this.mapBookingToDetail(fallback) : null;
+        const mapped = fallback ? this.mapBookingToDetail(fallback) : null;
+        if (mapped?.isLegacy) {
+          this.blockLegacyEdit();
+          return;
+        }
+        this.booking = mapped;
         this.syncSelectedType();
       },
     });
+  }
+
+  // Migrated bookings are read-only historical records — no live
+  // product/payment flow exists behind them to edit. Redirect back to the
+  // detail view rather than let the edit form render.
+  private blockLegacyEdit(): void {
+    this.showToast(
+      'This is a historical booking migrated from the old system and cannot be edited.',
+      'warning',
+    );
+    this.goBack();
   }
 
   private mapBookingToDetail(record: any): BookingDetail {
@@ -197,6 +218,10 @@ export class BookingEditPage implements OnInit {
 
     return {
       id: String(record?.id || ''),
+      displayId: String(
+        record?.display_receipt_id ?? record?.legacy_receipt_id ?? record?.id ?? '',
+      ),
+      isLegacy: Boolean(record?.legacy_receipt_id),
       bookedDate: String(
         record?.activity_date ||
           record?.check_in_date ||

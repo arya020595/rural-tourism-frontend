@@ -13,6 +13,11 @@ export interface PackageCompany {
 
 export interface Transaction {
   id: string | number;
+  // The old PE####### receipt number for a migrated booking, or the
+  // internal id for a native one — whichever applies. Shown in the card
+  // header alongside the product/package name. See
+  // docs/LEGACY_DB_MIGRATION_ANALYSIS.md §8.9.
+  displayId?: string | number;
   title: string;
   name: string;
   date: string;

@@ -45,7 +45,7 @@
       </div>
 
       <div class="title-row">
-        <h1>Edit Booking Details - {{ booking?.id }}</h1>
+        <h1>Edit Booking Details - {{ booking?.displayId || booking?.id }}</h1>
       </div>
 
       <ng-container *ngIf="booking; else noBookingTemplate">

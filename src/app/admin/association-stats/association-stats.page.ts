@@ -10,7 +10,8 @@ import {
 
 /**
  * Superadmin-only page: all-time totals per association — bookings, receipts
- * (paid bookings), and tourists — shown as a stat card per association.
+ * (paid bookings), tourists, revenue, and workforce (full-time / part-time
+ * staff) — shown as a stat card per association.
  */
 @Component({
   selector: 'app-association-stats',
@@ -27,9 +28,20 @@ export class AssociationStatsPage implements OnInit {
     totalReceipts: 0,
     totalTourists: 0,
     totalCancelled: 0,
+    totalRevenue: 0,
+    totalFulltimeStaff: 0,
+    totalParttimeStaff: 0,
+    totalStaff: 0,
   };
   isLoading = false;
   loadError = false;
+
+  // Date-range filter (day granularity, "" = all-time), bound directly to
+  // native <input type="date"> fields via ngModel.
+  dateFrom = '';
+  dateTo = '';
+
+  readonly todayIsoDate = new Date().toISOString().slice(0, 10);
 
   constructor(
     private menuCtrl: MenuController,
@@ -61,7 +73,7 @@ export class AssociationStatsPage implements OnInit {
   private loadStats() {
     this.isLoading = true;
     this.loadError = false;
-    this.dashboardApi.getAssociationStats().subscribe({
+    this.dashboardApi.getAssociationStats(this.dateFrom, this.dateTo).subscribe({
       next: (res) => {
         // Rank the cards by total bookings (most active first) so the top
         // performers surface instead of alphabetical order.
@@ -74,6 +86,10 @@ export class AssociationStatsPage implements OnInit {
             totalReceipts: 0,
             totalTourists: 0,
             totalCancelled: 0,
+            totalRevenue: 0,
+            totalFulltimeStaff: 0,
+            totalParttimeStaff: 0,
+            totalStaff: 0,
           };
         this.isLoading = false;
       },
@@ -99,6 +115,30 @@ export class AssociationStatsPage implements OnInit {
 
   trackAssociation(_index: number, row: AssociationStatRow): number {
     return row.associationId;
+  }
+
+  applyDateFilter(): void {
+    if (this.dateFrom && this.dateTo && this.dateFrom > this.dateTo) {
+      this.errorToast('From date must be earlier than or equal to To date');
+      return;
+    }
+    this.loadStats();
+  }
+
+  resetDateFilter(): void {
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.loadStats();
+  }
+
+  private async errorToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 1800,
+      position: 'bottom',
+      color: 'danger',
+    });
+    await toast.present();
   }
 
   closeMenu() {
