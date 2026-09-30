@@ -209,7 +209,7 @@ export class SyncService {
   private async prewarmAssets(): Promise<void> {
     const criticalAssets = [
       'assets/icon/explore_sabah-without_bg.png',
-      'assets/icon/RuralT Logo.png',
+      'assets/icon/rutec_pwa_icon.png',
       'assets/icon/tree.png',
       'assets/icon/house.png',
       'assets/icon/pakej-removebg-preview.png',

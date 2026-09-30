@@ -30,6 +30,7 @@ export interface User {
   association_id: number | null;
   role_id: number | null;
   company_id: number | null;
+  is_active: boolean;
   role?: UserRole | null;
   association?: UserAssociation | null;
   company?: UserCompany | null;
@@ -70,6 +71,7 @@ export interface UserCreatePayload {
   password: string;
   confirmed_password: string;
   role_id?: number | null;
+  role?: 'operator_admin' | 'operator_staff';
 }
 
 export interface UserUpdatePayload {
@@ -78,6 +80,8 @@ export interface UserUpdatePayload {
   email?: string;
   password?: string;
   confirmed_password?: string;
+  is_active?: boolean;
+  role?: 'operator_admin' | 'operator_staff';
 }
 
 export interface RoleItem {

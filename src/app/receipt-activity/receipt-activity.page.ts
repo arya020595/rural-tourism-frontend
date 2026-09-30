@@ -354,7 +354,7 @@ export class ReceiptActivityPage implements OnInit, AfterViewInit {
     const resolved = this.fileUrlService.resolve(source, {
       base64MimeType: 'image/png',
     });
-    return resolved || 'assets/icon/RuralT Logo.png';
+    return resolved || 'assets/icon/rutec_pwa_icon.png';
   }
 
   private unwrapPayload(response: any): any {

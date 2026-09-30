@@ -154,19 +154,63 @@ ion-content {
 .col-actions {
   width: 120px;
 }
-.col-id {
-  width: 100px;
-  white-space: nowrap;
-}
 .col-name {
   min-width: 140px;
 }
 .col-email {
   min-width: 200px;
+  max-width: 260px;
+  word-break: break-word;
+}
+.col-role {
+  width: 160px;
+  white-space: nowrap;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #6b6b6b;
+
+  &--superadmin {
+    background: #c0392b;
+  }
+  &--operator_admin {
+    background: #015c2f;
+  }
+  &--operator_staff {
+    background: #2166d1;
+  }
+  &--tourist {
+    background: #1f8a4c;
+  }
+  &--association {
+    background: #b8860b;
+  }
 }
 .col-date {
   width: 170px;
   white-space: nowrap;
+}
+.col-status {
+  width: 110px;
+  white-space: nowrap;
+  text-align: center;
+
+  ion-toggle {
+    --track-background-checked: #2fa84f;
+  }
+
+  .status-label {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    color: #4a4a4a;
+  }
 }
 
 

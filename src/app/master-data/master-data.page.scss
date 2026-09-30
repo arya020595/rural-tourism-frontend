@@ -152,12 +152,8 @@ ion-content {
   vertical-align: middle;
 }
 
-.master-table .action-group {
-  text-align: center;
-}
-
 .col-action {
-  width: 96px;
+  width: 120px;
 }
 
 .action-group {
@@ -165,29 +161,55 @@ ion-content {
   align-items: center;
   justify-content: center;
   gap: 10px;
+}
+
+.action-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 28px;
+  }
+
+  &:hover {
+    opacity: 0.75;
+  }
+
+  &--info {
+    color: #2166d1;
+  }
+  &--edit {
+    color: #e5a100;
+  }
+  &--delete {
+    color: #d11f1f;
+  }
+}
+
+.type-cell {
   white-space: nowrap;
 }
 
-.action-group ion-button {
-  --padding-start: 0;
-  --padding-end: 0;
-  margin: 0;
-}
+.col-status {
+  width: 110px;
+  white-space: nowrap;
+  text-align: center;
 
-.action-icon {
-  font-size: 28px;
-}
+  ion-toggle {
+    --track-background-checked: #2fa84f;
+  }
 
-.info-icon {
-  color: #2166d1;
-}
-
-.edit-icon {
-  color: #e5a100;
-}
-
-.delete-icon {
-  color: #d11f1f;
+  .status-label {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    color: #4a4a4a;
+  }
 }
 
 .empty-state {
@@ -428,8 +450,10 @@ ion-content {
 .mini-table-wrap {
   border: 1px solid #e2e2e2;
   border-radius: 10px;
-  overflow: hidden;
   background: #fff;
+  max-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .mini-table {
@@ -439,6 +463,9 @@ ion-content {
 
 .mini-table thead tr {
   background: #1a6b2f;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .mini-table thead th {

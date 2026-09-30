@@ -94,6 +94,7 @@ export class ProductService {
     payload: Partial<{
       name: string;
       product_type: 'activity' | 'accommodation';
+      is_active: boolean;
     }>,
   ): Observable<any> {
     return this.http.put(`${this.apiUrl}/products/${id}`, payload);
