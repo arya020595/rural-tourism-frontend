@@ -67,10 +67,11 @@
         <thead>
           <tr>
             <th class="col-actions"></th>
-            <th class="col-id">User ID</th>
             <th class="col-name">Full Name</th>
             <th class="col-email">Email Address</th>
+            <th class="col-role">Role</th>
             <th class="col-date">Created At</th>
+            <th class="col-status">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -109,15 +110,27 @@
                 </button>
               </div>
             </td>
-            <td class="col-id">{{ formatUserId(u.id) }}</td>
             <td class="col-name">{{ u.name }}</td>
             <td class="col-email">{{ u.email }}</td>
+            <td class="col-role">
+              <span class="role-badge" [ngClass]="'role-badge--' + (u.role?.name || 'unknown')">
+                {{ getRoleDisplayName(u.role?.name) }}
+              </span>
+            </td>
             <td class="col-date">{{ formatDate(u.created_at) }}</td>
+            <td class="col-status">
+              <ion-toggle
+                [checked]="u.is_active"
+                [disabled]="isSelf(u)"
+                (ionChange)="toggleActive(u)"
+              ></ion-toggle>
+              <span class="status-label">{{ u.is_active ? 'Aktif' : 'Tidak Aktif' }}</span>
+            </td>
           </tr>
 
           <!-- Empty state -->
           <tr *ngIf="users.length === 0">
-            <td colspan="5" class="um-empty">
+            <td colspan="6" class="um-empty">
               <ion-icon name="people-outline"></ion-icon>
               <p>Tiada pengguna dijumpai / No users found.</p>
             </td>

@@ -277,22 +277,30 @@ export class BookingAddPage implements OnInit {
         return matchesType && matchesName;
       });
 
-    try {
-      const response = await firstValueFrom(
-        this.productService.getProductsByLocation({ page: 1, per_page: 1000 }),
-      );
-      const products = Array.isArray(response?.data) ? response.data : [];
-      const match = findInList(products);
-      if (match?.id) {
-        return { id: Number(match.id), name: String(match.name || '').trim() };
-      }
-    } catch {
-      // offline — fall through to local cache
-    }
-
-    // Fall back to the per-company product cache (IndexedDB, offline).
+    // Scoped to the operator's own company — a location-wide search would
+    // risk matching another company's product of the same name (e.g. two
+    // operators in the same district both having a "Kayak" product), which
+    // would silently attach the booking to the wrong company's product_id.
     const companyId = this.authService.currentUser?.company_id;
+
     if (companyId) {
+      try {
+        const response = await firstValueFrom(
+          this.productService.getProductsByCompany(Number(companyId), {
+            page: 1,
+            per_page: 1000,
+          }),
+        );
+        const products = Array.isArray(response?.data) ? response.data : [];
+        const match = findInList(products);
+        if (match?.id) {
+          return { id: Number(match.id), name: String(match.name || '').trim() };
+        }
+      } catch {
+        // offline — fall through to local cache
+      }
+
+      // Fall back to the per-company product cache (IndexedDB, offline).
       const cached = await this.offlineQueue.getCachedProducts(Number(companyId));
       const match = findInList(cached);
       if (match?.id) {

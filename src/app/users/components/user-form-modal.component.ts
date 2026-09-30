@@ -8,6 +8,7 @@ import {
   UserUpdatePayload,
 } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-user-form-modal',
@@ -35,12 +36,14 @@ export class UserFormModalComponent implements OnInit {
     password: '',
     confirmed_password: '',
     role_id: null as number | null,
+    role: null as 'operator_admin' | 'operator_staff' | null,
   };
 
   constructor(
     private modalCtrl: ModalController,
     private userService: UserService,
     private toastCtrl: ToastController,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -49,6 +52,14 @@ export class UserFormModalComponent implements OnInit {
       this.form.name = this.user.name;
       this.form.username = this.user.username;
       this.form.email = this.user.email;
+
+      const currentRoleName = this.user.role?.name;
+      if (
+        currentRoleName === 'operator_admin' ||
+        currentRoleName === 'operator_staff'
+      ) {
+        this.form.role = currentRoleName;
+      }
     }
 
     if (this.isSuperadmin && !this.isEditMode) {
@@ -61,6 +72,17 @@ export class UserFormModalComponent implements OnInit {
         },
       });
     }
+  }
+
+  /** Whether to show the operator_admin/operator_staff picker for a
+   *  non-superadmin caller (create, or edit of someone other than self). */
+  get showOperatorRolePicker(): boolean {
+    if (this.isSuperadmin) return false;
+    if (!this.isEditMode) return true;
+    const currentUserId = this.authService.getUserId();
+    return (
+      !!this.user && String(this.user.id) !== String(currentUserId)
+    );
   }
 
   get title(): string {
@@ -101,6 +123,9 @@ export class UserFormModalComponent implements OnInit {
         name: this.form.name,
         username: this.form.username,
         email: this.form.email,
+        ...(this.showOperatorRolePicker && this.form.role
+          ? { role: this.form.role }
+          : {}),
       };
       if (this.form.password) {
         payload.password = this.form.password;
@@ -125,6 +150,9 @@ export class UserFormModalComponent implements OnInit {
         confirmed_password: this.form.confirmed_password,
         ...(this.isSuperadmin && this.form.role_id != null
           ? { role_id: this.form.role_id }
+          : {}),
+        ...(this.showOperatorRolePicker && this.form.role
+          ? { role: this.form.role }
           : {}),
       };
       this.userService.createUser(payload).subscribe({

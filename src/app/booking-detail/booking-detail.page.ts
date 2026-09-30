@@ -167,7 +167,6 @@ export class BookingDetailPage implements OnInit {
                 );
                 await this.loadingService.hide();
                 await this.toastService.success('Booking recalled to pending');
-                this.goBack();
               },
               error: async (error) => {
                 await this.loadingService.hide();

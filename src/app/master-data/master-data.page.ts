@@ -10,6 +10,7 @@ interface MasterDataRow {
   code: string;
   name: string;
   product_type: 'activity' | 'accommodation';
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -100,6 +101,7 @@ export class MasterDataPage implements OnInit {
       code: `MD_${String(id).padStart(3, '0')}`,
       name: String(record?.name || ''),
       product_type: this.normalizeProductType(record?.product_type),
+      is_active: record?.is_active !== false,
       created_at: record?.created_at || '',
       updated_at: record?.updated_at || '',
     };
@@ -429,7 +431,28 @@ export class MasterDataPage implements OnInit {
   }
 
   getProductTypeLabel(productType: 'activity' | 'accommodation'): string {
-    return productType === 'activity' ? 'Activity' : 'Accommodation';
+    return productType === 'activity'
+      ? 'Aktiviti/Activity'
+      : 'Tempat Penginapan/Accommodation';
+  }
+
+  getProductTypeLabelMalay(productType: 'activity' | 'accommodation'): string {
+    return productType === 'activity' ? 'Aktiviti' : 'Tempat Penginapan';
+  }
+
+  async toggleActive(item: MasterDataRow): Promise<void> {
+    const nextValue = !item.is_active;
+    item.is_active = nextValue;
+
+    try {
+      await firstValueFrom(
+        this.productService.updateProduct(item.id, { is_active: nextValue }),
+      );
+    } catch (error: any) {
+      item.is_active = !nextValue;
+      this.pageErrorMessage =
+        error?.error?.message || 'Unable to update status.';
+    }
   }
 
   formatDateTime(value: string): string {
