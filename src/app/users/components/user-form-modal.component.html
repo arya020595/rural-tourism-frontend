@@ -90,6 +90,28 @@
       </p>
     </div>
 
+    <!-- Role (operator_admin choosing operator_admin/operator_staff for
+         their own company — e.g. adding a spouse/co-owner as a backup admin) -->
+    <div class="ufm-field" *ngIf="showOperatorRolePicker">
+      <label class="ufm-label">
+        Peranan / <em>Role</em> <span class="ufm-required">*</span>
+      </label>
+      <select
+        class="ufm-input ufm-select"
+        [(ngModel)]="form.role"
+        name="operatorRole"
+        required
+        #operatorRoleInput="ngModel"
+      >
+        <option [ngValue]="null" disabled>Pilih peranan / Select role</option>
+        <option value="operator_admin">Operator Admin</option>
+        <option value="operator_staff">Operator Staff</option>
+      </select>
+      <p class="ufm-error" *ngIf="operatorRoleInput.invalid && operatorRoleInput.touched">
+        Role is required.
+      </p>
+    </div>
+
     <!-- Password -->
     <div class="ufm-field">
       <label class="ufm-label">

@@ -234,6 +234,36 @@ export class UsersPage implements OnInit, OnDestroy {
     }
   }
 
+  // ── Status toggle ─────────────────────────────────────────────────────────
+
+  isSelf(userRecord: User): boolean {
+    return String(userRecord.id) === String(this.uid);
+  }
+
+  async toggleActive(userRecord: User): Promise<void> {
+    const nextValue = !userRecord.is_active;
+    // Optimistic update; revert on failure.
+    userRecord.is_active = nextValue;
+
+    this.userService.updateUser(userRecord.id, { is_active: nextValue }).subscribe({
+      next: () => {
+        this.showToast(
+          nextValue
+            ? 'Akaun diaktifkan / Account activated.'
+            : 'Akaun dinyahaktifkan / Account deactivated.',
+          'success',
+        );
+      },
+      error: (err) => {
+        userRecord.is_active = !nextValue;
+        this.showToast(
+          err?.error?.message || 'Gagal mengemaskini status / Unable to update status.',
+          'danger',
+        );
+      },
+    });
+  }
+
   // ── Navigation ────────────────────────────────────────────────────────────
 
   onMenuItemTap(item: MenuItem): void {
@@ -279,6 +309,17 @@ export class UsersPage implements OnInit, OnDestroy {
       association: 'warning',
     };
     return map[roleName ?? ''] ?? 'medium';
+  }
+
+  getRoleDisplayName(roleName: string | undefined): string {
+    const map: Record<string, string> = {
+      superadmin: 'Superadmin',
+      operator_admin: 'Operator Admin',
+      operator_staff: 'Operator Staff',
+      tourist: 'Tourist',
+      association: 'Association',
+    };
+    return map[roleName ?? ''] ?? '—';
   }
 
   // ── Toast ─────────────────────────────────────────────────────────────────
