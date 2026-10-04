@@ -27,9 +27,11 @@ export class DashboardSummaryCardsComponent {
       suffix = ' M';
     }
 
+    // Currency always shows 2 decimals (RM 40,574.50), counts none.
+    const fractionDigits = suffix || withCurrency ? 2 : 0;
     const formatted = new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: suffix ? 2 : withCurrency ? 2 : 0,
+      minimumFractionDigits: withCurrency && !suffix ? 2 : 0,
+      maximumFractionDigits: fractionDigits,
     }).format(displayValue);
 
     return `${prefix}${formatted}${suffix}`;

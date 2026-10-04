@@ -131,22 +131,22 @@
   cursor: pointer;
 }
 
-.input-with-icon input[type='time']::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  cursor: pointer;
-}
-
-.input-with-icon input[type='date']::-webkit-calendar-picker-indicator {
-  opacity: 0;
-}
-
-.input-with-icon input[type='time'] {
-  color-scheme: light;
-}
-
 .input-with-icon input {
   width: 100%;
   padding-right: 54px;
+}
+
+// Read-only displays for the app-drawn date/time pickers: look like the other
+// inputs but open the picker on tap instead of a keyboard.
+.date-display,
+.time-display {
+  cursor: pointer;
+  caret-color: transparent;
+}
+
+.booking-form.view-mode .date-display,
+.booking-form.view-mode .time-display {
+  cursor: default;
 }
 
 .radio-grid {

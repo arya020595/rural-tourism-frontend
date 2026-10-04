@@ -10,6 +10,7 @@ import { HomePageRoutingModule } from './home-routing.module';
 import { DashboardChartPanelComponent } from './dashboard/components/chart-panel/dashboard-chart-panel.component';
 import { DashboardReceiptListTableComponent } from './dashboard/components/receipt-list-table/dashboard-receipt-list-table.component';
 import { DashboardSummaryCardsComponent } from './dashboard/components/summary-cards/dashboard-summary-cards.component';
+import { BookingDateSheetComponent } from '../booking-forms/components/booking-date-sheet/booking-date-sheet.component';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { DashboardSummaryCardsComponent } from './dashboard/components/summary-c
     NgApexchartsModule,
     HomePageRoutingModule,
     SharedModule,
+    BookingDateSheetComponent,
   ],
   declarations: [
     HomePage,

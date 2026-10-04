@@ -121,6 +121,15 @@ ion-content {
   align-items: flex-end;
   justify-content: space-between;
   padding-bottom: 20px;
+}
+
+// Page title under the logos/date, matching the PDF receipt; the divider moved
+// from .receipt-header to here so the order is: logos, title, line.
+.receipt-title {
+  color: #2e7d32;
+  font-size: 20px;
+  font-weight: 800;
+  padding: 6px 0 14px;
   border-bottom: 1px solid #d2d2d2;
 }
 
@@ -312,6 +321,11 @@ qrcode {
 
   .receipt-header {
     padding-bottom: 12px;
+  }
+
+  .receipt-title {
+    font-size: 16px;
+    padding-bottom: 10px;
   }
 
   .logo-divider {

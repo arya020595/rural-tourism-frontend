@@ -54,6 +54,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
   isSaving = false;
   isRequestingDeletion = false;
   deletionRequestedAt: string | null = null;
+  // The company owner (its first operator_admin). Owner name/email belong to
+  // that account, so only the owner may edit them; co-admins see them locked.
+  ownerUserId: string | null = null;
 
   private readonly maxFileSizeBytes = 5 * 1024 * 1024;
   private readonly maxTotalUploadSizeBytes = 20 * 1024 * 1024;
@@ -208,6 +211,10 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     return { ...data };
   }
 
+  get isCompanyOwner(): boolean {
+    return !!this.ownerUserId && String(this.ownerUserId) === String(this.uid);
+  }
+
   get canUpdateCompany(): boolean {
     // superadmin has no company of its own, so it can't create/update one here.
     const role = this.authService.getCurrentRole();
@@ -274,6 +281,8 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
         this.formData = mapped;
         this.initialFormData = this.cloneFormData(mapped);
         this.deletionRequestedAt = data?.deletion_requested_at || null;
+        this.ownerUserId =
+          data?.owner_user_id != null ? String(data.owner_user_id) : null;
         this.isLoading = false;
 
         this.loadCompanyDocuments(userId);
@@ -326,7 +335,9 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       // staff account would show its own name instead of the owner's.
       owner_full_name: toString(data?.owner_full_name),
       contact_no: toString(data?.contact_no ?? data?.company?.contact_no),
-      email: toString(data?.email ?? data?.company?.email),
+      // The owner's email, matching owner_full_name above — not the logged-in
+      // user's own email, which for a staff/co-admin account would be wrong.
+      email: toString(data?.owner_email ?? data?.email ?? data?.company?.email),
       business_address: toString(
         data?.business_address ?? data?.company?.address,
       ),
@@ -507,7 +518,13 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
       'contact_no',
       this.normalizeString(this.formData.contact_no),
     );
-    payload.append('email', this.normalizeString(this.formData.email));
+    if (this.isCompanyOwner) {
+      payload.append('email', this.normalizeString(this.formData.email));
+      payload.append(
+        'owner_full_name',
+        this.normalizeString(this.formData.owner_full_name),
+      );
+    }
     payload.append(
       'address',
       this.normalizeString(this.formData.business_address),
@@ -524,10 +541,6 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
     payload.append(
       'association_id',
       this.normalizeString(this.formData.association_id),
-    );
-    payload.append(
-      'owner_full_name',
-      this.normalizeString(this.formData.owner_full_name),
     );
 
     const poscode = this.normalizeString(this.formData.poscode);

@@ -200,23 +200,86 @@ ion-content {
   padding: 12px;
 }
 
+// The modal is capped to the viewport height and laid out as a column so the
+// header and Apply/Cancel buttons always stay on screen; only the image area
+// shrinks. Without this, a square logo rendered at the modal's full width made
+// the modal taller than short laptop/tablet screens, pushing the buttons off.
 .logo-cropper-modal {
   width: min(620px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
   border-radius: 10px;
   padding: 12px;
+  overflow-y: auto; // last resort on extremely short screens
+}
+
+.logo-cropper-header {
+  flex-shrink: 0;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #555555;
+  }
+}
+
+.logo-cropper-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .logo-cropper-body image-cropper {
   display: block;
   width: 100%;
-  min-height: 260px;
+}
+
+// The cropper sizes its image by container width; its own max-height: 100%
+// has no effect because the wrapper has no fixed height, so cap the image
+// height directly. ~190px = overlay + modal padding, header and action row.
+.logo-cropper-body ::ng-deep img.ngx-ic-source-image {
+  max-height: calc(100vh - 190px);
+  max-height: calc(100dvh - 190px);
 }
 
 .logo-cropper-actions {
+  flex-shrink: 0;
   margin-top: 12px;
   display: flex;
   gap: 8px;
+}
+
+// Short screens (landscape phones, small laptops/tablets): tighten spacing so
+// more of the height goes to the image.
+@media screen and (max-height: 600px) {
+  .logo-cropper-overlay {
+    padding: 6px;
+  }
+
+  .logo-cropper-modal {
+    padding: 8px;
+  }
+
+  .logo-cropper-header p {
+    display: none;
+  }
+
+  .logo-cropper-actions {
+    margin-top: 8px;
+  }
+
+  .logo-cropper-body ::ng-deep img.ngx-ic-source-image {
+    max-height: calc(100vh - 130px);
+    max-height: calc(100dvh - 130px);
+  }
 }
 
 .cropper-action {

@@ -65,7 +65,7 @@
             <button
               type="button"
               class="month-picker-trigger"
-              (click)="openTrendPicker('from', $event)"
+              (click)="openTrendPicker('from')"
             >
               <strong>{{ trendFromLabel }}</strong>
               <ion-icon name="calendar-outline"></ion-icon>
@@ -76,7 +76,7 @@
             <button
               type="button"
               class="month-picker-trigger"
-              (click)="openTrendPicker('to', $event)"
+              (click)="openTrendPicker('to')"
             >
               <strong>{{ trendToLabel }}</strong>
               <ion-icon name="calendar-outline"></ion-icon>
@@ -91,29 +91,16 @@
         </div>
       </section>
 
-      <ion-popover
-        cssClass="trend-month-popover"
+      <app-booking-date-sheet
+        pickMode="month"
+        [title]="trendPickerTarget === 'to' ? 'To' : 'From'"
         [isOpen]="trendPickerTarget !== null"
-        [event]="trendPickerEvent"
-        [showBackdrop]="true"
-        (didDismiss)="closeTrendPicker()"
-      >
-        <ng-template>
-          <ion-datetime
-            class="trend-month-datetime"
-            presentation="month-year"
-            preferWheel="true"
-            [showDefaultButtons]="true"
-            doneText="Done"
-            cancelText="Cancel"
-            [min]="trendMinDate"
-            [max]="trendMaxDate"
-            [value]="getTrendPickerValue()"
-            (ionCancel)="closeTrendPicker()"
-            (ionChange)="onTrendMonthChange($event); closeTrendPicker()"
-          ></ion-datetime>
-        </ng-template>
-      </ion-popover>
+        [value]="trendPickerTarget === 'to' ? trendTo : trendFrom"
+        [min]="trendPickerMin"
+        [max]="trendPickerMax"
+        (monthSelected)="onTrendMonthSelected($event)"
+        (dismissed)="closeTrendPicker()"
+      ></app-booking-date-sheet>
 
       <section class="summary-section">
         <app-dashboard-summary-cards [summary]="activeSummary"></app-dashboard-summary-cards>
@@ -123,6 +110,7 @@
         <div class="chart-grid">
           <app-dashboard-chart-panel
             [title]="'Total Revenue (RM)'"
+            [isCurrency]="true"
             [type]="revenueChartType"
             [categories]="revenueCategories"
             [series]="revenueSeries"

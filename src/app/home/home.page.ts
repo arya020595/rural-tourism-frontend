@@ -51,7 +51,6 @@ export class HomePage implements OnInit {
   trendFrom = '';
   trendTo = '';
   trendPickerTarget: 'from' | 'to' | null = null;
-  trendPickerEvent: Event | null = null;
 
   activeSummary: DashboardSummary | null = null;
   activeReceipts: ReceiptListItem[] = [];
@@ -76,11 +75,13 @@ export class HomePage implements OnInit {
   touristsSeries: ChartDisplaySeries[] = [];
   touristsChartType: 'bar' | 'line' = 'bar';
 
-  readonly trendMinDate = '2024-01-01';
+  // Trend picker range: 2020 up to 5 years ahead. Years without data simply
+  // show zero in the charts.
+  readonly trendMinDate = '2020-01-01';
 
   get trendMaxDate(): string {
     const currentYear = new Date().getFullYear();
-    return `${currentYear}-12-31`;
+    return `${currentYear + 5}-12-31`;
   }
 
   constructor(
@@ -208,32 +209,36 @@ export class HomePage implements OnInit {
     this.fetchTrendDashboard();
   }
 
-  openTrendPicker(target: 'from' | 'to', event: Event): void {
+  openTrendPicker(target: 'from' | 'to'): void {
     this.trendPickerTarget = target;
-    this.trendPickerEvent = event;
   }
 
   closeTrendPicker(): void {
     this.trendPickerTarget = null;
-    this.trendPickerEvent = null;
   }
 
-  onTrendMonthChange(event: CustomEvent): void {
-    const rawValue = event.detail?.value;
-
-    if (!rawValue || !this.trendPickerTarget) {
-      return;
-    }
-
-    const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
-    const monthValue = String(value).slice(0, 7);
-
+  onTrendMonthSelected(monthValue: string): void {
     if (this.trendPickerTarget === 'from') {
       this.trendFrom = monthValue;
-      return;
+    } else if (this.trendPickerTarget === 'to') {
+      this.trendTo = monthValue;
     }
+    this.trendPickerTarget = null;
+  }
 
-    this.trendTo = monthValue;
+  /** "To" can't be before "From", and vice versa. */
+  get trendPickerMin(): string {
+    if (this.trendPickerTarget === 'to' && this.trendFrom) {
+      return `${this.trendFrom}-01`;
+    }
+    return this.trendMinDate;
+  }
+
+  get trendPickerMax(): string {
+    if (this.trendPickerTarget === 'from' && this.trendTo) {
+      return this.getLastDayOfMonth(this.trendTo);
+    }
+    return this.trendMaxDate;
   }
 
   get trendFromLabel(): string {
@@ -242,18 +247,6 @@ export class HomePage implements OnInit {
 
   get trendToLabel(): string {
     return this.formatTrendMonthLabel(this.trendTo);
-  }
-
-  getTrendPickerValue(): string | null {
-    if (this.trendPickerTarget === 'from' && this.trendFrom) {
-      return `${this.trendFrom}-01`;
-    }
-
-    if (this.trendPickerTarget === 'to' && this.trendTo) {
-      return `${this.trendTo}-01`;
-    }
-
-    return null;
   }
 
   private formatTrendMonthLabel(monthValue: string): string {

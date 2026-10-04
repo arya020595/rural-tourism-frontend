@@ -35,9 +35,18 @@
       </div>
 
       <div class="date-action-row">
-        <button type="button" class="date-btn select" (click)="openDatePicker()">
-          {{ selectedDateLabel }}
-        </button>
+        <div class="date-range">
+          <span class="range-label">From</span>
+          <button type="button" class="range-trigger" (click)="openRangePicker('from')">
+            <span [class.placeholder]="!fromDate">{{ fromDate ? displayDate(fromDate) : 'dd/mm/yyyy' }}</span>
+            <ion-icon name="calendar-outline"></ion-icon>
+          </button>
+          <span class="range-label">To</span>
+          <button type="button" class="range-trigger" (click)="openRangePicker('to')">
+            <span [class.placeholder]="!toDate">{{ toDate ? displayDate(toDate) : 'dd/mm/yyyy' }}</span>
+            <ion-icon name="calendar-outline"></ion-icon>
+          </button>
+        </div>
         <button type="button" class="date-btn reset" (click)="onResetDate()">Reset Date</button>
 
         <button *ngIf="canGenerateReport" type="button" class="date-btn report-trigger" (click)="openReportModal()">
@@ -410,32 +419,15 @@
     </div>
   </div>
 
-  <ion-modal
-    [isOpen]="isDateModalOpen"
-    (didDismiss)="closeDatePicker()"
-    cssClass="date-picker-modal"
-  >
-    <ng-template>
-      <ion-content class="date-modal-content">
-        <div class="date-modal-inner">
-          <h3>Select Date</h3>
-          <ion-datetime
-            presentation="date"
-            [showDefaultButtons]="false"
-            [preferWheel]="false"
-            [(ngModel)]="selectedDateIso"
-          ></ion-datetime>
-
-          <div class="date-modal-actions">
-            <button type="button" class="date-modal-btn cancel" (click)="closeDatePicker()">
-              Cancel
-            </button>
-            <button type="button" class="date-modal-btn apply" (click)="applyDateSelection()">
-              Apply
-            </button>
-          </div>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
+  <!-- "To" can't be before "From" and vice versa. -->
+  <app-booking-date-sheet
+    [showBookedDates]="false"
+    [title]="rangePickerTarget === 'to' ? 'Hingga/To' : 'Dari/From'"
+    [isOpen]="rangePickerTarget !== null"
+    [value]="rangePickerTarget === 'to' ? toDate : fromDate"
+    [min]="rangePickerTarget === 'to' ? fromDate : ''"
+    [max]="rangePickerTarget === 'from' ? toDate : ''"
+    (dateSelected)="onRangeDateSelected($event)"
+    (dismissed)="rangePickerTarget = null"
+  ></app-booking-date-sheet>
 </ion-content>
