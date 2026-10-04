@@ -224,6 +224,7 @@ export class SyncService {
       '/svg/chevron-forward-outline.svg',
       '/svg/notifications-outline.svg',
       '/svg/notifications.svg',
+      '/svg/refresh-outline.svg',
       '/svg/cloud-offline-outline.svg',
       '/svg/close-circle-outline.svg',
       '/svg/paper-plane-outline.svg',
