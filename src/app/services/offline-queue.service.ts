@@ -312,14 +312,85 @@ export class OfflineQueueService {
   }
 
   async getCachedBookings(): Promise<any[]> {
+    await this.pruneSyncedPlaceholders();
     return this.db.booking_cache
       .where('company_id')
       .equals(this.companyId)
       .toArray();
   }
 
-  async removeCachedBooking(id: number): Promise<void> {
-    await this.db.booking_cache.delete(id);
+  async removeCachedBooking(id: number | string): Promise<void> {
+    await this.db.booking_cache.delete(id as any);
+  }
+
+  /**
+   * Bookings created offline are cached under their idempotency key (a UUID)
+   * so they show in the booking list before they reach the server. Once
+   * synced, the server copy (numeric id) replaces them, so the placeholder
+   * must go — otherwise the booking shows twice when offline again. Removes
+   * any placeholder whose queue item is synced or no longer exists (synced
+   * items are cleared on logout).
+   */
+  async pruneSyncedPlaceholders(): Promise<void> {
+    try {
+      const placeholders = await this.db.booking_cache
+        .filter((row) => typeof row?.id === 'string' && !/^\d+$/.test(row.id))
+        .toArray();
+      if (!placeholders.length) return;
+
+      const unsynced = new Set(
+        (await this.db.offline_booking_queue.toArray())
+          .filter((item) => item.status !== 'synced')
+          .map((item) => item.idempotency_key),
+      );
+      const stale = placeholders
+        .filter((row) => !unsynced.has(row.id))
+        .map((row) => row.id);
+      if (stale.length) await this.db.booking_cache.bulkDelete(stale);
+    } catch (err) {
+      console.warn('[OfflineQueue] Failed to prune synced placeholders:', err);
+    }
+  }
+
+  /**
+   * Dates (YYYY-MM-DD, device-local) between from and to that have a cached,
+   * non-cancelled booking — the offline fallback for the booked-dates
+   * endpoint used by the calendar dots. Same rules as the backend:
+   * activity/package on the activity date, accommodation on every day from
+   * check-in to check-out inclusive. Includes bookings made offline.
+   */
+  async getCachedBookedDates(from: string, to: string): Promise<string[]> {
+    const localKey = (date: Date): string =>
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const toKey = (value: any): string => {
+      const raw = String(value || '').trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+      const date = new Date(raw);
+      return !raw || Number.isNaN(date.getTime()) ? '' : localKey(date);
+    };
+
+    const dates = new Set<string>();
+    for (const row of await this.getCachedBookings()) {
+      const status = String(row?.status || '').toLowerCase();
+      if (status === 'cancelled' || status === 'rejected') continue;
+
+      if (String(row?.booking_type || '').toLowerCase() === 'accommodation') {
+        const checkIn = toKey(row?.check_in_date);
+        const checkOut = toKey(row?.check_out_date) || checkIn;
+        if (!checkIn || checkOut < from || checkIn > to) continue;
+        const [y, m, d] = checkIn.split('-').map(Number);
+        for (let day = new Date(y, m - 1, d); ; day.setDate(day.getDate() + 1)) {
+          const key = localKey(day);
+          if (key > checkOut || key > to) break;
+          if (key >= from) dates.add(key);
+        }
+        continue;
+      }
+
+      const key = toKey(row?.activity_date);
+      if (key && key >= from && key <= to) dates.add(key);
+    }
+    return [...dates];
   }
 
   // ─── Product / Company Cache (moved off localStorage) ────────────────────────
