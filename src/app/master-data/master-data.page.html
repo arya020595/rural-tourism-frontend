@@ -16,6 +16,7 @@
     </ion-buttons>
 
     <ion-buttons slot="end">
+      <app-refresh-button></app-refresh-button>
       <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
@@ -24,6 +25,9 @@
 <app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="master-data-content">
+  <ion-refresher slot="fixed" appPullRefresh>
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <div class="surface-card">
   <div class="master-page">
     <div class="logo-row">
