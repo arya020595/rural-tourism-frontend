@@ -126,13 +126,20 @@
             </div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
-              <div class="label">Nama Pemilik/Owner Name</div>
+              <div class="label">
+                Nama Pemilik/Owner Name
+                <span class="readonly-hint" *ngIf="isEditing && !isCompanyOwner"
+                  >(Hanya pemilik boleh ubah / Owner only)</span
+                >
+              </div>
               <div class="value" *ngIf="!isEditing">
                 {{ displayOrDash(formData.owner_full_name) }}
               </div>
               <ion-input
                 *ngIf="isEditing"
                 class="field-input"
+                [class.field-input--readonly]="!isCompanyOwner"
+                [readonly]="!isCompanyOwner"
                 fill="outline"
                 [(ngModel)]="formData.owner_full_name"
                 [ngModelOptions]="{ standalone: true }"
@@ -160,13 +167,20 @@
             </div>
 
             <div class="detail-row" [class.edit-mode]="isEditing">
-              <div class="label">E-mel/Email</div>
+              <div class="label">
+                E-mel/Email
+                <span class="readonly-hint" *ngIf="isEditing && !isCompanyOwner"
+                  >(Hanya pemilik boleh ubah / Owner only)</span
+                >
+              </div>
               <div class="value" *ngIf="!isEditing">
                 {{ displayOrDash(formData.email) }}
               </div>
               <ion-input
                 *ngIf="isEditing"
                 class="field-input"
+                [class.field-input--readonly]="!isCompanyOwner"
+                [readonly]="!isCompanyOwner"
                 fill="outline"
                 type="email"
                 inputmode="email"

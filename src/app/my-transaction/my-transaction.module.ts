@@ -1,3 +1,4 @@
+import { BookingDateSheetComponent } from '../booking-forms/components/booking-date-sheet/booking-date-sheet.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +16,7 @@ import { MyTransactionPage } from './my-transaction.page';
     IonicModule,
     SharedModule,
     MyTransactionPageRoutingModule,
+    BookingDateSheetComponent,
   ],
   declarations: [MyTransactionPage],
 })

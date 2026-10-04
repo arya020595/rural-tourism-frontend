@@ -1,0 +1,118 @@
+<ion-modal
+  cssClass="date-sheet-modal"
+  [isOpen]="isOpen"
+  (willPresent)="onWillPresent()"
+  (didDismiss)="dismissed.emit()"
+>
+  <ng-template>
+    <div class="date-sheet">
+      <div class="sheet-title">{{ title }}</div>
+
+      <!-- Day view -->
+      <ng-container *ngIf="mode === 'day'">
+        <div class="cal-header">
+          <button type="button" class="cal-nav" aria-label="Previous month" (click)="shiftMonth(-1)">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <div class="cal-header-labels">
+            <button type="button" class="cal-header-btn" (click)="openMonthMode()">
+              {{ monthShort[viewMonth] }}
+            </button>
+            <button type="button" class="cal-header-btn" (click)="openYearMode()">
+              {{ viewYear }}
+            </button>
+          </div>
+          <button type="button" class="cal-nav" aria-label="Next month" (click)="shiftMonth(1)">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <div class="cal-weekdays">
+          <span *ngFor="let weekday of weekdays">{{ weekday }}</span>
+        </div>
+
+        <div class="cal-days">
+          <button
+            type="button"
+            *ngFor="let cell of cells"
+            class="cal-day"
+            [class.other-month]="!cell.inMonth"
+            [class.today]="cell.iso === todayIso"
+            [class.selected]="cell.iso === value"
+            [class.booked]="isBooked(cell.iso)"
+            [disabled]="isDisabled(cell.iso)"
+            (click)="pickDay(cell)"
+          >
+            <span class="dot" *ngIf="isBooked(cell.iso)"></span>
+            {{ cell.day }}
+          </button>
+        </div>
+
+        <div class="cal-legend" *ngIf="showBookedDates">
+          <span class="legend-dot"></span> Ada tempahan / Has booking
+        </div>
+      </ng-container>
+
+      <!-- Month view -->
+      <ng-container *ngIf="mode === 'month'">
+        <div class="cal-header">
+          <button
+            type="button"
+            class="cal-nav"
+            aria-label="Previous year"
+            [disabled]="!canShiftYear(-1)"
+            (click)="shiftYear(-1)"
+          >
+            <ion-icon name="chevron-back-outline"></ion-icon>
+          </button>
+          <div class="cal-header-labels">
+            <button type="button" class="cal-header-btn" (click)="openYearMode()">
+              {{ viewYear }}
+            </button>
+          </div>
+          <button
+            type="button"
+            class="cal-nav"
+            aria-label="Next year"
+            [disabled]="!canShiftYear(1)"
+            (click)="shiftYear(1)"
+          >
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <div class="cal-grid-3">
+          <button
+            type="button"
+            *ngFor="let month of monthShort; let i = index"
+            class="cal-tile"
+            [class.active]="isMonthActive(i)"
+            [disabled]="isMonthDisabled(i)"
+            (click)="pickMonth(i)"
+          >
+            {{ month }}
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- Year view -->
+      <div class="cal-grid-3 cal-years" *ngIf="mode === 'year'">
+        <button
+          type="button"
+          *ngFor="let year of years"
+          class="cal-tile cal-year"
+          [class.active]="year === viewYear"
+          (click)="pickYear(year)"
+        >
+          {{ year }}
+        </button>
+      </div>
+
+      <div class="cal-back" *ngIf="mode === 'year' || (mode === 'month' && pickMode === 'date')">
+        <button type="button" class="cal-back-btn" aria-label="Back" (click)="backToMain()">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

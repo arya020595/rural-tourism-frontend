@@ -219,16 +219,18 @@
           <label>{{ n(8) }}. Tarikh/Date<span class="required">*</span></label>
           <div class="input-with-icon">
             <input
-              #pkgBookingDateInput
-              type="date"
-              [(ngModel)]="bookingDate"
-              name="packageDateMixed"
-              [readonly]="isViewMode"
+              type="text"
+              class="date-display"
+              readonly
+              placeholder="dd/mm/yyyy"
+              [value]="displayDate(bookingDate)"
+              name="packageDateMixedDisplay"
+              (click)="openDateSheet()"
             />
             <ion-icon
               name="calendar-clear-outline"
               aria-hidden="true"
-              (click)="openDatePicker(pkgBookingDateInput)"
+              (click)="openDateSheet()"
             ></ion-icon>
           </div>
         </div>
@@ -314,8 +316,7 @@
               <label>Price (RM)</label>
               <input
                 type="text"
-                inputmode="numeric"
-                pattern="[0-9]*"
+                inputmode="decimal"
                 [(ngModel)]="item.price"
                 name="pkgS03_{{ i }}"
                 placeholder="RM"
@@ -324,10 +325,10 @@
                 autocorrect="off"
                 aria-autocomplete="none"
                 (input)="
-                  onNumericInputForItem(i, 'price', $any($event.target).value)
+                  onMoneyInputForItem(i, 'price', $any($event.target).value)
                 "
-                (keydown)="onNumericKeydown($event)"
-                (paste)="onNumericPasteForItem(i, 'price', $event)"
+                (blur)="onMoneyBlurForItem(i, 'price')"
+                (keydown)="onMoneyKeydown($event)"
               />
             </div>
 
@@ -366,16 +367,15 @@
         <div class="field" *ngIf="!hideDeposit">
           <label>{{ n(10) }}. Deposit/Total Deposit (RM)</label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="totalDeposit"
             name="packageDepositMixed"
             placeholder="Sila isi deposit/Please insert deposit"
             [readonly]="isViewMode"
-            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('totalDeposit', $event)"
+            (input)="onMoneyInput('totalDeposit', $any($event.target).value)"
+            (blur)="onMoneyBlur('totalDeposit')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -419,16 +419,18 @@
           <label>{{ n(8) }}. Tarikh/Date<span class="required">*</span></label>
           <div class="input-with-icon">
             <input
-              #pkgBookingDateSingleInput
-              type="date"
-              [(ngModel)]="bookingDate"
-              name="packageDateSingle"
-              [readonly]="isViewMode"
+              type="text"
+              class="date-display"
+              readonly
+              placeholder="dd/mm/yyyy"
+              [value]="displayDate(bookingDate)"
+              name="packageDateSingleDisplay"
+              (click)="openDateSheet()"
             />
             <ion-icon
               name="calendar-clear-outline"
               aria-hidden="true"
-              (click)="openDatePicker(pkgBookingDateSingleInput)"
+              (click)="openDateSheet()"
             ></ion-icon>
           </div>
         </div>
@@ -513,8 +515,7 @@
               <label>Price (RM)</label>
               <input
                 type="text"
-                inputmode="numeric"
-                pattern="[0-9]*"
+                inputmode="decimal"
                 [(ngModel)]="item.price"
                 name="pkgS06_{{ i }}"
                 placeholder="RM"
@@ -523,10 +524,10 @@
                 autocorrect="off"
                 aria-autocomplete="none"
                 (input)="
-                  onNumericInputForItem(i, 'price', $any($event.target).value)
+                  onMoneyInputForItem(i, 'price', $any($event.target).value)
                 "
-                (keydown)="onNumericKeydown($event)"
-                (paste)="onNumericPasteForItem(i, 'price', $event)"
+                (blur)="onMoneyBlurForItem(i, 'price')"
+                (keydown)="onMoneyKeydown($event)"
               />
             </div>
 
@@ -565,16 +566,15 @@
         <div class="field" *ngIf="!hideDeposit">
           <label>{{ n(10) }}. Deposit/Total Deposit (RM)</label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="totalDeposit"
             name="packageDepositSingle"
             placeholder="Sila isi deposit/Please insert deposit"
             [readonly]="isViewMode"
-            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('totalDeposit', $event)"
+            (input)="onMoneyInput('totalDeposit', $any($event.target).value)"
+            (blur)="onMoneyBlur('totalDeposit')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -613,4 +613,12 @@
       </button>
     </div>
   </section>
+
+  <app-booking-date-sheet
+    title="Tarikh/Date"
+    [isOpen]="isDateSheetOpen"
+    [value]="bookingDate"
+    (dateSelected)="onDateSelected($event)"
+    (dismissed)="isDateSheetOpen = false"
+  ></app-booking-date-sheet>
 </form>

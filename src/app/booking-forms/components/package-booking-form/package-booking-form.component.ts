@@ -14,13 +14,22 @@ import { IonicModule } from '@ionic/angular';
 import { CompanyService } from '../../../services/company.service';
 import { ProductService } from '../../../services/product.service';
 import { OfflineQueueService } from '../../../services/offline-queue.service';
+import {
+  BookingDateSheetComponent,
+  toDisplayDate,
+} from '../booking-date-sheet/booking-date-sheet.component';
+import {
+  blockNonMoneyKey,
+  formatMoney,
+  sanitizeMoney,
+} from '../../money-input.util';
 
 @Component({
   selector: 'app-package-booking-form',
   templateUrl: './package-booking-form.component.html',
   styleUrls: ['./package-booking-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, BookingDateSheetComponent],
 })
 export class PackageBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
@@ -51,6 +60,8 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   domesticPax = '';
   internationalPax = '';
   bookingDate = '';
+  isDateSheetOpen = false;
+  readonly displayDate = toDisplayDate;
   packageName = '';
   packagePrice = '';
   totalDeposit = '';
@@ -414,7 +425,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.packageName =
       this.booking.packageName || this.booking.serviceName || '';
     this.packagePrice = this.booking.packagePrice?.toString() || '';
-    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
+    this.totalDeposit = formatMoney(this.booking.totalDeposit);
     this.serviceName = this.booking.serviceName || '';
     this.operatorName = this.booking.operatorName || '';
 
@@ -430,7 +441,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
         companyId:
           it.referee_id || it.company_id || it.referrer_id || undefined,
         serviceName: it.description || '',
-        price: it.per_price?.toString() || it.price?.toString() || '',
+        price: formatMoney(it.per_price ?? it.price),
         description: it.description || it.serviceName || '',
       }));
 
@@ -591,15 +602,40 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     return '';
   }
 
-  openDatePicker(input: HTMLInputElement): void {
+  openDateSheet(): void {
     if (this.isViewMode) return;
-    const withPicker = input as HTMLInputElement & { showPicker?: () => void };
-    if (typeof withPicker.showPicker === 'function') {
-      withPicker.showPicker();
-      return;
+    this.isDateSheetOpen = true;
+  }
+
+  onDateSelected(iso: string): void {
+    this.bookingDate = iso;
+    this.isDateSheetOpen = false;
+  }
+
+  onMoneyInput(field: string, value: string): void {
+    (this as any)[field] = sanitizeMoney(value);
+  }
+
+  onMoneyBlur(field: string): void {
+    (this as any)[field] = formatMoney((this as any)[field]);
+  }
+
+  onMoneyBlurForItem(index: number, field: string): void {
+    const item = this.packageItems[index];
+    if (item) {
+      (item as any)[field] = formatMoney((item as any)[field]);
     }
-    input.focus();
-    input.click();
+  }
+
+  onMoneyKeydown(event: KeyboardEvent): void {
+    blockNonMoneyKey(event);
+  }
+
+  onMoneyInputForItem(index: number, field: string, value: string): void {
+    const item = this.packageItems[index];
+    if (item) {
+      (item as any)[field] = sanitizeMoney(value);
+    }
   }
 
   onNumericInput(field: string, value: string): void {
@@ -607,29 +643,6 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     (this as any)[field] = digits;
   }
 
-  onNumericInputForItem(index: number, field: string, value: string): void {
-    const digits = String(value || '').replace(/\D+/g, '');
-    const item = this.packageItems[index];
-    if (item) {
-      (item as any)[field] = digits;
-    }
-  }
-
-  onNumericPasteForItem(
-    index: number,
-    field: string,
-    event: ClipboardEvent,
-  ): void {
-    const pastedText = event.clipboardData?.getData('text') || '';
-    if (/\D/.test(pastedText)) {
-      event.preventDefault();
-      const sanitized = pastedText.replace(/\D+/g, '');
-      const item = this.packageItems[index];
-      if (item) {
-        (item as any)[field] = `${(item as any)[field] || ''}${sanitized}`;
-      }
-    }
-  }
 
   onNumericKeydown(event: KeyboardEvent): void {
     const allowedKeys = [
