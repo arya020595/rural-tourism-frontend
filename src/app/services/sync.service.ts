@@ -123,6 +123,12 @@ export class SyncService {
     await this.offlineQueue.updateItemStatus(item.id!, 'synced', {
       server_booking_id: response?.data?.id ?? null,
     });
+    // Drop the offline placeholder (cached under the idempotency key) and
+    // cache the server copy, so the booking doesn't show twice offline.
+    await this.offlineQueue.removeCachedBooking(item.idempotency_key);
+    if (response?.data?.id) {
+      await this.offlineQueue.cacheBookings([response.data]);
+    }
   }
 
   private async syncEdit(item: QueueItem): Promise<void> {

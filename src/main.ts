@@ -1,4 +1,5 @@
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { Capacitor } from '@capacitor/core';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
@@ -24,9 +25,27 @@ try {
 }
 
 if (environment.production && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(reg => console.log('✅ SW registered:', reg.scope))
-    .catch(err => console.error('❌ SW registration failed:', err));
+  if (Capacitor.isNativePlatform()) {
+    // The Android app's files are inside the APK, so they load offline without
+    // a service worker. The old one served its saved copy of the app first,
+    // which survives Play Store updates and kept showing the old version.
+    // Remove it and its app-shell cache. Keep 'prewarm-assets-v1' — e-receipt
+    // reads its images directly. Offline bookings (IndexedDB) are unaffected.
+    navigator.serviceWorker.getRegistrations()
+      .then(regs => Promise.all(regs.map(reg => reg.unregister())))
+      .catch(() => undefined);
+    if ('caches' in window) {
+      caches.keys()
+        .then(keys => Promise.all(
+          keys.filter(key => key.startsWith('app-shell-')).map(key => caches.delete(key)),
+        ))
+        .catch(() => undefined);
+    }
+  } else {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('✅ SW registered:', reg.scope))
+      .catch(err => console.error('❌ SW registration failed:', err));
+  }
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule)

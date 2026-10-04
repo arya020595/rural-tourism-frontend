@@ -8,6 +8,8 @@ import {
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { BookingService } from '../../../services/booking.service';
+import { NetworkService } from '../../../services/network.service';
+import { OfflineQueueService } from '../../../services/offline-queue.service';
 
 interface CalendarCell {
   iso: string;
@@ -76,6 +78,8 @@ export class BookingDateSheetComponent {
 
   constructor(
     private bookingService: BookingService,
+    private networkService: NetworkService,
+    private offlineQueue: OfflineQueueService,
     private host: ElementRef<HTMLElement>,
   ) {}
 
@@ -222,14 +226,33 @@ export class BookingDateSheetComponent {
     const from = this.cells[0].iso;
     const to = this.cells[this.cells.length - 1].iso;
 
+    if (!this.networkService.isOnline) {
+      this.fetchedMonths.delete(key); // fetch from the server next time online
+      void this.loadCachedBookedDates(from, to);
+      return;
+    }
+
     this.bookingService.getBookedDates(from, to).subscribe({
       next: (response: any) => {
         const dates: string[] = response?.data?.dates ?? [];
         dates.forEach((date) => this.bookedDates.add(date));
       },
-      // Dots are a hint only — if this fails (e.g. offline) the calendar
-      // still works; allow a retry next time this month is shown.
-      error: () => this.fetchedMonths.delete(key),
+      // Fall back to the bookings cached on the device; allow a server
+      // retry next time this month is shown.
+      error: () => {
+        this.fetchedMonths.delete(key);
+        void this.loadCachedBookedDates(from, to);
+      },
     });
+  }
+
+  /** Offline: dots from the device's cached bookings (incl. ones made offline). */
+  private async loadCachedBookedDates(from: string, to: string): Promise<void> {
+    try {
+      const dates = await this.offlineQueue.getCachedBookedDates(from, to);
+      dates.forEach((date) => this.bookedDates.add(date));
+    } catch {
+      // Dots are a hint only — the calendar still works without them.
+    }
   }
 }
