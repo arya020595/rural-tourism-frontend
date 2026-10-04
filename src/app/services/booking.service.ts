@@ -232,6 +232,13 @@ export class BookingService {
   }
 
   // Payment receipt PDF (the same document the receipt QR code links to).
+  /** Dates (YYYY-MM-DD) in [from, to] that have a non-cancelled booking for
+   *  the caller's company — used to mark dates in the booking calendar. */
+  getBookedDates(from: string, to: string): Observable<any> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get(`${this.apiUrl}/bookings/booked-dates`, { params });
+  }
+
   downloadReceiptPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/bookings/${id}/receipt-pdf`, {
       responseType: 'blob',

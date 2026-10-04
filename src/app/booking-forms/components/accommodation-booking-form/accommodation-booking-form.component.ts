@@ -14,13 +14,22 @@ import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { ProductService } from '../../../services/product.service';
 import { OfflineQueueService } from '../../../services/offline-queue.service';
+import {
+  BookingDateSheetComponent,
+  toDisplayDate,
+} from '../booking-date-sheet/booking-date-sheet.component';
+import {
+  blockNonMoneyKey,
+  formatMoney,
+  sanitizeMoney,
+} from '../../money-input.util';
 
 @Component({
   selector: 'app-accommodation-booking-form',
   templateUrl: './accommodation-booking-form.component.html',
   styleUrls: ['./accommodation-booking-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, BookingDateSheetComponent],
 })
 export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
@@ -43,6 +52,9 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   checkInDate = '';
   checkOutDate = '';
   checkOutMin: string = '';
+  /** Which date the calendar sheet is editing; null when it's closed. */
+  dateSheetTarget: 'in' | 'out' | null = null;
+  readonly displayDate = toDisplayDate;
   fullName = '';
   phone = '';
   email = '';
@@ -191,8 +203,8 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     this.paxCount = singlePax ? String(singlePax) : '';
     this.nights = this.booking.nights?.toString() || '';
     this.homestay = this.booking.homestay || '';
-    this.total = this.booking.totalAmount?.toString() || '';
-    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
+    this.total = formatMoney(this.booking.totalAmount);
+    this.totalDeposit = formatMoney(this.booking.totalDeposit);
     this.operatorName = this.booking.operatorName || '';
     // compute check-out min (next day after check-in)
     const inIso =
@@ -268,6 +280,18 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
 
   private uniqueSorted(items: string[]): string[] {
     return Array.from(new Set(items)).sort((a, b) => a.localeCompare(b));
+  }
+
+  onMoneyInput(field: string, value: string): void {
+    (this as any)[field] = sanitizeMoney(value);
+  }
+
+  onMoneyBlur(field: string): void {
+    (this as any)[field] = formatMoney((this as any)[field]);
+  }
+
+  onMoneyKeydown(event: KeyboardEvent): void {
+    blockNonMoneyKey(event);
   }
 
   onNumericInput(field: string, value: string): void {
@@ -399,14 +423,17 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     return '';
   }
 
-  openDatePicker(input: HTMLInputElement): void {
+  openDateSheet(target: 'in' | 'out'): void {
     if (this.isViewMode) return;
-    const withPicker = input as HTMLInputElement & { showPicker?: () => void };
-    if (typeof withPicker.showPicker === 'function') {
-      withPicker.showPicker();
-      return;
+    this.dateSheetTarget = target;
+  }
+
+  onDateSelected(iso: string): void {
+    if (this.dateSheetTarget === 'out') {
+      this.onCheckOutChange(iso);
+    } else {
+      this.onCheckInChange(iso);
     }
-    input.focus();
-    input.click();
+    this.dateSheetTarget = null;
   }
 }

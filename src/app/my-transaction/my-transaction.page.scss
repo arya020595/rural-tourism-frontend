@@ -75,12 +75,6 @@ ion-content {
   border: 1px solid transparent;
 }
 
-.date-btn.select {
-  color: #04552f;
-  background: #ffffff;
-  border-color: #04552f;
-}
-
 .date-btn.reset {
   color: #ff0000;
   background: #ffffff;
@@ -985,52 +979,56 @@ ion-content {
 
 /* ── End report overlay ── */
 
-.date-modal-content {
-  --background: #f6f6f6;
-}
-
-.date-modal-inner {
-  padding: 16px;
+/* ── Date range filter (From / To) ── */
+.date-range {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.date-modal-inner h3 {
-  margin: 0 0 10px;
+.range-label {
   font-size: 18px;
-  font-weight: 800;
-  color: #1e1e1e;
-  align-self: flex-start;
-}
-
-.date-modal-inner ion-datetime {
-  width: 100%;
-}
-
-.date-modal-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  width: 100%;
-}
-
-.date-modal-btn {
-  border: none;
-  border-radius: 8px;
-  min-height: 44px;
-  padding: 0 14px;
-  font-size: 14px;
   font-weight: 700;
-  flex: 1;
+  color: #4f4f4f;
 }
 
-.date-modal-btn.cancel {
-  background: #b0b0b0;
-  color: #212121;
+.range-trigger {
+  min-height: 44px;
+  min-width: 190px;
+  padding: 0 14px;
+  border: 1px solid #c9c9c9;
+  border-radius: 6px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e1e1e;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 22px;
+    color: #04552f;
+  }
+
+  .placeholder {
+    color: #9a9a9a;
+    font-weight: 500;
+  }
 }
 
-.date-modal-btn.apply {
-  background: #04552f;
-  color: #ffffff;
+@media (max-width: 768px) {
+  .date-range {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .range-trigger {
+    min-width: 0;
+    width: 100%;
+  }
 }

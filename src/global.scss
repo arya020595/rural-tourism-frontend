@@ -43,6 +43,12 @@
   .date-picker-modal {
     --width: 400px;
     --height: 480px;
+    // ≥768px wide also covers landscape phones (~390px tall) and short laptop
+    // or split-screen tablet windows — never exceed the visible height, or the
+    // Apply button is pushed off-screen. The actions sit in a pinned
+    // ion-footer, so only the calendar scrolls when space is tight.
+    --max-height: calc(100vh - 24px);
+    --max-height: calc(100dvh - 24px);
     --border-radius: 16px;
     --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 
@@ -64,6 +70,58 @@
       color: #111111;
       font-weight: 700;
     }
+  }
+}
+
+/* ============================================
+   TIME PICKER MODAL — booking forms
+   A small centred card at every screen size (not Ionic's default full-screen
+   modal on phones), never taller than the visible area. The actions sit in a
+   pinned ion-footer, so only the wheel scrolls when space is very tight.
+   ============================================ */
+.time-picker-modal {
+  --width: min(340px, calc(100vw - 32px));
+  --height: 340px;
+  --max-height: calc(100vh - 24px);
+  --max-height: calc(100dvh - 24px);
+  --border-radius: 16px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+  ion-content {
+    --background: #ffffff;
+  }
+
+  ion-datetime {
+    --background: #ffffff;
+    --wheel-fade-background-rgb: 255, 255, 255;
+    width: 100%;
+  }
+
+  ion-datetime::part(wheel-item) {
+    color: #888888;
+  }
+
+  ion-datetime::part(wheel-item active) {
+    color: #111111;
+    font-weight: 700;
+  }
+}
+
+/* ============================================
+   DATE PICKER MODAL — booking forms calendar
+   Centred card at every screen size (like the time picker), with a height
+   that fits its content; the component caps it to the visible screen height.
+   ============================================ */
+ion-modal.date-sheet-modal {
+  --height: auto;
+  --width: min(440px, calc(100vw - 32px));
+  --border-radius: 16px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
   }
 }
 

@@ -1,1 +1,45 @@
 @import '../../booking-form-base';
+
+.time-modal-inner {
+  padding: 16px 16px 0;
+}
+
+.time-modal-inner h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e1e1e;
+}
+
+.time-modal-footer {
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.time-modal-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 16px;
+  box-sizing: border-box;
+}
+
+.time-modal-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.time-modal-btn.cancel {
+  background: #e8e8e8;
+  color: #1f1f1f;
+}
+
+.time-modal-btn.apply {
+  background: #015c2f;
+  color: #ffffff;
+}

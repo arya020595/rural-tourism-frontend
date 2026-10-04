@@ -8,6 +8,7 @@ import { FileUrlService } from '../services/file-url.service';
 import { MenuItem, MenuService } from '../services/menu.service';
 import { NativeDownloadService } from '../services/native-download.service';
 import { Transaction, TransactionTab } from './my-transaction.models';
+import { toDisplayDate } from '../booking-forms/components/booking-date-sheet/booking-date-sheet.component';
 
 @Component({
   selector: 'app-my-transaction',
@@ -19,8 +20,11 @@ export class MyTransactionPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   selectedTab: TransactionTab = 'activity';
-  selectedDateIso: string = this.toIsoDate(new Date());
-  isDateModalOpen = false;
+  // Date range filter (YYYY-MM-DD); empty means no limit on that side.
+  fromDate = '';
+  toDate = '';
+  rangePickerTarget: 'from' | 'to' | null = null;
+  readonly displayDate = toDisplayDate;
   isLoading = false;
   isPageLoading = false;
 
@@ -95,29 +99,24 @@ export class MyTransactionPage implements OnInit {
     this.currentPage = 1;
   }
 
-  openDatePicker(): void {
-    this.isDateModalOpen = true;
+  openRangePicker(target: 'from' | 'to'): void {
+    this.rangePickerTarget = target;
   }
 
-  closeDatePicker(): void {
-    this.isDateModalOpen = false;
-  }
-
-  applyDateSelection(): void {
-    this.isDateModalOpen = false;
+  onRangeDateSelected(iso: string): void {
+    if (this.rangePickerTarget === 'from') {
+      this.fromDate = iso;
+    } else if (this.rangePickerTarget === 'to') {
+      this.toDate = iso;
+    }
+    this.rangePickerTarget = null;
     this.currentPage = 1;
   }
 
   onResetDate(): void {
-    this.selectedDateIso = this.toIsoDate(new Date());
+    this.fromDate = '';
+    this.toDate = '';
     this.currentPage = 1;
-  }
-
-  get selectedDateLabel(): string {
-    if (this.selectedDateIso === this.toIsoDate(new Date())) {
-      return 'Select Date';
-    }
-    return this.formatDateLabel(this.selectedDateIso);
   }
 
   get filteredTransactions(): Transaction[] {
@@ -125,8 +124,15 @@ export class MyTransactionPage implements OnInit {
       (t) => t.bookingType === this.selectedTab,
     );
 
-    if (this.selectedDateIso !== this.toIsoDate(new Date())) {
-      list = list.filter((t) => t.date.slice(0, 10) === this.selectedDateIso);
+    // Either end of the range may be left empty (open-ended).
+    if (this.fromDate || this.toDate) {
+      list = list.filter((t) => {
+        const day = String(t.date || '').slice(0, 10);
+        if (!day) return false;
+        if (this.fromDate && day < this.fromDate) return false;
+        if (this.toDate && day > this.toDate) return false;
+        return true;
+      });
     }
 
     // Latest receipt first (by receipt_created_at); rows without a date go last.
@@ -435,19 +441,5 @@ export class MyTransactionPage implements OnInit {
 
     this.menuItems =
       this.menuService.getVisibleMenuItemsForCurrentUser();
-  }
-
-  private formatDateLabel(isoDate: string): string {
-    const parsed = new Date(isoDate);
-    if (Number.isNaN(parsed.getTime())) return isoDate;
-    return parsed.toLocaleDateString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric',
-    });
-  }
-
-  private toIsoDate(date: Date): string {
-    return date.toISOString().slice(0, 10);
   }
 }

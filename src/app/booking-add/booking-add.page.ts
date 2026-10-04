@@ -253,7 +253,8 @@ export class BookingAddPage implements OnInit {
     if (!raw) return undefined;
     const parsed = Number(raw);
     if (Number.isNaN(parsed)) return undefined;
-    return Math.trunc(parsed);
+    // Keep cents (e.g. RM3.50); round to 2 decimal places.
+    return Math.round(parsed * 100) / 100;
   }
 
   private async findProductByName(

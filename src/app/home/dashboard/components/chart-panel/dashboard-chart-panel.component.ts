@@ -33,6 +33,8 @@ export class DashboardChartPanelComponent implements OnChanges {
   @Input() series: DashboardSeries[] = [];
   @Input() type: DashboardChartType = 'bar';
   @Input() height = 340;
+  /** Money values (RM): show 2 decimals on the y-axis and in the tooltip. */
+  @Input() isCurrency = false;
 
   chartSeries: ApexAxisChartSeries = [];
   chartConfig: ApexChart = {
@@ -85,7 +87,7 @@ export class DashboardChartPanelComponent implements OnChanges {
             <div class="apex-tt-row">
               <span class="apex-tt-marker" style="background:${row.color}"></span>
               <span class="apex-tt-name">${row.name}:</span>
-              <span class="apex-tt-value">${row.value.toLocaleString()}</span>
+              <span class="apex-tt-value">${this.formatValue(row.value)}</span>
             </div>`,
         )
         .join('');
@@ -127,9 +129,25 @@ export class DashboardChartPanelComponent implements OnChanges {
         distributed: isTodaySingleBar,
       },
     };
+    this.yaxis = {
+      labels: {
+        style: { colors: '#7d7d7d' },
+        ...(this.isCurrency
+          ? { formatter: (value: number) => this.formatValue(value) }
+          : {}),
+      },
+    };
     this.titleConfig = {
       ...this.titleConfig,
       text: this.title,
     };
+  }
+
+  private formatValue(value: number): string {
+    if (!this.isCurrency) return value.toLocaleString();
+    return Number(value || 0).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 }

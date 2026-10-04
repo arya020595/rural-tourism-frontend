@@ -14,13 +14,22 @@ import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../../services/auth.service';
 import { ProductService } from '../../../services/product.service';
 import { OfflineQueueService } from '../../../services/offline-queue.service';
+import {
+  BookingDateSheetComponent,
+  toDisplayDate,
+} from '../booking-date-sheet/booking-date-sheet.component';
+import {
+  blockNonMoneyKey,
+  formatMoney,
+  sanitizeMoney,
+} from '../../money-input.util';
 
 @Component({
   selector: 'app-activity-booking-form',
   templateUrl: './activity-booking-form.component.html',
   styleUrls: ['./activity-booking-form.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, BookingDateSheetComponent],
 })
 export class ActivityBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
@@ -40,8 +49,14 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   private readonly depositFieldNumber = 11;
 
   selectedNationality = 'domestic';
-  bookingDate = '12/03/2026';
+  // Must start empty: a non-empty placeholder value here was silently
+  // submitted as the booking date whenever the user never picked one.
+  bookingDate = '';
   bookingTime = '';
+  isDateSheetOpen = false;
+  readonly displayDate = toDisplayDate;
+  isTimePickerOpen = false;
+  pendingTime = '';
   fullName = '';
   phone = '';
   email = '';
@@ -160,22 +175,50 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     }
   }
 
-  openTimePicker(input: HTMLInputElement): void {
+  openTimePicker(): void {
     if (this.isViewMode) {
       return;
     }
 
-    const withPicker = input as HTMLInputElement & {
-      showPicker?: () => void;
-    };
+    // Seed the wheel with the current value (or "now") so tapping Set without
+    // scrolling still picks the time the wheel is showing.
+    this.pendingTime = this.bookingTime || this.currentTimeHHmm();
+    this.isTimePickerOpen = true;
+  }
 
-    if (typeof withPicker.showPicker === 'function') {
-      withPicker.showPicker();
-      return;
+  closeTimePicker(): void {
+    this.isTimePickerOpen = false;
+  }
+
+  onPendingTimeChange(event: CustomEvent): void {
+    const raw = event.detail?.value;
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    // ion-datetime may emit a full ISO string (e.g. 2026-10-03T19:07:00);
+    // the first HH:mm in it is the time — the date part has no colon.
+    const match = String(value || '').match(/(\d{2}):(\d{2})/);
+    if (match) {
+      this.pendingTime = `${match[1]}:${match[2]}`;
     }
+  }
 
-    input.focus();
-    input.click();
+  applyTime(): void {
+    this.bookingTime = this.pendingTime;
+    this.isTimePickerOpen = false;
+  }
+
+  /** The stored HH:mm (24h) value shown as 12-hour, e.g. "07:20 PM". */
+  get bookingTimeDisplay(): string {
+    const match = String(this.bookingTime || '').match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return '';
+    const hours24 = Number(match[1]);
+    const period = hours24 >= 12 ? 'PM' : 'AM';
+    const hours12 = hours24 % 12 || 12;
+    return `${String(hours12).padStart(2, '0')}:${match[2]} ${period}`;
+  }
+
+  private currentTimeHHmm(): string {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   }
 
   private applyBooking(): void {
@@ -201,8 +244,8 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     const singlePax = domesticPaxNum || internationalPaxNum;
     this.paxCount = singlePax ? String(singlePax) : '';
     this.activity = this.booking.activityName || this.booking.serviceName || '';
-    this.total = this.booking.totalAmount?.toString() || '';
-    this.totalDeposit = this.booking.totalDeposit?.toString() || '';
+    this.total = formatMoney(this.booking.totalAmount);
+    this.totalDeposit = formatMoney(this.booking.totalDeposit);
     this.operatorName = this.booking.operatorName || '';
   }
 
@@ -273,6 +316,18 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     return Array.from(new Set(items)).sort((a, b) => a.localeCompare(b));
   }
 
+  onMoneyInput(field: string, value: string): void {
+    (this as any)[field] = sanitizeMoney(value);
+  }
+
+  onMoneyBlur(field: string): void {
+    (this as any)[field] = formatMoney((this as any)[field]);
+  }
+
+  onMoneyKeydown(event: KeyboardEvent): void {
+    blockNonMoneyKey(event);
+  }
+
   onNumericInput(field: string, value: string): void {
     const digits = String(value || '').replace(/\D+/g, '');
     (this as any)[field] = digits;
@@ -339,15 +394,14 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     return '';
   }
 
-  openDatePicker(input: HTMLInputElement): void {
+  openDateSheet(): void {
     if (this.isViewMode) return;
-    const withPicker = input as HTMLInputElement & { showPicker?: () => void };
-    if (typeof withPicker.showPicker === 'function') {
-      withPicker.showPicker();
-      return;
-    }
-    input.focus();
-    input.click();
+    this.isDateSheetOpen = true;
+  }
+
+  onDateSelected(iso: string): void {
+    this.bookingDate = iso;
+    this.isDateSheetOpen = false;
   }
 
   private normalizeTimeForInput(value: string): string {

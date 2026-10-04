@@ -42,17 +42,18 @@
         >
         <div class="input-with-icon">
           <input
-            #accomCheckInInput
-            type="date"
-            [(ngModel)]="checkInDate"
-            (ngModelChange)="onCheckInChange($event)"
-            name="accommodationCheckInDate"
-            [readonly]="isViewMode"
+            type="text"
+            class="date-display"
+            readonly
+            placeholder="dd/mm/yyyy"
+            [value]="displayDate(checkInDate)"
+            name="accommodationCheckInDisplay"
+            (click)="openDateSheet('in')"
           />
           <ion-icon
             name="calendar-clear-outline"
             aria-hidden="true"
-            (click)="openDatePicker(accomCheckInInput)"
+            (click)="openDateSheet('in')"
           ></ion-icon>
         </div>
       </div>
@@ -65,18 +66,18 @@
         >
         <div class="input-with-icon">
           <input
-            #accomCheckOutInput
-            type="date"
-            [(ngModel)]="checkOutDate"
-            [min]="checkOutMin || null"
-            (ngModelChange)="onCheckOutChange($event)"
-            name="accommodationCheckOutDate"
-            [readonly]="isViewMode"
+            type="text"
+            class="date-display"
+            readonly
+            placeholder="dd/mm/yyyy"
+            [value]="displayDate(checkOutDate)"
+            name="accommodationCheckOutDisplay"
+            (click)="openDateSheet('out')"
           />
           <ion-icon
             name="calendar-clear-outline"
             aria-hidden="true"
-            (click)="openDatePicker(accomCheckOutInput)"
+            (click)="openDateSheet('out')"
           ></ion-icon>
         </div>
       </div>
@@ -276,32 +277,30 @@
         <div class="field">
           <label>{{ n(11) }}. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="total"
             name="accommodationTotalMixed"
             placeholder="Sila isi jumlah bayaran/Please insert total payment"
             [readonly]="isViewMode"
-            (input)="onNumericInput('total', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('total', $event)"
+            (input)="onMoneyInput('total', $any($event.target).value)"
+            (blur)="onMoneyBlur('total')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
         <div class="field" *ngIf="!hideDeposit">
           <label>{{ n(12) }}. Deposit/Total Deposit (RM)</label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="totalDeposit"
             name="accommodationDepositMixed"
             placeholder="Sila isi deposit/Please insert deposit"
             [readonly]="isViewMode"
-            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('totalDeposit', $event)"
+            (input)="onMoneyInput('totalDeposit', $any($event.target).value)"
+            (blur)="onMoneyBlur('totalDeposit')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -400,16 +399,15 @@
         <div class="field">
           <label>{{ n(11) }}. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="total"
             name="accommodationTotalSingle"
             placeholder="Sila isi jumlah bayaran/Please insert total payment"
             [readonly]="isViewMode"
-            (input)="onNumericInput('total', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('total', $event)"
+            (input)="onMoneyInput('total', $any($event.target).value)"
+            (blur)="onMoneyBlur('total')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -431,16 +429,15 @@
         <div class="field">
           <label>{{ n(12) }}. Deposit/Total Deposit (RM)</label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="totalDeposit"
             name="accommodationDepositSingle"
             placeholder="Sila isi deposit/Please insert deposit"
             [readonly]="isViewMode"
-            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('totalDeposit', $event)"
+            (input)="onMoneyInput('totalDeposit', $any($event.target).value)"
+            (blur)="onMoneyBlur('totalDeposit')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -476,4 +473,13 @@
       </button>
     </div>
   </section>
+
+  <app-booking-date-sheet
+    [title]="dateSheetTarget === 'out' ? 'Tarikh Daftar Keluar/Check Out Date' : 'Tarikh Daftar Masuk/Check In Date'"
+    [isOpen]="dateSheetTarget !== null"
+    [value]="dateSheetTarget === 'out' ? checkOutDate : checkInDate"
+    [min]="dateSheetTarget === 'out' ? checkOutMin : ''"
+    (dateSelected)="onDateSelected($event)"
+    (dismissed)="dateSheetTarget = null"
+  ></app-booking-date-sheet>
 </form>

@@ -15,39 +15,87 @@
         <label>{{ n(2) }}. Tarikh/Date<span class="required">*</span></label>
         <div class="input-with-icon">
           <input
-            #activityDateInput
-            type="date"
-            [(ngModel)]="bookingDate"
-            name="activityBookingDate"
-            [readonly]="isViewMode"
+            type="text"
+            class="date-display"
+            readonly
+            placeholder="dd/mm/yyyy"
+            [value]="displayDate(bookingDate)"
+            name="activityBookingDateDisplay"
+            (click)="openDateSheet()"
           />
           <ion-icon
             name="calendar-clear-outline"
             aria-hidden="true"
-            (click)="openDatePicker(activityDateInput)"
+            (click)="openDateSheet()"
           ></ion-icon>
         </div>
       </div>
 
       <div class="field">
         <label>{{ n(3) }}. Masa/Time</label>
+        <!-- App-drawn time picker instead of a native <input type="time">:
+             Android's own clock dialog gets cut off on some tablets in
+             landscape and can't be resized from CSS. -->
         <div class="input-with-icon">
           <input
-            #activityTimeInput
-            type="time"
-            step="60"
-            [(ngModel)]="bookingTime"
-            name="activityBookingTime"
-            [readonly]="isViewMode"
+            type="text"
+            class="time-display"
+            readonly
+            placeholder="--:-- --"
+            [value]="bookingTimeDisplay"
+            name="activityBookingTimeDisplay"
+            (click)="openTimePicker()"
           />
           <ion-icon
             name="time-outline"
             aria-hidden="true"
-            (click)="openTimePicker(activityTimeInput)"
+            (click)="openTimePicker()"
           ></ion-icon>
         </div>
       </div>
     </div>
+
+    <app-booking-date-sheet
+      title="Tarikh/Date"
+      [isOpen]="isDateSheetOpen"
+      [value]="bookingDate"
+      (dateSelected)="onDateSelected($event)"
+      (dismissed)="isDateSheetOpen = false"
+    ></app-booking-date-sheet>
+
+    <ion-modal
+      [isOpen]="isTimePickerOpen"
+      (didDismiss)="closeTimePicker()"
+      cssClass="time-picker-modal"
+    >
+      <ng-template>
+        <ion-content class="time-modal-content">
+          <div class="time-modal-inner">
+            <h3>Masa/Time</h3>
+            <ion-datetime
+              presentation="time"
+              hourCycle="h12"
+              [preferWheel]="true"
+              [showDefaultButtons]="false"
+              [value]="pendingTime"
+              (ionChange)="onPendingTimeChange($event)"
+            ></ion-datetime>
+          </div>
+        </ion-content>
+
+        <!-- Pinned outside ion-content so the buttons are always visible. -->
+        <ion-footer class="time-modal-footer">
+          <div class="time-modal-actions">
+            <button type="button" class="time-modal-btn cancel" (click)="closeTimePicker()">
+              Cancel
+            </button>
+            <button type="button" class="time-modal-btn apply" (click)="applyTime()">
+              Set
+            </button>
+          </div>
+        </ion-footer>
+      </ng-template>
+    </ion-modal>
 
     <div class="field-grid one-col">
       <div class="field">
@@ -230,16 +278,15 @@
         <div class="field">
           <label>{{ n(10) }}. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="total"
             name="activityTotalMixed"
             placeholder="Sila isi jumlah bayaran/Please insert total payment"
             [readonly]="isViewMode"
-            (input)="onNumericInput('total', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('total', $event)"
+            (input)="onMoneyInput('total', $any($event.target).value)"
+            (blur)="onMoneyBlur('total')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -261,16 +308,15 @@
         <div class="field">
           <label>{{ n(11) }}. Deposit/Total Deposit (RM)</label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="totalDeposit"
             name="activityDepositMixed"
             placeholder="Sila isi deposit/Please insert deposit"
             [readonly]="isViewMode"
-            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('totalDeposit', $event)"
+            (input)="onMoneyInput('totalDeposit', $any($event.target).value)"
+            (blur)="onMoneyBlur('totalDeposit')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
@@ -339,31 +385,29 @@
         <div class="field">
           <label>{{ n(10) }}. Jumlah/Total (RM)<span class="required">*</span></label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="total"
             name="activityTotalSingle"
             placeholder="Sila isi jumlah bayaran/Please insert total payment"
             [readonly]="isViewMode"
-            (input)="onNumericInput('total', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('total', $event)"
+            (input)="onMoneyInput('total', $any($event.target).value)"
+            (blur)="onMoneyBlur('total')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
         <div class="field" *ngIf="!hideDeposit">
           <label>{{ n(11) }}. Deposit/Total Deposit (RM)</label>
           <input
-            type="tel"
-            inputmode="numeric"
-            pattern="[0-9]*"
+            type="text"
+            inputmode="decimal"
             [(ngModel)]="totalDeposit"
             name="activityDepositSingle"
             placeholder="Sila isi deposit/Please insert deposit"
             [readonly]="isViewMode"
-            (input)="onNumericInput('totalDeposit', $any($event.target).value)"
-            (keydown)="onNumericKeydown($event)"
-            (paste)="onNumericPaste('totalDeposit', $event)"
+            (input)="onMoneyInput('totalDeposit', $any($event.target).value)"
+            (blur)="onMoneyBlur('totalDeposit')"
+            (keydown)="onMoneyKeydown($event)"
           />
         </div>
 
