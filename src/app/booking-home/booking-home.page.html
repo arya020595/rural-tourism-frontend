@@ -28,6 +28,7 @@
         <ion-badge color="warning">{{ count }}</ion-badge>
       </ion-button>
 
+      <app-refresh-button></app-refresh-button>
       <app-notification-bell [panel]="notifPanel"></app-notification-bell>
     </ion-buttons>
   </ion-toolbar>
@@ -36,6 +37,9 @@
 <app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="booking-main-content">
+  <ion-refresher slot="fixed" appPullRefresh>
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <!-- Failed/conflict sync banner -->
   <ion-item color="danger" *ngIf="failedCount > 0" lines="none" button (click)="openConflictResolve()">
     <ion-icon name="warning-outline" slot="start"></ion-icon>

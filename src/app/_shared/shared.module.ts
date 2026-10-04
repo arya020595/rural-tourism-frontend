@@ -7,6 +7,8 @@ import { HeaderLogoComponent } from '../_components/header-logo/header-logo.comp
 import { NotificationBellComponent } from './notification-panel/notification-bell.component';
 import { NotificationPanelComponent } from './notification-panel/notification-panel.component';
 import { HasPermissionDirective } from './has-permission.directive';
+import { PullRefreshDirective } from './refresh-button/pull-refresh.directive';
+import { RefreshButtonComponent } from './refresh-button/refresh-button.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
 
 @NgModule({
@@ -16,6 +18,8 @@ import { SideNavComponent } from './side-nav/side-nav.component';
     SideNavComponent,
     NotificationPanelComponent,
     NotificationBellComponent,
+    RefreshButtonComponent,
+    PullRefreshDirective,
   ],
   imports: [CommonModule, RouterModule, IonicModule],
   exports: [
@@ -24,6 +28,8 @@ import { SideNavComponent } from './side-nav/side-nav.component';
     SideNavComponent,
     NotificationPanelComponent,
     NotificationBellComponent,
+    RefreshButtonComponent,
+    PullRefreshDirective,
   ],
 })
 export class SharedModule {}
