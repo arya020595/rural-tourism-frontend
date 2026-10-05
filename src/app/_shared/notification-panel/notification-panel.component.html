@@ -46,7 +46,8 @@
       *ngFor="let notification of notifications"
       class="notif-panel-item"
       [class.unread]="!notification.read"
-      (click)="markAsRead(notification)"
+      [class.clickable]="canOpenBooking(notification)"
+      (click)="openNotification(notification)"
     >
       <div class="notif-panel-avatar">{{ getAvatarLetter(notification) }}</div>
       <div class="notif-panel-content">
