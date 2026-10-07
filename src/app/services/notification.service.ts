@@ -8,6 +8,8 @@ export interface Notification {
   operator_id: string;
   tourist_user_id: string;
   booking_id: number;
+  /** Booking this notification is about (booking reminders). */
+  related_id?: number | string | null;
   title: string;
   type: string;
   message: string;
@@ -66,6 +68,14 @@ export class NotificationService {
         if (!lastCreated) this.unreadCountSubject.next(unread);
       }),
     );
+  }
+
+  /** Booking a notification points to, or null if it isn't about a booking. */
+  getBookingId(notification: Notification): string | null {
+    const id = notification.related_id ?? notification.booking_id;
+    return id !== null && id !== undefined && String(id).trim() !== ''
+      ? String(id)
+      : null;
   }
 
   createOperatorNotification(notificationData: any): Observable<any> {

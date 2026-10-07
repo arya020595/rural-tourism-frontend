@@ -97,6 +97,22 @@ export class NotificationsPage implements OnInit {
     });
   }
 
+  canOpenBooking(notification: Notification): boolean {
+    return (
+      !!this.notificationService.getBookingId(notification) &&
+      this.authService.hasPermission('booking:read')
+    );
+  }
+
+  /** Mark as read, then open the booking the notification is about. */
+  openNotification(notification: Notification) {
+    this.markAsRead(notification);
+    const bookingId = this.notificationService.getBookingId(notification);
+    if (bookingId && this.canOpenBooking(notification)) {
+      this.navCtrl.navigateForward(['/booking-home/detail', bookingId]);
+    }
+  }
+
   markAllAsRead() {
     if (!this.uid) return;
     this.notificationService.markAllAsRead(this.uid).subscribe({
