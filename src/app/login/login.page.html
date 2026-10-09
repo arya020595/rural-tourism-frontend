@@ -39,6 +39,7 @@
                   label-placement="floating"
                   fill="outline"
                   placeholder="Enter text"
+                  autocomplete="username"
                   [clearInput]="true"
                   #usernameInput="ngModel"
                 ></ion-input>
@@ -63,7 +64,7 @@
                     label-placement="floating"
                     fill="outline"
                     placeholder="Enter text"
-                    autocomplete="off"
+                    autocomplete="current-password"
                     autocapitalize="off"
                     spellcheck="false"
                     [type]="showPassword ? 'text' : 'password'"
@@ -85,6 +86,17 @@
                 </ion-text>
 
                 <div class="forgot-password-row">
+                  <ion-checkbox
+                    class="remember-me"
+                    mode="md"
+                    labelPlacement="end"
+                    justify="start"
+                    [(ngModel)]="rememberMe"
+                    name="rememberMe"
+                    (ionChange)="onRememberMeChange()"
+                  >
+                    Ingat saya / Remember me
+                  </ion-checkbox>
                   <ion-button
                     fill="clear"
                     mode="ios"

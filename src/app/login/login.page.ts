@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { AuthService, UserRoleName } from '../services/auth.service';
+import { RememberedLoginService } from '../services/remembered-login.service';
 import { SyncService } from '../services/sync.service';
 
 interface PendingActivityBooking {
@@ -24,6 +25,10 @@ export class LoginPage implements OnInit {
   password = '';
   submitted = false;
   showPassword = false;
+  /** "Ingat saya / Remember me" — unticked unless a login is already saved. */
+  rememberMe = false;
+  /** The saved password that was filled in, to spot one that stopped working. */
+  private savedPassword = '';
 
   constructor(
     private authService: AuthService,
@@ -31,6 +36,7 @@ export class LoginPage implements OnInit {
     private navCtrl: NavController,
     private toastController: ToastController,
     private route: ActivatedRoute,
+    private rememberedLogin: RememberedLoginService,
   ) {}
 
   ngOnInit() {
@@ -38,6 +44,28 @@ export class LoginPage implements OnInit {
       document.body.classList.add('standalone-app');
     } else {
       document.body.classList.remove('standalone-app');
+    }
+  }
+
+  /** Fill in the remembered login each time the page is shown. */
+  async ionViewWillEnter() {
+    const saved = await this.rememberedLogin.load();
+    if (!saved) {
+      this.rememberMe = false;
+      this.savedPassword = '';
+      return;
+    }
+    this.rememberMe = true;
+    this.username = saved.username;
+    this.password = saved.password;
+    this.savedPassword = saved.password;
+  }
+
+  /** Unticking forgets the saved login straight away. */
+  async onRememberMeChange() {
+    if (!this.rememberMe) {
+      this.savedPassword = '';
+      await this.rememberedLogin.clear();
     }
   }
 
@@ -77,6 +105,12 @@ export class LoginPage implements OnInit {
     this.authService.login(credentials).subscribe(
       async (res: any) => {
         if (res.success && res.data?.user) {
+          if (this.rememberMe) {
+            await this.rememberedLogin.save(credentials.username, credentials.password);
+          } else {
+            await this.rememberedLogin.clear();
+          }
+          this.savedPassword = '';
           await this.handleSuccessfulLogin();
           return;
         }
@@ -84,6 +118,21 @@ export class LoginPage implements OnInit {
         await this.errorToast(res.message || 'Login failed');
       },
       async (err) => {
+        // A remembered password that no longer works (changed or reset):
+        // forget it so the user isn't stuck retrying, keep the username.
+        if (
+          err?.status === 401 &&
+          this.savedPassword &&
+          credentials.password === this.savedPassword
+        ) {
+          this.savedPassword = '';
+          this.password = '';
+          await this.rememberedLogin.forgetPassword();
+          await this.errorToast(
+            'Kata laluan yang disimpan tidak lagi sah. Sila masukkan kata laluan anda. / The saved password no longer works. Please enter your password.',
+          );
+          return;
+        }
         await this.errorToast(err.error?.message || 'Login failed');
       },
     );
