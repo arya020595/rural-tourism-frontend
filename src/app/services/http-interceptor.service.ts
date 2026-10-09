@@ -104,7 +104,7 @@ export class HttpInterceptorService implements HttpInterceptor {
           if (this.isRedirectingToLogin) return;
           this.isRedirectingToLogin = true;
 
-          message = 'Session expired. Please login again.';
+          message = this.sessionEndedMessage(error.error?.code);
           // Route through AuthService.logout() (resolved lazily via Injector
           // — see the constructor comment) rather than clearing storage
           // directly. AuthService also flips isAuthenticatedSubject to
@@ -155,6 +155,20 @@ export class HttpInterceptorService implements HttpInterceptor {
     }
 
     await this.showErrorToast(message);
+  }
+
+  /** Why the server ended the session (`code` from the 401 response). */
+  private sessionEndedMessage(code?: string): string {
+    switch (code) {
+      case 'ACCOUNT_DEACTIVATED':
+        return 'Akaun anda telah dinyahaktifkan. Sila hubungi pentadbir anda. / Your account has been deactivated. Please contact your admin.';
+      case 'ACCOUNT_NOT_FOUND':
+        return 'Akaun ini tidak lagi wujud. Sila hubungi pentadbir anda. / This account no longer exists. Please contact your admin.';
+      case 'SESSION_REVOKED':
+        return 'Kata laluan anda telah ditukar. Sila log masuk semula. / Your password was changed. Please log in again.';
+      default:
+        return 'Sesi tamat. Sila log masuk semula. / Session expired. Please log in again.';
+    }
   }
 
   private async showErrorToast(message: string): Promise<void> {
