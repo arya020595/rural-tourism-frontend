@@ -31,9 +31,10 @@
   <ion-list *ngIf="notifications.length > 0" class="notification-list">
     <ion-item
       *ngFor="let notification of notifications"
-      (click)="markAsRead(notification)"
+      (click)="openNotification(notification)"
       class="notification-item"
       [class.unread]="!notification.read"
+      [class.clickable]="canOpenBooking(notification)"
     >
       <!-- Avatar -->
       <div class="avatar-circle">{{ getAvatarLetter(notification) }}</div>

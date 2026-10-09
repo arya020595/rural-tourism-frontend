@@ -85,6 +85,24 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Whether tapping opens the booking (needs a booking id and read access). */
+  canOpenBooking(notification: Notification): boolean {
+    return (
+      !!this.notificationService.getBookingId(notification) &&
+      this.authService.hasPermission('booking:read')
+    );
+  }
+
+  /** Mark as read, then open the booking the notification is about. */
+  openNotification(notification: Notification): void {
+    this.markAsRead(notification);
+    const bookingId = this.notificationService.getBookingId(notification);
+    if (bookingId && this.canOpenBooking(notification)) {
+      // The panel closes itself on navigation (see ngOnInit).
+      this.router.navigate(['/booking-home/detail', bookingId]);
+    }
+  }
+
   markAllAsRead(): void {
     const uid = this.uid;
     if (!uid) return;

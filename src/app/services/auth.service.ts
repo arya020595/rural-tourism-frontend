@@ -64,8 +64,14 @@ interface MeResponse {
   message?: string;
   data?: {
     user?: User;
+    /** Fresh 30-day token, sent when the current one is close to expiry. */
+    token?: string;
   };
 }
+
+// How often the app checks in with GET /auth/me while open (renews the login
+// token and picks up deactivation, role or company changes).
+const SESSION_CHECK_MIN_INTERVAL_MS = 30 * 60 * 1000;
 
 export interface RegisterData {
   username: string;
@@ -105,6 +111,43 @@ export class AuthService {
     private offlineQueue: OfflineQueueService,
   ) {
     this.initializeAuthState();
+    this.startSessionChecks();
+  }
+
+  private lastSessionCheckAt = 0;
+
+  /**
+   * Keeps the login alive while the app is used: checks in with the server
+   * when the app comes back to the foreground, when the connection returns,
+   * and every few hours — at most once per SESSION_CHECK_MIN_INTERVAL_MS.
+   * GET /auth/me returns a fresh token when the current one is close to
+   * expiry. Never runs offline, and a failed check never logs anyone out
+   * (only a 401 from the server does, via the HTTP interceptor).
+   */
+  private startSessionChecks(): void {
+    const check = () => this.checkSession();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') check();
+    });
+    window.addEventListener('online', check);
+    setInterval(check, 6 * 60 * 60 * 1000);
+  }
+
+  checkSession(force = false): void {
+    if (!this.isAuthenticated || !this.storage.getToken()) return;
+    if (!navigator.onLine) return;
+    const now = Date.now();
+    if (!force && now - this.lastSessionCheckAt < SESSION_CHECK_MIN_INTERVAL_MS) {
+      return;
+    }
+    this.lastSessionCheckAt = now;
+    this.refreshSession().subscribe({
+      error: (error) => {
+        // Didn't reach the server — don't count it as a check, so the next
+        // trigger (e.g. the connection returning) tries again straight away.
+        if (error?.status !== 401) this.lastSessionCheckAt = 0;
+      },
+    });
   }
 
   private initializeAuthState(): void {
@@ -117,9 +160,19 @@ export class AuthService {
     }
 
     if (token) {
+      this.lastSessionCheckAt = Date.now();
       this.refreshSession().subscribe({
-        error: () => {
-          this.clearSessionState();
+        error: (error) => {
+          // Only the server saying "no" (401) ends the session — the HTTP
+          // interceptor already logs out and shows why. No internet (status
+          // 0) or a server error must NOT log out: opening the app offline
+          // has to keep working with the saved session.
+          if (error?.status === 401) {
+            this.clearSessionState();
+          } else {
+            // Opened offline: check again as soon as the connection returns.
+            this.lastSessionCheckAt = 0;
+          }
         },
       });
     } else {
@@ -266,7 +319,8 @@ export class AuthService {
           return;
         }
 
-        const token = this.storage.getToken();
+        // Use the renewed token when the server sent one.
+        const token = response.data.token || this.storage.getToken();
         if (!token) {
           return;
         }
@@ -439,10 +493,21 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
   ): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/change-password`, {
-      current_password: currentPassword,
-      new_password: newPassword,
-    });
+    return this.http
+      .post<any>(`${this.apiUrl}/auth/change-password`, {
+        current_password: currentPassword,
+        new_password: newPassword,
+      })
+      .pipe(
+        tap((response) => {
+          // Changing the password logs out every other device; this device
+          // must switch to the new token or it would be logged out too.
+          const token = response?.data?.token;
+          if (token) {
+            this.storage.setToken(token);
+          }
+        }),
+      );
   }
 
   updateProfile(

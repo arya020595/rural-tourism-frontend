@@ -169,11 +169,32 @@ ion-card-header {
 
 .forgot-password-row {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin: -2px 0 8px;
 }
 
+.remember-me {
+  --size: 18px;
+  --checkbox-background-checked: #024e25;
+  --border-color-checked: #024e25;
+  font-size: 13px;
+  color: #4a4a4a;
+  flex: 0 1 auto;
+  min-width: 0;
+
+  // Wrap onto two lines on narrow phones instead of cutting the text off.
+  &::part(label) {
+    white-space: normal;
+    line-height: 1.25;
+    margin-inline-start: 8px;
+  }
+}
+
 .forgot-password-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
   --padding-start: 0;
   --padding-end: 0;
   --color: #024e25;

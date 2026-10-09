@@ -17,6 +17,8 @@ const RETRY_DELAYS_MS = [0, 5_000, 30_000];
 @Injectable({ providedIn: 'root' })
 export class SyncService {
   private isSyncing = false;
+  /** Set when the server ends the session mid-sync; stops the current run. */
+  private sessionEnded = false;
   private subscriptions: Subscription[] = [];
 
   readonly pendingCount$ = new BehaviorSubject<number>(0);
@@ -60,15 +62,23 @@ export class SyncService {
     if (this.isSyncing) return;
     if (!this.isTokenValid()) return;
 
-    const lockAcquired = await this.offlineQueue.acquireLock();
-    if (!lockAcquired) return;
-
+    // Claim the run before the first await. Reconnecting fires both the
+    // Capacitor network event and the browser 'online' event at almost the
+    // same moment; setting this after awaiting the lock let both start a run,
+    // so the same booking was sent twice and the second (rejected as a
+    // duplicate) left the synced item marked as failed.
     this.isSyncing = true;
+    this.sessionEnded = false;
+    let lockAcquired = false;
 
     try {
+      lockAcquired = await this.offlineQueue.acquireLock();
+      if (!lockAcquired) return;
       await this.processQueue();
     } finally {
-      await this.offlineQueue.releaseLock();
+      if (lockAcquired) {
+        await this.offlineQueue.releaseLock();
+      }
       this.isSyncing = false;
       await this.refreshPendingCount();
     }
@@ -81,8 +91,10 @@ export class SyncService {
     const groups = this.groupByBookingId(pendingItems);
 
     for (const [, items] of groups) {
+      if (this.sessionEnded) break;
       for (const item of items) {
         await this.processItem(item);
+        if (this.sessionEnded) break;
 
         if (item.operation === 'CREATE' && item.status !== 'synced') {
           break;
@@ -122,6 +134,7 @@ export class SyncService {
     );
     await this.offlineQueue.updateItemStatus(item.id!, 'synced', {
       server_booking_id: response?.data?.id ?? null,
+      error_message: null,
     });
     // Drop the offline placeholder (cached under the idempotency key) and
     // cache the server copy, so the booking doesn't show twice offline.
@@ -136,11 +149,24 @@ export class SyncService {
     await firstValueFrom(
       this.bookingService.updateBooking(bookingId, item.payload),
     );
-    await this.offlineQueue.updateItemStatus(item.id!, 'synced');
+    await this.offlineQueue.updateItemStatus(item.id!, 'synced', {
+      error_message: null,
+    });
   }
 
   private async handleSyncError(item: QueueItem, err: any): Promise<void> {
     const status = err?.status;
+
+    // Login ended (expired, deactivated, password changed): the booking is
+    // fine, it just needs a valid login. Keep it pending without using up a
+    // retry, stop this run, and it syncs after the next login.
+    if (status === 401) {
+      await this.offlineQueue.updateItemStatus(item.id!, 'pending', {
+        error_message: 'Waiting for login',
+      });
+      this.sessionEnded = true;
+      return;
+    }
 
     if (status === 404) {
       await this.offlineQueue.updateItemStatus(item.id!, 'conflict', {
@@ -200,16 +226,13 @@ export class SyncService {
     return groups;
   }
 
+  /**
+   * Only checks that a login token exists. Expiry is left to the server: the
+   * phone's clock can be wrong, and a token the server rejects ends the
+   * session via the HTTP interceptor (401) while queued bookings stay pending.
+   */
   private isTokenValid(): boolean {
-    const token = this.storageService.getToken();
-    if (!token) return false;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000 > Date.now();
-    } catch {
-      return false;
-    }
+    return !!this.storageService.getToken();
   }
 
   private async prewarmAssets(): Promise<void> {
