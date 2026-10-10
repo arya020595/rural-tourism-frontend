@@ -246,8 +246,13 @@ export class CompanyProfilePage implements OnInit, OnDestroy {
         this.refreshMenuItems();
         this.loadProfile(this.uid);
           },
-      error: () => {
-        this.router.navigate(['/login']);
+      error: (err: any) => {
+        // A 401 (login really ended) is handled by the HTTP interceptor,
+        // which logs out and shows why. Anything else — e.g. no internet —
+        // must not send the user to the login page (they can't log in
+        // offline); keep the session and try loading with the saved user.
+        if (err?.status === 401) return;
+        if (this.uid) this.loadProfile(this.uid);
       },
     });
   }
