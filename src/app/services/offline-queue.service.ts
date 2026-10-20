@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import Dexie, { Table } from 'dexie';
 import { v4 as uuidv4 } from 'uuid';
 import { StorageService } from './storage.service';
+import { activityDateKey } from '../utils/activity-date.util';
 
 export type QueueStatus =
   | 'pending'
@@ -387,7 +388,7 @@ export class OfflineQueueService {
         continue;
       }
 
-      const key = toKey(row?.activity_date);
+      const key = activityDateKey(row?.activity_date);
       if (key && key >= from && key <= to) dates.add(key);
     }
     return [...dates];
