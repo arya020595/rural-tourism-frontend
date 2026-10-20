@@ -123,10 +123,12 @@ export class BookingDetailPage implements OnInit {
                     { status: 'cancelled' },
                   );
                   await this.loadingService.hide();
+                  // Stay on this page (like Recall) — it switches to the
+                  // cancelled status and buttons; the user goes back when
+                  // they choose to.
                   await this.toastService.success(
                     'Booking cancelled successfully',
                   );
-                  this.goBack();
                 },
                 error: async (error) => {
                   await this.loadingService.hide();

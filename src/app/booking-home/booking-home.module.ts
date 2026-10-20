@@ -9,6 +9,7 @@ import { SharedModule } from '../_shared/shared.module';
 
 import { BookingHomePage } from './booking-home.page';
 import { BookingListTableComponent } from './components/booking-list-table.component';
+import { BookingDateSheetComponent } from '../booking-forms/components/booking-date-sheet/booking-date-sheet.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { BookingListTableComponent } from './components/booking-list-table.compo
     IonicModule,
     BookingHomePageRoutingModule,
     SharedModule,
+    BookingDateSheetComponent,
   ],
   declarations: [BookingHomePage, BookingListTableComponent],
 })

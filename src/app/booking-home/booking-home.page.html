@@ -105,6 +105,19 @@
         (typeFilterChange)="cycleTypeFilter()"
       ></app-booking-list-table>
 
+      <app-booking-date-sheet
+        pickMode="month"
+        title="Bulan/Month"
+        [isOpen]="monthPickerOpen"
+        [value]="currentMonthValue"
+        [min]="monthPickerMin"
+        [max]="monthPickerMax"
+        [startInYearView]="monthPickerYearView"
+        [showBookedDates]="false"
+        (monthSelected)="onCalendarMonthSelected($event)"
+        (dismissed)="monthPickerOpen = false"
+      ></app-booking-date-sheet>
+
       <section *ngIf="viewMode === 'calendar'" class="calendar-layout">
         <div class="calendar-panel">
           <div class="month-header">
@@ -116,7 +129,24 @@
             >
               <ion-icon name="chevron-back-outline"></ion-icon>
             </button>
-            <h2>{{ currentMonthLabel }}</h2>
+            <h2 class="month-title">
+              <button
+                type="button"
+                class="month-title-btn"
+                (click)="openMonthPicker(false)"
+                aria-label="Choose month"
+              >
+                {{ currentMonthName }}
+              </button>
+              <button
+                type="button"
+                class="month-title-btn"
+                (click)="openMonthPicker(true)"
+                aria-label="Choose year"
+              >
+                {{ currentYear }}
+              </button>
+            </h2>
             <button
               type="button"
               class="month-nav"
