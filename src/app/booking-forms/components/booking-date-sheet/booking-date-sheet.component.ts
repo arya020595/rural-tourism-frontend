@@ -59,6 +59,8 @@ export class BookingDateSheetComponent {
   @Input() title = 'Tarikh/Date';
   /** Mark dates that have bookings (booking forms). Off = plain calendar. */
   @Input() showBookedDates = true;
+  /** Month mode only: open on the year list instead of the month grid. */
+  @Input() startInYearView = false;
   @Output() dateSelected = new EventEmitter<string>();
   @Output() monthSelected = new EventEmitter<string>();
   @Output() dismissed = new EventEmitter<void>();
@@ -93,7 +95,11 @@ export class BookingDateSheetComponent {
     this.viewMonth = match ? Number(match[2]) - 1 : now.getMonth();
 
     if (this.pickMode === 'month') {
-      this.mode = 'month';
+      if (this.startInYearView) {
+        this.openYearMode();
+      } else {
+        this.mode = 'month';
+      }
       return;
     }
     this.mode = 'day';

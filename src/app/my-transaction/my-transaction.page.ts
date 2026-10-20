@@ -9,6 +9,7 @@ import { MenuItem, MenuService } from '../services/menu.service';
 import { NativeDownloadService } from '../services/native-download.service';
 import { Transaction, TransactionTab } from './my-transaction.models';
 import { toDisplayDate } from '../booking-forms/components/booking-date-sheet/booking-date-sheet.component';
+import { activityTime } from '../utils/activity-date.util';
 
 @Component({
   selector: 'app-my-transaction',
@@ -406,7 +407,7 @@ export class MyTransactionPage implements OnInit {
       title: b.product_name || 'Booking',
       name: b.tourist_full_name || '',
       date,
-      time: b.activity_date ? this.extractTime(b.activity_date) : undefined,
+      time: activityTime(b.activity_date),
       pax,
       totalPrice: Number(b.total_price || 0),
       status: 'Paid',
@@ -417,14 +418,6 @@ export class MyTransactionPage implements OnInit {
       checkOutDate: validType === 'accommodation' ? (b.check_out_date || '').slice(0, 10) : undefined,
       _raw: b,
     };
-  }
-
-  private extractTime(dateStr: string): string | undefined {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return undefined;
-    const h = String(d.getHours()).padStart(2, '0');
-    const m = String(d.getMinutes()).padStart(2, '0');
-    return `${h}:${m}`;
   }
 
   private loadUser(): void {

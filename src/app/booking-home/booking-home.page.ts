@@ -12,7 +12,9 @@ import {
   QueueStatus,
 } from '../services/offline-queue.service';
 import { SyncService } from '../services/sync.service';
+import { ToastService } from '../services/toast.service';
 import { BookingDetail, BookingRow } from './booking-home.models';
+import { activityDateKey, activityTime } from '../utils/activity-date.util';
 
 interface CalendarCell {
   key: string | null;
@@ -69,8 +71,46 @@ export class BookingHomePage implements OnInit {
     private router: Router,
     private navCtrl: NavController,
     private bookingStateService: BookingStateService,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private toastService: ToastService,
   ) {}
+
+  // Calendar month/year picker (same pop-up as the dashboard Trend filter).
+  monthPickerOpen = false;
+  monthPickerYearView = false;
+  readonly monthPickerMin = '2020-01-01';
+
+  get monthPickerMax(): string {
+    return `${new Date().getFullYear() + 5}-12-31`;
+  }
+
+  /** Viewed month as YYYY-MM, for the picker. */
+  get currentMonthValue(): string {
+    const month = String(this.currentMonthDate.getMonth() + 1).padStart(2, '0');
+    return `${this.currentMonthDate.getFullYear()}-${month}`;
+  }
+
+  get currentMonthName(): string {
+    return this.currentMonthDate.toLocaleDateString('en-US', { month: 'long' });
+  }
+
+  get currentYear(): number {
+    return this.currentMonthDate.getFullYear();
+  }
+
+  /** Tap the month name (month grid) or the year (year list first). */
+  openMonthPicker(yearView: boolean): void {
+    this.monthPickerYearView = yearView;
+    this.monthPickerOpen = true;
+  }
+
+  onCalendarMonthSelected(value: string): void {
+    this.monthPickerOpen = false;
+    const [year, month] = value.split('-').map(Number);
+    if (!year || !month) return;
+    this.currentMonthDate = new Date(year, month - 1, 1);
+    this.buildCalendar();
+  }
 
   ngOnInit(): void {
     this.loadUser();
@@ -193,8 +233,16 @@ export class BookingHomePage implements OnInit {
           cssClass: 'alert-btn-danger',
           handler: () => {
             this.bookingService.cancelBooking(booking.id!).subscribe({
-              next: () => this.loadBookings(),
-              error: (err) => console.error('[CancelBooking] error:', err),
+              next: async () => {
+                await this.toastService.success('Booking cancelled successfully');
+                await this.loadBookings();
+              },
+              error: async (err) => {
+                console.error('[CancelBooking] error:', err);
+                await this.toastService.error(
+                  err?.error?.message || 'Failed to cancel booking',
+                );
+              },
             });
           },
         },
@@ -592,7 +640,7 @@ export class BookingHomePage implements OnInit {
       serviceName,
       type,
       status: this.normalizeStatus(status),
-      time: this.formatTime(
+      time: activityTime(
         record?.activity_time || record?.time || record?.activity_date
       ),
       fullName: String(record?.tourist_full_name || ''),
@@ -642,6 +690,12 @@ export class BookingHomePage implements OnInit {
   }
 
   private resolveBookedDate(record: any): string {
+    // activity_date is "as typed" — take its date directly (converting it to
+    // Malaysia time moved evening bookings to the next day).
+    const activityDay = activityDateKey(record?.activity_date);
+    if (activityDay) {
+      return activityDay;
+    }
     return this.formatDateForInput(
       record?.activity_date ||
         record?.check_in_date ||
@@ -736,22 +790,6 @@ export class BookingHomePage implements OnInit {
   private toNumber(value: any): number {
     const numberValue = Number(value);
     return Number.isFinite(numberValue) ? numberValue : 0;
-  }
-
-  private formatTime(value: any): string | undefined {
-    const raw = String(value || '').trim();
-    if (!raw) {
-      return undefined;
-    }
-
-    const date = new Date(raw);
-    if (Number.isNaN(date.getTime())) {
-      return raw || undefined;
-    }
-
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
   }
 
   private formatDateForInput(value: any): string {

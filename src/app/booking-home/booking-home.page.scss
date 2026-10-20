@@ -119,6 +119,35 @@ ion-content {
   color: #04060f;
 }
 
+.month-title {
+  display: inline-flex;
+  gap: 12px;
+}
+
+// Month name and year open the month/year picker — boxed so they read as
+// clickable.
+.month-title-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  line-height: 1.15;
+  color: inherit;
+  background: #f4f7f5;
+  border: 2px solid #cfdcd3;
+  border-radius: 12px;
+  padding: 2px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: #e7f1ea;
+    border-color: #04552f;
+    outline: none;
+  }
+}
+
 .month-nav {
   border: none;
   background: transparent;
@@ -397,6 +426,33 @@ ion-content {
 }
 
 @media (max-width: 576px) {
+  // Keep the boxed month/year and the arrows on one line on phones.
+  .month-header {
+    gap: 6px;
+  }
+
+  .month-header h2 {
+    font-size: 22px;
+  }
+
+  .month-title {
+    gap: 6px;
+  }
+
+  .month-title-btn {
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .month-nav {
+    width: 28px;
+  }
+
+  .month-nav ion-icon {
+    font-size: 26px;
+  }
+
   .surface-card {
     padding: 10px;
   }
