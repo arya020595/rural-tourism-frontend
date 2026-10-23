@@ -42,7 +42,7 @@ Before running this project, ensure you have the following installed:
 
 | Software    | Version | Download Link                     |
 | ----------- | ------- | --------------------------------- |
-| Node.js     | >= 18.x | [nodejs.org](https://nodejs.org/) |
+| Node.js     | 24.22.1 | [nodejs.org](https://nodejs.org/) |
 | npm         | >= 9.x  | Comes with Node.js                |
 | Ionic CLI   | >= 7.2  | Installed globally via npm        |
 | Angular CLI | 18.x    | Installed globally via npm        |
@@ -77,7 +77,16 @@ npm install -g @angular/cli
    cd rural-tourism-frontend
    ```
 
-2. **Install project dependencies**:
+2. **Select the project Node.js version**:
+
+   ```powershell
+   nvm use 24.22.1
+   node --version
+   ```
+
+   Confirm the output is `v24.22.1`. The `.nvmrc` file records the required version; with NVM for Windows, select it explicitly using `nvm use 24.22.1`.
+
+3. **Install project dependencies**:
 
    ```bash
    npm install --legacy-peer-deps
@@ -85,7 +94,7 @@ npm install -g @angular/cli
 
    > ⚠️ **Important**: Use `--legacy-peer-deps` flag to resolve Capacitor version conflicts.
 
-3. **Verify installation**:
+4. **Verify installation**:
    ```bash
    npx ionic info
    ```
