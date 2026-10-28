@@ -70,8 +70,13 @@
                 JUMLAH BILANGAN ORANG/TOTAL NO. OF PAX
               </div>
               <div class="row-value">
-                {{ receipt?.total_rooms || 0 }} ORANG/PAX
+                {{ receipt?.total_rooms || 0 }} ORANG
               </div>
+            </div>
+
+            <div class="receipt-row receipt-row--location">
+              <div class="row-label">LOKASI/LOCATION</div>
+              <div class="row-value">{{ companyLocation }}</div>
             </div>
 
             <div class="receipt-row receipt-row--status">

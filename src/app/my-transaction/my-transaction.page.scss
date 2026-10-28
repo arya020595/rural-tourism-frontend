@@ -760,6 +760,8 @@ ion-content {
   font-weight: 700;
   padding: 8px 14px;
   margin-top: 20px;
+  /* Gap above the table's green header row (same as the other sections). */
+  margin-bottom: 8px;
 }
 
 .rpt-doc-date-range {
@@ -1031,4 +1033,129 @@ ion-content {
     min-width: 0;
     width: 100%;
   }
+}
+
+/* Year box opens the year pop-up instead of a native dropdown. */
+.rpt-year-input {
+  cursor: pointer;
+  caret-color: transparent;
+}
+
+/* Report preview: document title block (same as the statement PDF). */
+.rpt-doc-title-block {
+  text-align: center;
+  margin: 14px 0 18px;
+  padding: 12px 0;
+  border-top: 2px solid #1a5c38;
+  border-bottom: 2px solid #1a5c38;
+}
+
+.rpt-doc-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a5c38;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.rpt-doc-meta {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.rpt-doc-trx-table td.rpt-nowrap {
+  white-space: nowrap;
+}
+
+/* Transaction table grouped by month (same as the statement PDF). */
+.rpt-doc-trx-table tbody tr.rpt-month-row td {
+  background: #e7f1ea;
+  color: #1a5c38;
+  font-weight: 700;
+  border-top: 1px solid #c9dccf;
+}
+
+.rpt-doc-trx-table tbody tr.rpt-month-subtotal td {
+  background: #f3f7f4;
+  color: #1a5c38;
+  font-weight: 700;
+  border-bottom: 2px solid #c9dccf;
+}
+
+.rpt-doc-trx-table tbody tr.rpt-month-subtotal em {
+  font-weight: 400;
+}
+
+/* Bank-statement style rows (same as the statement PDF). */
+.rpt-doc-trx-table {
+  th.rpt-col-date,
+  td.rpt-date-cell {
+    width: 110px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th.rpt-col-desc,
+  td.rpt-desc-cell {
+    text-align: left;
+    vertical-align: top;
+    white-space: normal;
+  }
+
+  .rpt-col-pax {
+    width: 60px;
+    text-align: center;
+    vertical-align: top;
+  }
+
+  .rpt-col-amount {
+    width: 120px;
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .rpt-sub {
+    font-size: 11px;
+    color: #777;
+  }
+
+  .rpt-desc-title {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 3px;
+  }
+
+  .rpt-desc-line {
+    font-size: 11.5px;
+    color: #555;
+    line-height: 1.45;
+  }
+
+  .rpt-amount {
+    font-weight: 700;
+  }
+}
+
+/* Statement table alignment: month heading, date and description left;
+   the subtotal label sits right, next to its Pax figure. */
+.rpt-doc-trx-table {
+  tbody tr.rpt-month-row td,
+  thead th.rpt-col-date,
+  thead th.rpt-col-desc,
+  tbody td.rpt-date-cell,
+  tbody td.rpt-desc-cell {
+    text-align: left;
+  }
+
+  tbody tr.rpt-month-subtotal td.rpt-subtotal-label {
+    text-align: right;
+  }
+}
+
+/* Summary: "Overall Total" sits on the right, next to its totals. */
+.rpt-doc-summary-table tbody tr.rpt-doc-summary-total td.rpt-overall-label,
+table tbody tr.rpt-doc-summary-total td.rpt-overall-label {
+  text-align: right;
 }

@@ -85,6 +85,19 @@ export class HttpInterceptorService implements HttpInterceptor {
   ): Promise<void> {
     let message = 'An unexpected error occurred';
 
+    // Failed file uploads during registration are shown by the register page
+    // as a pop-up with specific advice — don't add a second, generic toast.
+    const isRegistrationUpload =
+      request?.url.includes('/auth/register') &&
+      request.body instanceof FormData;
+    if (
+      isRegistrationUpload &&
+      (error.status === 0 ||
+        error.error?.message?.startsWith('Upload was interrupted'))
+    ) {
+      return;
+    }
+
     switch (error.status) {
       case 0:
         // User is already aware they're offline via the offline banner — skip toast

@@ -80,46 +80,76 @@
       </div>
 
       <ng-container *ngIf="!isLoading && !loadError">
-        <!-- Overall totals -->
-        <div class="totals-row">
-          <div class="total-tile">
-            <div class="total-label">Total Bookings</div>
-            <div class="total-value">{{ totals.totalBookings | number }}</div>
-          </div>
-          <div class="total-tile">
-            <div class="total-label">Total Receipts</div>
-            <div class="total-value">{{ totals.totalReceipts | number }}</div>
-          </div>
-          <div class="total-tile">
-            <div class="total-label">Total Tourists</div>
-            <div class="total-value">{{ totals.totalTourists | number }}</div>
-          </div>
-          <div class="total-tile">
-            <div class="total-label">Booking Cancelled</div>
-            <div class="total-value">{{ totals.totalCancelled | number }}</div>
-          </div>
-          <div class="total-tile">
-            <div class="total-label">Full-Time Workers</div>
-            <div class="total-value">
-              {{ totals.totalFulltimeStaff | number }}
+        <!-- 1. Bookings: total → pending / paid / cancelled -->
+        <section class="stats-section">
+          <h2 class="section-title">Tempahan / Bookings</h2>
+          <div class="booking-flow">
+            <div class="total-tile flow-root">
+              <div class="total-label">Total Bookings</div>
+              <div class="total-value">{{ totals.totalBookings | number }}</div>
+            </div>
+            <div class="flow-branches">
+              <div class="total-tile flow-child flow-child--pending">
+                <div class="total-label">Total Pending Bookings</div>
+                <div class="total-value">{{ totals.totalPending | number }}</div>
+              </div>
+              <div class="total-tile flow-child flow-child--paid">
+                <div class="total-label">Total Paid Bookings</div>
+                <div class="total-value">{{ totals.totalReceipts | number }}</div>
+              </div>
+              <div class="total-tile flow-child flow-child--cancelled">
+                <div class="total-label">Total Cancelled Bookings</div>
+                <div class="total-value">{{ totals.totalCancelled | number }}</div>
+              </div>
             </div>
           </div>
-          <div class="total-tile">
-            <div class="total-label">Part-Time Workers</div>
-            <div class="total-value">
-              {{ totals.totalParttimeStaff | number }}
-            </div>
-          </div>
-          <div class="total-tile total-tile--revenue">
-            <div class="total-label">Total Revenue</div>
-            <div class="total-value">
-              RM {{ totals.totalRevenue | number: '1.2-2' }}
-            </div>
-            <div class="total-sub">Paid bookings only</div>
-          </div>
-        </div>
+        </section>
 
-        <!-- Per-association cards -->
+        <hr class="section-divider" />
+
+        <!-- 2. Visitors & money -->
+        <section class="stats-section">
+          <h2 class="section-title">Pelawat &amp; Kewangan / Visitors &amp; Finance</h2>
+          <div class="stat-row stat-row--3">
+            <div class="total-tile">
+              <div class="total-label">Count of Activities Attended by Visitors</div>
+              <div class="total-value">{{ totals.totalTourists | number }}</div>
+              <div class="total-sub">Paid bookings only</div>
+            </div>
+            <div class="total-tile total-tile--revenue">
+              <div class="total-label">Total Booking Deposit</div>
+              <div class="total-value">RM {{ totals.totalDeposit | number: '1.2-2' }}</div>
+              <div class="total-sub">Pending + cancelled bookings</div>
+            </div>
+            <div class="total-tile total-tile--revenue">
+              <div class="total-label">Total Revenue</div>
+              <div class="total-value">RM {{ totals.totalRevenue | number: '1.2-2' }}</div>
+              <div class="total-sub">Paid bookings only</div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- 3. Workforce -->
+        <section class="stats-section">
+          <h2 class="section-title">Pekerja / Workers</h2>
+          <div class="stat-row stat-row--2">
+            <div class="total-tile">
+              <div class="total-label">Full-Time Workers</div>
+              <div class="total-value">{{ totals.totalFulltimeStaff | number }}</div>
+            </div>
+            <div class="total-tile">
+              <div class="total-label">Part-Time Workers</div>
+              <div class="total-value">{{ totals.totalParttimeStaff | number }}</div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- 4. Per-association cards -->
+        <h2 class="section-title">Statistik mengikut Persatuan / Statistics by Association</h2>
         <div class="assoc-grid">
           <div
             class="assoc-card"
@@ -153,10 +183,18 @@
               </div>
             </div>
             <div class="assoc-revenue">
-              <span class="assoc-revenue-label">Revenue</span>
-              <span class="assoc-revenue-value">
-                RM {{ a.totalRevenue | number: '1.2-2' }}
-              </span>
+              <div class="assoc-footer-item">
+                <span class="assoc-revenue-label">Registered Companies</span>
+                <span class="assoc-revenue-value">
+                  {{ a.companies.length | number }}
+                </span>
+              </div>
+              <div class="assoc-footer-item">
+                <span class="assoc-revenue-label">Revenue</span>
+                <span class="assoc-revenue-value">
+                  RM {{ a.totalRevenue | number: '1.2-2' }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -165,7 +203,9 @@
           No association data available.
         </p>
 
-        <!-- Companies grouped by association -->
+        <hr class="section-divider" *ngIf="associations.length > 0" />
+
+        <!-- 5. Companies grouped by association -->
         <div class="companies-section" *ngIf="associations.length > 0">
           <h2 class="section-title">
             Syarikat mengikut Persatuan / Companies by Association

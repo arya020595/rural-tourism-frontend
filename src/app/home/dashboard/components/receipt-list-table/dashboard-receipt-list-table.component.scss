@@ -158,3 +158,18 @@ tbody td {
     text-align: center;
   }
 }
+
+/* Keep phone numbers on one line (e.g. +60 12-345 6789). */
+.phone-cell {
+  white-space: nowrap;
+}
+
+/* Packages list several products — cap the width so long names wrap instead
+   of stretching the column and squeezing the others. */
+.service-text {
+  max-width: 220px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}

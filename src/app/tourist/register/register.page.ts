@@ -15,6 +15,7 @@ export class RegisterPage implements OnInit {
   contact_no = '';
   username = '';
   password = '';
+  readonly minPasswordLength = 8;
   confirm_password = '';
   nationality = '';
   phonePrefix = '';
@@ -412,6 +413,14 @@ export class RegisterPage implements OnInit {
       !this.nationality
     ) {
       this.showAlert('Error', 'Please fill in all fields.');
+      return;
+    }
+
+    if (this.password.length < this.minPasswordLength) {
+      this.showAlert(
+        'Error',
+        `Password must be at least ${this.minPasswordLength} characters.`,
+      );
       return;
     }
 

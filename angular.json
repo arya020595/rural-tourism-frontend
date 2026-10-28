@@ -47,7 +47,8 @@
               "sweetalert2",
               "qrcode",
               "ion7-calendar",
-              "html2canvas"
+              "html2canvas",
+              "exceljs"
             ],
             "serviceWorker": true
           },

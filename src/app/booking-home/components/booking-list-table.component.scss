@@ -95,8 +95,17 @@ tbody td {
 }
 
 .service-name {
-  max-width: 420px;
   text-align: center;
+}
+
+/* Packages list several products — cap the width so long names wrap instead
+   of stretching the column (same as the dashboard receipt list). */
+.service-text {
+  max-width: 220px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .booking-id {

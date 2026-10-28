@@ -15,6 +15,7 @@ import { SyncService } from '../services/sync.service';
 import { ToastService } from '../services/toast.service';
 import { BookingDetail, BookingRow } from './booking-home.models';
 import { activityDateKey, activityTime } from '../utils/activity-date.util';
+import { packageDays, packageItemDays } from '../utils/package-item-dates.util';
 
 interface CalendarCell {
   key: string | null;
@@ -57,6 +58,8 @@ export class BookingHomePage implements OnInit {
   selectedDateKey: string | null = null;
 
   bookings: BookingDetail[] = [];
+
+  referralBookings: BookingDetail[] = [];
   statusFilter: 'all' | 'pending' | 'paid' | 'cancelled' = 'all';
   typeFilter: 'all' | 'Activity' | 'Accommodation' | 'Package' = 'all';
 
@@ -197,6 +200,9 @@ export class BookingHomePage implements OnInit {
   }
 
   viewBookingDetails(booking: BookingDetail): void {
+    // A referral from another company is view only: the chip shows who is
+    // coming and when; the rest of their booking isn't ours to open.
+    if (booking.isReferral) return;
     this.bookingStateService.set(booking);
     this.router.navigate(['/booking-home/detail', booking.id], {
       state: { booking },
@@ -307,9 +313,14 @@ export class BookingHomePage implements OnInit {
       return [];
     }
 
-    return this.bookings
+    return this.calendarBookings
       .filter((booking) => {
         if (booking.status === 'cancelled') return false;
+
+        // Packages with item dates (incl. referrals): any of those days.
+        if (booking.calendarDays?.length) {
+          return booking.calendarDays.includes(this.selectedDateKey!);
+        }
 
         // For accommodation, match any night of the stay: check-in inclusive,
         // check-out exclusive (same range the calendar colours). e.g. check-in
@@ -430,6 +441,7 @@ export class BookingHomePage implements OnInit {
       this.isOffline = false;
 
       await this.offlineQueue.cacheBookings(rows);
+      await this.loadReferralBookings();
     } catch (error) {
       console.error('[booking-home] failed to load bookings', error);
       await this.loadBookingsFromCache();
@@ -487,6 +499,87 @@ export class BookingHomePage implements OnInit {
     this.queueStatusMap = map;
   }
 
+  /** Own bookings plus package items other companies referred to us. */
+  get calendarBookings(): BookingDetail[] {
+    return [...this.bookings, ...this.referralBookings];
+  }
+
+  /**
+   * Package items other companies booked with us (we are the referee), so
+   * our calendar shows when those package customers come. Only items that
+   * have their own dates; each shows on its own days. Online only.
+   */
+  private async loadReferralBookings(): Promise<void> {
+    const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+    if (!myCompanyId) {
+      this.referralBookings = [];
+      return;
+    }
+
+    try {
+      const items: any[] = [];
+      let page = 1;
+      let totalPages = 1;
+      do {
+        const res: any = await firstValueFrom(
+          this.bookingService.getPackageBookings({ page, per_page: 100 }),
+        );
+        items.push(...(Array.isArray(res?.data) ? res.data : []));
+        totalPages = Number(res?.meta?.total_pages ?? 1);
+        page++;
+      } while (page <= totalPages && page <= 20);
+
+      this.referralBookings = items
+        .filter(
+          (item) =>
+            Number(item?.referee_id) === myCompanyId &&
+            Number(item?.referrer_id) !== myCompanyId &&
+            item?.booking?.id,
+        )
+        .map((item): BookingDetail | null => {
+          const days = packageItemDays(item);
+          if (!days.length) return null;
+          const booking = item.booking;
+          const status = this.normalizeStatus(String(booking?.status || 'booked'));
+          const type = String(item?.product_type || '').toLowerCase();
+          const ddmmyyyy = (key: string) => key.split('-').reverse().join('/');
+          const time = activityTime(item?.activity_date);
+          const checkIn = activityDateKey(item?.check_in_date);
+          const checkOut = activityDateKey(item?.check_out_date);
+          let when = '';
+          if (type === 'accommodation' && checkIn) {
+            when = checkOut ? `${ddmmyyyy(checkIn)} – ${ddmmyyyy(checkOut)}` : ddmmyyyy(checkIn);
+          } else if (time) {
+            const [h, m] = time.split(':').map(Number);
+            when = `${String(h % 12 || 12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+          }
+          return {
+            id: String(booking.id),
+            numericId: Number(booking.id) || undefined,
+            bookedDate: days[0],
+            phone: String(booking?.phone_number || ''),
+            referralPax:
+              Number(booking?.total_pax) ||
+              Number(booking?.no_of_pax_domestik || 0) + Number(booking?.no_of_pax_antarbangsa || 0),
+            referralWhen: when || undefined,
+            referralWhenLabel: type === 'accommodation' && checkIn ? 'Stay' : 'Time',
+            serviceName: `${String(item?.description || 'Package')} — ${String(
+              item?.referral_company || 'referral',
+            )}`,
+            type: 'Package',
+            status,
+            fullName: String(booking?.tourist_full_name || ''),
+            calendarDays: days,
+            isReferral: true,
+          };
+        })
+        .filter((b): b is BookingDetail => !!b);
+    } catch (error) {
+      console.error('[booking-home] failed to load package referrals', error);
+      this.referralBookings = [];
+    }
+  }
+
   private buildCalendar(): void {
     const year = this.currentMonthDate.getFullYear();
     const month = this.currentMonthDate.getMonth();
@@ -495,9 +588,22 @@ export class BookingHomePage implements OnInit {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const bookingsByDate = new Map<string, BookingRow[]>();
-    this.bookings.forEach((booking) => {
+    this.calendarBookings.forEach((booking) => {
       // Skip cancelled bookings on calendar display
       if (booking.status === 'cancelled') {
+        return;
+      }
+
+      // Packages with item dates (incl. referrals): mark each of those days.
+      if (booking.calendarDays?.length) {
+        booking.calendarDays.forEach((key) => {
+          const day = this.parseDateKey(key);
+          if (day.getFullYear() === year && day.getMonth() === month) {
+            const current = bookingsByDate.get(key) || [];
+            if (!current.includes(booking)) current.push(booking);
+            bookingsByDate.set(key, current);
+          }
+        });
         return;
       }
 
@@ -678,6 +784,10 @@ export class BookingHomePage implements OnInit {
           : undefined,
       packagePrice:
         type === 'Package' ? this.toNumber(record?.total_price) : undefined,
+      calendarDays:
+        type === 'Package' && packageDays(record?.package_companies).length
+          ? packageDays(record?.package_companies)
+          : undefined,
       customerType:
         String(record?.customer_type || record?.customerType || '')
           .toLowerCase()

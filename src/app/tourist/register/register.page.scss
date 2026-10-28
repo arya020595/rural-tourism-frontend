@@ -29,3 +29,18 @@ ion-label{
     --padding-end: 20px;
 }
   
+
+.field-label-note {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b6b6b;
+}
+
+/* Shown only while 1–7 characters are typed. */
+.password-error {
+  margin: -6px 16px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #b3261e;
+}

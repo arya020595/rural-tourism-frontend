@@ -36,7 +36,8 @@ ion-content {
 .receipt-capture-clone .receipt-row--checkin { grid-column: 1 !important; grid-row: 3 !important; }
 .receipt-capture-clone .receipt-row--checkout { grid-column: 2 !important; grid-row: 3 !important; }
 .receipt-capture-clone .receipt-row--rooms { grid-column: 1 !important; grid-row: 4 !important; }
-.receipt-capture-clone .receipt-row--status { grid-column: 2 !important; grid-row: 4 !important; }
+.receipt-capture-clone .receipt-row--location { grid-column: 2 !important; grid-row: 4 !important; }
+.receipt-capture-clone .receipt-row--status { grid-column: 1 !important; grid-row: 5 !important; }
 .receipt-capture-clone .receipt-footer {
   grid-template-columns: 1fr auto !important;
   gap: 24px !important;
@@ -162,8 +163,12 @@ ion-content {
   order: 7;
 }
 
-.receipt-row--status {
+.receipt-row--location {
   order: 8;
+}
+
+.receipt-row--status {
+  order: 9;
 }
 
 .row-label {
@@ -459,8 +464,13 @@ qrcode {
     grid-row: 4;
   }
 
-  .receipt-row--status {
+  .receipt-row--location {
     grid-column: 2;
     grid-row: 4;
+  }
+
+  .receipt-row--status {
+    grid-column: 1;
+    grid-row: 5;
   }
 }

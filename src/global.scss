@@ -483,3 +483,10 @@ ion-popover.rt-register-select-popover ion-item.item-radio-checked {
   font-weight: 700;
   color: #111;
 }
+
+/* Hide Microsoft Edge's built-in "reveal password" eye (and clear "x") —
+   our password fields have their own show/hide toggle. */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}

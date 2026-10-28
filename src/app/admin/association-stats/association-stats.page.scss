@@ -240,13 +240,24 @@ hr {
 /* Revenue sits below the metric grid as a full-width footer row: it is a
    currency value and does not fit the two-column numeric layout. */
 .assoc-revenue {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
   gap: 8px;
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid #d8e2dc;
+}
+
+/* Footer: registered companies beside revenue, each centred in its half
+   (same columns as the metrics above). */
+.assoc-footer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  min-width: 0;
 }
 
 .assoc-revenue-label {
@@ -272,7 +283,7 @@ hr {
 
 /* Companies-by-association table */
 .companies-section {
-  margin-top: 32px;
+  margin-top: 0;
 }
 
 .section-title {
@@ -364,5 +375,171 @@ hr {
   .assoc-card {
     flex-basis: 100%;
     max-width: 100%;
+  }
+}
+
+
+/* ── Overview sections (bookings flow, visitors & finance, workers) ──────
+   Placed last and scoped under .stats-section so they win over the generic
+   .total-tile sizing/breakpoint rules above. */
+.stats-section {
+  margin-bottom: 0;
+}
+
+/* Lighter line between the dashboard sections (the dark green hr stays
+   under the page title only). */
+hr.section-divider {
+  height: 1px;
+  background-color: #cfdcd3;
+  margin: 28px 0 24px;
+}
+
+.stats-section .total-tile {
+  flex: none;
+  max-width: none;
+  width: auto;
+}
+
+/* 1. Total bookings with arrows down to pending / paid / cancelled. */
+.booking-flow {
+  --flow-gap: 16px;
+  --flow-stem: 26px;
+  --flow-line: #04552f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stats-section .flow-root {
+  position: relative;
+  width: calc((100% - 2 * var(--flow-gap)) / 3);
+  margin-bottom: calc(var(--flow-stem) * 2);
+  background: #033d22;
+}
+
+/* stem: root card → horizontal bar */
+.flow-root::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 2px;
+  height: var(--flow-stem);
+  background: var(--flow-line);
+  transform: translateX(-50%);
+}
+
+.flow-branches {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--flow-gap);
+  width: 100%;
+}
+
+/* horizontal bar joining the three branch centres */
+.flow-branches::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--flow-stem));
+  left: calc((100% - 2 * var(--flow-gap)) / 6);
+  right: calc((100% - 2 * var(--flow-gap)) / 6);
+  height: 2px;
+  background: var(--flow-line);
+}
+
+.flow-child {
+  position: relative;
+}
+
+/* branch line: bar → just above the card */
+.flow-child::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--flow-stem));
+  left: 50%;
+  width: 2px;
+  height: calc(var(--flow-stem) - 9px);
+  background: var(--flow-line);
+  transform: translateX(-50%);
+}
+
+/* arrowhead pointing into the card */
+.flow-child::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--flow-line);
+}
+
+.stats-section .flow-child--pending {
+  background: #ff9500;
+  color: #111;
+}
+
+.stats-section .flow-child--cancelled {
+  background: #b3261e;
+}
+
+/* 2–3. Rows of equal cards. */
+.stat-row {
+  display: grid;
+  gap: 16px;
+}
+
+.stat-row--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.stat-row--2 {
+  grid-template-columns: repeat(2, 1fr);
+  width: calc((100% - 2 * 16px) / 3 * 2 + 16px);
+  margin: 0 auto;
+}
+
+@media (max-width: 992px) {
+  .stats-section .flow-root {
+    width: 60%;
+  }
+
+  .stat-row--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-row--2 {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .booking-flow {
+    --flow-gap: 8px;
+    --flow-stem: 22px;
+  }
+
+  .stats-section .flow-root {
+    width: 80%;
+  }
+
+  /* three branch cards stay side by side; shrink their text to fit */
+  .stats-section .flow-child {
+    padding: 12px 6px;
+  }
+
+  .stats-section .flow-child .total-label {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+
+  .stats-section .flow-child .total-value {
+    font-size: 20px;
+  }
+
+  .stat-row--2 {
+    grid-template-columns: 1fr;
   }
 }

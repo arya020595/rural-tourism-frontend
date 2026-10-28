@@ -302,7 +302,10 @@
             <ion-row>
               <ion-col size="12" sizeMd="6">
                 <label class="field-label"
-                  >Kata Laluan/Password<span>*</span></label
+                  >Kata Laluan/Password<span>*</span>
+                  <small class="field-label-note"
+                    >(min. {{ minPasswordLength }} aksara/characters)</small
+                  ></label
                 >
                 <ion-input
                   class="field-input"
@@ -320,6 +323,11 @@
                     (click)="togglePassword()"
                   ></ion-icon>
                 </ion-input>
+                <p class="field-error" *ngIf="passwordTooShort">
+                  Kata laluan mesti sekurang-kurangnya {{ minPasswordLength }}
+                  aksara / Password must be at least {{ minPasswordLength }}
+                  characters.
+                </p>
               </ion-col>
 
               <ion-col size="12" sizeMd="6">
@@ -342,13 +350,14 @@
                     (click)="toggleConfirmPassword()"
                   ></ion-icon>
                 </ion-input>
+                <p class="field-error" *ngIf="passwordMismatch">
+                  Kata laluan tidak sepadan / Password and confirm password do
+                  not match.
+                </p>
               </ion-col>
             </ion-row>
           </ion-grid>
 
-          <p class="error-message" *ngIf="passwordMismatch">
-            Password and confirm password do not match.
-          </p>
 
           <!-- Privacy Policy -->
           <div class="privacy-row">

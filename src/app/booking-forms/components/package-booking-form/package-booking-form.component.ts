@@ -13,6 +13,9 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CompanyService } from '../../../services/company.service';
 import { ProductService } from '../../../services/product.service';
+import { activityDateKey, activityTime } from '../../../utils/activity-date.util';
+import { packageItemDays } from '../../../utils/package-item-dates.util';
+import { AuthService } from '../../../services/auth.service';
 import { OfflineQueueService } from '../../../services/offline-queue.service';
 import {
   BookingDateSheetComponent,
@@ -23,6 +26,8 @@ import {
   formatMoney,
   sanitizeMoney,
 } from '../../money-input.util';
+
+type PackageProductType = 'activity' | 'accommodation';
 
 @Component({
   selector: 'app-package-booking-form',
@@ -55,6 +60,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   phone = '';
   email = '';
   emailError = '';
+  phoneError = '';
   validationErrors: string[] = [];
   paxCount = '';
   domesticPax = '';
@@ -71,7 +77,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   companies: Array<{ id: number; name: string }> = [];
   serviceOptionsByCompanyId: Record<
     number,
-    Array<{ id: number; name: string }>
+    Array<{ id: number; name: string; productType?: PackageProductType }>
   > = {};
   companySearchText: Record<number, string> = {};
   filteredCompanies: Record<number, Array<{ id: number; name: string }>> = {};
@@ -81,15 +87,37 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   showServiceDropdown: Record<number, boolean> = {};
   packageItems: Array<{
     companyId?: number;
+    // Picked in the form to narrow the service list; not saved — worked out
+    // again from the service when an existing booking is opened.
+    productType?: PackageProductType;
     serviceName?: string;
     price?: string;
     description?: string;
+    // When the customer comes: activity → date (+ optional HH:mm time);
+    // accommodation → start/end date. All YYYY-MM-DD.
+    activityDate?: string;
+    activityTime?: string;
+    checkInDate?: string;
+    checkOutDate?: string;
   }> = [{ companyId: undefined, price: '', description: '' }];
+
+  // Shared date pop-up / time picker for the package items.
+  itemDateSheet: {
+    open: boolean;
+    index: number;
+    field: 'activityDate' | 'checkInDate' | 'checkOutDate';
+  } = { open: false, index: -1, field: 'activityDate' };
+  itemTimePicker = { open: false, index: -1 };
+  // Days already picked in this package's other own-company items, marked in
+  // the item date pop-up before the package is saved. Set when it opens.
+  itemDateSheetExtraDates: string[] = [];
+  pendingItemTime = '';
 
   constructor(
     private companyService: CompanyService,
     private productService: ProductService,
     private offlineQueue: OfflineQueueService,
+    private authService: AuthService,
   ) {}
 
   /** Displayed field number for a given base number, shifted by numberOffset.
@@ -111,6 +139,12 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.loadCompanies();
+    // "Tarikh Tempahan Dibuat" — the day the package is being booked; start
+    // a new package on today (the operator can still change it).
+    if (this.mode === 'add' && !this.bookingDate) {
+      const now = new Date();
+      this.bookingDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
   }
 
   addPackageItem(): void {
@@ -131,6 +165,23 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
 
   removePackageItem(index: number): void {
     this.packageItems.splice(index, 1);
+    // The search boxes' text/dropdown state is kept per row index — move the
+    // rows below the deleted one up, or they would show the wrong row's text.
+    const shift = <T>(record: Record<number, T>): Record<number, T> => {
+      const next: Record<number, T> = {};
+      Object.keys(record).forEach((key) => {
+        const i = Number(key);
+        if (i < index) next[i] = record[i];
+        else if (i > index) next[i - 1] = record[i];
+      });
+      return next;
+    };
+    this.companySearchText = shift(this.companySearchText);
+    this.filteredCompanies = shift(this.filteredCompanies);
+    this.showCompanyDropdown = shift(this.showCompanyDropdown);
+    this.serviceSearchText = shift(this.serviceSearchText);
+    this.filteredServices = shift(this.filteredServices);
+    this.showServiceDropdown = shift(this.showServiceDropdown);
   }
 
   onCompanySearchChange(index: number, searchText: string): void {
@@ -156,6 +207,8 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     item.companyId = company.id;
     this.companySearchText[index] = company.name;
     this.showCompanyDropdown[index] = false;
+    item.productType = undefined;
+    this.clearItemDates(item);
     item.serviceName = '';
     item.description = '';
     this.serviceSearchText[index] = '';
@@ -201,8 +254,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
     this.serviceSearchText[index] = searchText;
     this.showServiceDropdown[index] = true;
 
-    const companyId = Number(this.packageItems[index]?.companyId || 0);
-    const allServices = this.serviceOptionsByCompanyId[companyId] || [];
+    const allServices = this.getServicesForItem(index);
 
     if (!searchText.trim()) {
       this.filteredServices[index] = [...allServices];
@@ -228,12 +280,185 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
 
   onServiceSearchFocus(index: number): void {
     this.showServiceDropdown[index] = true;
-    const companyId = Number(this.packageItems[index]?.companyId || 0);
-    if (!this.filteredServices[index] && companyId) {
-      this.filteredServices[index] = [
-        ...(this.serviceOptionsByCompanyId[companyId] || []),
-      ];
+    const item = this.packageItems[index];
+    if (item?.companyId && item.productType) {
+      const search = (this.serviceSearchText[index] || '').trim().toLowerCase();
+      this.filteredServices[index] = this.getServicesForItem(index).filter(
+        (s) => !search || s.name.toLowerCase().includes(search),
+      );
     }
+  }
+
+  /** Changing the product type clears the service picked for the old type. */
+  onProductTypeChange(index: number): void {
+    const item = this.packageItems[index];
+    if (!item) {
+      return;
+    }
+    item.serviceName = '';
+    item.description = '';
+    this.clearItemDates(item);
+    this.serviceSearchText[index] = '';
+    this.showServiceDropdown[index] = false;
+    this.filteredServices[index] = this.getServicesForItem(index);
+  }
+
+  private clearItemDates(item: { activityDate?: string; activityTime?: string; checkInDate?: string; checkOutDate?: string }): void {
+    item.activityDate = '';
+    item.activityTime = '';
+    item.checkInDate = '';
+    item.checkOutDate = '';
+  }
+
+  // ---- Package item dates ----
+
+  openItemDateSheet(index: number, field: 'activityDate' | 'checkInDate' | 'checkOutDate'): void {
+    if (this.isViewMode) return;
+    this.itemDateSheetExtraDates = this.ownItemDaysExcept(index);
+    this.itemDateSheet = { open: true, index, field };
+  }
+
+  /** Days taken by this package's other items with our own company. */
+  private ownItemDaysExcept(index: number): string[] {
+    const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+    if (!myCompanyId) return [];
+    const days = new Set<string>();
+    this.packageItems.forEach((item, i) => {
+      if (i === index || Number(item.companyId || 0) !== myCompanyId) return;
+      packageItemDays({
+        product_type: item.productType,
+        activity_date: item.activityDate,
+        check_in_date: item.checkInDate,
+        check_out_date: item.checkOutDate,
+      }).forEach((day) => days.add(day));
+    });
+    return [...days];
+  }
+
+  closeItemDateSheet(): void {
+    this.itemDateSheet = { ...this.itemDateSheet, open: false };
+  }
+
+  onItemDateSelected(iso: string): void {
+    const item = this.packageItems[this.itemDateSheet.index];
+    if (item) {
+      item[this.itemDateSheet.field] = iso;
+      // A stay is at least one night: a start date on/after the end date
+      // clears the end date (same as the accommodation booking form).
+      if (this.itemDateSheet.field === 'checkInDate' && item.checkOutDate && item.checkOutDate <= iso) {
+        item.checkOutDate = '';
+      }
+    }
+    this.closeItemDateSheet();
+  }
+
+  get itemDateSheetTitle(): string {
+    switch (this.itemDateSheet.field) {
+      case 'checkInDate':
+        return 'Tarikh Mula/Start Date';
+      case 'checkOutDate':
+        return 'Tarikh Tamat/End Date';
+      default:
+        return 'Tarikh Aktiviti/Activity Date';
+    }
+  }
+
+  get itemDateSheetValue(): string {
+    const item = this.packageItems[this.itemDateSheet.index];
+    return (item?.[this.itemDateSheet.field] as string) || '';
+  }
+
+  /** End date: earliest is the day after the start date (at least 1 night). */
+  get itemDateSheetMin(): string {
+    const item = this.packageItems[this.itemDateSheet.index];
+    if (this.itemDateSheet.field !== 'checkOutDate' || !item?.checkInDate) return '';
+    const next = new Date(Date.parse(`${item.checkInDate}T00:00:00Z`) + 24 * 60 * 60 * 1000);
+    return next.toISOString().slice(0, 10);
+  }
+
+  /**
+   * Mark our own booked dates only when the item is with our own company;
+   * another company's calendar stays private (plain pop-up).
+   */
+  get itemDateSheetShowsBooked(): boolean {
+    const item = this.packageItems[this.itemDateSheet.index];
+    const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+    return !!myCompanyId && Number(item?.companyId || 0) === myCompanyId;
+  }
+
+  openItemTimePicker(index: number): void {
+    if (this.isViewMode) return;
+    const item = this.packageItems[index];
+    const now = new Date();
+    this.pendingItemTime =
+      item?.activityTime ||
+      `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    this.itemTimePicker = { open: true, index };
+  }
+
+  closeItemTimePicker(): void {
+    this.itemTimePicker = { ...this.itemTimePicker, open: false };
+  }
+
+  onPendingItemTimeChange(event: CustomEvent): void {
+    const raw = event.detail?.value;
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    // ion-datetime may emit a full ISO string; the first HH:mm is the time.
+    const match = String(value || '').match(/(\d{2}):(\d{2})/);
+    if (match) {
+      this.pendingItemTime = `${match[1]}:${match[2]}`;
+    }
+  }
+
+  applyItemTime(): void {
+    const item = this.packageItems[this.itemTimePicker.index];
+    if (item) item.activityTime = this.pendingItemTime;
+    this.closeItemTimePicker();
+  }
+
+  /** Time is optional — let the operator remove it again. */
+  clearItemTime(): void {
+    const item = this.packageItems[this.itemTimePicker.index];
+    if (item) item.activityTime = '';
+    this.closeItemTimePicker();
+  }
+
+  /** "HH:mm" (24h) shown as "07:30 PM". */
+  itemTimeDisplay(value?: string): string {
+    const match = String(value || '').match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return '';
+    const hours24 = Number(match[1]);
+    const period = hours24 >= 12 ? 'PM' : 'AM';
+    return `${String(hours24 % 12 || 12).padStart(2, '0')}:${match[2]} ${period}`;
+  }
+
+  /** The company's services of the row's product type (all if no type yet). */
+  private getServicesForItem(
+    index: number,
+  ): Array<{ id: number; name: string; productType?: PackageProductType }> {
+    const item = this.packageItems[index];
+    const all = this.serviceOptionsByCompanyId[Number(item?.companyId || 0)] || [];
+    return item?.productType
+      ? all.filter((s) => s.productType === item.productType)
+      : all;
+  }
+
+  /**
+   * Existing bookings don't store the product type — work it out from the
+   * row's saved service once the company's services are loaded.
+   */
+  private inferProductTypes(companyId: number): void {
+    const services = this.serviceOptionsByCompanyId[companyId] || [];
+    this.packageItems.forEach((item) => {
+      if (Number(item.companyId || 0) !== companyId || item.productType || !item.serviceName) {
+        return;
+      }
+      const name = item.serviceName.trim().toLowerCase();
+      const match = services.find((s) => s.name.toLowerCase() === name);
+      if (match?.productType) {
+        item.productType = match.productType;
+      }
+    });
   }
 
   onServiceSearchBlur(index: number): void {
@@ -348,21 +573,50 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   submitForm(): void {
     this.validationErrors = [];
     this.emailError = '';
+    this.phoneError = '';
 
     if (!this.isViewMode) {
       if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      // Phone is how returning customers are recognised (dashboard Excel export).
+      const phoneDigits = String(this.phone || '').replace(/\D/g, '');
+      if (!phoneDigits) {
+        this.phoneError = 'Sila masukkan no. telefon / Telephone number is required.';
+        this.validationErrors.push('Telephone number is required.');
+      } else if (phoneDigits.length < 8) {
+        this.phoneError = 'No. telefon tidak sah / Please enter a valid telephone number.';
+        this.validationErrors.push('Please enter a valid telephone number.');
+      }
       if (this.email.trim() && !this.isValidEmail(this.email)) {
         this.emailError = 'Please enter a valid email address.';
         this.validationErrors.push('Please enter a valid email address.');
       }
       if (!this.bookingDate) this.validationErrors.push('Booking date is required.');
-      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      // Pax must be at least 1 ("0" is not empty, so check the number).
+      const paxNumber = (value: unknown) => Number(String(value ?? '').trim() || 0);
+      if (this.isMixedNationality) {
+        if (paxNumber(this.domesticPax) < 1 || paxNumber(this.internationalPax) < 1) {
+          this.validationErrors.push('Domestic and international pax must each be at least 1.');
+        }
+      } else if (paxNumber(this.paxCount) < 1) {
+        this.validationErrors.push('Number of pax must be at least 1.');
+      }
       const validItems = this.packageItems.filter(item => item.companyId);
       if (validItems.length === 0) this.validationErrors.push('At least one package item with a company is required.');
       for (let i = 0; i < validItems.length; i++) {
         const item = validItems[i];
         if (!item.serviceName && !item.description) this.validationErrors.push(`Package item ${i + 1}: service/description is required.`);
         if (!item.price || Number(item.price) <= 0) this.validationErrors.push(`Package item ${i + 1}: price must be greater than 0.`);
+        if (!item.productType) {
+          this.validationErrors.push(`Package item ${i + 1}: product type is required.`);
+        } else if (item.productType === 'activity' && !item.activityDate) {
+          this.validationErrors.push(`Package item ${i + 1}: activity date is required.`);
+        } else if (item.productType === 'accommodation') {
+          if (!item.checkInDate || !item.checkOutDate) {
+            this.validationErrors.push(`Package item ${i + 1}: start and end date are required.`);
+          } else if (item.checkOutDate <= item.checkInDate) {
+            this.validationErrors.push(`Package item ${i + 1}: end date must be after the start date.`);
+          }
+        }
       }
       if (this.validationErrors.length > 0) return;
     }
@@ -387,9 +641,23 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
         serviceName: item.serviceName || item.description || '',
         description: item.serviceName || item.description || '',
         price: item.price,
+        productType: item.productType,
+        activityDate: item.productType === 'activity' ? item.activityDate || '' : '',
+        activityTime: item.productType === 'activity' ? item.activityTime || '' : '',
+        checkInDate: item.productType === 'accommodation' ? item.checkInDate || '' : '',
+        checkOutDate: item.productType === 'accommodation' ? item.checkOutDate || '' : '',
       })),
       operatorName: this.operatorName,
     });
+  }
+
+  /** Package total = sum of the item prices (what is saved as total_price). */
+  get packageTotalText(): string {
+    const total = this.packageItems.reduce(
+      (sum, item) => sum + (Number(String(item.price ?? '').replace(/,/g, '')) || 0),
+      0,
+    );
+    return total.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   getServiceOptions(companyId?: number): Array<{ id: number; name: string }> {
@@ -437,13 +705,25 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
 
     // populate packageItems if booking contains them
     if (rawPackageItems.length > 0) {
-      this.packageItems = rawPackageItems.map((it: any) => ({
-        companyId:
-          it.referee_id || it.company_id || it.referrer_id || undefined,
-        serviceName: it.description || '',
-        price: formatMoney(it.per_price ?? it.price),
-        description: it.description || it.serviceName || '',
-      }));
+      this.packageItems = rawPackageItems.map((it: any) => {
+        const type = String(it.product_type ?? it.productType ?? '').toLowerCase();
+        return {
+          companyId:
+            it.referee_id || it.company_id || it.referrer_id || undefined,
+          productType:
+            type === 'activity' || type === 'accommodation'
+              ? (type as PackageProductType)
+              : undefined,
+          serviceName: it.description || '',
+          price: formatMoney(it.per_price ?? it.price),
+          description: it.description || it.serviceName || '',
+          // activity_date is stored "as typed" — read its parts directly.
+          activityDate: activityDateKey(it.activity_date ?? it.activityDate),
+          activityTime: activityTime(it.activity_date ?? it.activityDate) || it.activityTime || '',
+          checkInDate: activityDateKey(it.check_in_date ?? it.checkInDate),
+          checkOutDate: activityDateKey(it.check_out_date ?? it.checkOutDate),
+        };
+      });
 
       for (let idx = 0; idx < this.packageItems.length; idx++) {
         const item = this.packageItems[idx] as any;
@@ -537,10 +817,17 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
 
     const applyProducts = (data: any[]) => {
       const services = data
-        .map((product: any) => ({
-          id: Number(product.id),
-          name: String(product.name || '').trim(),
-        }))
+        .map((product: any) => {
+          const type = String(product.product_type || product.productType || '').toLowerCase();
+          return {
+            id: Number(product.id),
+            name: String(product.name || '').trim(),
+            productType:
+              type === 'activity' || type === 'accommodation'
+                ? (type as PackageProductType)
+                : undefined,
+          };
+        })
         .filter(
           (service: { id: number; name: string }) =>
             Number.isInteger(service.id) &&
@@ -552,9 +839,10 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
         ...this.serviceOptionsByCompanyId,
         [companyId]: services,
       };
+      this.inferProductTypes(companyId);
 
       if (itemIndex !== undefined) {
-        this.filteredServices[itemIndex] = [...services];
+        this.filteredServices[itemIndex] = this.getServicesForItem(itemIndex);
       }
     };
 

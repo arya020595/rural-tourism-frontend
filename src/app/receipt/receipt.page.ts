@@ -306,6 +306,23 @@ export class ReceiptPage implements OnInit, AfterViewInit {
     return operatorName || this.companyName;
   }
 
+  /** Same source as the activity receipt page (company profile first). */
+  get companyLocation(): string {
+    const storedUser = localStorage.getItem('user');
+    const cachedUser = storedUser ? JSON.parse(storedUser) : null;
+    return String(
+      this.companyProfile?.location ||
+        this.companyProfile?.address ||
+        this.receipt?.location ||
+        this.user?.location ||
+        this.user?.company?.location ||
+        this.user?.business_address ||
+        this.user?.company?.address ||
+        cachedUser?.company_location ||
+        'N/A',
+    );
+  }
+
   get companyEmail(): string {
     const storedUser = localStorage.getItem('user');
     const cachedUser = storedUser ? JSON.parse(storedUser) : null;
