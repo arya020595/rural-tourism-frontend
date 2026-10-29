@@ -14,6 +14,7 @@ import { FileUrlService } from '../services/file-url.service';
 import { FormService } from '../services/form.service';
 import { NetworkService } from '../services/network.service';
 import { OfflineQueueService } from '../services/offline-queue.service';
+import { packageItemTypeLabel, packageItemWhen } from '../utils/package-item-dates.util';
 
 @Component({
   selector: 'app-receipt-package',
@@ -232,6 +233,18 @@ export class ReceiptPackagePage implements OnInit, AfterViewInit {
     );
   }
 
+  /**
+   * Pieces that must not break inside (a date, a time), keeping their
+   * separators: "20-11-2026 – 22-11-2026" → ["20-11-2026 –", "22-11-2026"];
+   * "15-11-2026, 07:30 PM" → ["15-11-2026,", "07:30 PM"].
+   */
+  whenParts(main?: string): string[] {
+    return String(main || '-')
+      .replace(' – ', ' –|')
+      .replace(', ', ',|')
+      .split('|');
+  }
+
   private mapBookingToReceipt(record: any): any {
     const packageItems = Array.isArray(record?.package_companies)
       ? record.package_companies
@@ -283,6 +296,9 @@ export class ReceiptPackagePage implements OnInit, AfterViewInit {
             `Item ${index + 1}`,
         ),
         per_price: Number(item?.per_price || item?.perPrice || 0),
+        // Itinerary table: type + when the customer comes.
+        type_label: packageItemTypeLabel(item),
+        when: packageItemWhen(item),
       })),
       operator: {
         business_name: String(
@@ -378,6 +394,23 @@ export class ReceiptPackagePage implements OnInit, AfterViewInit {
         '',
     ).trim();
     return operatorName || this.companyName;
+  }
+
+  /** Same source as the activity receipt page (company profile first). */
+  get companyLocation(): string {
+    const storedUser = localStorage.getItem('user');
+    const cachedUser = storedUser ? JSON.parse(storedUser) : null;
+    return String(
+      this.companyProfile?.location ||
+        this.companyProfile?.address ||
+        this.receipt?.location ||
+        this.user?.location ||
+        this.user?.company?.location ||
+        this.user?.business_address ||
+        this.user?.company?.address ||
+        cachedUser?.company_location ||
+        'N/A',
+    );
   }
 
   get companyEmail(): string {

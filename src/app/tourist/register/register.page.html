@@ -125,7 +125,7 @@
       </ion-item>
 
       <ion-item class="no-border" style="margin-top: -10px;">
-        <ion-label mode="ios" position="stacked" class="question-label-grey">Password</ion-label>
+        <ion-label mode="ios" position="stacked" class="question-label-grey">Password <small class="field-label-note">(min. {{ minPasswordLength }} characters)</small></ion-label>
         <ion-input
           [(ngModel)]="password"
           name="password"
@@ -135,6 +135,12 @@
           required>
         </ion-input>
       </ion-item>
+      <p
+        class="password-error"
+        *ngIf="password.length > 0 && password.length < minPasswordLength"
+      >
+        Password must be at least {{ minPasswordLength }} characters.
+      </p>
 
       <ion-item class="no-border" style="margin-top: -10px;">
         <ion-label mode="ios" position="stacked" class="question-label-grey">Confirm Password</ion-label>

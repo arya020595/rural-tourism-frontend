@@ -4,6 +4,9 @@ import { MenuController, ToastController } from '@ionic/angular';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
+import { NativeDownloadService } from '../services/native-download.service';
+import { activityDateKey } from '../utils/activity-date.util';
+import { packageDays, packageItemWhen } from '../utils/package-item-dates.util';
 import { MenuItem, MenuService } from '../services/menu.service';
 import {
   Notification,
@@ -25,6 +28,17 @@ interface ChartDisplaySeries {
   name: string;
   data: number[];
 }
+
+/** One receipt in the Excel download (receipt list row + export fields). */
+type ExcelReceiptRow = ReceiptListItem & {
+  receiptNo: string;
+  email: string;
+  date: Date | null;
+  visitDate: Date | null;
+  visitText: string;
+  amount: number;
+  pax: number;
+};
 
 @Component({
   selector: 'app-home',
@@ -54,6 +68,7 @@ export class HomePage implements OnInit {
 
   activeSummary: DashboardSummary | null = null;
   activeReceipts: ReceiptListItem[] = [];
+  isDownloadingReceipts = false;
   receiptMeta: ReceiptPaginationMeta = {
     total: 0,
     page: 1,
@@ -93,6 +108,7 @@ export class HomePage implements OnInit {
     private notificationService: NotificationService,
     private menuService: MenuService,
     private authService: AuthService,
+    private nativeDownload: NativeDownloadService,
   ) {}
 
   ngOnInit(): void {
@@ -414,8 +430,54 @@ export class HomePage implements OnInit {
     ];
   }
 
+  /** Date range the receipt list (and its Excel download) covers. */
+  private getReceiptDateRange(): { startDate: string; endDate: string } {
+    if (this.mode === 'trend' && this.trendFrom && this.trendTo) {
+      return {
+        startDate: `${this.trendFrom}-01`,
+        endDate: this.getLastDayOfMonth(this.trendTo),
+      };
+    }
+    return this.getDashboardDateRange();
+  }
+
+  /**
+   * Package referrals this company received (it is the referee), in the
+   * given date range, shaped like booking rows.
+   */
+  private buildReferralRows(referrals: any, startDate: string, endDate: string): any[] {
+    const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+    return (Array.isArray(referrals?.data) ? referrals.data : [])
+      .filter((r: any) => {
+        if (Number(r.referee_id) !== myCompanyId || Number(r.referrer_id) === myCompanyId) return false;
+        const dateRaw = r.booking?.receipt_created_at || r.booking?.created_at || r.created_at || '';
+        if (!dateRaw) return false;
+        const date = dateRaw.slice(0, 10);
+        return date >= startDate && date <= endDate;
+      })
+      .map((r: any) => ({
+        id: r.booking?.id || r.id,
+        booking_type: 'package',
+        tourist_full_name: r.booking?.tourist_full_name || r.booking?.company_name || '-',
+        phone_number: r.booking?.phone_number || '',
+        email: r.booking?.email || '',
+        no_of_pax_domestik: r.booking?.no_of_pax_domestik,
+        no_of_pax_antarbangsa: r.booking?.no_of_pax_antarbangsa,
+        // The referred item itself: its own type/dates/price (Excel visit
+        // date + amount), not the package's booking date.
+        package_companies: [r],
+        product_name: r.description || 'Package',
+        total_price: r.per_price,
+        status: r.booking?.status || 'paid',
+        created_at: r.booking?.created_at || r.created_at,
+        receipt_created_at: r.booking?.receipt_created_at,
+        _isReferral: true,
+        _referralBy: r.referral_company || '',
+      }));
+  }
+
   private loadReceiptsFromBookingList(): void {
-    const dateRange = this.getDashboardDateRange();
+    const dateRange = this.getReceiptDateRange();
     const params: any = {
       status: 'paid,completed',
       start_date: dateRange.startDate,
@@ -423,11 +485,6 @@ export class HomePage implements OnInit {
       page: this.receiptMeta.page,
       per_page: this.receiptMeta.per_page,
     };
-
-    if (this.mode === 'trend' && this.trendFrom && this.trendTo) {
-      params.start_date = `${this.trendFrom}-01`;
-      params.end_date = this.getLastDayOfMonth(this.trendTo);
-    }
 
     forkJoin({
       bookings: this.bookingService.getBookings(params),
@@ -445,32 +502,11 @@ export class HomePage implements OnInit {
         };
 
         const bookingRows: any[] = Array.isArray(bookings?.data) ? bookings.data : [];
-
-        // Get referral rows where this company is the referee (received referrals)
-        // and filter by the same date range used for bookings
-        const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
-        const startDate = params.start_date;
-        const endDate = params.end_date;
-        const referralRows: any[] = (Array.isArray(referrals?.data) ? referrals.data : [])
-          .filter((r: any) => {
-            if (Number(r.referee_id) !== myCompanyId || Number(r.referrer_id) === myCompanyId) return false;
-            const dateRaw = r.booking?.receipt_created_at || r.booking?.created_at || r.created_at || '';
-            if (!dateRaw) return false;
-            const date = dateRaw.slice(0, 10);
-            return date >= startDate && date <= endDate;
-          })
-          .map((r: any) => ({
-            id: r.booking?.id || r.id,
-            booking_type: 'package',
-            tourist_full_name: r.booking?.tourist_full_name || r.booking?.company_name || '-',
-            product_name: r.description || 'Package',
-            total_price: r.per_price,
-            status: r.booking?.status || 'paid',
-            created_at: r.booking?.created_at || r.created_at,
-            receipt_created_at: r.booking?.receipt_created_at,
-            _isReferral: true,
-            _referralBy: r.referral_company || '',
-          }));
+        const referralRows = this.buildReferralRows(
+          referrals,
+          params.start_date,
+          params.end_date,
+        );
 
         const allRows = [...bookingRows, ...referralRows];
         this.activeReceipts = allRows.length > 0
@@ -481,6 +517,343 @@ export class HomePage implements OnInit {
         this.activeReceipts = [];
       },
     });
+  }
+
+  /**
+   * Download every receipt in the current date range (not just the visible
+   * page) as an Excel file with the same columns as the table.
+   */
+  /**
+   * The Excel holds customer contact details and spending, so it has its own
+   * permission (customer:export — Roles & Permissions → Dashboard).
+   */
+  get canExportCustomers(): boolean {
+    return this.authService.hasPermission('customer:export');
+  }
+
+  async downloadReceiptList(): Promise<void> {
+    if (this.isDownloadingReceipts || !this.canExportCustomers) return;
+    this.isDownloadingReceipts = true;
+
+    try {
+      const { startDate, endDate } = this.getReceiptDateRange();
+      const baseParams = {
+        status: 'paid,completed',
+        start_date: startDate,
+        end_date: endDate,
+        per_page: 100, // backend maximum
+      };
+
+      const bookingRows: any[] = [];
+      let page = 1;
+      let totalPages = 1;
+      do {
+        const res: any = await firstValueFrom(
+          this.bookingService.getBookings({ ...baseParams, page }),
+        );
+        bookingRows.push(...(Array.isArray(res?.data) ? res.data : []));
+        totalPages = Number(res?.meta?.total_pages ?? 1);
+        page++;
+      } while (page <= totalPages);
+
+      const referrals = await firstValueFrom(
+        this.bookingService.getPackageBookings({ status: 'paid,completed', per_page: 1000 }),
+      );
+      const allRows = [
+        ...bookingRows,
+        ...this.buildReferralRows(referrals, startDate, endDate),
+      ];
+
+      if (allRows.length === 0) {
+        await this.showToast('Tiada resit untuk dimuat turun / No receipts to download.', 'warning');
+        return;
+      }
+
+      const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+      const receipts: ExcelReceiptRow[] = allRows.map((item: any, index: number) => {
+        const row = this.mapBookingToReceiptItem(item, index);
+        // Our share, as on the dashboard/statement: packages count only the
+        // items our company provides (in our packages and referred ones).
+        const ownItems = (Array.isArray(item?.package_companies) ? item.package_companies : [])
+          .filter((p: any) => !myCompanyId || Number(p?.referee_id) === myCompanyId);
+        const isPackage = row.type === 'Package';
+        const amount = isPackage
+          ? ownItems.reduce((sum: number, p: any) => sum + Number(p?.per_price || 0), 0)
+          : Number(item?.total_price || 0);
+        const pax =
+          Number(item?.no_of_pax_domestik || 0) + Number(item?.no_of_pax_antarbangsa || 0);
+        // When the customer comes: activity date/time, stay dates, or (package)
+        // each of our items' dates.
+        const whenText = (w: { main: string; sub: string }) =>
+          w.main === '-' ? '' : `${w.main}${w.sub ? ` (${w.sub.replace('malam/', '')})` : ''}`;
+        const visitText = isPackage
+          ? ownItems.map((p: any) => whenText(packageItemWhen(p))).filter(Boolean).join('; ')
+          : row.type === 'Accommodation'
+            ? whenText(packageItemWhen({ product_type: 'accommodation', check_in_date: item?.check_in_date, check_out_date: item?.check_out_date }))
+            : whenText(packageItemWhen({ product_type: 'activity', activity_date: item?.activity_date }));
+        const raw = item?.receipt_created_at || item?.created_at || item?.createdAt;
+        const date = raw ? new Date(raw) : null;
+        // Same receipt number as the printed receipt: the old system's PE…
+        // number for migrated bookings, otherwise BA_ + booking id.
+        const legacyNo = String(item?.legacy_receipt_id || '').trim();
+        const bookingId = String(item?.id ?? '').trim();
+        const receiptNo =
+          legacyNo || (/^\d+$/.test(bookingId) ? `BA_${bookingId.padStart(3, '0')}` : row.receiptId);
+        // Visit date = the "Booked Date" on the bookings page: activity date,
+        // else check-in date (both are calendar dates as entered — read the
+        // YYYY-MM-DD directly, no timezone conversion). Falls back to the
+        // receipt date for bookings without one.
+        const visitKey = isPackage
+          ? packageDays(ownItems)[0] || ''
+          : activityDateKey(item?.activity_date) || activityDateKey(item?.check_in_date);
+        const visitDate = visitKey
+          ? new Date(`${visitKey}T00:00:00.000Z`)
+          : date && !isNaN(date.getTime())
+            ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+            : null;
+        return {
+          ...row,
+          receiptNo,
+          visitDate,
+          visitText: visitText || '-',
+          amount,
+          pax,
+          email: String(item?.email || '').trim(),
+          // Excel dates carry no timezone: shift so the cell shows local time.
+          date:
+            date && !isNaN(date.getTime())
+              ? new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+              : null,
+        };
+      });
+
+      // Loaded only when needed, so ExcelJS is not part of the app's start-up.
+      const ExcelJS = await import('exceljs');
+      const workbook = new ExcelJS.Workbook();
+      const styleHeader = (sheet: any, lastColumn: string) => {
+        const header = sheet.getRow(1);
+        header.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF04552F' } };
+        sheet.views = [{ state: 'frozen', ySplit: 1 }];
+        sheet.autoFilter = { from: 'A1', to: `${lastColumn}1` };
+        // Every column vertically centred, so a row that grows (wrapped
+        // names/services) keeps its cells lined up.
+        sheet.columns.forEach((column: any) => {
+          column.alignment = { ...(column.alignment || {}), vertical: 'middle' };
+        });
+      };
+
+      // Sheet 1 — every receipt, same columns as the table.
+      const sheet = workbook.addWorksheet('Receipts');
+      sheet.columns = [
+        { header: 'Receipt No.', key: 'receiptNo', width: 14 },
+        { header: 'Tourist Name', key: 'bookedBy', width: 28 },
+        { header: 'Phone No.', key: 'phoneNumber', width: 16 },
+        { header: 'Service Name', key: 'serviceName', width: 45 },
+        { header: 'Type', key: 'type', width: 15 },
+        { header: 'Visit Date', key: 'visitText', width: 30 },
+        { header: 'Pax', key: 'pax', width: 8 },
+        { header: 'Amount (RM)', key: 'amount', width: 15 },
+        { header: 'Receipt Date', key: 'createdAt', width: 20 },
+      ];
+      receipts.forEach((r) => {
+        sheet.addRow({
+          ...r,
+          createdAt: r.date ?? r.createdAt,
+        });
+      });
+      styleHeader(sheet, 'I');
+      sheet.getColumn('createdAt').numFmt = 'dd mmm yyyy, hh:mm';
+      sheet.getColumn('amount').numFmt = '#,##0.00';
+      sheet.getColumn('pax').alignment = { horizontal: 'center', vertical: 'middle' };
+      sheet.getColumn('visitText').alignment = { wrapText: true, vertical: 'middle' };
+      // Total row (outside the filter range, so filtering doesn't hide it).
+      const receiptsTotal = sheet.addRow({
+        type: 'TOTAL',
+        pax: receipts.reduce((sum, r) => sum + r.pax, 0),
+        amount: receipts.reduce((sum, r) => sum + r.amount, 0),
+      });
+      receiptsTotal.font = { bold: true };
+      receiptsTotal.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F2EA' } };
+      sheet.getColumn('serviceName').alignment = { wrapText: true, vertical: 'middle' };
+
+      // Sheet 2 — one row per customer (by phone, else email), most visits first.
+      const customers = this.groupReceiptsByCustomer(receipts);
+      const customerSheet = workbook.addWorksheet('Customers');
+      customerSheet.columns = [
+        { header: 'Tourist Name', key: 'name', width: 28 },
+        { header: 'Names Used', key: 'namesUsed', width: 32 },
+        { header: 'Phone No.', key: 'phone', width: 16 },
+        { header: 'Email', key: 'email', width: 30 },
+        { header: 'No. of Visits', key: 'visits', width: 13 },
+        { header: 'Returning?', key: 'returning', width: 12 },
+        { header: 'Total Spent (RM)', key: 'totalSpent', width: 16 },
+        { header: 'First Visit', key: 'firstVisit', width: 20 },
+        { header: 'Last Visit', key: 'lastVisit', width: 20 },
+        { header: 'Services Booked', key: 'services', width: 45 },
+      ];
+      customers.forEach((c) => {
+        const row = customerSheet.addRow({ ...c, returning: c.visits > 1 ? 'Yes' : 'No' });
+        if (c.visits > 1) {
+          row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F2EA' } };
+        }
+      });
+      styleHeader(customerSheet, 'J');
+      customerSheet.getColumn('totalSpent').numFmt = '#,##0.00';
+      customerSheet.getColumn('firstVisit').numFmt = 'dd mmm yyyy';
+      customerSheet.getColumn('lastVisit').numFmt = 'dd mmm yyyy';
+      customerSheet.getColumn('visits').alignment = { horizontal: 'center', vertical: 'middle' };
+      customerSheet.getColumn('returning').alignment = { horizontal: 'center', vertical: 'middle' };
+      customerSheet.getColumn('services').alignment = { wrapText: true, vertical: 'middle' };
+      customerSheet.getColumn('namesUsed').alignment = { wrapText: true, vertical: 'middle' };
+
+      // Sheet 3 — month-by-month totals (receipt month), our share.
+      const summarySheet = workbook.addWorksheet('Summary');
+      summarySheet.columns = [
+        { header: 'Month', key: 'month', width: 16 },
+        { header: 'Receipts', key: 'receipts', width: 11 },
+        { header: 'Tourists', key: 'tourists', width: 11 },
+        { header: 'Activity (RM)', key: 'activity', width: 15 },
+        { header: 'Accommodation (RM)', key: 'accommodation', width: 20 },
+        { header: 'Package (RM)', key: 'package', width: 15 },
+        { header: 'Total (RM)', key: 'total', width: 15 },
+      ];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const byMonth = new Map<string, any>();
+      for (const r of receipts) {
+        // r.date is already shifted to local time (read its UTC parts).
+        const key = r.date ? `${r.date.getUTCFullYear()}-${String(r.date.getUTCMonth() + 1).padStart(2, '0')}` : 'unknown';
+        if (!byMonth.has(key)) {
+          byMonth.set(key, {
+            month: r.date ? `${monthNames[r.date.getUTCMonth()]} ${r.date.getUTCFullYear()}` : '-',
+            receipts: 0, tourists: 0, activity: 0, accommodation: 0, package: 0, total: 0,
+          });
+        }
+        const m = byMonth.get(key);
+        m.receipts += 1;
+        m.tourists += r.pax;
+        const typeKey = String(r.type).toLowerCase();
+        if (typeKey in m) m[typeKey] += r.amount;
+        m.total += r.amount;
+      }
+      const monthRows = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, m]) => m);
+      monthRows.forEach((m) => summarySheet.addRow(m));
+      styleHeader(summarySheet, 'G');
+      const sum = (field: string) => monthRows.reduce((total, m) => total + m[field], 0);
+      const summaryTotal = summarySheet.addRow({
+        month: 'TOTAL',
+        receipts: sum('receipts'),
+        tourists: sum('tourists'),
+        activity: sum('activity'),
+        accommodation: sum('accommodation'),
+        package: sum('package'),
+        total: sum('total'),
+      });
+      summaryTotal.font = { bold: true };
+      summaryTotal.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F2EA' } };
+      ['activity', 'accommodation', 'package', 'total'].forEach((key) => {
+        summarySheet.getColumn(key).numFmt = '#,##0.00';
+      });
+      ['receipts', 'tourists'].forEach((key) => {
+        summarySheet.getColumn(key).alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      await this.nativeDownload.downloadBlob(
+        blob,
+        `customer-list_${startDate}_to_${endDate}.xlsx`,
+        'Open or save Excel file',
+      );
+    } catch (error) {
+      console.error('Receipt list download failed', error);
+      await this.showToast(
+        'Gagal memuat turun senarai resit / Failed to download the receipt list.',
+        'danger',
+      );
+    } finally {
+      this.isDownloadingReceipts = false;
+    }
+  }
+
+  /**
+   * Group receipts into customers for the "Customers" sheet, most visits
+   * first. The same person is matched by phone number (ignoring spaces,
+   * dashes and the +60 / 60 prefix), else by email. A receipt with neither
+   * gets its own row — names are never matched, since different people can
+   * share a name.
+   */
+  private groupReceiptsByCustomer(
+    receipts: ExcelReceiptRow[],
+  ): Array<{
+    name: string;
+    namesUsed: string;
+    phone: string;
+    email: string;
+    visits: number;
+    totalSpent: number;
+    firstVisit: Date | null;
+    lastVisit: Date | null;
+    services: string;
+  }> {
+    const normalizePhone = (value: string): string => {
+      let digits = String(value || '').replace(/\D/g, '');
+      if (digits.startsWith('60') && digits.length >= 10) digits = '0' + digits.slice(2);
+      return digits.length >= 7 ? digits : '';
+    };
+
+    const groups = new Map<string, ExcelReceiptRow[]>();
+    receipts.forEach((r, index) => {
+      const phoneKey = normalizePhone(r.phoneNumber);
+      const emailKey = r.email.toLowerCase();
+      const key = phoneKey ? `p:${phoneKey}` : emailKey ? `e:${emailKey}` : `r:${index}`;
+      groups.set(key, [...(groups.get(key) ?? []), r]);
+    });
+
+    const time = (d: Date | null) => (d ? d.getTime() : 0);
+    return [...groups.values()]
+      .map((visits) => {
+        const sorted = [...visits].sort(
+          (a, b) => time(a.visitDate) - time(b.visitDate) || time(a.date) - time(b.date),
+        );
+        const latest = sorted[sorted.length - 1];
+        const pick = (field: 'phoneNumber' | 'email') =>
+          [...sorted].reverse().map((v) => v[field]).find((v) => v && v !== '-') || '-';
+        // Every name booked under this phone/email, latest first (one person
+        // spelled differently, or a family/group sharing a contact).
+        const namesUsed: string[] = [];
+        for (const v of [...sorted].reverse()) {
+          const name = String(v.bookedBy || '').trim().replace(/\s+/g, ' ');
+          if (name && name !== '-' && !namesUsed.some((n) => n.toLowerCase() === name.toLowerCase())) {
+            namesUsed.push(name);
+          }
+        }
+        return {
+          name: latest.bookedBy,
+          namesUsed: namesUsed.join(', ') || '-',
+          phone: pick('phoneNumber'),
+          email: pick('email'),
+          visits: sorted.length,
+          totalSpent: sorted.reduce((total, v) => total + v.amount, 0),
+          firstVisit: sorted[0].visitDate,
+          lastVisit: latest.visitDate,
+          services: [...new Set(sorted.map((v) => v.serviceName).filter((s) => s && s !== '-'))].join(', ') || '-',
+        };
+      })
+      .sort((a, b) => b.visits - a.visits || time(b.lastVisit) - time(a.lastVisit));
+  }
+
+  private async showToast(message: string, color: 'warning' | 'danger'): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      position: 'bottom',
+      color,
+    });
+    await toast.present();
   }
 
   onReceiptPageChange(page: number): void {
@@ -547,7 +920,18 @@ export class HomePage implements OnInit {
       item?.name ||
       item?.user_name ||
       '-';
+    const phoneNumber =
+      String(item?.phone_number || item?.phone || item?.contact_phone || '').trim() || '-';
+    // A package has no single product: list the products picked for it —
+    // only the ones our company provides (same as the account statement);
+    // other companies' items in the package aren't our services.
+    const myCompanyId = Number(this.authService.currentUser?.company_id ?? 0);
+    const packageNames = (Array.isArray(item?.package_companies) ? item.package_companies : [])
+      .filter((p: any) => !myCompanyId || Number(p?.referee_id) === myCompanyId)
+      .map((p: any) => String(p?.description || p?.referee_company || '').trim())
+      .filter((name: string) => name.length > 0);
     const serviceName =
+      (type === 'Package' && packageNames.length > 0 ? packageNames.join(', ') : '') ||
       item?.product_name || item?.service_name || item?.title || item?.activity_name || '-';
     const createdAtRaw = item?.receipt_created_at || item?.created_at || item?.createdAt || '-';
     const createdAt = this.formatDateTime(createdAtRaw);
@@ -556,6 +940,7 @@ export class HomePage implements OnInit {
       bookingId: item?._isReferral ? undefined : bookingId,
       receiptId: String(receiptId),
       bookedBy: String(bookedBy),
+      phoneNumber,
       serviceName: String(serviceName),
       type,
       createdAt,
@@ -580,6 +965,7 @@ export class HomePage implements OnInit {
       {
         receiptId: 'RES_001',
         bookedBy: 'Hanani Rasyiqah',
+        phoneNumber: '-',
         serviceName: 'Hiking, Kiulu Riverside Chalet',
         type: 'Package',
         createdAt: '21-01-2026, 03:00 PM',
@@ -587,6 +973,7 @@ export class HomePage implements OnInit {
       {
         receiptId: 'RES_002',
         bookedBy: 'Jonathan Lewis',
+        phoneNumber: '-',
         serviceName: 'Kiulu Water Rafting',
         type: 'Activity',
         createdAt: '21-01-2026, 03:00 PM',
@@ -594,6 +981,7 @@ export class HomePage implements OnInit {
       {
         receiptId: 'RES_003',
         bookedBy: 'Onana Joven',
+        phoneNumber: '-',
         serviceName: 'Kiulu Chalet',
         type: 'Accommodation',
         createdAt: '21-01-2026, 03:00 PM',
@@ -601,6 +989,7 @@ export class HomePage implements OnInit {
       {
         receiptId: 'RES_004',
         bookedBy: 'Lewis Hanson',
+        phoneNumber: '-',
         serviceName: 'Kiulu Chalet',
         type: 'Accommodation',
         createdAt: '21-01-2026, 03:00 PM',

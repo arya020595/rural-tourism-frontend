@@ -86,7 +86,7 @@
 
     <div class="field-grid two-col">
       <div class="field">
-        <label>{{ n(4) }}. No. Telefon/Telephone No.</label>
+        <label>{{ n(4) }}. No. Telefon/Telephone No.<span class="required">*</span></label>
         <input
           type="text"
           inputmode="numeric"
@@ -103,6 +103,7 @@
           (keydown)="onNumericKeydown($event)"
           (paste)="onNumericPaste('phone', $event)"
         />
+        <span *ngIf="phoneError" class="field-error">{{ phoneError }}</span>
       </div>
 
       <div class="field">
@@ -180,7 +181,7 @@
             type="number"
             inputmode="numeric"
             pattern="\d*"
-            min="0"
+            min="1"
             step="1"
             [(ngModel)]="domesticPax"
             name="packageDomesticPax"
@@ -201,7 +202,7 @@
             type="number"
             inputmode="numeric"
             pattern="\d*"
-            min="0"
+            min="1"
             step="1"
             [(ngModel)]="internationalPax"
             name="packageInternationalPax"
@@ -216,7 +217,7 @@
 
       <div class="field-grid two-col">
         <div class="field">
-          <label>{{ n(8) }}. Tarikh/Date<span class="required">*</span></label>
+          <label>{{ n(8) }}. Tarikh Tempahan Dibuat/Date Booking Made<span class="required">*</span></label>
           <div class="input-with-icon">
             <input
               type="text"
@@ -241,7 +242,25 @@
       <!-- Package items: select company, price, description. Repeatable -->
       <div class="package-items">
         <label>{{ n(9) }}. Pakej/Package<span class="required">*</span></label>
-        <div *ngFor="let item of packageItems; let i = index">
+        <div
+          *ngFor="let item of packageItems; let i = index"
+          class="package-item-card"
+        >
+          <div class="package-item-header">
+            <span class="package-item-title">Item {{ i + 1 }}</span>
+            <button
+              type="button"
+              *ngIf="!isViewMode && packageItems.length > 1"
+              (click)="removePackageItem(i)"
+              class="remove-item"
+              aria-label="Remove package item"
+              title="Buang/Remove"
+            >
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+
+          <!-- Row 1: company + product type -->
           <div class="field-grid two-col">
             <div class="field">
               <label>Company/Package</label>
@@ -276,6 +295,26 @@
                 </div>
               </div>
             </div>
+
+            <div class="field">
+              <label>Jenis Produk/Product Type</label>
+              <select
+                [(ngModel)]="item.productType"
+                name="pkgT01_{{ i }}"
+                [disabled]="isViewMode || !item.companyId"
+                (ngModelChange)="onProductTypeChange(i)"
+              >
+                <option [ngValue]="undefined" disabled>
+                  Pilih jenis produk/Select product type
+                </option>
+                <option ngValue="activity">Aktiviti/Activity</option>
+                <option ngValue="accommodation">Penginapan/Accommodation</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 2: service (filtered by product type) + price -->
+          <div class="field-grid two-col">
             <div class="field">
               <label>Service/Servis</label>
               <div class="search-dropdown-wrapper">
@@ -286,8 +325,12 @@
                   (focus)="onServiceSearchFocus(i)"
                   (blur)="onServiceSearchBlur(i)"
                   name="pkgS02_{{ i }}"
-                  placeholder="Pilih servis/Select service"
-                  [readonly]="isViewMode || !item.companyId"
+                  [placeholder]="
+                    item.productType
+                      ? 'Pilih servis/Select service'
+                      : 'Pilih jenis produk dahulu/Select product type first'
+                  "
+                  [readonly]="isViewMode || !item.companyId || !item.productType"
                   class="search-input"
                   autocomplete="off"
                   autocorrect="off"
@@ -309,41 +352,106 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="field-grid two-col">
             <div class="field">
               <label>Price (RM)</label>
               <input
-                type="text"
-                inputmode="decimal"
-                [(ngModel)]="item.price"
-                name="pkgS03_{{ i }}"
-                placeholder="RM"
-                [readonly]="isViewMode"
-                autocomplete="off"
-                autocorrect="off"
-                aria-autocomplete="none"
-                (input)="
-                  onMoneyInputForItem(i, 'price', $any($event.target).value)
-                "
-                (blur)="onMoneyBlurForItem(i, 'price')"
-                (keydown)="onMoneyKeydown($event)"
-              />
+                  type="text"
+                  inputmode="decimal"
+                  [(ngModel)]="item.price"
+                  name="pkgS03_{{ i }}"
+                  placeholder="RM"
+                  [readonly]="isViewMode"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
+                  (input)="
+                    onMoneyInputForItem(i, 'price', $any($event.target).value)
+                  "
+                  (blur)="onMoneyBlurForItem(i, 'price')"
+                  (keydown)="onMoneyKeydown($event)"
+                />
             </div>
+          </div>
+          <!-- Row 3: when the customer comes (depends on product type) -->
+          <div class="field-grid two-col" *ngIf="item.productType === 'activity'">
+            <div class="field">
+              <label>Tarikh Aktiviti/Activity Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(item.activityDate || '')"
+                  name="pkgD1_{{ i }}"
+                  (click)="openItemDateSheet(i, 'activityDate')"
+                />
+                <ion-icon
+                  name="calendar-clear-outline"
+                  aria-hidden="true"
+                  (click)="openItemDateSheet(i, 'activityDate')"
+                ></ion-icon>
+              </div>
+            </div>
+            <div class="field">
+              <label>Masa/Time</label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="time-display"
+                  readonly
+                  placeholder="--:-- --"
+                  [value]="itemTimeDisplay(item.activityTime)"
+                  name="pkgM1_{{ i }}"
+                  (click)="openItemTimePicker(i)"
+                />
+                <ion-icon
+                  name="time-outline"
+                  aria-hidden="true"
+                  (click)="openItemTimePicker(i)"
+                ></ion-icon>
+              </div>
+            </div>
+          </div>
 
-            <div class="field price-field">
-              <label>&nbsp;</label>
-              <div class="price-row">
-                <button
-                  type="button"
-                  *ngIf="!isViewMode"
-                  (click)="removePackageItem(i)"
-                  class="remove-item"
-                  aria-label="Remove package item"
-                >
-                  <ion-icon name="trash-outline"></ion-icon>
-                </button>
+          <div class="field-grid two-col" *ngIf="item.productType === 'accommodation'">
+            <div class="field">
+              <label>Tarikh Mula/Start Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(item.checkInDate || '')"
+                  name="pkgI1_{{ i }}"
+                  (click)="openItemDateSheet(i, 'checkInDate')"
+                />
+                <ion-icon
+                  name="calendar-clear-outline"
+                  aria-hidden="true"
+                  (click)="openItemDateSheet(i, 'checkInDate')"
+                ></ion-icon>
+              </div>
+            </div>
+            <div class="field">
+              <label>Tarikh Tamat/End Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(item.checkOutDate || '')"
+                  name="pkgO1_{{ i }}"
+                  (click)="openItemDateSheet(i, 'checkOutDate')"
+                />
+                <ion-icon
+                  name="calendar-clear-outline"
+                  aria-hidden="true"
+                  (click)="openItemDateSheet(i, 'checkOutDate')"
+                ></ion-icon>
               </div>
             </div>
           </div>
@@ -360,6 +468,12 @@
             <ion-icon name="add-circle-outline"></ion-icon>
             <span>Add More</span>
           </button>
+
+          <!-- Sum of the item prices — the package total that is saved. -->
+          <div class="package-total-box" aria-label="Total payment (sum of item prices)">
+            <span class="package-total-label">Jumlah Bayaran/Total Payment</span>
+            <span class="package-total-value">RM {{ packageTotalText }}</span>
+          </div>
         </div>
       </div>
 
@@ -405,7 +519,7 @@
             type="number"
             inputmode="numeric"
             pattern="\d*"
-            min="0"
+            min="1"
             step="1"
             [(ngModel)]="paxCount"
             name="packagePax"
@@ -416,7 +530,7 @@
         </div>
 
         <div class="field">
-          <label>{{ n(8) }}. Tarikh/Date<span class="required">*</span></label>
+          <label>{{ n(8) }}. Tarikh Tempahan Dibuat/Date Booking Made<span class="required">*</span></label>
           <div class="input-with-icon">
             <input
               type="text"
@@ -439,7 +553,25 @@
       <!-- Package items for single-nationality layout -->
       <div class="package-items">
         <label>{{ n(9) }}. Pakej/Package<span class="required">*</span></label>
-        <div *ngFor="let item of packageItems; let i = index">
+        <div
+          *ngFor="let item of packageItems; let i = index"
+          class="package-item-card"
+        >
+          <div class="package-item-header">
+            <span class="package-item-title">Item {{ i + 1 }}</span>
+            <button
+              type="button"
+              *ngIf="!isViewMode && packageItems.length > 1"
+              (click)="removePackageItem(i)"
+              class="remove-item"
+              aria-label="Remove package item"
+              title="Buang/Remove"
+            >
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+
+          <!-- Row 1: company + product type -->
           <div class="field-grid two-col">
             <div class="field">
               <label>Company/Package</label>
@@ -476,6 +608,25 @@
             </div>
 
             <div class="field">
+              <label>Jenis Produk/Product Type</label>
+              <select
+                [(ngModel)]="item.productType"
+                name="pkgT04_{{ i }}"
+                [disabled]="isViewMode || !item.companyId"
+                (ngModelChange)="onProductTypeChange(i)"
+              >
+                <option [ngValue]="undefined" disabled>
+                  Pilih jenis produk/Select product type
+                </option>
+                <option ngValue="activity">Aktiviti/Activity</option>
+                <option ngValue="accommodation">Penginapan/Accommodation</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 2: service (filtered by product type) + price -->
+          <div class="field-grid two-col">
+            <div class="field">
               <label>Service/Servis</label>
               <div class="search-dropdown-wrapper">
                 <input
@@ -485,8 +636,12 @@
                   (focus)="onServiceSearchFocus(i)"
                   (blur)="onServiceSearchBlur(i)"
                   name="pkgS05_{{ i }}"
-                  placeholder="Pilih servis/Select service"
-                  [readonly]="isViewMode || !item.companyId"
+                  [placeholder]="
+                    item.productType
+                      ? 'Pilih servis/Select service'
+                      : 'Pilih jenis produk dahulu/Select product type first'
+                  "
+                  [readonly]="isViewMode || !item.companyId || !item.productType"
                   class="search-input"
                   autocomplete="off"
                   autocorrect="off"
@@ -508,41 +663,106 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="field-grid two-col">
             <div class="field">
               <label>Price (RM)</label>
               <input
-                type="text"
-                inputmode="decimal"
-                [(ngModel)]="item.price"
-                name="pkgS06_{{ i }}"
-                placeholder="RM"
-                [readonly]="isViewMode"
-                autocomplete="off"
-                autocorrect="off"
-                aria-autocomplete="none"
-                (input)="
-                  onMoneyInputForItem(i, 'price', $any($event.target).value)
-                "
-                (blur)="onMoneyBlurForItem(i, 'price')"
-                (keydown)="onMoneyKeydown($event)"
-              />
+                  type="text"
+                  inputmode="decimal"
+                  [(ngModel)]="item.price"
+                  name="pkgS06_{{ i }}"
+                  placeholder="RM"
+                  [readonly]="isViewMode"
+                  autocomplete="off"
+                  autocorrect="off"
+                  aria-autocomplete="none"
+                  (input)="
+                    onMoneyInputForItem(i, 'price', $any($event.target).value)
+                  "
+                  (blur)="onMoneyBlurForItem(i, 'price')"
+                  (keydown)="onMoneyKeydown($event)"
+                />
             </div>
+          </div>
+          <!-- Row 3: when the customer comes (depends on product type) -->
+          <div class="field-grid two-col" *ngIf="item.productType === 'activity'">
+            <div class="field">
+              <label>Tarikh Aktiviti/Activity Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(item.activityDate || '')"
+                  name="pkgD2_{{ i }}"
+                  (click)="openItemDateSheet(i, 'activityDate')"
+                />
+                <ion-icon
+                  name="calendar-clear-outline"
+                  aria-hidden="true"
+                  (click)="openItemDateSheet(i, 'activityDate')"
+                ></ion-icon>
+              </div>
+            </div>
+            <div class="field">
+              <label>Masa/Time</label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="time-display"
+                  readonly
+                  placeholder="--:-- --"
+                  [value]="itemTimeDisplay(item.activityTime)"
+                  name="pkgM2_{{ i }}"
+                  (click)="openItemTimePicker(i)"
+                />
+                <ion-icon
+                  name="time-outline"
+                  aria-hidden="true"
+                  (click)="openItemTimePicker(i)"
+                ></ion-icon>
+              </div>
+            </div>
+          </div>
 
-            <div class="field price-field">
-              <label>&nbsp;</label>
-              <div class="price-row">
-                <button
-                  type="button"
-                  *ngIf="!isViewMode"
-                  (click)="removePackageItem(i)"
-                  class="remove-item"
-                  aria-label="Remove package item"
-                >
-                  <ion-icon name="trash-outline"></ion-icon>
-                </button>
+          <div class="field-grid two-col" *ngIf="item.productType === 'accommodation'">
+            <div class="field">
+              <label>Tarikh Mula/Start Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(item.checkInDate || '')"
+                  name="pkgI2_{{ i }}"
+                  (click)="openItemDateSheet(i, 'checkInDate')"
+                />
+                <ion-icon
+                  name="calendar-clear-outline"
+                  aria-hidden="true"
+                  (click)="openItemDateSheet(i, 'checkInDate')"
+                ></ion-icon>
+              </div>
+            </div>
+            <div class="field">
+              <label>Tarikh Tamat/End Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(item.checkOutDate || '')"
+                  name="pkgO2_{{ i }}"
+                  (click)="openItemDateSheet(i, 'checkOutDate')"
+                />
+                <ion-icon
+                  name="calendar-clear-outline"
+                  aria-hidden="true"
+                  (click)="openItemDateSheet(i, 'checkOutDate')"
+                ></ion-icon>
               </div>
             </div>
           </div>
@@ -559,6 +779,12 @@
             <ion-icon name="add-circle-outline"></ion-icon>
             <span>Add More</span>
           </button>
+
+          <!-- Sum of the item prices — the package total that is saved. -->
+          <div class="package-total-box" aria-label="Total payment (sum of item prices)">
+            <span class="package-total-label">Jumlah Bayaran/Total Payment</span>
+            <span class="package-total-value">RM {{ packageTotalText }}</span>
+          </div>
         </div>
       </div>
 
@@ -615,10 +841,58 @@
   </section>
 
   <app-booking-date-sheet
-    title="Tarikh/Date"
+    title="Tarikh Tempahan Dibuat/Date Booking Made"
     [isOpen]="isDateSheetOpen"
     [value]="bookingDate"
     (dateSelected)="onDateSelected($event)"
     (dismissed)="isDateSheetOpen = false"
   ></app-booking-date-sheet>
+
+  <!-- Package item dates. Shows our booked dates only for our own company's
+       items — other companies' schedules are not exposed. -->
+  <app-booking-date-sheet
+    [title]="itemDateSheetTitle"
+    [isOpen]="itemDateSheet.open"
+    [value]="itemDateSheetValue"
+    [min]="itemDateSheetMin"
+    [showBookedDates]="itemDateSheetShowsBooked"
+    [extraBookedDates]="itemDateSheetExtraDates"
+    (dateSelected)="onItemDateSelected($event)"
+    (dismissed)="closeItemDateSheet()"
+  ></app-booking-date-sheet>
+
+  <ion-modal
+    [isOpen]="itemTimePicker.open"
+    (didDismiss)="closeItemTimePicker()"
+    cssClass="time-picker-modal"
+  >
+    <ng-template>
+      <ion-content class="time-modal-content">
+        <div class="time-modal-inner">
+          <h3>Masa/Time</h3>
+          <ion-datetime
+            presentation="time"
+            hourCycle="h12"
+            [preferWheel]="true"
+            [showDefaultButtons]="false"
+            [value]="pendingItemTime"
+            (ionChange)="onPendingItemTimeChange($event)"
+          ></ion-datetime>
+        </div>
+      </ion-content>
+      <ion-footer class="time-modal-footer">
+        <div class="time-modal-actions">
+          <button type="button" class="time-modal-btn cancel" (click)="clearItemTime()">
+            Clear
+          </button>
+          <button type="button" class="time-modal-btn cancel" (click)="closeItemTimePicker()">
+            Cancel
+          </button>
+          <button type="button" class="time-modal-btn apply" (click)="applyItemTime()">
+            Set
+          </button>
+        </div>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
 </form>

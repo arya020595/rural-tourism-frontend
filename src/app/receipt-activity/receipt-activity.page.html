@@ -58,6 +58,16 @@
                 {{ (receipt?.status || 'PAID') | uppercase }}
               </div>
             </div>
+
+            <div class="receipt-row receipt-row--date">
+              <div class="row-label">TARIKH AKTIVITI/ACTIVITY DATE</div>
+              <div class="row-value">{{ activityDayText }}</div>
+            </div>
+
+            <div class="receipt-row receipt-row--time">
+              <div class="row-label">MASA/TIME</div>
+              <div class="row-value">{{ activityTimeText }}</div>
+            </div>
           </div>
         </div>
 

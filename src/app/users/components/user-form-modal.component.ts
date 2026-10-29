@@ -25,6 +25,7 @@ export class UserFormModalComponent implements OnInit {
   errorMessage = '';
 
   showPassword = false;
+  readonly minPasswordLength = 8;
   showConfirmPassword = false;
 
   roles: RoleItem[] = [];
@@ -95,23 +96,34 @@ export class UserFormModalComponent implements OnInit {
     this.modalCtrl.dismiss(null);
   }
 
-  async submit(formRef: NgForm): Promise<void> {
-    if (formRef.invalid) return;
+  /** Typed something, but not enough yet (blank is fine when editing). */
+  get passwordTooShort(): boolean {
+    const length = this.form.password.length;
+    return length > 0 && length < this.minPasswordLength;
+  }
 
-    if (
-      !this.isEditMode &&
+  get passwordMismatch(): boolean {
+    return (
+      !!this.form.password &&
+      !!this.form.confirmed_password &&
       this.form.password !== this.form.confirmed_password
-    ) {
-      this.errorMessage = 'Password and confirm password do not match.';
+    );
+  }
+
+  async submit(formRef: NgForm): Promise<void> {
+    if (formRef.invalid) {
+      formRef.control.markAllAsTouched();
       return;
     }
 
+    // Shown under the fields already; just don't save.
+    if (this.passwordTooShort) return;
+
     if (
-      this.isEditMode &&
-      this.form.password &&
+      (!this.isEditMode || this.form.password) &&
       this.form.password !== this.form.confirmed_password
     ) {
-      this.errorMessage = 'Password and confirm password do not match.';
+      formRef.control.markAllAsTouched();
       return;
     }
 

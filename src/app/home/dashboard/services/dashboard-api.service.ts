@@ -67,6 +67,10 @@ export interface AssociationStatRow {
   totalReceipts: number;
   totalTourists: number;
   totalCancelled: number;
+  /** Bookings that are neither paid nor cancelled (pending + paid + cancelled = total). */
+  totalPending: number;
+  /** Deposits of pending + cancelled bookings (paid ones are in totalRevenue). */
+  totalDeposit: number;
   /** Sum of total_price for paid bookings only. */
   totalRevenue: number;
   totalFulltimeStaff: number;
@@ -82,6 +86,8 @@ export interface AssociationStatsData {
     totalReceipts: number;
     totalTourists: number;
     totalCancelled: number;
+    totalPending: number;
+    totalDeposit: number;
     totalRevenue: number;
     totalFulltimeStaff: number;
     totalParttimeStaff: number;

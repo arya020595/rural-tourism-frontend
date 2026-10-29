@@ -69,6 +69,7 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
   accommodationOptions: string[] = [];
   homestaySelectionError = '';
   emailError = '';
+  phoneError = '';
   validationErrors: string[] = [];
 
   constructor(
@@ -125,14 +126,32 @@ export class AccommodationBookingFormComponent implements OnInit, OnChanges {
     this.validationErrors = [];
     this.homestaySelectionError = '';
     this.emailError = '';
+    this.phoneError = '';
 
     if (!this.isViewMode) {
       if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      // Phone is how returning customers are recognised (dashboard Excel export).
+      const phoneDigits = String(this.phone || '').replace(/\D/g, '');
+      if (!phoneDigits) {
+        this.phoneError = 'Sila masukkan no. telefon / Telephone number is required.';
+        this.validationErrors.push('Telephone number is required.');
+      } else if (phoneDigits.length < 8) {
+        this.phoneError = 'No. telefon tidak sah / Please enter a valid telephone number.';
+        this.validationErrors.push('Please enter a valid telephone number.');
+      }
       if (this.email.trim() && !this.isValidEmail(this.email)) {
         this.emailError = 'Please enter a valid email address.';
         this.validationErrors.push('Please enter a valid email address.');
       }
-      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      // Pax must be at least 1 ("0" is not empty, so check the number).
+      const paxNumber = (value: unknown) => Number(String(value ?? '').trim() || 0);
+      if (this.isMixedNationality) {
+        if (paxNumber(this.domesticPax) < 1 || paxNumber(this.internationalPax) < 1) {
+          this.validationErrors.push('Domestic and international pax must each be at least 1.');
+        }
+      } else if (paxNumber(this.paxCount) < 1) {
+        this.validationErrors.push('Number of pax must be at least 1.');
+      }
       if (!this.checkInDate) this.validationErrors.push('Check-in date is required.');
       if (!this.checkOutDate) this.validationErrors.push('Check-out date is required.');
       if (!this.nights || Number(this.nights) <= 0) this.validationErrors.push('Number of nights is required.');

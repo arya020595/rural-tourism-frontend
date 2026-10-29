@@ -5,15 +5,23 @@ import { Share } from '@capacitor/share';
 
 @Injectable({ providedIn: 'root' })
 export class NativeDownloadService {
-  async downloadBlob(blob: Blob, filename: string): Promise<void> {
+  async downloadBlob(
+    blob: Blob,
+    filename: string,
+    dialogTitle = 'Open or save PDF',
+  ): Promise<void> {
     if (Capacitor.isNativePlatform()) {
-      await this.saveNative(blob, filename);
+      await this.saveNative(blob, filename, dialogTitle);
     } else {
       this.saveWeb(blob, filename);
     }
   }
 
-  private async saveNative(blob: Blob, filename: string): Promise<void> {
+  private async saveNative(
+    blob: Blob,
+    filename: string,
+    dialogTitle: string,
+  ): Promise<void> {
     const base64 = await this.blobToBase64(blob);
     const result = await Filesystem.writeFile({
       path: filename,
@@ -23,7 +31,7 @@ export class NativeDownloadService {
     await Share.share({
       title: filename,
       url: result.uri,
-      dialogTitle: 'Open or save PDF',
+      dialogTitle,
     });
   }
 

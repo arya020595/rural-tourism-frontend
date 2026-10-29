@@ -108,7 +108,7 @@
         </button>
       </div>
 
-      <div class="cal-back" *ngIf="mode === 'year' || (mode === 'month' && pickMode === 'date')">
+      <div class="cal-back" *ngIf="(mode === 'year' && pickMode !== 'year') || (mode === 'month' && pickMode === 'date')">
         <button type="button" class="cal-back-btn" aria-label="Back" (click)="backToMain()">
           <ion-icon name="calendar-outline"></ion-icon>
         </button>

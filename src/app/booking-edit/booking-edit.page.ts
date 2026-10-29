@@ -446,6 +446,15 @@ export class BookingEditPage implements OnInit {
         referee_id: Number(item.companyId),
         description: item.serviceName || item.description || '',
         per_price: Number(item.price || 0),
+        // When the customer comes to this company (calendar). activity_date
+        // is sent "as typed" (YYYY-MM-DDTHH:mm:00, no timezone), like the
+        // activity booking's own date.
+        product_type: item.productType || null,
+        activity_date: item.activityDate
+          ? `${item.activityDate}T${item.activityTime || '00:00'}:00`
+          : null,
+        check_in_date: item.checkInDate || null,
+        check_out_date: item.checkOutDate || null,
       })),
     };
   }

@@ -55,6 +55,7 @@
     "apexcharts": "^5.12.0",
     "compressorjs": "^1.2.1",
     "dexie": "^4.4.2",
+    "exceljs": "^4.4.0",
     "html2canvas": "^1.4.1",
     "ion7-calendar": "^3.6.29",
     "ionicons": "^7.0.0",

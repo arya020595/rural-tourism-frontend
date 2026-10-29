@@ -240,10 +240,15 @@
       <div class="rpt-filters">
         <div class="rpt-field">
           <label class="rpt-label">Year</label>
-          <div class="rpt-select-wrap">
-            <select [(ngModel)]="reportYear" class="rpt-select">
-              <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
-            </select>
+          <!-- Year opens the same pop-up as the Trend month/year picker. -->
+          <div class="rpt-select-wrap" (click)="isReportYearSheetOpen = true">
+            <input
+              type="text"
+              class="rpt-select rpt-year-input"
+              readonly
+              [value]="reportYear"
+              aria-label="Year"
+            />
             <ion-icon name="calendar-outline" class="rpt-select-icon"></ion-icon>
           </div>
         </div>
@@ -328,7 +333,15 @@
             </div>
           </div>
           <div class="rpt-doc-company-name">{{ reportData.company?.name || '-' }}</div>
-          <div class="rpt-doc-company-est">Est. {{ reportData.company?.establishedYear }}</div>
+
+          <!-- What this document is -->
+          <div class="rpt-doc-title-block">
+            <div class="rpt-doc-title">PENYATA AKAUN / ACCOUNT STATEMENT</div>
+            <div class="rpt-doc-meta">
+              Tempoh/<em>Period</em>: <strong>{{ reportData.fromDate }} – {{ reportData.toDate }}</strong>
+            </div>
+            <div class="rpt-doc-meta">Dijana/<em>Generated</em>: {{ reportData.createdAt }}</div>
+          </div>
 
           <!-- Business Details -->
           <div class="rpt-doc-section-header">Butiran Perniagaan/Business Details</div>
@@ -355,36 +368,47 @@
             </tr>
           </table>
 
-          <!-- Account Statement header + date range -->
+          <!-- Transaction list (period/type/date are in the title block above) -->
           <div class="rpt-doc-account-header">
-            <span>Penyata Akaun/Account Statement</span>
-            <span>Created at: {{ reportData.createdAt }}</span>
+            <span>Senarai Transaksi/Transaction List</span>
           </div>
-          <div class="rpt-doc-date-range">From {{ reportData.fromDate }} to {{ reportData.toDate }}</div>
 
           <!-- Transaction table -->
           <table class="rpt-doc-trx-table">
             <thead>
               <tr>
-                <th>Year</th>
-                <th>Month</th>
-                <th>Type</th>
-                <th>Name</th>
-                <th>No. of Pax</th>
-                <th>Total Price (RM)</th>
+                <th class="rpt-col-date">Tarikh<br />Date</th>
+                <th class="rpt-col-desc">Butiran Transaksi<br />Transaction Description</th>
+                <th class="rpt-col-pax">Pax</th>
+                <th class="rpt-col-amount">Amaun<br />Amount (RM)</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let t of reportData.transactions">
-                <td>{{ t.year }}</td>
-                <td>{{ t.month }}</td>
-                <td>{{ t.type }}</td>
-                <td>{{ t.name }}</td>
-                <td>{{ t.noOfPax }}</td>
-                <td>RM {{ t.totalPrice }}</td>
-              </tr>
+              <!-- Grouped by receipt month: heading, receipts, subtotal. -->
+              <ng-container *ngFor="let g of reportData.monthGroups || []">
+                <tr class="rpt-month-row">
+                  <td colspan="4">{{ g.label }}</td>
+                </tr>
+                <tr *ngFor="let t of g.rows">
+                  <td class="rpt-nowrap rpt-date-cell">
+                    <div>{{ t.receiptDate || t.receiptDateTime }}</div>
+                    <div class="rpt-sub" *ngIf="t.receiptTime">{{ t.receiptTime }}</div>
+                  </td>
+                  <td class="rpt-desc-cell">
+                    <div class="rpt-desc-title">{{ t.title || (t.type + ' — ' + t.name) }}</div>
+                    <div class="rpt-desc-line" *ngFor="let line of t.details || []">{{ line }}</div>
+                  </td>
+                  <td class="rpt-col-pax">{{ t.noOfPax }}</td>
+                  <td class="rpt-col-amount rpt-amount">{{ +t.totalPrice | number: '1.2-2' }}</td>
+                </tr>
+                <tr class="rpt-month-subtotal">
+                  <td colspan="2" class="rpt-subtotal-label">Jumlah/<em>Subtotal</em> {{ g.label }}</td>
+                  <td class="rpt-col-pax">{{ g.totalPax }}</td>
+                  <td class="rpt-col-amount">{{ +g.totalRevenue | number: '1.2-2' }}</td>
+                </tr>
+              </ng-container>
               <tr *ngIf="reportData.transactions?.length === 0">
-                <td colspan="6" class="rpt-doc-empty-row">No transactions found for {{ reportData.year }}</td>
+                <td colspan="4" class="rpt-doc-empty-row">No transactions found for {{ reportData.year }}</td>
               </tr>
             </tbody>
           </table>
@@ -410,7 +434,7 @@
                 <td>RM {{ s.totalRevenue }}</td>
               </tr>
               <tr class="rpt-doc-summary-total">
-                <td colspan="3">Overall Total</td>
+                <td colspan="3" class="rpt-overall-label">Overall Total</td>
                 <td>{{ reportData.overallTotal?.totalPax }}</td>
                 <td>RM {{ reportData.overallTotal?.totalRevenue }}</td>
               </tr>
@@ -433,5 +457,19 @@
     [max]="rangePickerTarget === 'from' ? toDate : ''"
     (dateSelected)="onRangeDateSelected($event)"
     (dismissed)="rangePickerTarget = null"
+  ></app-booking-date-sheet>
+
+  <!-- Report "Year" pop-up (kept at page level: an ion-modal inside the
+       report overlay doesn't present). -->
+  <app-booking-date-sheet
+    pickMode="year"
+    title="Tahun/Year"
+    [isOpen]="isReportYearSheetOpen"
+    [value]="'' + reportYear"
+    [min]="availableYears[0] + '-01-01'"
+    [max]="availableYears[availableYears.length - 1] + '-12-31'"
+    [showBookedDates]="false"
+    (yearSelected)="onReportYearSelected($event)"
+    (dismissed)="isReportYearSheetOpen = false"
   ></app-booking-date-sheet>
 </ion-content>

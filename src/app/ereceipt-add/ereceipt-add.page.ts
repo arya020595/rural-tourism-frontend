@@ -301,6 +301,13 @@ export class EreceiptAddPage implements OnInit {
         referee_id: Number(item.companyId),
         description: item.serviceName || item.description || '',
         per_price: Number(item.price || 0),
+        // Same item type/dates as booking-add (calendar + receipts).
+        product_type: item.productType || null,
+        activity_date: item.activityDate
+          ? `${item.activityDate}T${item.activityTime || '00:00'}:00`
+          : null,
+        check_in_date: item.checkInDate || null,
+        check_out_date: item.checkOutDate || null,
       })),
     };
   }

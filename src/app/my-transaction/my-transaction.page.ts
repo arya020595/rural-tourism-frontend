@@ -59,8 +59,21 @@ export class MyTransactionPage implements OnInit {
     return this.authService.hasPermission('booking:export');
   }
 
+  /** Years from the oldest loaded transaction up to this year. */
   get availableYears(): number[] {
-    return [new Date().getFullYear()];
+    const current = new Date().getFullYear();
+    const oldest = this.allTransactions.reduce((min, t) => {
+      const year = Number(String(t?.date || '').slice(0, 4));
+      return year > 1990 && year < min ? year : min;
+    }, current);
+    return Array.from({ length: current - oldest + 1 }, (_, i) => oldest + i);
+  }
+
+  isReportYearSheetOpen = false;
+
+  onReportYearSelected(year: number): void {
+    this.reportYear = year;
+    this.isReportYearSheetOpen = false;
   }
 
   constructor(

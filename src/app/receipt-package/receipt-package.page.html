@@ -46,21 +46,14 @@
               <div class="row-value">{{ companyName }}</div>
             </div>
 
-            <div class="receipt-row receipt-row--package">
-              <div class="row-label">PAKEJ/PACKAGE</div>
-              <div class="row-value">
-                <div
-                  class="package-item"
-                  *ngFor="let desc of packageDescArray; let i = index"
-                >
-                  {{ i + 1 }}. {{ desc }}
-                </div>
-              </div>
-            </div>
-
             <div class="receipt-row receipt-row--pax">
               <div class="row-label">BILANGAN ORANG/TOTAL PAX</div>
               <div class="row-value">{{ receipt?.pax || 0 }} ORANG</div>
+            </div>
+
+            <div class="receipt-row receipt-row--location">
+              <div class="row-label">LOKASI/LOCATION</div>
+              <div class="row-value">{{ companyLocation }}</div>
             </div>
 
             <div class="receipt-row receipt-row--status">
@@ -69,6 +62,36 @@
                 {{ (receipt?.status || 'PAID') | uppercase }}
               </div>
             </div>
+          </div>
+
+          <!-- Itinerary: what and when (same as the receipt PDFs; no prices). -->
+          <div class="pkg-section" *ngIf="receipt?.package_items?.length">
+            <div class="row-label">PAKEJ/PACKAGE</div>
+            <table class="pkg-table">
+              <thead>
+                <tr>
+                  <th class="pkg-no">NO</th>
+                  <th>AKTIVITI / PENGINAPAN<br /><em>ACTIVITY / ACCOMMODATION</em></th>
+                  <th class="pkg-when">TARIKH / MASA<br /><em>DATE / TIME</em></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of receipt.package_items; let i = index">
+                  <td class="pkg-no">{{ i + 1 }}</td>
+                  <td>
+                    <div class="pkg-name">{{ item.description }}</div>
+                    <div class="pkg-sub" *ngIf="item.type_label">{{ item.type_label }}</div>
+                  </td>
+                  <td class="pkg-when">
+                    <!-- Each date stays on one line; a range only breaks between dates. -->
+                    <ng-container *ngFor="let part of whenParts(item.when?.main); let last = last">
+                      <span class="nowrap">{{ part }}</span>{{ last ? '' : ' ' }}
+                    </ng-container>
+                    <div class="pkg-sub" *ngIf="item.when?.sub">({{ item.when.sub }})</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 

@@ -23,6 +23,7 @@ export interface ReceiptListItem {
   bookingId?: string;
   receiptId: string;
   bookedBy: string;
+  phoneNumber: string;
   serviceName: string;
   type: 'Activity' | 'Accommodation' | 'Package';
   createdAt: string;
