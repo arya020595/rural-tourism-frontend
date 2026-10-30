@@ -168,4 +168,4 @@ Not covered: the native Android share sheet — check once on the device build.
 ## 10. Release
 
 Deploy the backend (two migrations) first; operators log in again. Then the
-website and the Android build — see `docs/debug/DEBUG_LOG_2026-10-30.md` §9.
+website and the Android build — see `docs/debug/DEBUG_LOG_2026-10-30.md` §10.

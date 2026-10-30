@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { Subscription, interval } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
+import { AppVersionService } from './services/app-version.service';
 import { AuthService } from './services/auth.service';
 import { NetworkService } from './services/network.service';
 import { NotificationService } from './services/notification.service';
@@ -28,6 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private syncService: SyncService,
     private offlineQueue: OfflineQueueService,
     private notificationService: NotificationService,
+    private appVersion: AppVersionService,
   ) {}
 
   ngOnInit() {
@@ -47,6 +49,11 @@ export class AppComponent implements OnInit, OnDestroy {
       this.router.events.subscribe((event) => {
         if (event instanceof NavigationEnd) {
           this.applyStandaloneClass();
+          // Login page (fresh visit or after logout): load a new deploy if
+          // there is one, so operators never log in to the old version.
+          if (this.isLoginPage(event.urlAfterRedirects)) {
+            void this.appVersion.reloadIfNewVersion();
+          }
         }
       });
 
@@ -59,6 +66,11 @@ export class AppComponent implements OnInit, OnDestroy {
         (window.navigator as any).standalone,
       );
     });
+  }
+
+  private isLoginPage(url: string): boolean {
+    const path = (url || '').split('?')[0].split('#')[0];
+    return path === '/login' || path === '/tourist/login' || path === '/association/login';
   }
 
   private loadUserData(): void {
