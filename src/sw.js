@@ -44,10 +44,12 @@ self.addEventListener('fetch', event => {
 
   // Pages (index.html for every Angular route): network-first. Every route
   // returns the same index.html, so the latest copy is also saved under
-  // '/index.html' to serve any route offline.
+  // '/index.html' to serve any route offline. 'no-cache' makes the browser
+  // check with the server instead of reusing an HTTP-cached index.html, which
+  // would point at the previous deploy's bundles.
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request.url, { cache: 'no-cache', credentials: 'same-origin' })
         .then(response => {
           if (response && response.status === 200) {
             const clone = response.clone();
