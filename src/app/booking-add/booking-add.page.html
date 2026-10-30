@@ -49,7 +49,18 @@
         <h1>Enter Booking Details</h1>
       </div>
 
-      <div class="booking-form">
+      <div class="quotation-banner" *ngIf="fromQuotation">
+        <ion-icon name="document-outline"></ion-icon>
+        <span>
+          Dari sebut harga / From quotation <b>{{ fromQuotation.no }}</b> — semak, isi deposit &amp; nama
+          operator, kemudian hantar. / Check, add the deposit &amp; operator name, then submit.
+        </span>
+      </div>
+      <div class="table-spinner" *ngIf="isLoadingQuotation">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div class="booking-form" *ngIf="!isLoadingQuotation">
         <section class="form-section">
           <h2 class="form-input-label">1. Select Type</h2>
           <div class="radio-grid three-col">
@@ -62,6 +73,7 @@
                 name="bookingType"
                 value="activity"
                 [(ngModel)]="selectedType"
+                [disabled]="!!fromQuotation"
               />
               <span>Activity / Aktiviti</span>
             </label>
@@ -74,6 +86,7 @@
                 name="bookingType"
                 value="accommodation"
                 [(ngModel)]="selectedType"
+                [disabled]="!!fromQuotation"
               />
               <span>Accommodation / Penginapan</span>
             </label>
@@ -86,6 +99,7 @@
                 name="bookingType"
                 value="package"
                 [(ngModel)]="selectedType"
+                [disabled]="!!fromQuotation"
               />
               <span>Package / Pakej</span>
             </label>
@@ -94,18 +108,21 @@
 
         <ng-container [ngSwitch]="selectedType">
           <app-activity-booking-form
+            [prefill]="prefill"
             *ngSwitchCase="'activity'"
             (bookingCancel)="goBack()"
             (bookingSubmit)="handleFormSubmit('activity', $event)"
           ></app-activity-booking-form>
 
           <app-accommodation-booking-form
+            [prefill]="prefill"
             *ngSwitchCase="'accommodation'"
             (bookingCancel)="goBack()"
             (bookingSubmit)="handleFormSubmit('accommodation', $event)"
           ></app-accommodation-booking-form>
 
           <app-package-booking-form
+            [prefill]="prefill"
             *ngSwitchCase="'package'"
             (bookingCancel)="goBack()"
             (bookingSubmit)="handleFormSubmit('package', $event)"

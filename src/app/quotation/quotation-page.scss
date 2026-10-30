@@ -1,0 +1,143 @@
+// Page chrome shared by the quotation list / form / detail pages — the same
+// look as the booking pages (dark header, white rounded surface, green title).
+
+ion-content {
+  --ion-background-color: #2b2f2b;
+}
+
+.quotation-header ion-toolbar {
+  --background: #2b2f2b;
+  --box-shadow: none;
+  --border-width: 0;
+}
+
+.menu-toggle {
+  color: #ffffff;
+}
+
+.surface-card {
+  margin-top: 5vh;
+  min-height: calc(100vh - 5vh);
+  background: #ffffff;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.22);
+  padding: 20px;
+}
+
+.page-container {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 22px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #04552f;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 2px 0 8px;
+  padding: 0;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 24px;
+  }
+}
+
+.logo-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.title-row {
+  border-bottom: 1px solid #dadada;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 0 0 12px;
+    color: #04552f;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.15;
+
+    em {
+      font-weight: 700;
+    }
+  }
+}
+
+.offline-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #fff4e5;
+  border: 1px solid #ffcc80;
+  color: #7a4300;
+  font-size: 15px;
+  margin-bottom: 16px;
+
+  ion-icon {
+    font-size: 22px;
+    flex: none;
+  }
+}
+
+.status-chip {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 6px 16px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+
+  &.sent {
+    background: #dbeafe;
+    color: #1f4e8c;
+    border-color: #b6cdf0;
+  }
+  &.accepted {
+    background: #a4d6af;
+    color: #015c2f;
+    border-color: #4f9a65;
+  }
+  &.expired {
+    background: #f7d4a0;
+    color: #a65c00;
+    border-color: #f28a00;
+  }
+  &.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+  }
+}
+
+@media (max-width: 768px) {
+  .surface-card {
+    padding: 14px 10px;
+  }
+
+  .page-container {
+    padding: 12px 6px 24px;
+  }
+
+  .back-link {
+    font-size: 16px;
+  }
+
+  .title-row h1 {
+    font-size: 26px;
+  }
+}

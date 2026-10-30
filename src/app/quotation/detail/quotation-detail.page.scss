@@ -1,0 +1,325 @@
+@import '../quotation-page';
+
+.table-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #dadada;
+  padding-bottom: 12px;
+  margin: 8px 0 14px;
+
+  h1 {
+    margin: 0;
+    color: #04552f;
+    font-size: 34px;
+    font-weight: 800;
+  }
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-bottom: 14px;
+
+  ion-icon {
+    font-size: 22px;
+    flex: none;
+  }
+
+  &.accepted {
+    background: #eaf6ee;
+    border: 1px solid #b9d6c3;
+    color: #0b5d33;
+  }
+  &.expired {
+    background: #fff4e5;
+    border: 1px solid #ffcc80;
+    color: #7a4300;
+  }
+  &.cancelled {
+    background: #fdecea;
+    border: 1px solid #f5b5b0;
+    color: #7f1d1d;
+  }
+}
+
+.link-btn {
+  border: 0;
+  background: transparent;
+  color: #1f5d9b;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+
+  &.pdf {
+    background: #1f4e8c;
+    color: #ffffff;
+  }
+  &.green {
+    background: #0b5d33;
+    color: #ffffff;
+  }
+  &.outline {
+    background: #ffffff;
+    color: #0b5d33;
+    border-color: #0b5d33;
+  }
+  &.red {
+    background: #d32020;
+    color: #ffffff;
+  }
+  &.red-outline {
+    background: #ffffff;
+    color: #d32020;
+    border-color: #d32020;
+  }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 10px 0 16px;
+}
+
+.card {
+  border: 1px solid #cfdcd3;
+  border-radius: 10px;
+  padding: 12px 14px;
+
+  h4 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #04552f;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 15px;
+
+  span {
+    color: #666666;
+  }
+
+  .valid {
+    color: #b3261e;
+
+    small {
+      font-weight: 600;
+    }
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+thead th {
+  background: #04552f;
+  color: #ffffff;
+  font-size: 13px;
+  text-align: left;
+  padding: 9px 12px;
+
+  em {
+    font-weight: 400;
+  }
+}
+
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e5e5;
+  vertical-align: top;
+  font-size: 15px;
+}
+
+tbody tr:nth-child(even) td {
+  background: #f8faf9;
+}
+
+.c {
+  text-align: center;
+  width: 40px;
+}
+
+.r {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.item-name {
+  font-weight: 700;
+}
+
+.item-sub {
+  font-size: 12px;
+  color: #777777;
+  margin-top: 2px;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0 0 auto;
+  max-width: 320px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #04552f;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.notes {
+  margin-top: 18px;
+
+  h4 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: #04552f;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: #333333;
+    line-height: 1.5;
+  }
+}
+
+// Edit / Cancel at the bottom, like the forms' action row.
+.bottom-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.bottom-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+
+  &.edit {
+    background: #f5b800;
+    color: #1f1f1f;
+  }
+
+  &.cancel {
+    background: #f31212;
+    color: #ffffff;
+  }
+
+  // Only one of them shown (e.g. staff can't cancel): full width.
+  &:only-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .kv {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 4px 0;
+  }
+
+  .action {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .bottom-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .head h1 {
+    font-size: 26px;
+  }
+}

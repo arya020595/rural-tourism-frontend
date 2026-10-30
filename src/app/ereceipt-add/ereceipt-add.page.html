@@ -40,9 +40,21 @@
         <h1>E-Receipt — {{ pageTitle }}</h1>
       </div>
 
-      <div class="booking-form">
+      <div class="quotation-banner" *ngIf="fromQuotation">
+        <ion-icon name="document-outline"></ion-icon>
+        <span>
+          Dari sebut harga / From quotation <b>{{ fromQuotation.no }}</b> — bayaran penuh, resit akan
+          dikeluarkan. / Paid in full — a receipt will be issued.
+        </span>
+      </div>
+      <div class="table-spinner" *ngIf="isLoadingQuotation">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+
+      <div class="booking-form" *ngIf="!isLoadingQuotation">
         <ng-container [ngSwitch]="bookingType">
           <app-activity-booking-form
+            [prefill]="prefill"
             *ngSwitchCase="'activity'"
             [hideCancel]="true"
             [hideDeposit]="true"
@@ -51,6 +63,7 @@
           ></app-activity-booking-form>
 
           <app-accommodation-booking-form
+            [prefill]="prefill"
             *ngSwitchCase="'accommodation'"
             [hideCancel]="true"
             [hideDeposit]="true"
@@ -59,6 +72,7 @@
           ></app-accommodation-booking-form>
 
           <app-package-booking-form
+            [prefill]="prefill"
             *ngSwitchCase="'package'"
             [hideCancel]="true"
             [hideDeposit]="true"

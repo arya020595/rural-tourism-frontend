@@ -1,0 +1,501 @@
+<app-side-nav
+  [menuId]="menuId"
+  [contentId]="'quotation-form-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="quotation-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button [menu]="menuId" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-refresh-button [confirmReload]="true"></app-refresh-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content [fullscreen]="true" id="quotation-form-content">
+  <div class="surface-card">
+    <div class="page-container">
+      <button type="button" class="back-link" (click)="cancel()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Kembali</span>
+      </button>
+
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1 *ngIf="!isEdit">Tambah Sebut Harga/ <em>Add Quotation</em></h1>
+        <h1 *ngIf="isEdit">Edit Sebut Harga/ <em>Edit Quotation</em> {{ quotationNo }}</h1>
+      </div>
+
+      <div class="table-spinner" *ngIf="isLoading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+      <div class="offline-note" *ngIf="loadError">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>{{ loadError }}</span>
+      </div>
+
+      <form
+        *ngIf="!isLoading && !loadError"
+        class="booking-form"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        novalidate
+        (ngSubmit)="save()"
+      >
+        <!-- Hidden trap fields to absorb browser autofill (name, phone, email, company) -->
+        <input type="text" name="given-name" style="position: absolute; left: -9999px; top: -9999px; opacity: 0" tabindex="-1" autocomplete="off" />
+        <input type="tel" name="tel-national" style="position: absolute; left: -9999px; top: -9999px; opacity: 0" tabindex="-1" autocomplete="off" />
+        <input type="email" name="email" style="position: absolute; left: -9999px; top: -9999px; opacity: 0" tabindex="-1" autocomplete="off" />
+        <input type="text" name="organization" style="position: absolute; left: -9999px; top: -9999px; opacity: 0" tabindex="-1" autocomplete="off" />
+
+        <!-- 1. Customer -->
+        <section class="form-section">
+          <h3>1. Butiran Pelanggan / Customer Details</h3>
+
+          <div class="field-grid one-col">
+            <div class="field">
+              <label>Nama Penuh Pelanggan/Customer Full Name<span class="required">*</span></label>
+              <input
+                type="text"
+                [(ngModel)]="fullName"
+                name="qtF01"
+                autocomplete="off"
+                autocorrect="off"
+                aria-autocomplete="none"
+                placeholder="Sila masukkan nama penuh/Please enter full name"
+              />
+            </div>
+          </div>
+
+          <div class="field-grid two-col">
+            <div class="field">
+              <label>No. Telefon/Telephone No.<span class="required">*</span></label>
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="15"
+                [ngModel]="phone"
+                name="qtF02"
+                autocomplete="off"
+                autocorrect="off"
+                aria-autocomplete="none"
+                placeholder="Sila masukkan no. telefon/Please enter telephone no."
+                (input)="onPhoneInput($event)"
+              />
+              <span *ngIf="phoneError" class="field-error">{{ phoneError }}</span>
+            </div>
+            <div class="field">
+              <label>Emel/Email</label>
+              <input
+                type="email"
+                [(ngModel)]="email"
+                name="qtF03"
+                autocomplete="off"
+                autocorrect="off"
+                aria-autocomplete="none"
+                placeholder="Sila masukkan emel/Please enter email"
+              />
+              <span *ngIf="emailError" class="field-error">{{ emailError }}</span>
+            </div>
+          </div>
+
+          <h2 class="form-input-label">Domestik/Antarabangsa<span class="required">*</span></h2>
+          <div class="radio-grid three-col">
+            <label class="radio-card" [class.active]="nationality === 'domestic'">
+              <input type="radio" name="qtNationality" value="domestic" [(ngModel)]="nationality" />
+              <span>Domestik</span>
+            </label>
+            <label class="radio-card" [class.active]="nationality === 'international'">
+              <input type="radio" name="qtNationality" value="international" [(ngModel)]="nationality" />
+              <span>Antarabangsa</span>
+            </label>
+            <label class="radio-card" [class.active]="nationality === 'both'">
+              <input type="radio" name="qtNationality" value="both" [(ngModel)]="nationality" />
+              <span>Domestik/Antarabangsa</span>
+            </label>
+          </div>
+
+          <div class="field-grid two-col" *ngIf="nationality !== 'both'">
+            <div class="field">
+              <label>Bilangan Orang/No. of Pax<span class="required">*</span></label>
+              <input
+                type="text"
+                inputmode="numeric"
+                [ngModel]="paxCount"
+                name="qtPax"
+                placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+                (input)="onDigitsInput('paxCount', $event)"
+              />
+            </div>
+          </div>
+          <div class="field-grid two-col" *ngIf="nationality === 'both'">
+            <div class="field">
+              <label>Bilangan Orang/No. of Pax (Domestik)<span class="required">*</span></label>
+              <input
+                type="text"
+                inputmode="numeric"
+                [ngModel]="domesticPax"
+                name="qtPaxDom"
+                placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+                (input)="onDigitsInput('domesticPax', $event)"
+              />
+            </div>
+            <div class="field">
+              <label>Bilangan Orang/No. of Pax (Antarabangsa)<span class="required">*</span></label>
+              <input
+                type="text"
+                inputmode="numeric"
+                [ngModel]="internationalPax"
+                name="qtPaxInt"
+                placeholder="Sila masukkan bilangan orang/Please insert number of pax"
+                (input)="onDigitsInput('internationalPax', $event)"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Quotation details -->
+        <section class="form-section">
+          <h3>2. Butiran Sebut Harga / Quotation Details</h3>
+          <div class="field-grid three-col">
+            <div class="field">
+              <label>Tarikh Sebut Harga/Quotation Date<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(quotationDate)"
+                  name="qtDate"
+                  (click)="openHeaderDate('quotationDate')"
+                />
+                <ion-icon name="calendar-clear-outline" aria-hidden="true" (click)="openHeaderDate('quotationDate')"></ion-icon>
+              </div>
+            </div>
+            <div class="field">
+              <label>Sah Sehingga/Valid Until<span class="required">*</span></label>
+              <div class="input-with-icon">
+                <input
+                  type="text"
+                  class="date-display"
+                  readonly
+                  placeholder="dd/mm/yyyy"
+                  [value]="displayDate(validUntil)"
+                  name="qtValid"
+                  (click)="openHeaderDate('validUntil')"
+                />
+                <ion-icon name="calendar-clear-outline" aria-hidden="true" (click)="openHeaderDate('validUntil')"></ion-icon>
+              </div>
+              <span class="hint">Automatik 7 hari / Auto 7 days — boleh ubah / editable</span>
+            </div>
+            <div class="field">
+              <label>Disediakan Oleh/Prepared By</label>
+              <input
+                type="text"
+                [(ngModel)]="preparedBy"
+                name="qtF04"
+                autocomplete="off"
+                autocorrect="off"
+                aria-autocomplete="none"
+                placeholder="Sila isi nama penyedia/Enter preparer's name"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Items -->
+        <section class="form-section">
+          <h3>3. Perkara / Items<span class="required">*</span></h3>
+          <p class="section-hint">
+            Tambah satu atau lebih aktiviti/penginapan. Sekurang-kurangnya satu mesti produk syarikat anda. /
+            Add one or more activities/accommodations. At least one must be your company's product.
+          </p>
+
+          <div class="package-items">
+            <div *ngFor="let item of items; let i = index" class="package-item-card">
+              <div class="package-item-header">
+                <span class="package-item-title">
+                  Item {{ i + 1 }}
+                  <span class="own-tag" *ngIf="isOwn(item)">Produk anda / Your product</span>
+                </span>
+                <button
+                  type="button"
+                  *ngIf="items.length > 1"
+                  (click)="removeItem(i)"
+                  class="remove-item"
+                  aria-label="Remove item"
+                  title="Buang/Remove"
+                >
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
+
+              <div class="field-grid two-col">
+                <div class="field">
+                  <label>Syarikat/Company</label>
+                  <div class="search-dropdown-wrapper">
+                    <input
+                      type="text"
+                      class="search-input"
+                      [value]="item.companyText"
+                      name="qtS01_{{ i }}"
+                      placeholder="Pilih syarikat/Select company"
+                      autocomplete="off"
+                      autocorrect="off"
+                      aria-autocomplete="none"
+                      (input)="onCompanyInput(item, $any($event.target).value)"
+                      (focus)="item.showCompanies = true"
+                      (blur)="hideDropdownLater(item, 'showCompanies')"
+                    />
+                    <div class="search-dropdown" *ngIf="item.showCompanies && filteredCompanies(item).length > 0">
+                      <div class="dropdown-item" *ngFor="let company of filteredCompanies(item)" (click)="selectCompany(item, company)">
+                        {{ company.name }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Jenis Produk/Product Type</label>
+                  <select
+                    [(ngModel)]="item.productType"
+                    name="qtType_{{ i }}"
+                    [disabled]="!item.companyId"
+                    (ngModelChange)="onProductTypeChange(item)"
+                  >
+                    <option [ngValue]="undefined" disabled>Pilih jenis produk/Select product type</option>
+                    <option ngValue="activity">Aktiviti/Activity</option>
+                    <option ngValue="accommodation">Penginapan/Accommodation</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field-grid two-col">
+                <div class="field">
+                  <label>Servis/Service</label>
+                  <div class="search-dropdown-wrapper">
+                    <input
+                      type="text"
+                      class="search-input"
+                      [value]="item.serviceText"
+                      name="qtS02_{{ i }}"
+                      [placeholder]="item.productType ? 'Pilih servis/Select service' : 'Pilih jenis produk dahulu/Select product type first'"
+                      [readonly]="!item.companyId || !item.productType"
+                      autocomplete="off"
+                      autocorrect="off"
+                      aria-autocomplete="none"
+                      (input)="onServiceInput(item, $any($event.target).value)"
+                      (focus)="item.showServices = !!item.productType"
+                      (blur)="hideDropdownLater(item, 'showServices')"
+                    />
+                    <div class="search-dropdown" *ngIf="item.showServices && filteredServices(item).length > 0">
+                      <div class="dropdown-item" *ngFor="let service of filteredServices(item)" (click)="selectService(item, service)">
+                        {{ service.name }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Harga/Price (RM)</label>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    [value]="item.price"
+                    name="qtPrice_{{ i }}"
+                    placeholder="RM"
+                    autocomplete="off"
+                    autocorrect="off"
+                    aria-autocomplete="none"
+                    (input)="onMoneyInput(item, $event)"
+                    (blur)="onMoneyBlur(item)"
+                    (keydown)="onMoneyKeydown($event)"
+                  />
+                </div>
+              </div>
+
+              <div class="field-grid two-col" *ngIf="item.productType === 'activity'">
+                <div class="field">
+                  <label>Tarikh Aktiviti/Activity Date<span class="required">*</span></label>
+                  <div class="input-with-icon">
+                    <input
+                      type="text"
+                      class="date-display"
+                      readonly
+                      placeholder="dd/mm/yyyy"
+                      [value]="displayDate(item.activityDate)"
+                      name="qtActDate_{{ i }}"
+                      (click)="openItemDate(i, 'activityDate')"
+                    />
+                    <ion-icon name="calendar-clear-outline" aria-hidden="true" (click)="openItemDate(i, 'activityDate')"></ion-icon>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Masa/Time</label>
+                  <div class="input-with-icon">
+                    <input
+                      type="text"
+                      class="time-display"
+                      readonly
+                      placeholder="--:-- --"
+                      [value]="timeDisplay(item.activityTime)"
+                      name="qtActTime_{{ i }}"
+                      (click)="openItemTime(i)"
+                    />
+                    <ion-icon name="time-outline" aria-hidden="true" (click)="openItemTime(i)"></ion-icon>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-grid two-col" *ngIf="item.productType === 'accommodation'">
+                <div class="field">
+                  <label>Tarikh Mula/Start Date<span class="required">*</span></label>
+                  <div class="input-with-icon">
+                    <input
+                      type="text"
+                      class="date-display"
+                      readonly
+                      placeholder="dd/mm/yyyy"
+                      [value]="displayDate(item.checkInDate)"
+                      name="qtIn_{{ i }}"
+                      (click)="openItemDate(i, 'checkInDate')"
+                    />
+                    <ion-icon name="calendar-clear-outline" aria-hidden="true" (click)="openItemDate(i, 'checkInDate')"></ion-icon>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Tarikh Tamat/End Date<span class="required">*</span></label>
+                  <div class="input-with-icon">
+                    <input
+                      type="text"
+                      class="date-display"
+                      readonly
+                      placeholder="dd/mm/yyyy"
+                      [value]="displayDate(item.checkOutDate)"
+                      name="qtOut_{{ i }}"
+                      (click)="openItemDate(i, 'checkOutDate')"
+                    />
+                    <ion-icon name="calendar-clear-outline" aria-hidden="true" (click)="openItemDate(i, 'checkOutDate')"></ion-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="add-more-wrap">
+              <button type="button" (click)="addItem()" class="add-more-btn" aria-label="Add item">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                <span>Add More</span>
+              </button>
+              <div class="package-total-box" aria-label="Total (sum of item prices)">
+                <span class="package-total-label">Jumlah Bayaran/Total Payment</span>
+                <span class="package-total-value">RM {{ totalText }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Notes -->
+        <section class="form-section">
+          <h3>4. Nota &amp; Terma / Notes &amp; Terms</h3>
+          <div class="field">
+            <textarea [(ngModel)]="notes" name="qtNotes" rows="5"></textarea>
+            <div class="notes-actions">
+              <span class="hint">
+                {{ notesAreDefault ? 'Your company default' : 'Boleh ubah setiap sebut harga / Editable per quotation' }}
+              </span>
+              <div class="notes-buttons">
+                <button type="button" class="notes-btn" (click)="useStandardNotes()">
+                  <ion-icon name="refresh-outline"></ion-icon>
+                  <span>Use Standard Text</span>
+                </button>
+                <button type="button" class="notes-btn primary" [disabled]="isSavingTerms || notesAreDefault" (click)="saveNotesAsDefault()">
+                  <ion-icon name="bookmark-outline"></ion-icon>
+                  <span>Save Default</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="validation-error-box" *ngIf="validationErrors.length > 0">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <ul>
+            <li *ngFor="let err of validationErrors">{{ err }}</li>
+          </ul>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="bottom-action cancel" (click)="cancel()">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <span>Batal/Cancel</span>
+          </button>
+          <button type="submit" class="bottom-action submit" [disabled]="isSaving">
+            <ion-icon name="save-outline"></ion-icon>
+            <span>Simpan Sebut Harga/Save Quotation</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <app-booking-date-sheet
+    [title]="headerDateSheet.field === 'validUntil' ? 'Sah Sehingga/Valid Until' : 'Tarikh Sebut Harga/Quotation Date'"
+    [isOpen]="headerDateSheet.open"
+    [value]="headerDateSheet.field === 'validUntil' ? validUntil : quotationDate"
+    [min]="headerDateSheetMin"
+    [showBookedDates]="false"
+    (dateSelected)="onHeaderDateSelected($event)"
+    (dismissed)="headerDateSheet.open = false"
+  ></app-booking-date-sheet>
+
+  <!-- Item dates: our booked dates only on our own items. -->
+  <app-booking-date-sheet
+    [title]="itemDateSheetTitle"
+    [isOpen]="itemDateSheet.open"
+    [value]="itemDateSheetValue"
+    [min]="itemDateSheetMin"
+    [showBookedDates]="itemDateSheetShowsBooked"
+    [extraBookedDates]="itemDateSheetExtraDates"
+    (dateSelected)="onItemDateSelected($event)"
+    (dismissed)="closeItemDate()"
+  ></app-booking-date-sheet>
+
+  <ion-modal [isOpen]="itemTimePicker.open" (didDismiss)="closeItemTime()" cssClass="time-picker-modal">
+    <ng-template>
+      <ion-content class="time-modal-content">
+        <div class="time-modal-inner">
+          <h3>Masa/Time</h3>
+          <ion-datetime
+            presentation="time"
+            hourCycle="h12"
+            [preferWheel]="true"
+            [showDefaultButtons]="false"
+            [value]="pendingItemTime"
+            (ionChange)="onPendingItemTimeChange($event)"
+          ></ion-datetime>
+        </div>
+      </ion-content>
+      <ion-footer class="time-modal-footer">
+        <div class="time-modal-actions">
+          <button type="button" class="time-modal-btn cancel" (click)="clearItemTime()">Clear</button>
+          <button type="button" class="time-modal-btn cancel" (click)="closeItemTime()">Cancel</button>
+          <button type="button" class="time-modal-btn apply" (click)="applyItemTime()">Set</button>
+        </div>
+      </ion-footer>
+    </ng-template>
+  </ion-modal>
+</ion-content>
