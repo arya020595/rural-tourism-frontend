@@ -284,6 +284,54 @@ const routes: Routes = [
     },
   },
   {
+    path: 'quotation',
+    loadChildren: () =>
+      import('./quotation/list/quotation-list.module').then(
+        (m) => m.QuotationListPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['quotation:read'],
+    },
+  },
+  {
+    path: 'quotation/add',
+    loadChildren: () =>
+      import('./quotation/form/quotation-form.module').then(
+        (m) => m.QuotationFormPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['quotation:create'],
+    },
+  },
+  {
+    path: 'quotation/edit/:id',
+    loadChildren: () =>
+      import('./quotation/form/quotation-form.module').then(
+        (m) => m.QuotationFormPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['quotation:update'],
+    },
+  },
+  {
+    path: 'quotation/:id',
+    loadChildren: () =>
+      import('./quotation/detail/quotation-detail.module').then(
+        (m) => m.QuotationDetailPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'operator_admin',
+      permissions: ['quotation:read'],
+    },
+  },
+  {
     path: 'e-receipt',
     loadChildren: () =>
       import('./e-receipt/e-receipt.module').then((m) => m.EReceiptPageModule),

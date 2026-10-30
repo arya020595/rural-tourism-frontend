@@ -1,0 +1,159 @@
+<app-side-nav
+  [menuId]="menuId"
+  [contentId]="'quotation-detail-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="quotation-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button [menu]="menuId" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-refresh-button></app-refresh-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content [fullscreen]="true" id="quotation-detail-content">
+  <div class="surface-card">
+    <div class="page-container">
+      <button type="button" class="back-link" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Kembali / Back to Quotations</span>
+      </button>
+
+      <div class="table-spinner" *ngIf="isLoading">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+      <div class="offline-note" *ngIf="loadError">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>{{ loadError }}</span>
+      </div>
+
+      <ng-container *ngIf="quotation as q">
+        <!-- Number + status on the left, actions on the right (one line). -->
+        <div class="head">
+          <div class="title">
+            <h1>{{ q.quotation_no }}</h1>
+            <span class="status-chip" [ngClass]="q.status">{{ statusLabels[q.status] }}</span>
+          </div>
+          <div class="actions">
+            <!-- A cancelled quotation is no longer shared. -->
+            <button *ngIf="q.status !== 'cancelled'" type="button" class="action pdf" (click)="downloadPdf()">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>PDF Quotation</span>
+            </button>
+            <button *ngIf="q.can_convert" type="button" class="action green" title="Deposit dibayar / Deposit paid" (click)="convertToBooking()">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>Tempahan/Booking</span>
+            </button>
+            <button *ngIf="q.can_convert_receipt" type="button" class="action green" title="Bayar penuh / Paid in full" (click)="convertToReceipt()">
+              <ion-icon name="receipt-outline"></ion-icon>
+              <span>Resit/Receipt</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="banner accepted" *ngIf="q.status === 'accepted'">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>
+            Ditukar ke tempahan / Converted to a booking
+            <ng-container *ngIf="q.booking_status === 'paid'"> (dibayar/paid)</ng-container>.
+          </span>
+          <button *ngIf="q.booking_id" type="button" class="link-btn" (click)="viewBooking()">
+            Lihat tempahan / View booking ›
+          </button>
+        </div>
+        <div class="banner expired" *ngIf="q.status === 'expired'">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>
+            Tamat tempoh pada {{ formatDate(q.valid_until) }}. Edit untuk lanjutkan tarikh sah sebelum menukar. /
+            Expired on {{ formatDate(q.valid_until) }}. Edit to extend the valid-until date before converting.
+          </span>
+        </div>
+        <div class="banner cancelled" *ngIf="q.status === 'cancelled'">
+          <ion-icon name="ban-outline"></ion-icon>
+          <span>Sebut harga ini telah dibatalkan / This quotation was cancelled.</span>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <h4>Butiran Sebut Harga / Quotation Details</h4>
+            <div class="kv"><span>No. / Quotation No.</span><b>{{ q.quotation_no }}</b></div>
+            <div class="kv"><span>Tarikh / Date</span><b>{{ formatDate(q.quotation_date) }}</b></div>
+            <div class="kv">
+              <span>Sah Sehingga / Valid Until</span>
+              <b class="valid">{{ formatDate(q.valid_until) }}<small *ngIf="daysLeftText"> ({{ daysLeftText }})</small></b>
+            </div>
+            <div class="kv"><span>Disediakan Oleh / Prepared By</span><b>{{ q.prepared_by_name || '-' }}</b></div>
+          </div>
+          <div class="card">
+            <h4>Kepada / To</h4>
+            <div class="kv"><span>Nama / Name</span><b>{{ q.customer_name }}</b></div>
+            <div class="kv"><span>No. Telefon / Phone</span><b>{{ q.phone_number }}</b></div>
+            <div class="kv"><span>Emel / Email</span><b>{{ q.email || '-' }}</b></div>
+            <div class="kv"><span>Bilangan Orang / Pax</span><b>{{ paxText }}</b></div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th class="c">#</th>
+                <th>Perkara &amp; Keterangan<br /><em>Item &amp; Description</em></th>
+                <th>Tarikh / Masa Itinerari<br /><em>Itinerary Date / Time</em></th>
+                <th class="r">Jumlah (RM)<br /><em>Amount</em></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of q.items; let i = index">
+                <td class="c">{{ i + 1 }}</td>
+                <td>
+                  <div class="item-name">{{ item.description }}</div>
+                  <div class="item-sub">
+                    {{ typeLabel(item) }}<ng-container *ngIf="!item.is_own"> · {{ item.company_name }}</ng-container>
+                  </div>
+                </td>
+                <td>
+                  {{ when(item).main }}
+                  <div class="item-sub" *ngIf="when(item).sub">({{ when(item).sub }})</div>
+                </td>
+                <td class="r">{{ formatMoney(item.amount) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="total">
+          <span>JUMLAH / TOTAL</span>
+          <span>RM {{ formatMoney(q.total_amount) }}</span>
+        </div>
+
+        <div class="notes" *ngIf="notesLines.length">
+          <h4>Nota &amp; Terma / Notes &amp; Terms</h4>
+          <p *ngFor="let line of notesLines">{{ line }}</p>
+        </div>
+
+        <div class="bottom-actions" *ngIf="q.can_edit || q.can_cancel">
+          <button *ngIf="q.can_cancel" type="button" class="bottom-btn cancel" [disabled]="isBusy" (click)="confirmCancel()">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <span>Batal Sebut Harga/Cancel Quotation</span>
+          </button>
+          <button *ngIf="q.can_edit" type="button" class="bottom-btn edit" (click)="edit()">
+            <ion-icon name="create-outline"></ion-icon>
+            <span>Edit Sebut Harga/Edit Quotation</span>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ion-content>

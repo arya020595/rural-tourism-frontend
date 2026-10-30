@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MenuController, NavController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
+import { BookingDetail } from '../booking-home/booking-home.models';
+import { QuotationService } from '../services/quotation.service';
+import { loadQuotationPrefill } from '../utils/quotation-prefill.util';
 
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
@@ -22,6 +25,14 @@ export class EreceiptAddPage implements OnInit {
 
   bookingType: 'activity' | 'accommodation' | 'package' = 'activity';
   isSubmitting = false;
+  // Convert to Receipt from a quotation (?quotation=<id>): the form starts pre-filled
+  // and the booking is linked to the quotation on submit.
+  prefill: BookingDetail | null = null;
+  fromQuotation: { id: number; no: string } | null = null;
+  isLoadingQuotation = false;
+  // First day of a booking made from a quotation — the receipt's back button
+  // opens the booking calendar on it.
+  private calendarDate = '';
 
   typeLabels: Record<string, string> = {
     activity: 'Aktiviti Tarikan',
@@ -41,6 +52,7 @@ export class EreceiptAddPage implements OnInit {
     private syncService: SyncService,
     private networkService: NetworkService,
     private toastCtrl: ToastController,
+    private quotationService: QuotationService,
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +66,48 @@ export class EreceiptAddPage implements OnInit {
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'ereceipt-add-menu');
     this.loadUser();
+    this.loadQuotationFromQuery();
+  }
+
+  private async loadQuotationFromQuery(): Promise<void> {
+    const quotationId = Number(this.route.snapshot.queryParamMap.get('quotation'));
+    if (!Number.isInteger(quotationId) || quotationId <= 0) {
+      this.prefill = null;
+      this.fromQuotation = null;
+      return;
+    }
+    if (this.fromQuotation?.id === quotationId) return;
+
+    if (!this.networkService.isOnline) {
+      await this.showToast(
+        'Perlu internet untuk memuatkan sebut harga / Internet needed to load the quotation.',
+        'warning',
+      );
+      this.navCtrl.navigateBack(`/quotation/${quotationId}`, { replaceUrl: true });
+      return;
+    }
+    this.isLoadingQuotation = true;
+    try {
+      const loaded = await loadQuotationPrefill(this.quotationService, quotationId, 'receipt');
+      if (loaded.bookingType !== this.bookingType) {
+        // The quotation decides the type: open the matching e-receipt form.
+        this.navCtrl.navigateForward(`/e-receipt/add/${loaded.bookingType}`, {
+          queryParams: { quotation: quotationId },
+          replaceUrl: true,
+        });
+        return;
+      }
+      this.prefill = loaded.prefill;
+      this.fromQuotation = { id: loaded.quotationId, no: loaded.quotationNo };
+    } catch (error: any) {
+      await this.showToast(
+        error?.error?.message || 'Gagal memuatkan sebut harga / Failed to load the quotation.',
+        'danger',
+      );
+      this.navCtrl.navigateBack(`/quotation/${quotationId}`, { replaceUrl: true });
+    } finally {
+      this.isLoadingQuotation = false;
+    }
   }
 
   get pageTitle(): string {
@@ -74,6 +128,11 @@ export class EreceiptAddPage implements OnInit {
         payload,
         operatorCompanyId,
       );
+      // Links the quotation (marked accepted in the same server transaction).
+      if (this.fromQuotation) {
+        createPayload['quotation_id'] = this.fromQuotation.id;
+        this.calendarDate = this.firstBookingDay(createPayload);
+      }
 
       // Write to queue first — data is safe before any network call
       const idempotencyKey = await this.offlineQueue.enqueueCreate(createPayload);
@@ -146,10 +205,15 @@ export class EreceiptAddPage implements OnInit {
     const state = booking
       ? { booking, idempotency_key: booking.idempotency_key }
       : {};
+    // From a quotation: the receipt's back button goes to the booking calendar.
+    const queryParams = this.fromQuotation
+      ? { from: 'quotation', ...(this.calendarDate ? { date: this.calendarDate } : {}) }
+      : undefined;
 
     if (formType === 'activity') {
       this.navCtrl.navigateForward(`/receipt-activity/${localRef}`, {
         state,
+        queryParams,
         replaceUrl: true,
       });
       return;
@@ -158,6 +222,7 @@ export class EreceiptAddPage implements OnInit {
     if (formType === 'accommodation') {
       this.navCtrl.navigateForward(`/receipt/${localRef}`, {
         state,
+        queryParams,
         replaceUrl: true,
       });
       return;
@@ -166,9 +231,30 @@ export class EreceiptAddPage implements OnInit {
     if (formType === 'package') {
       this.navCtrl.navigateForward(`/receipt-package/${localRef}`, {
         state,
+        queryParams,
         replaceUrl: true,
       });
     }
+  }
+
+  /** Earliest YYYY-MM-DD of the booking (its own date or its package items'). */
+  private firstBookingDay(payload: Record<string, any>): string {
+    const days: string[] = [];
+    const add = (value: unknown) => {
+      const day = String(value || '').slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(day)) days.push(day);
+    };
+    const items = Array.isArray(payload['package_companies']) ? payload['package_companies'] : [];
+    if (items.length) {
+      items.forEach((item: any) => {
+        add(item?.activity_date);
+        add(item?.check_in_date);
+      });
+    } else {
+      add(payload['activity_date']);
+      add(payload['check_in_date']);
+    }
+    return days.sort()[0] || '';
   }
 
   private async showToast(message: string, color: string): Promise<void> {
@@ -425,7 +511,18 @@ export class EreceiptAddPage implements OnInit {
   }
 
   goBack(): void {
+    // Opened from a quotation (Convert to Receipt): back to that quotation.
+    const quotationId = this.quotationIdFromQuery();
+    if (quotationId) {
+      this.navCtrl.navigateBack(`/quotation/${quotationId}`, { replaceUrl: true });
+      return;
+    }
     this.navCtrl.navigateBack('/e-receipt', { replaceUrl: true });
+  }
+
+  private quotationIdFromQuery(): number | null {
+    const id = Number(this.route.snapshot.queryParamMap.get('quotation'));
+    return Number.isInteger(id) && id > 0 ? id : null;
   }
 
   private loadUser(): void {

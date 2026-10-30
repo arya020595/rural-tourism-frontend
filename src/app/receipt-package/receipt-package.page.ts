@@ -523,7 +523,21 @@ export class ReceiptPackagePage implements OnInit, AfterViewInit {
     return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
+  /** Opened right after Convert to Receipt (see goBack). */
+  get fromQuotation(): boolean {
+    return this.activatedRoute.snapshot.queryParamMap.get('from') === 'quotation';
+  }
+
   goBack(): void {
+    // Made from a quotation (Convert to Receipt): back to the booking
+    // calendar on the booking's day, so the new booking is right there.
+    if (this.fromQuotation) {
+      const date = this.activatedRoute.snapshot.queryParamMap.get('date');
+      this.navCtrl.navigateRoot('/booking-home', {
+        queryParams: { view: 'calendar', ...(date ? { date } : {}) },
+      });
+      return;
+    }
     this.navCtrl.back();
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, MenuController, NavController } from '@ionic/angular';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -72,6 +72,7 @@ export class BookingHomePage implements OnInit {
     private offlineQueue: OfflineQueueService,
     private syncService: SyncService,
     private router: Router,
+    private route: ActivatedRoute,
     private navCtrl: NavController,
     private bookingStateService: BookingStateService,
     private alertCtrl: AlertController,
@@ -128,7 +129,25 @@ export class BookingHomePage implements OnInit {
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'booking-menu');
     this.loadUser();
+    this.applyCalendarQuery();
     void this.loadBookings();
+  }
+
+  /**
+   * ?view=calendar&date=YYYY-MM-DD (e.g. back from a receipt made from a
+   * quotation): open the calendar on that month with the day selected.
+   */
+  private applyCalendarQuery(): void {
+    const query = this.route.snapshot.queryParamMap;
+    if (query.get('view') !== 'calendar') return;
+    this.viewMode = 'calendar';
+    const date = query.get('date') || '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [year, month] = date.split('-').map(Number);
+      this.currentMonthDate = new Date(year, month - 1, 1);
+      this.selectedDateKey = date;
+      this.buildCalendar();
+    }
   }
 
   onMenuItemTap(_item: MenuItem): void {

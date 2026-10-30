@@ -38,6 +38,9 @@ type PackageProductType = 'activity' | 'accommodation';
 })
 export class PackageBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
+  // Add mode only: values to start from, e.g. a quotation being converted
+  // (Convert to Booking / Receipt). Edit and view load `booking` instead.
+  @Input() prefill: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
   @Input() hideCancel = false;
   // Shifts the displayed field numbers. booking-add renders a "1. Select Type"
@@ -539,7 +542,7 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['booking'] || changes['mode']) {
+    if (changes['booking'] || changes['mode'] || changes['prefill']) {
       this.applyBooking();
     }
   }
@@ -669,38 +672,39 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   }
 
   private applyBooking(): void {
-    if (!this.booking || this.mode === 'add') {
+    const loaded = this.mode === 'add' ? this.prefill : this.booking;
+    if (!loaded) {
       return;
     }
 
-    this.customerType = this.booking.customerType || 'tourist';
-    this.selectedNationality = this.booking.nationality || 'domestic';
-    this.fullName = this.booking.fullName || '';
-    this.phone = this.booking.phone || '';
-    this.email = this.booking.email || '';
-    this.domesticPax = this.booking.domesticPax?.toString() || '';
-    this.internationalPax = this.booking.internationalPax?.toString() || '';
+    this.customerType = loaded.customerType || 'tourist';
+    this.selectedNationality = loaded.nationality || 'domestic';
+    this.fullName = loaded.fullName || '';
+    this.phone = loaded.phone || '';
+    this.email = loaded.email || '';
+    this.domesticPax = loaded.domesticPax?.toString() || '';
+    this.internationalPax = loaded.internationalPax?.toString() || '';
     // For a single-nationality booking the pax sits in either domestic or
     // international. Use whichever is non-zero (a plain `||` would treat a
     // domestic value of 0 as truthy via "0" and hide an international count).
-    const domesticPaxNum = Number(this.booking.domesticPax || 0);
-    const internationalPaxNum = Number(this.booking.internationalPax || 0);
+    const domesticPaxNum = Number(loaded.domesticPax || 0);
+    const internationalPaxNum = Number(loaded.internationalPax || 0);
     const singlePax = domesticPaxNum || internationalPaxNum;
     this.paxCount = singlePax ? String(singlePax) : '';
     this.bookingDate = this.normalizeDateForInput(
-      this.booking.bookedDate || '',
+      loaded.bookedDate || '',
     );
     this.packageName =
-      this.booking.packageName || this.booking.serviceName || '';
-    this.packagePrice = this.booking.packagePrice?.toString() || '';
-    this.totalDeposit = formatMoney(this.booking.totalDeposit);
-    this.serviceName = this.booking.serviceName || '';
-    this.operatorName = this.booking.operatorName || '';
+      loaded.packageName || loaded.serviceName || '';
+    this.packagePrice = loaded.packagePrice?.toString() || '';
+    this.totalDeposit = formatMoney(loaded.totalDeposit);
+    this.serviceName = loaded.serviceName || '';
+    this.operatorName = loaded.operatorName || '';
 
-    const rawPackageItems = Array.isArray((this.booking as any).packageItems)
-      ? (this.booking as any).packageItems
-      : Array.isArray((this.booking as any).package_companies)
-        ? (this.booking as any).package_companies
+    const rawPackageItems = Array.isArray((loaded as any).packageItems)
+      ? (loaded as any).packageItems
+      : Array.isArray((loaded as any).package_companies)
+        ? (loaded as any).package_companies
         : [];
 
     // populate packageItems if booking contains them
@@ -753,8 +757,8 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
               };
               this.filteredServices[idx] = [...syntheticService];
             }
-            if (this.mode === 'edit') {
-              // Remove synthetic seed so loadServicesForCompany fetches real data
+            if (this.mode !== 'view') {
+              // Edit or prefilled add: drop the synthetic seed and fetch the real list
               delete this.serviceOptionsByCompanyId[companyId];
               this.loadServicesForCompany(companyId, idx);
             }

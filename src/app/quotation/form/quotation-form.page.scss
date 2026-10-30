@@ -1,0 +1,114 @@
+@import '../quotation-page';
+// Same inputs, item cards, dropdowns and time picker as the package booking
+// form (this also brings in booking-form-base).
+@import '../../booking-forms/components/package-booking-form/package-booking-form.component';
+
+.table-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.field-grid.three-col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+// Domestik / Antarabangsa: full width, lined up with the fields below
+// (the booking forms keep their 75%).
+.radio-grid.three-col {
+  width: 100%;
+}
+
+.hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+.section-hint {
+  margin: -4px 0 10px;
+  font-size: 13px;
+  color: #5b6b62;
+}
+
+.own-tag {
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #e2f1e7;
+  color: #0b5d33;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.notes-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+
+  .hint {
+    margin-top: 0;
+  }
+}
+
+.notes-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.notes-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #0b5d33;
+  background: #ffffff;
+  color: #0b5d33;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 16px;
+  }
+
+  &.primary {
+    background: #0b5d33;
+    color: #ffffff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.field textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid #c8c8c8;
+  background: #efefef;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: inherit;
+  color: #1a1a1a;
+  resize: vertical;
+}
+
+.bottom-action:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .field-grid.three-col {
+    grid-template-columns: 1fr;
+  }
+}
