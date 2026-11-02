@@ -78,13 +78,17 @@ Sections:
 3. **Items*** — the package item card UI: company (own company listed first,
    "Produk anda / Your product" tag), product type, service (only the company's
    active products of that type, no duplicates per company), price (RM, 2
-   decimals), activity date + optional time or stay start / end. Our own
+   decimals), activity date + optional time, or for accommodation **Tarikh
+   Daftar Masuk/Check-in Date** and **Tarikh Daftar Keluar/Check-out Date**
+   (the package booking form uses the same labels). Our own
    booked dates are marked in the date pop-up for our items only; other
    companies' calendars stay private. Add More + live Total Payment box.
 4. **Notes & Terms** — starts with the **company's saved default** (else the
    standard text). Buttons: **Use Standard Text** and **Save Default** (saves
    the box as the company default; greyed when already equal). Each quotation
-   keeps its own copy.
+   keeps its own copy. Limit **5,000 characters** (the backend's
+   `MAX_NOTES_LENGTH`): the box has `maxlength`, and a counter "402 / 5,000
+   aksara/characters" sits under it, turning red when full.
 
 Buttons: **Batal/Cancel** · **Simpan Sebut Harga/Save Quotation**. Saving shows
 a "Saving quotation…" overlay, then a pop-up **Quotation Created** /
@@ -102,8 +106,11 @@ cancelled) shows a warning and returns to its detail page.
 
 ## 6. Detail page (`/quotation/:id`)
 
-- Top row: **QT_0048** + status badge on the left; **PDF Quotation**,
-  **Tempahan/Booking**, **Resit/Receipt** on the right (stack on phones).
+- Top row: **QT_0048** + status badge on the left; on the right, two
+  labelled groups split by a thin line (they stack on phones):
+  - **Muat turun / Download:** PDF Quotation;
+  - **Tukar kepada / Change to:** Tempahan/Booking, Resit/Receipt. The group
+    is hidden when neither conversion is allowed.
 - Banners: Accepted ("Converted to a booking" + *View booking* link), Expired
   ("Edit to extend the valid-until date before converting"), Cancelled.
 - Cards: Quotation Details · To; items table (Itinerary Date / Time); total;
@@ -135,6 +142,12 @@ cancelled) shows a warning and returns to its detail page.
    `?from=quotation&date=<first day>`; its back button reads **Kembali Ke
    Tempahan** and opens **Booking in calendar view on that day** with the new
    booking listed (`booking-home` reads `?view=calendar&date=`).
+
+7. The booking made through **Tempahan/Booking** is saved as `booked`. The
+   booking detail page treats `booked` like `pending` (Cancel / Update /
+   Payment Receipt). Before the 2026-11-02 fix it wrongly showed "This booking
+   has been cancelled." with no buttons (`booking-detail.page.ts → canEdit()`;
+   see `docs/debug/DEBUG_LOG_2026-11-02.md` §8).
 
 `prefill` (activity / accommodation / package forms): add mode only; edit and
 view still load `booking`. With a prefill, the package form also loads each

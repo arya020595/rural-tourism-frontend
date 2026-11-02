@@ -46,20 +46,31 @@
             <h1>{{ q.quotation_no }}</h1>
             <span class="status-chip" [ngClass]="q.status">{{ statusLabels[q.status] }}</span>
           </div>
+          <!-- Labelled groups: download the PDF, or change it to a booking / receipt. -->
           <div class="actions">
             <!-- A cancelled quotation is no longer shared. -->
-            <button *ngIf="q.status !== 'cancelled'" type="button" class="action pdf" (click)="downloadPdf()">
-              <ion-icon name="document-text-outline"></ion-icon>
-              <span>PDF Quotation</span>
-            </button>
-            <button *ngIf="q.can_convert" type="button" class="action green" title="Deposit dibayar / Deposit paid" (click)="convertToBooking()">
-              <ion-icon name="calendar-outline"></ion-icon>
-              <span>Tempahan/Booking</span>
-            </button>
-            <button *ngIf="q.can_convert_receipt" type="button" class="action green" title="Bayar penuh / Paid in full" (click)="convertToReceipt()">
-              <ion-icon name="receipt-outline"></ion-icon>
-              <span>Resit/Receipt</span>
-            </button>
+            <div class="action-group" *ngIf="q.status !== 'cancelled'">
+              <span class="action-group-label">Muat turun / Download</span>
+              <div class="action-group-buttons">
+                <button type="button" class="action pdf" (click)="downloadPdf()">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                  <span>PDF Quotation</span>
+                </button>
+              </div>
+            </div>
+            <div class="action-group action-group--convert" *ngIf="q.can_convert || q.can_convert_receipt">
+              <span class="action-group-label">Tukar kepada / Change to:</span>
+              <div class="action-group-buttons">
+                <button *ngIf="q.can_convert" type="button" class="action green" title="Deposit dibayar / Deposit paid" (click)="convertToBooking()">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>Tempahan/Booking</span>
+                </button>
+                <button *ngIf="q.can_convert_receipt" type="button" class="action green" title="Bayar penuh / Paid in full" (click)="convertToReceipt()">
+                  <ion-icon name="receipt-outline"></ion-icon>
+                  <span>Resit/Receipt</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

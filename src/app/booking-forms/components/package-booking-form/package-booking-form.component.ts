@@ -358,9 +358,9 @@ export class PackageBookingFormComponent implements OnInit, OnChanges {
   get itemDateSheetTitle(): string {
     switch (this.itemDateSheet.field) {
       case 'checkInDate':
-        return 'Tarikh Mula/Start Date';
+        return 'Tarikh Daftar Masuk/Check-in Date';
       case 'checkOutDate':
-        return 'Tarikh Tamat/End Date';
+        return 'Tarikh Daftar Keluar/Check-out Date';
       default:
         return 'Tarikh Aktiviti/Activity Date';
     }

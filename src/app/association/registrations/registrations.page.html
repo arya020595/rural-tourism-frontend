@@ -1,0 +1,219 @@
+<app-side-nav
+  [menuId]="menuId"
+  [contentId]="'registrations-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="quotation-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button [menu]="menuId" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-refresh-button></app-refresh-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content [fullscreen]="true" id="registrations-content">
+  <div class="surface-card">
+    <div class="page-container">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1>Kelulusan Pendaftaran/ <em>Registration Approvals</em></h1>
+      </div>
+
+      <div class="offline-note" *ngIf="isOffline">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+        <span>Perlu internet / Needs an internet connection.</span>
+      </div>
+
+      <ng-container *ngIf="!isOffline">
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+          <input
+            type="text"
+            [value]="search"
+            (input)="onSearchInput($any($event.target).value)"
+            placeholder="Cari syarikat, pemilik atau emel / Search company, owner or email"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="tabs">
+          <button
+            *ngFor="let tab of tabs"
+            type="button"
+            class="tab"
+            [class.on]="status === tab"
+            (click)="setStatus(tab)"
+          >
+            <ion-icon [name]="tabIcons[tab]"></ion-icon>
+            <span class="tab-label">
+              {{ statusLabels[tab] }}
+              <span class="badge" *ngIf="tab === 'pending' && counts.pending > 0">{{ counts.pending }}</span>
+              <span class="count" *ngIf="tab !== 'pending'">({{ counts[tab] }})</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="table-spinner" *ngIf="isLoading">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+        </div>
+        <div class="load-error" *ngIf="!isLoading && loadError">{{ loadError }}</div>
+
+        <div class="table-wrapper" *ngIf="!isLoading && !loadError">
+          <table>
+            <thead>
+              <tr>
+                <th>Syarikat<br />Company</th>
+                <th>Pemilik<br />Owner</th>
+                <th *ngIf="isSuperadmin">Persatuan<br />Association</th>
+                <th>Tarikh Daftar<br />Submitted</th>
+                <th *ngIf="status !== 'pending'">Dikemas kini<br />Updated</th>
+                <th *ngIf="status === 'rejected'">Sebab<br />Reason</th>
+                <th>Status</th>
+                <th>Tindakan<br />Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows; trackBy: trackById">
+                <td class="left"><b>{{ row.company_name }}</b></td>
+                <td class="left">
+                  <b>{{ row.owner?.name || row.owner?.username || '-' }}</b>
+                  <small>{{ row.owner?.email }}</small>
+                </td>
+                <td *ngIf="isSuperadmin">{{ row.association?.name || '-' }}</td>
+                <td>{{ formatDate(row.submitted_at) }}</td>
+                <td *ngIf="status !== 'pending'">
+                  {{ formatDate(row.reviewed_at) }}
+                  <small *ngIf="row.reviewed_by">oleh/by {{ row.reviewed_by }}</small>
+                </td>
+                <td *ngIf="status === 'rejected'" class="reason">{{ row.rejection_reason || '-' }}</td>
+                <td><span class="status-chip" [ngClass]="row.status">{{ statusLabels[row.status] }}</span></td>
+                <td>
+                  <button type="button" class="pencil" title="Semak / Review" aria-label="Review" (click)="openReview(row)">
+                    <ion-icon name="create-outline"></ion-icon>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="rows.length === 0">
+                <td [attr.colspan]="columnCount" class="empty">{{ emptyText }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" *ngIf="!isLoading && totalPages > 1">
+          <button type="button" class="page-btn" (click)="goToPage(page - 1)" [disabled]="page === 1">&laquo; Previous</button>
+          <button
+            type="button"
+            class="page-btn"
+            *ngFor="let number of pageNumbers"
+            [class.active]="number === page"
+            (click)="goToPage(number)"
+          >
+            {{ number }}
+          </button>
+          <button type="button" class="page-btn" (click)="goToPage(page + 1)" [disabled]="page === totalPages">Next &raquo;</button>
+        </div>
+
+        <p class="note" *ngIf="!isSuperadmin">
+          Ahli persatuan anda sahaja. / Your association's members only.
+        </p>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Review pop-up (✎) -->
+  <ion-modal [isOpen]="reviewOpen" (didDismiss)="reviewOpen = false" class="review-modal">
+    <ng-template>
+      <div class="review-content">
+        <div class="review" *ngIf="review as r">
+          <div class="review-head">
+            <div>
+              <div class="review-title">{{ r.company_name }}</div>
+              <div class="review-sub">
+                {{ r.association?.name || 'Tiada persatuan / No association' }} · Daftar/Submitted {{ formatDate(r.submitted_at) }}
+              </div>
+            </div>
+            <span class="status-chip" [ngClass]="r.status">{{ statusLabels[r.status] }}</span>
+          </div>
+
+          <div class="decided rejected" *ngIf="r.status === 'rejected'">
+            Tidak aktif/Inactive<ng-container *ngIf="r.reviewed_at"> sejak/since {{ formatDate(r.reviewed_at) }}</ng-container><ng-container *ngIf="r.reviewed_by"> oleh/by {{ r.reviewed_by }}</ng-container>.
+            <br /><b>Sebab / Reason:</b> {{ r.rejection_reason || '-' }}
+          </div>
+          <div class="decided approved" *ngIf="r.status === 'approved'">
+            Aktif/Active<ng-container *ngIf="r.reviewed_at"> sejak/since {{ formatDate(r.reviewed_at) }}</ng-container><ng-container *ngIf="r.reviewed_by"> oleh/by {{ r.reviewed_by }}</ng-container>.
+            Nyahaktif akan menghalang pengendali log masuk. / Deactivating stops the operator from logging in.
+          </div>
+
+          <div class="review-spinner" *ngIf="reviewLoading">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+          </div>
+
+          <ng-container *ngIf="!reviewLoading">
+            <div class="sec">Pemilik &amp; Syarikat / Owner &amp; Company</div>
+            <div class="kv"><span>Pemilik / Owner</span><b>{{ r.owner?.name || '-' }} ({{ r.owner?.username }})</b></div>
+            <div class="kv"><span>Emel / Email</span><b>{{ r.owner?.email || r.company.email || '-' }}</b></div>
+            <div class="kv"><span>Telefon / Phone</span><b>{{ r.company.contact_no || '-' }}</b></div>
+            <div class="kv">
+              <span>Alamat / Address</span>
+              <b>{{ addressText(r) }}</b>
+            </div>
+            <div class="kv"><span>Pekerja / Staff</span><b>{{ staffText(r) }}</b></div>
+
+            <div class="sec">Dokumen / Documents</div>
+            <div class="docs">
+              <div class="doc" *ngFor="let d of documentLabels" [class.none]="!r.documents?.[d.key]">
+                <div class="doc-ico">{{ documentKind(r.documents?.[d.key]) }}</div>
+                <div class="doc-t">
+                  <b>{{ d.label }}</b>
+                  <small>{{ r.documents?.[d.key] ? 'Dimuat naik / Uploaded' : 'Tiada / Not uploaded' }}</small>
+                </div>
+                <button *ngIf="r.documents?.[d.key]" type="button" class="open" (click)="openDocument(r.documents?.[d.key])">
+                  Buka/Open
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="review-actions">
+            <button type="button" class="btn grey" (click)="closeReview()">Batal/Cancel</button>
+            <!-- Pending: Reject / Approve. Active: Deactivate. Inactive: Activate. -->
+            <button
+              *ngIf="r.status !== 'rejected'"
+              type="button"
+              class="btn red"
+              [disabled]="isDeciding || reviewLoading"
+              (click)="openRejectReason()"
+            >
+              {{ r.status === 'approved' ? 'Nyahaktif/Deactivate' : 'Tolak/Reject' }}
+            </button>
+            <button
+              *ngIf="r.status !== 'approved'"
+              type="button"
+              class="btn green"
+              [disabled]="isDeciding || reviewLoading"
+              (click)="confirmApprove()"
+            >
+              {{ r.status === 'rejected' ? 'Aktifkan/Activate' : 'Luluskan/Approve' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>

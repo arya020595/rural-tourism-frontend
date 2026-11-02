@@ -228,6 +228,51 @@ ion-card-header {
   }
 }
 
+/* User Guide + Video Tutorial, side by side under Register */
+.help-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.help-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 1px solid #b9d6c3;
+  border-radius: 10px;
+  background: #f3f9f5;
+  color: #04552f;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: left;
+  cursor: pointer;
+
+  ion-icon {
+    flex: none;
+    font-size: 22px;
+  }
+
+  small {
+    font-weight: 500;
+    font-size: 11.5px;
+    color: #4f6b5a;
+  }
+
+  &.video ion-icon {
+    color: #c4302b;
+  }
+
+  &:hover {
+    background: #e6f2ea;
+  }
+}
+
 .powered-by-card {
   margin-top: 18px;
   display: flex;

@@ -188,7 +188,7 @@
 
         <ng-template #bookedButtonsTemplate>
           <div
-            *ngIf="booking.status === 'pending'; else cancelledButtonsTemplate"
+            *ngIf="canEdit(); else cancelledButtonsTemplate"
             class="action-row action-row-three"
           >
             <button

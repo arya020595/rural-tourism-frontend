@@ -1,0 +1,674 @@
+// Panduan Pengguna / User Guide: white top bar, contents sidebar, readable
+// content column (~760px), app greens.
+$green: #04552f;
+$green-dark: #033d22;
+$green-soft: #eaf6ee;
+$ink: #1a1a1a;
+$ink-2: #44544b;
+$ink-3: #6b7a70;
+$line: #dfe7e2;
+
+.guide-header {
+  box-shadow: none;
+}
+
+.guide-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  background: #ffffff;
+  border-bottom: 1px solid $line;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid $line;
+  border-radius: 8px;
+  background: #ffffff;
+  color: $green;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  flex: none;
+
+  ion-icon {
+    font-size: 18px;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+
+  img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  b {
+    display: block;
+    font-size: 17px;
+    color: $green;
+    line-height: 1.1;
+  }
+
+  small {
+    display: block;
+    font-size: 12px;
+    color: $ink-3;
+  }
+}
+
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 520px;
+  margin-left: auto;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid $line;
+  border-radius: 10px;
+  background: #f7faf8;
+
+  ion-icon {
+    color: $ink-3;
+    font-size: 18px;
+    flex: none;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    color: $ink;
+  }
+}
+
+.search-clear {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  border: 1px solid $green;
+  border-radius: 8px;
+  overflow: hidden;
+  flex: none;
+
+  button {
+    min-width: 44px;
+    height: 36px;
+    border: 0;
+    background: #ffffff;
+    color: $green;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+
+    &.on {
+      background: $green;
+      color: #ffffff;
+    }
+  }
+}
+
+/* ── Layout ── */
+.guide-content {
+  --background: #f6f8f7;
+}
+
+.guide-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+  color: $ink;
+}
+
+/* ── Contents ── */
+.toc {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.toc-toggle {
+  display: none;
+}
+
+.toc-group {
+  margin-bottom: 18px;
+}
+
+.toc-group-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: $ink-3;
+  margin: 0 0 6px 10px;
+}
+
+.toc-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 14.5px;
+  color: $ink-2;
+  cursor: pointer;
+
+  &:hover {
+    background: #eef3f0;
+  }
+
+  &.active {
+    background: $green-soft;
+    color: $green;
+    font-weight: 700;
+  }
+}
+
+.toc-empty {
+  color: $ink-3;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+/* ── Content ── */
+.guide-main {
+  max-width: 820px;
+  min-width: 0;
+}
+
+.hero {
+  background: linear-gradient(135deg, #eef7f1, #ffffff);
+  border: 1px solid $line;
+  border-radius: 16px;
+  padding: 26px 28px;
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+    font-weight: 800;
+    color: $green;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.65;
+    color: $ink-2;
+  }
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+
+  &.video {
+    background: #c4302b;
+    color: #ffffff;
+  }
+
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e8f0fb;
+  color: #1f5d9b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.search-result {
+  margin: 0 0 18px;
+  color: $ink-3;
+  font-size: 14px;
+}
+
+.guide-section {
+  background: #ffffff;
+  border: 1px solid $line;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 22px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 2px 0 14px;
+    font-size: 23px;
+    font-weight: 800;
+    color: $ink;
+
+    ion-icon {
+      flex: none;
+      font-size: 24px;
+      color: $green;
+    }
+  }
+
+  p {
+    margin: 0 0 14px;
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: $ink-2;
+  }
+}
+
+.section-group {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: $ink-3;
+}
+
+/* numbered steps with green circles */
+.steps {
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+  margin: 0 0 16px;
+
+  li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 10px 42px;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: $ink;
+
+    &::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: $green;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.bullets {
+  margin: 0 0 16px;
+  padding-left: 20px;
+
+  li {
+    margin-bottom: 8px;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: $ink;
+  }
+}
+
+.callout {
+  display: flex;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.6;
+
+  > ion-icon {
+    flex: none;
+    font-size: 22px;
+    margin-top: 1px;
+  }
+
+  .callout-title {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  &.tip {
+    background: #fff8e6;
+    border: 1px solid #f5d99a;
+    color: #5c4300;
+
+    > ion-icon {
+      color: #b07800;
+    }
+  }
+
+  &.note {
+    background: #eaf2fb;
+    border: 1px solid #bcd3ee;
+    color: #173d63;
+
+    > ion-icon {
+      color: #1f5d9b;
+    }
+  }
+
+  &.warn {
+    background: #fdecea;
+    border: 1px solid #f5b5b0;
+    color: #6b1a14;
+
+    > ion-icon {
+      color: #c62828;
+    }
+  }
+}
+
+.shot {
+  margin: 0 0 18px;
+
+  figcaption {
+    margin-top: 8px;
+    font-size: 13px;
+    color: $ink-3;
+    text-align: center;
+  }
+}
+
+.shot-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid $line;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  cursor: zoom-in;
+  box-shadow: 0 4px 14px rgba(4, 85, 47, 0.08);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 0 16px;
+  border: 1px solid $line;
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+
+  th {
+    background: $green;
+    color: #ffffff;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 700;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-top: 1px solid $line;
+    vertical-align: top;
+    line-height: 1.5;
+    color: $ink;
+  }
+
+  td:first-child {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px 0;
+  color: $ink-3;
+
+  ion-icon {
+    font-size: 40px;
+  }
+}
+
+.guide-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: $green;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ── Enlarged screenshot ── */
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.82);
+  cursor: zoom-out;
+
+  img {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 10px;
+    cursor: default;
+  }
+
+  p {
+    color: #ffffff;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.zoom-close {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ── Tablets & phones ── */
+@media (max-width: 900px) {
+  .guide-topbar {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    padding-top: calc(10px + env(safe-area-inset-top));
+    gap: 10px;
+  }
+
+  .search {
+    order: 5;
+    flex-basis: 100%;
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .lang-toggle {
+    margin-left: auto;
+  }
+
+  .guide-layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 14px 14px 32px;
+  }
+
+  .toc {
+    position: static;
+    max-height: none;
+    background: #ffffff;
+    border: 1px solid $line;
+    border-radius: 12px;
+  }
+
+  .toc-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: $green;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+
+    .chev {
+      margin-left: auto;
+    }
+  }
+
+  .toc-body {
+    display: none;
+    padding: 4px 8px 10px;
+  }
+
+  .toc.open .toc-body {
+    display: block;
+  }
+
+  .guide-main {
+    max-width: none;
+  }
+
+  .hero {
+    padding: 20px;
+
+    h1 {
+      font-size: 23px;
+    }
+  }
+
+  .guide-section {
+    padding: 18px 16px;
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+
+  table td:first-child {
+    white-space: normal;
+  }
+}
+
+/* Small phones: back button becomes icon-only so back, logo and BM/EN stay
+   on one row (search goes underneath). */
+@media (max-width: 480px) {
+  .guide-topbar {
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .back-label {
+    display: none;
+  }
+
+  .brand {
+    gap: 8px;
+    min-width: 0;
+
+    img {
+      width: 32px;
+      height: 32px;
+    }
+
+    b {
+      font-size: 16px;
+    }
+  }
+
+  .lang-toggle button {
+    min-width: 40px;
+    height: 34px;
+  }
+}

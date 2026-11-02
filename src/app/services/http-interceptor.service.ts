@@ -147,6 +147,9 @@ export class HttpInterceptorService implements HttpInterceptor {
       }
 
       case 403:
+        // The login page explains its own 403s (deactivated, registration
+        // pending / rejected) — don't add a second, generic toast.
+        if (request?.url.includes('/auth/login')) return;
         message = 'You do not have permission to perform this action.';
         break;
       case 404:
@@ -177,6 +180,10 @@ export class HttpInterceptorService implements HttpInterceptor {
         return 'Akaun anda telah dinyahaktifkan. Sila hubungi pentadbir anda. / Your account has been deactivated. Please contact your admin.';
       case 'ACCOUNT_NOT_FOUND':
         return 'Akaun ini tidak lagi wujud. Sila hubungi pentadbir anda. / This account no longer exists. Please contact your admin.';
+      case 'REGISTRATION_PENDING':
+        return 'Pendaftaran syarikat anda menunggu kelulusan persatuan. / Your company registration is awaiting association approval.';
+      case 'REGISTRATION_REJECTED':
+        return 'Akaun syarikat anda tidak aktif. Sila hubungi persatuan anda. / Your company account is inactive. Please contact your association.';
       case 'SESSION_REVOKED':
         return 'Kata laluan anda telah ditukar. Sila log masuk semula. / Your password was changed. Please log in again.';
       default:

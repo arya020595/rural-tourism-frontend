@@ -16,8 +16,13 @@
     <ion-buttons slot="start">
       <ion-menu-button menu="admin-menu" style="color: white"></ion-menu-button>
     </ion-buttons>
+    <ion-buttons slot="end">
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
 
 <ion-content [fullscreen]="true" id="main-content">
   <ion-card class="main-Container ion-no-margin">

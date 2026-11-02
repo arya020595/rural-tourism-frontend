@@ -620,12 +620,42 @@ const routes: Routes = [
     },
   },
   {
+    path: 'association/statistics',
+    loadChildren: () =>
+      import('./association/statistics/association-statistics.module').then(
+        (m) => m.AssociationStatisticsPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'association',
+      permissions: ['association:read'],
+    },
+  },
+  {
+    path: 'association/registrations',
+    loadChildren: () =>
+      import('./association/registrations/registrations.module').then(
+        (m) => m.RegistrationsPageModule
+      ),
+    canActivate: [authGuard, permissionGuard],
+    data: {
+      loginRole: 'association',
+      permissions: ['registration:approve'],
+    },
+  },
+  {
     path: 'association/login',
     redirectTo: 'login',
     pathMatch: 'full',
   },  {
     path: 'privacy-policy',
     loadChildren: () => import('./privacy-policy/privacy-policy.module').then( m => m.PrivacyPolicyPageModule)
+  },
+  {
+    // Public: opened from the login page, no account needed.
+    path: 'user-guide',
+    loadChildren: () =>
+      import('./user-guide/user-guide.module').then((m) => m.UserGuidePageModule),
   },
 
 ];
