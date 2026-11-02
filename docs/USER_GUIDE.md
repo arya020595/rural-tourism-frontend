@@ -32,11 +32,14 @@ The in-app guide for **operators** (operator_admin and operator_staff), added
 
 ## 3. Adding the YouTube video
 
-Set the link in `user-guide.config.ts`:
+The link is set in `user-guide.config.ts` (added 2026-11-02):
 
 ```ts
-export const VIDEO_TUTORIAL_URL = 'https://www.youtube.com/watch?v=XXXXXXXXXXX';
+export const VIDEO_TUTORIAL_URL = 'https://youtu.be/6vxCw2Jhb0o';
 ```
+
+The video is the operator walkthrough: 8 min, BM/EN captions, made with the
+fictional demo operator. To use a different video later, replace this link.
 
 - While it's empty, both Video Tutorial buttons (login page and guide) show
   "Video tutorial akan datang / coming soon".
