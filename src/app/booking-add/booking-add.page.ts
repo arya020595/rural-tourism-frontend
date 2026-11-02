@@ -124,20 +124,25 @@ export class BookingAddPage implements OnInit {
       // Write to queue first — data is safe before any network call
       const idempotencyKey = await this.offlineQueue.enqueueCreate(createPayload);
 
-      // Also write into booking_cache so it shows in booking-home while offline
-      if (!this.networkService.isOnline) {
+      if (this.networkService.isOnline) {
+        await this.syncService.triggerSync();
+      }
+
+      // "Online" can still mean no internet (weak signal, Wi-Fi without
+      // internet), so check whether the booking actually reached the server.
+      const queued = (await this.offlineQueue.getAllQueueItems()).find(
+        (item) => item.idempotency_key === idempotencyKey,
+      );
+      if (queued?.status === 'synced') {
+        await this.showToast('Booking submitted successfully', 'success');
+      } else {
+        // Show it in booking-home until it syncs (replaced by the server copy then).
         await this.offlineQueue.cacheBookings([{
           ...createPayload,
           id: idempotencyKey,
           status: 'pending',
           created_at: new Date().toISOString(),
         }]);
-      }
-
-      if (this.networkService.isOnline) {
-        await this.syncService.triggerSync();
-        await this.showToast('Booking submitted successfully', 'success');
-      } else {
         await this.showToast(
           'No internet. Booking saved locally — will sync when online.',
           'warning',

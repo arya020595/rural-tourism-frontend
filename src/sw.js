@@ -9,8 +9,49 @@
 // makes 'activate' below delete the stale v1 cache.
 const CACHE_NAME = 'app-shell-v2';
 
+// The production build writes ngsw.json listing every file of the build; its
+// "app" group is index.html plus all JS/CSS (~7 MB). Saving that group at
+// install means the app opens offline even if the user never reloaded after
+// logging in, and every page works offline even if it was never opened
+// online (each page's code is a separate lazy-loaded JS file).
+async function appFiles() {
+  try {
+    const res = await fetch('/ngsw.json', { cache: 'no-cache' });
+    if (!res.ok) return null;
+    const manifest = await res.json();
+    const app = (manifest.assetGroups || []).find(group => group.name === 'app');
+    return app ? app.urls.filter(url => !url.includes('index.csr')) : null;
+  } catch {
+    return null; // offline / no manifest: files are still cached as they are used
+  }
+}
+
+async function precacheAppFiles() {
+  const urls = await appFiles();
+  if (!urls) return;
+  const cache = await caches.open(CACHE_NAME);
+  // One failed file must not block the rest.
+  await Promise.allSettled(
+    urls.map(url => cache.add(new Request(url, { cache: 'no-cache' }))),
+  );
+}
+
+// JS/CSS from earlier deploys are never requested again (new file names):
+// drop them so the cache doesn't grow by a full build per deploy.
+async function pruneOldBuilds() {
+  const urls = await appFiles();
+  if (!urls) return;
+  const current = new Set(urls);
+  const cache = await caches.open(CACHE_NAME);
+  for (const request of await cache.keys()) {
+    const path = new URL(request.url).pathname;
+    if (/\.(js|css)$/.test(path) && !current.has(path)) await cache.delete(request);
+  }
+}
+
 self.addEventListener('install', event => {
   self.skipWaiting();
+  event.waitUntil(precacheAppFiles());
 });
 
 self.addEventListener('activate', event => {
@@ -21,7 +62,9 @@ self.addEventListener('activate', event => {
           .filter(key => key !== CACHE_NAME && key !== 'prewarm-assets-v1')
           .map(key => caches.delete(key))
       )
-    ).then(() => clients.claim())
+    )
+      .then(() => pruneOldBuilds())
+      .then(() => clients.claim())
   );
 });
 

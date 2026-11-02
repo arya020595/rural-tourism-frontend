@@ -116,14 +116,18 @@ export class ReceiptPage implements OnInit, AfterViewInit {
     if (this.receiptId) {
       const stateBooking = history.state?.['booking'] ?? null;
       if (stateBooking) {
-        this.isLocalOnly = stateBooking._isLocalOnly === true || !this.networkService.isOnline;
+        // Not on the server yet (a local id, not a number) = no receipt PDF,
+        // so no QR: show the "once synced" notice instead. This also covers
+        // "connected but no internet", where the browser still says online.
+        const hasNumericId = /^\d+$/.test(String(this.receiptId));
+        this.isLocalOnly =
+          stateBooking._isLocalOnly === true || !this.networkService.isOnline || !hasNumericId;
         this.receipt = this.mapBookingToReceipt(stateBooking);
         this.loadCompanyProfile(this.receipt?.company_id);
         this.receiptReady = true;
         // The QR/PDF endpoint needs a numeric server booking id. If we only
         // have the local UUID so far, poll for the synced server id before
         // generating the receipt (covers offline and not-yet-synced online).
-        const hasNumericId = /^\d+$/.test(String(this.receiptId));
         if (this.isLocalOnly || !hasNumericId) {
           const idempotencyKey = history.state?.['idempotency_key'] ?? null;
           this.watchForSync(idempotencyKey);

@@ -80,10 +80,20 @@ export class BookingEditPage implements OnInit {
       const updatePayload = await this.buildUpdatePayload(formType, payload);
       const baseVersion = this.booking.version ?? 0;
 
-      await this.offlineQueue.enqueueEdit(numericId, updatePayload, baseVersion);
+      const idempotencyKey = await this.offlineQueue.enqueueEdit(numericId, updatePayload, baseVersion);
 
-      // Update booking_cache immediately so booking-home reflects the edit offline
-      if (!this.networkService.isOnline) {
+      if (this.networkService.isOnline) {
+        await this.syncService.triggerSync();
+      }
+
+      // "Online" can still mean no internet, so check the edit really reached the server.
+      const queued = (await this.offlineQueue.getAllQueueItems()).find(
+        (item) => item.idempotency_key === idempotencyKey,
+      );
+      if (queued?.status === 'synced') {
+        await this.showToast('Booking updated successfully', 'success');
+      } else {
+        // Update booking_cache now so booking-home reflects the edit offline
         const cached = await this.offlineQueue.getCachedBookings();
         const existing = cached.find(
           (b: any) => Number(b.id) === numericId || Number(b.numericId) === numericId,
@@ -91,12 +101,6 @@ export class BookingEditPage implements OnInit {
         if (existing) {
           await this.offlineQueue.cacheBookings([{ ...existing, ...updatePayload }]);
         }
-      }
-
-      if (this.networkService.isOnline) {
-        await this.syncService.triggerSync();
-        await this.showToast('Booking updated successfully', 'success');
-      } else {
         await this.showToast(
           'No internet. Edit saved locally — will sync when online.',
           'warning',
@@ -182,19 +186,30 @@ export class BookingEditPage implements OnInit {
         this.booking = mapped;
         this.syncSelectedType();
       },
-      error: () => {
-        const navigation = this.router.getCurrentNavigation();
-        const stateBooking = navigation?.extras?.state?.['booking'];
-        const fallback = (stateBooking || history.state?.['booking']) ?? null;
-        const mapped = fallback ? mapBookingToDetail(fallback) : null;
-        if (mapped?.isLegacy) {
-          this.blockLegacyEdit();
-          return;
-        }
-        this.booking = mapped;
-        this.syncSelectedType();
-      },
+      error: () => void this.loadBookingOffline(id),
     });
+  }
+
+  /**
+   * Offline (or server unreachable): use the copy saved on the device, like
+   * booking-detail does. The detail page also passes its booking in the
+   * navigation state, but that one is already mapped — mapping it again
+   * emptied the form, so it is only used as-is, as a last resort.
+   */
+  private async loadBookingOffline(id: string): Promise<void> {
+    const cached = await this.offlineQueue.getCachedBookings();
+    const raw = cached.find(
+      (b: any) => String(b.id) === id || String(b.numericId) === id,
+    );
+    const navigation = this.router.getCurrentNavigation();
+    const stateBooking = (navigation?.extras?.state?.['booking'] || history.state?.['booking']) ?? null;
+    const mapped = raw ? mapBookingToDetail(raw) : stateBooking;
+    if (mapped?.isLegacy) {
+      this.blockLegacyEdit();
+      return;
+    }
+    this.booking = mapped;
+    this.syncSelectedType();
   }
 
   // Migrated bookings are read-only historical records — no live
@@ -368,21 +383,29 @@ export class BookingEditPage implements OnInit {
       throw new Error('Your account does not have a company_id.');
     }
 
-    const response = await firstValueFrom(
-      this.productService.getProductsByCompany(companyId, {
-        page: 1,
-        per_page: 1000,
-      }),
-    );
-    const products = Array.isArray(response?.data) ? response.data : [];
-    const match = products.find((item: any) => {
-      const matchesType = item?.product_type === productType;
-      const matchesName =
-        String(item?.name || '')
-          .trim()
-          .toLowerCase() === normalizedName;
-      return matchesType && matchesName;
-    });
+    const findInList = (products: any[]) =>
+      products.find((item: any) => {
+        const matchesType = item?.product_type === productType;
+        const matchesName =
+          String(item?.name || '')
+            .trim()
+            .toLowerCase() === normalizedName;
+        return matchesType && matchesName;
+      });
+
+    let match: any = null;
+    try {
+      const response = await firstValueFrom(
+        this.productService.getProductsByCompany(companyId, {
+          page: 1,
+          per_page: 1000,
+        }),
+      );
+      match = findInList(Array.isArray(response?.data) ? response.data : []);
+    } catch {
+      // Offline — fall back to the products saved on the device (as booking-add does).
+      match = findInList(await this.offlineQueue.getCachedProducts(Number(companyId)));
+    }
 
     if (!match?.id) {
       throw new Error('Selected product was not found. Please pick from list.');
