@@ -5,7 +5,7 @@
  *
  * Paste the full link, e.g. 'https://www.youtube.com/watch?v=XXXXXXXXXXX'.
  */
-export const VIDEO_TUTORIAL_URL = '';
+export const VIDEO_TUTORIAL_URL = 'https://youtu.be/6vxCw2Jhb0o';
 
 /** Shown on the guide as "Last updated". Change it when the guide changes. */
 export const USER_GUIDE_UPDATED = '2026-11-02';
