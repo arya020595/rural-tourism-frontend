@@ -152,6 +152,26 @@ ion-modal.date-sheet-modal {
   font-weight: 700;
 }
 
+.alert-btn-confirm {
+  color: #04552f !important;
+  font-weight: 700;
+}
+
+/* Two-button confirm alerts: wide enough (like the reason pop-up) that
+   Cancel / action sit side by side instead of wrapping into a stack. */
+ion-alert.alert-side-by-side {
+  --min-width: min(340px, 90vw);
+
+  .alert-button-group {
+    flex-wrap: nowrap;
+  }
+
+  .alert-button {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+}
+
 /* ============================================
    USER MANAGEMENT MODALS
    ============================================ */

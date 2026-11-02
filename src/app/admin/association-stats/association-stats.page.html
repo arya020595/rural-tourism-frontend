@@ -110,16 +110,11 @@
         <!-- 2. Visitors & money -->
         <section class="stats-section">
           <h2 class="section-title">Pelawat &amp; Kewangan / Visitors &amp; Finance</h2>
-          <div class="stat-row stat-row--3">
+          <div class="stat-row stat-row--2">
             <div class="total-tile">
               <div class="total-label">Count of Activities Attended by Visitors</div>
               <div class="total-value">{{ totals.totalTourists | number }}</div>
               <div class="total-sub">Paid bookings only</div>
-            </div>
-            <div class="total-tile total-tile--revenue">
-              <div class="total-label">Total Booking Deposit</div>
-              <div class="total-value">RM {{ totals.totalDeposit | number: '1.2-2' }}</div>
-              <div class="total-sub">Pending + cancelled bookings</div>
             </div>
             <div class="total-tile total-tile--revenue">
               <div class="total-label">Total Revenue</div>
@@ -131,17 +126,23 @@
 
         <hr class="section-divider" />
 
-        <!-- 3. Workforce -->
+        <!-- 3. Workforce: total → full-time / part-time -->
         <section class="stats-section">
           <h2 class="section-title">Pekerja / Workers</h2>
-          <div class="stat-row stat-row--2">
-            <div class="total-tile">
-              <div class="total-label">Full-Time Workers</div>
-              <div class="total-value">{{ totals.totalFulltimeStaff | number }}</div>
+          <div class="booking-flow booking-flow--2">
+            <div class="total-tile flow-root">
+              <div class="total-label">Total Workers</div>
+              <div class="total-value">{{ totals.totalStaff | number }}</div>
             </div>
-            <div class="total-tile">
-              <div class="total-label">Part-Time Workers</div>
-              <div class="total-value">{{ totals.totalParttimeStaff | number }}</div>
+            <div class="flow-branches">
+              <div class="total-tile flow-child">
+                <div class="total-label">Full-Time Workers</div>
+                <div class="total-value">{{ totals.totalFulltimeStaff | number }}</div>
+              </div>
+              <div class="total-tile flow-child">
+                <div class="total-label">Part-Time Workers</div>
+                <div class="total-value">{{ totals.totalParttimeStaff | number }}</div>
+              </div>
             </div>
           </div>
         </section>
@@ -156,44 +157,57 @@
             *ngFor="let a of associations; trackBy: trackAssociation"
           >
             <div class="assoc-name">{{ a.associationName }}</div>
+            <div class="assoc-period">Period: {{ periodText }}</div>
+
+            <div class="assoc-heading"><span>Ringkasan / Summary</span></div>
+            <div class="assoc-summary">
+              <div class="assoc-summary-item">
+                <div class="assoc-summary-value">{{ a.companies.length | number }}</div>
+                <div class="metric-label">Registered Companies</div>
+              </div>
+              <div class="assoc-summary-item">
+                <div class="assoc-summary-value">RM {{ a.totalRevenue | number: '1.2-2' }}</div>
+                <div class="metric-label">Revenue</div>
+              </div>
+            </div>
+
+            <div class="assoc-heading"><span>Tempahan / Bookings</span></div>
             <div class="assoc-metrics">
               <div class="metric">
                 <div class="metric-value">{{ a.totalBookings | number }}</div>
-                <div class="metric-label">Bookings</div>
+                <div class="metric-label">Total Bookings</div>
               </div>
               <div class="metric">
                 <div class="metric-value">{{ a.totalReceipts | number }}</div>
                 <div class="metric-label">Receipts</div>
               </div>
               <div class="metric">
-                <div class="metric-value">{{ a.totalTourists | number }}</div>
-                <div class="metric-label">Tourists</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">{{ a.totalCancelled | number }}</div>
-                <div class="metric-label">Cancelled</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">{{ a.totalFulltimeStaff | number }}</div>
-                <div class="metric-label">Full-time</div>
-              </div>
-              <div class="metric">
-                <div class="metric-value">{{ a.totalParttimeStaff | number }}</div>
-                <div class="metric-label">Part-time</div>
+                <div class="metric-value metric-value--cancelled">{{ a.totalCancelled | number }}</div>
+                <div class="metric-label">Cancelled Bookings</div>
               </div>
             </div>
-            <div class="assoc-revenue">
-              <div class="assoc-footer-item">
-                <span class="assoc-revenue-label">Registered Companies</span>
-                <span class="assoc-revenue-value">
-                  {{ a.companies.length | number }}
-                </span>
+
+            <div class="assoc-heading"><span>Kiraan Aktiviti Pelawat / Visitor Activity Count</span></div>
+            <div class="assoc-visitors">
+              <div class="metric-value">{{ a.totalTourists | number }}</div>
+              <div class="metric-label">Total Count of Activities Attended by Visitors</div>
+            </div>
+
+            <div class="assoc-heading"><span>Tenaga Kerja / Workforce</span></div>
+            <div class="assoc-workforce">
+              <div class="metric">
+                <div class="metric-value">{{ a.totalFulltimeStaff | number }}</div>
+                <div class="metric-label">Full-Time</div>
               </div>
-              <div class="assoc-footer-item">
-                <span class="assoc-revenue-label">Revenue</span>
-                <span class="assoc-revenue-value">
-                  RM {{ a.totalRevenue | number: '1.2-2' }}
-                </span>
+              <span class="assoc-op" aria-hidden="true">+</span>
+              <div class="metric">
+                <div class="metric-value">{{ a.totalParttimeStaff | number }}</div>
+                <div class="metric-label">Part-Time</div>
+              </div>
+              <span class="assoc-op" aria-hidden="true">=</span>
+              <div class="metric assoc-workforce-total">
+                <div class="metric-value">{{ a.totalStaff | number }}</div>
+                <div class="metric-label">Total</div>
               </div>
             </div>
           </div>

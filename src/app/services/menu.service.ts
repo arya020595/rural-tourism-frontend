@@ -169,12 +169,28 @@ export class MenuService {
     },
     // ── Association ──────────────────────────────────────────────────────
     {
+      id: 'association-statistics',
+      label: 'Statistik Persatuan / Association Statistics',
+      icon: 'stats-chart-outline',
+      route: '/association/statistics',
+      permission: 'association:read',
+      roles: ['association'],
+    },
+    {
       id: 'association-dashboard',
       label: 'BI Dashboard / Papan Pemuka BI',
       icon: 'bar-chart-outline',
       route: '/association/dashboard',
       permission: 'bi_dashboard:read',
       roles: ['association'],
+    },
+    {
+      id: 'registration-approvals',
+      label: 'Kelulusan Pendaftaran / Registration Approvals',
+      icon: 'person-add-outline',
+      route: '/association/registrations',
+      permission: 'registration:approve',
+      roles: ['association', 'superadmin'],
     },
     {
       id: 'association-account-settings',

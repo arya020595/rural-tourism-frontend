@@ -184,7 +184,7 @@ hr {
   font-size: 24px;
 }
 
-/* Per-association cards: 4 per row, and a partial last row stays centered
+/* Per-association cards: 4 per row, and a partial last row stays centred
    (flexbox with a fixed basis — grid can't center an incomplete last row). */
 .assoc-grid {
   display: flex;
@@ -194,85 +194,146 @@ hr {
 }
 
 .assoc-card {
-  /* 4 columns: each card is a quarter of the row minus the gaps. */
   flex: 0 1 calc((100% - 3 * 16px) / 4);
   max-width: calc((100% - 3 * 16px) / 4);
   border: 1px solid #d8e2dc;
-  border-radius: 14px;
-  padding: 16px 18px;
-  background: #f7faf8;
+  border-radius: 12px;
+  padding: 12px 14px 14px;
+  background: #f5f7f6;
   box-sizing: border-box;
 }
 
 .assoc-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #04552f;
+  line-height: 1.3;
+}
+
+.assoc-period {
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: #555;
+}
+
+/* Section heading with a rule running to the right edge. */
+.assoc-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 9px 0 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #2f6b47;
+
+  &::after {
+    content: "";
+    flex: 1;
+    min-width: 24px;
+    height: 1px;
+    background: #d8e2dc;
+  }
+}
+
+/* Summary: companies | revenue in a white box with a divider. */
+.assoc-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #ffffff;
+  border: 1px solid #d8e2dc;
+  border-radius: 8px;
+  padding: 6px 4px;
+}
+
+.assoc-summary-item {
+  text-align: center;
+  padding: 0 8px;
+  min-width: 0;
+
+  & + & {
+    border-left: 1px solid #d8e2dc;
+  }
+}
+
+.assoc-summary-value {
   font-size: 15px;
   font-weight: 800;
   color: #04552f;
-  margin-bottom: 14px;
-  line-height: 1.3;
+  white-space: nowrap;
 }
 
 .assoc-metrics {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .metric {
   text-align: center;
-}
-
-.metric-value {
-  font-size: 22px;
-  font-weight: 800;
-  color: #111;
-}
-
-.metric-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b6b6b;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-top: 2px;
-}
-
-/* Revenue sits below the metric grid as a full-width footer row: it is a
-   currency value and does not fit the two-column numeric layout. */
-.assoc-revenue {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: end;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid #d8e2dc;
-}
-
-/* Footer: registered companies beside revenue, each centred in its half
-   (same columns as the metrics above). */
-.assoc-footer-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 4px;
   min-width: 0;
 }
 
-.assoc-revenue-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b6b6b;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.assoc-revenue-value {
+.metric-value {
   font-size: 17px;
   font-weight: 800;
-  color: #04552f;
-  white-space: nowrap;
+  color: #1a1a1a;
+  line-height: 1.1;
+}
+
+.metric-value--cancelled {
+  color: #a33a2a;
+}
+
+.metric-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #5c5c5c;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 1px;
+  line-height: 1.25;
+}
+
+/* Visitor activity count: number beside its label. */
+.assoc-visitors {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  .metric-label {
+    margin-top: 0;
+    text-align: left;
+    max-width: 200px;
+  }
+}
+
+/* Workforce: full-time + part-time = total (total boxed). */
+.assoc-workforce {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.assoc-op {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6b6b6b;
+  padding-bottom: 10px;
+}
+
+.assoc-workforce-total {
+  background: #ffffff;
+  border: 1px solid #d8e2dc;
+  border-radius: 8px;
+  padding: 4px;
+
+  .metric-value {
+    color: #04552f;
+  }
 }
 
 .empty-msg {
@@ -349,13 +410,14 @@ hr {
   text-align: center;
 }
 
-/* Tablet: 2 cards per row (still centered on a partial last row). */
+/* Tablet */
 @media (max-width: 992px) {
   .total-tile {
     flex-basis: calc((100% - 16px) / 2);
     max-width: calc((100% - 16px) / 2);
   }
 
+  /* Tablet: 2 cards per row. */
   .assoc-card {
     flex-basis: calc((100% - 16px) / 2);
     max-width: calc((100% - 16px) / 2);
@@ -474,6 +536,25 @@ hr.section-divider {
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
   border-top: 10px solid var(--flow-line);
+}
+
+/* Two-branch tree (workers): branches sit at the width of a two-card row,
+   under the same-width root. */
+.booking-flow--2 .flow-branches {
+  grid-template-columns: repeat(2, 1fr);
+  width: calc((100% - 2 * var(--flow-gap)) / 3 * 2 + var(--flow-gap));
+}
+
+/* horizontal bar joining the two branch centres */
+.booking-flow--2 .flow-branches::before {
+  left: calc((100% - var(--flow-gap)) / 4);
+  right: calc((100% - var(--flow-gap)) / 4);
+}
+
+@media (max-width: 992px) {
+  .booking-flow--2 .flow-branches {
+    width: 100%;
+  }
 }
 
 .stats-section .flow-child--pending {

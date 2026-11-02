@@ -187,7 +187,7 @@ export class BookingDetailPage implements OnInit {
   }
 
   editBooking(): void {
-    if (!this.booking || this.booking.status !== 'pending' || this.booking.isLegacy) {
+    if (!this.booking || !this.canEdit() || this.booking.isLegacy) {
       return;
     }
 
@@ -210,8 +210,13 @@ export class BookingDetailPage implements OnInit {
     return this.booking?.status === 'pending';
   }
 
+  /**
+   * Open (not paid, not cancelled) bookings can be cancelled, edited and paid.
+   * "booked" is what a quotation converted to a booking is saved as; the list
+   * and edit pages already treat it like "pending".
+   */
   canEdit(): boolean {
-    return this.booking?.status === 'pending';
+    return this.booking?.status === 'pending' || this.booking?.status === 'booked';
   }
 
   canPayment(): boolean {

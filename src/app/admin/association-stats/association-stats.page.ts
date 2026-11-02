@@ -16,6 +16,8 @@ const EMPTY_TOTALS: AssociationStatsData['totals'] = {
   totalCancelled: 0,
   totalPending: 0,
   totalDeposit: 0,
+  totalDepositPending: 0,
+  totalDepositCancelled: 0,
   totalRevenue: 0,
   totalFulltimeStaff: 0,
   totalParttimeStaff: 0,
@@ -49,6 +51,11 @@ export class AssociationStatsPage implements OnInit {
 
   readonly todayIsoDate = new Date().toISOString().slice(0, 10);
 
+  // The range the shown numbers were loaded for (the inputs above can be
+  // edited without applying yet).
+  private appliedFrom = '';
+  private appliedTo = '';
+
   constructor(
     private menuCtrl: MenuController,
     private router: Router,
@@ -79,6 +86,8 @@ export class AssociationStatsPage implements OnInit {
   private loadStats() {
     this.isLoading = true;
     this.loadError = false;
+    this.appliedFrom = this.dateFrom;
+    this.appliedTo = this.dateTo;
     this.dashboardApi.getAssociationStats(this.dateFrom, this.dateTo).subscribe({
       next: (res) => {
         // Rank the cards by total bookings (most active first) so the top
@@ -107,6 +116,20 @@ export class AssociationStatsPage implements OnInit {
         })
         .then((toast) => toast.present());
     }
+  }
+
+  /** "All time", "From 1 Oct 2026", "Until 31 Oct 2026" or "1 Oct 2026 – 31 Oct 2026". */
+  get periodText(): string {
+    const fmt = (iso: string) =>
+      new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    if (this.appliedFrom && this.appliedTo) return `${fmt(this.appliedFrom)} – ${fmt(this.appliedTo)}`;
+    if (this.appliedFrom) return `From ${fmt(this.appliedFrom)}`;
+    if (this.appliedTo) return `Until ${fmt(this.appliedTo)}`;
+    return 'All time';
   }
 
   trackAssociation(_index: number, row: AssociationStatRow): number {

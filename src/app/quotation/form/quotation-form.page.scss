@@ -55,6 +55,15 @@
   }
 }
 
+.notes-count {
+  white-space: nowrap;
+
+  &.full {
+    color: #c62828;
+    font-weight: 700;
+  }
+}
+
 .notes-buttons {
   display: flex;
   flex-wrap: wrap;

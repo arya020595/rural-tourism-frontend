@@ -112,10 +112,12 @@ export class HeaderLogoComponent implements OnInit, DoCheck {
       return bundledAssociationLogo;
     }
 
-    const logo =
-      this.user?.company_logo ||
-      this.user?.company?.operator_logo_image ||
-      this.user?.association?.image;
+    // Operators show their own company logo only. With none uploaded they
+    // get the building icon, not their association's logo (association
+    // accounts got theirs above).
+    const logo = this.isAssociationUser()
+      ? this.user?.association?.image
+      : this.user?.company_logo || this.user?.company?.operator_logo_image;
 
     if (!logo) {
       return '';

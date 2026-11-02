@@ -116,6 +116,8 @@ export class QuotationFormPage {
 
   // 4. Notes — starts as the company's saved default (else the standard text).
   notes = DEFAULT_QUOTATION_NOTES;
+  // Same limit as the backend (MAX_NOTES_LENGTH / MAX_TERMS_LENGTH).
+  readonly notesMaxLength = 5000;
   companyTerms: string | null = null;
   isSavingTerms = false;
 
@@ -515,9 +517,9 @@ export class QuotationFormPage {
   get itemDateSheetTitle(): string {
     switch (this.itemDateSheet.field) {
       case 'checkInDate':
-        return 'Tarikh Mula/Start Date';
+        return 'Tarikh Daftar Masuk/Check-in Date';
       case 'checkOutDate':
-        return 'Tarikh Tamat/End Date';
+        return 'Tarikh Daftar Keluar/Check-out Date';
       default:
         return 'Tarikh Aktiviti/Activity Date';
     }
