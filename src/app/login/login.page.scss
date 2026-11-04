@@ -239,10 +239,10 @@ ion-card-header {
 .help-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 6px 10px;
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 42px;
+  padding: 4px 10px 4px 8px;
   border: 1px solid #b9d6c3;
   border-radius: 10px;
   background: #f3f9f5;
@@ -253,9 +253,12 @@ ion-card-header {
   text-align: left;
   cursor: pointer;
 
+  /* Big icon, centred in its own fixed-width column on the left, so the two
+     icons line up whatever the text beside them says */
   ion-icon {
     flex: none;
-    font-size: 22px;
+    width: 44px;
+    font-size: 34px;
   }
 
   small {
