@@ -238,7 +238,7 @@ export class QuotationFormPage {
     );
   }
 
-  /** New quotation: start from the company's saved notes & terms. */
+  /** New quotation: start from the company's saved terms & conditions. */
   private loadCompanyTerms(applyToForm: boolean): void {
     this.quotationService.getCompanyTerms().subscribe({
       next: (terms) => {
@@ -267,7 +267,7 @@ export class QuotationFormPage {
       this.companyTerms = await firstValueFrom(this.quotationService.saveCompanyTerms(this.notes));
       await this.showResult(
         'Default Saved',
-        'New quotations will start with these notes & terms.',
+        'New quotations will start with these terms & conditions.',
         [{ text: 'OK', role: 'cancel' }],
       );
     } catch (error: any) {
@@ -277,7 +277,7 @@ export class QuotationFormPage {
     }
   }
 
-  /** Put the app's standard notes & terms back in the box. */
+  /** Put the app's standard terms & conditions back in the box. */
   useStandardNotes(): void {
     this.notes = DEFAULT_QUOTATION_NOTES;
   }

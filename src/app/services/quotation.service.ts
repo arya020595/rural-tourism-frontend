@@ -61,7 +61,7 @@ export class QuotationService {
       .pipe(map((res) => res.data));
   }
 
-  /** The company's default notes & terms (null = use the standard text). */
+  /** The company's default terms & conditions (null = use the standard text). */
   getCompanyTerms(): Observable<string | null> {
     return this.http
       .get<{ data: { terms: string | null } }>(`${this.apiUrl}/terms`)

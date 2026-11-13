@@ -108,7 +108,7 @@ export const QUOTATION_STATUS_LABELS: Record<QuotationStatus, string> = {
   cancelled: 'Dibatalkan/Cancelled',
 };
 
-/** Default notes & terms for a new quotation (editable per quotation). */
+/** Default terms & conditions for a new quotation (editable per quotation). */
 export const DEFAULT_QUOTATION_NOTES = [
   '1. Harga sah sehingga tarikh sah dan tertakluk kepada kekosongan. / Prices are valid until the valid-until date and subject to availability.',
   '2. Deposit tempahan tidak boleh dipulangkan. / Booking deposits are non-refundable.',
