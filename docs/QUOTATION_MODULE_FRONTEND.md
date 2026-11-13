@@ -44,7 +44,7 @@ My Transaction · E-Receipt · My Profile · User Management · Master Data.
 
 | File | Role |
 |---|---|
-| `quotation/quotation.models.ts` | types, status labels, standard notes & terms text |
+| `quotation/quotation.models.ts` | types, status labels, standard terms & conditions text |
 | `quotation/quotation-page.scss` | shared page chrome + status chip colours |
 | `quotation/list/*` | list page |
 | `quotation/form/*` | add / edit form |
@@ -83,7 +83,7 @@ Sections:
    (the package booking form uses the same labels). Our own
    booked dates are marked in the date pop-up for our items only; other
    companies' calendars stay private. Add More + live Total Payment box.
-4. **Notes & Terms** — starts with the **company's saved default** (else the
+4. **Terms & Conditions** (BM: Terma & Syarat; was "Notes & Terms" before 2026-11-13) — starts with the **company's saved default** (else the
    standard text). Buttons: **Use Standard Text** and **Save Default** (saves
    the box as the company default; greyed when already equal). Each quotation
    keeps its own copy. Limit **5,000 characters** (the backend's
@@ -114,7 +114,7 @@ cancelled) shows a warning and returns to its detail page.
 - Banners: Accepted ("Converted to a booking" + *View booking* link), Expired
   ("Edit to extend the valid-until date before converting"), Cancelled.
 - Cards: Quotation Details · To; items table (Itinerary Date / Time); total;
-  notes & terms.
+  terms & conditions.
 - Bottom: **Batal Sebut Harga/Cancel Quotation** (red, left) · **Edit Sebut
   Harga/Edit Quotation** (yellow, right); a lone button spans the row. The
   cancel confirmation lists "Ya, batalkan/Yes, cancel" above "Tidak/No".

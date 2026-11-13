@@ -88,14 +88,6 @@ export class MenuService {
       offlineCapable: true,
     },
     {
-      id: 'my-transaction',
-      label: 'My Transaction / Transaksi',
-      icon: 'receipt-outline',
-      route: '/my-transaction',
-      permission: 'receipt:read',
-      roles: ['operator_admin', 'operator_staff'],
-    },
-    {
       id: 'e-receipt',
       label: 'E-Receipt / E-Resit',
       icon: 'document-text-outline',
@@ -103,6 +95,14 @@ export class MenuService {
       permission: 'receipt:create',
       roles: ['operator_admin', 'operator_staff'],
       offlineCapable: true,
+    },
+    {
+      id: 'my-transaction',
+      label: 'My Transaction / Transaksi',
+      icon: 'receipt-outline',
+      route: '/my-transaction',
+      permission: 'receipt:read',
+      roles: ['operator_admin', 'operator_staff'],
     },
     {
       id: 'company-profile',

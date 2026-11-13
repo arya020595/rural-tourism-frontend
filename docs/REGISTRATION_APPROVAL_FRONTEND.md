@@ -38,6 +38,7 @@ The labels come from `REGISTRATION_STATUS_LABELS` in
 | `association/registrations/registrations.page.{ts,html,scss}`, `registrations.module.ts`, `registrations-routing.module.ts` | the page |
 | `_shared/notification-panel/notification-panel.component.ts` | a `registration_pending` bell item opens this page |
 | `association/dashboard/dashboard.page.html`, `admin/dashboard/dashboard.page.html` | bell added to both dashboards' headers |
+| `association/statistics/…page.html`, `association/registrations/…page.html`, `association/change-password/change-password.page.html` | bell on every association page (Account Settings added 2026-11-13) |
 | `register/register.page.html` | success pop-up: "Pendaftaran Dihantar / Registration Submitted…" (waits for approval, email when approved) |
 | `login/login.page.ts` | `showRegistrationStatus()` pop-up for login codes `REGISTRATION_PENDING` / `REGISTRATION_REJECTED` |
 | `services/http-interceptor.service.ts` | no generic 403 toast on `/auth/login` (the login page explains it); signed-out messages for both codes |

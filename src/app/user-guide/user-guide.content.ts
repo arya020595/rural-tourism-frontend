@@ -181,11 +181,11 @@ export const GUIDE_SECTIONS: GuideSection[] = [
           { bm: `**1. Butiran Pelanggan**: nama, no. telefon, emel, domestik/antarabangsa dan bilangan orang.`, en: `**1. Customer Details**: name, phone, email, local/international and number of pax.` },
           { bm: `**2. Butiran Sebut Harga**: tarikh, tarikh **sah sehingga** dan nama penyedia.`, en: `**2. Quotation Details**: date, **valid until** date and who prepared it.` },
           { bm: `**3. Perkara**: pilih syarikat, jenis produk, servis, tarikh dan harga. Tekan **Add More** untuk menambah perkara lain. Jumlah dikira sendiri.`, en: `**3. Items**: choose the company, product type, service, date and price. Tap **Add More** to add another item. The total is calculated for you.` },
-          { bm: `**4. Nota & Terma**: tekan **Use Standard Text** untuk teks biasa syarikat anda, atau **Save Default** untuk menyimpan teks semasa sebagai teks biasa. Had: **5,000 aksara**.`, en: `**4. Notes & Terms**: tap **Use Standard Text** for your company's usual text, or **Save Default** to keep the current text as your usual text. Limit: **5,000 characters**.` },
+          { bm: `**4. Terma & Syarat**: tekan **Use Standard Text** untuk teks biasa syarikat anda, atau **Save Default** untuk menyimpan teks semasa sebagai teks biasa. Had: **5,000 aksara**.`, en: `**4. Terms & Conditions**: tap **Use Standard Text** for your company's usual text, or **Save Default** to keep the current text as your usual text. Limit: **5,000 characters**.` },
           { bm: `Tekan **Simpan Sebut Harga / Save Quotation**.`, en: `Tap **Simpan Sebut Harga / Save Quotation**.` },
         ],
       },
-      { kind: 'img', src: IMG + 'quotation-items.webp', caption: { bm: 'Perkara dan nota & terma dalam borang sebut harga', en: 'Items and notes & terms in the quotation form' } },
+      { kind: 'img', src: IMG + 'quotation-items.webp', caption: { bm: 'Perkara dan terma & syarat dalam borang sebut harga', en: 'Items and terms & conditions in the quotation form' } },
       {
         kind: 'p',
         text: {
