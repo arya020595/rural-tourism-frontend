@@ -1,0 +1,128 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#13306b; --navy2:#0b1f4a; --teal:#138a7c; --orange:#f28c1e; --green:#04552f; --ink:#17233c; --muted:#5b6880; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1080px; height:2140px; overflow:hidden; font-family:Montserrat, Arial, sans-serif; background:#eef3f8; color:var(--ink); }
+
+  /* ---------- header ---------- */
+  .head { position:relative; height:680px; overflow:hidden; color:#fff; text-align:center;
+          background: radial-gradient(circle at 85% 0%, #1d4a8f 0%, var(--navy) 42%, var(--navy2) 100%); }
+  .head::after { content:""; position:absolute; left:-10%; right:-10%; bottom:-120px; height:200px; background:#eef3f8; border-radius:50%; }
+  .blob { position:absolute; width:560px; height:560px; border-radius:50%; right:-240px; top:-240px;
+          background: radial-gradient(circle, rgba(19,138,124,.55), rgba(19,138,124,0) 70%); }
+  .logos { position:relative; display:inline-flex; align-items:center; gap:22px; background:#fff; border-radius:24px;
+           padding:12px 30px 12px 20px; margin-top:48px; box-shadow:0 14px 34px rgba(0,0,0,.35); }
+  .logos .r { height:118px; } .logos .s { height:82px; }
+  .logos .sep { width:3px; height:86px; background:#d7dfe8; border-radius:2px; }
+  .tag { position:relative; display:inline-block; margin-top:30px; background:var(--orange); color:#fff; font-weight:800;
+         font-size:25px; letter-spacing:3px; padding:9px 26px; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,.3); }
+  .head h1 { position:relative; margin-top:18px; font-weight:900; font-size:86px; line-height:1; }
+  .head h1 .en { display:block; margin-top:10px; font-size:44px; font-weight:700; color:#9fe3d8; }
+  .head .sub { position:relative; margin:22px auto 0; width:900px; font-size:25px; font-weight:600; line-height:1.4; color:#dbe6f5; }
+  .head .sub span { display:block; font-size:21px; font-weight:500; color:#aec1dc; margin-top:4px; }
+
+  .body { position:relative; padding:0 56px; margin-top:-30px; }
+  .sec { font-size:30px; font-weight:900; color:var(--navy); display:flex; align-items:center; gap:14px; }
+  .sec small { font-size:22px; font-weight:600; color:var(--muted); }
+  .sec::after { content:""; flex:1; height:3px; background:#d6dfea; border-radius:2px; }
+
+  /* ---------- steps ---------- */
+  .steps { position:relative; margin-top:20px; }
+  .step:not(:last-child)::before { content:""; position:absolute; left:43px; top:90px; bottom:-18px; width:4px; background:#9fb8d6; border-radius:2px; }
+  .step { position:relative; display:flex; gap:24px; align-items:flex-start; }
+  .step + .step { margin-top:18px; }
+  .num { flex:none; z-index:1; width:90px; height:90px; border-radius:50%; background:var(--teal); color:#fff;
+         display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 7px #eef3f8; }
+  .num svg { width:44px; height:44px; }
+  .step:nth-child(2) .num { background:#1b6f9a; } .step:nth-child(3) .num { background:#1f528e; } .step:nth-child(4) .num { background:var(--navy); }
+  .box { flex:1; background:#fff; border-radius:22px; padding:20px 26px; box-shadow:0 8px 22px rgba(19,48,107,.10); }
+  .box h3 { font-size:28px; font-weight:800; color:var(--navy); }
+  .box h3 i { font-style:normal; color:var(--teal); margin-right:8px; }
+  .box h3 span { font-size:22px; font-weight:600; color:var(--muted); }
+  .box p { margin-top:6px; font-size:21px; font-weight:600; line-height:1.4; color:#2a3754; }
+  .box p.en { font-weight:500; color:var(--muted); margin-top:3px; font-size:19px; }
+  .convert { display:flex; gap:14px; margin-top:12px; }
+  .opt { flex:1; border-radius:16px; padding:12px 16px; }
+  .opt b { display:block; font-size:21px; font-weight:800; }
+  .opt span { display:block; font-size:17px; font-weight:600; margin-top:3px; line-height:1.3; }
+  .opt span em { display:block; font-style:normal; font-weight:500; opacity:.8; }
+  .opt.bk { background:#e6f4ef; color:var(--green); border:2px solid #b7dcc9; }
+  .opt.rc { background:#e7edf8; color:var(--navy); border:2px solid #c3d1ea; }
+  .total { display:flex; justify-content:space-between; align-items:center; margin-top:12px; background:#e6f4ef;
+           border:2px solid #b7dcc9; border-radius:16px; padding:12px 18px; color:var(--green); }
+  .total b { font-size:20px; font-weight:800; } .total strong { font-size:26px; font-weight:900; }
+
+  /* ---------- highlights ---------- */
+  .tips { margin-top:22px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .tip { background:#fff; border-radius:18px; padding:18px 18px; display:flex; gap:14px; align-items:flex-start; box-shadow:0 6px 16px rgba(19,48,107,.08); }
+  .tip .ic { flex:none; width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#fff2e3; }
+  .tip .ic svg { width:28px; height:28px; }
+  .tip b { display:block; font-size:20px; font-weight:800; color:var(--navy); }
+  .tip p { font-size:17.5px; font-weight:600; line-height:1.3; color:#2a3754; margin-top:4px; }
+  .tip p span { display:block; font-weight:500; color:var(--muted); font-size:16px; margin-top:2px; }
+
+  .foot { position:absolute; left:0; right:0; bottom:0; height:96px; background:var(--navy); color:#fff;
+          display:flex; align-items:center; justify-content:center; gap:16px; font-size:24px; font-weight:700; }
+  .foot .pill { background:#fff; color:var(--navy); border-radius:999px; padding:8px 20px; font-weight:800; }
+</style></head>
+<body>
+  <div class="head">
+    <div class="blob"></div>
+    <div class="logos"><img class="r" src="../../../src/assets/icon/rutec_icon.png"><div class="sep"></div><img class="s" src="../../../src/assets/icon/explore_sabah-without_bg.png"></div><br>
+    <div class="tag">DIKEMAS KINI · UPDATED</div>
+    <h1>Tempahan Pakej<span class="en">Package Booking</span></h1>
+    <div class="sub">Setiap item dalam pakej kini ada tarikh sendiri, dan terus muncul di kalendar.
+      <span>Every item in a package now has its own dates, and shows up straight on the calendar.</span></div>
+  </div>
+
+  <div class="body">
+    <div class="sec">Cara Guna <small>/ How it works</small></div>
+    <div class="steps">
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg></div>
+        <div class="box"><h3><i>1</i>Pilih Pakej <span>/ Choose Package</span></h3>
+          <p>Menu <b>Tempahan</b> → tambah → <b>Pakej</b>. Isi butiran pelanggan — <b>no. telefon wajib</b> dan pax sekurang-kurangnya 1.</p>
+          <p class="en">Booking menu → add → Package. Fill in the customer — phone number is required and pax must be at least 1.</p></div>
+      </div>
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="box"><h3><i>2</i>Tambah Item <span>/ Add items</span></h3>
+          <p>Setiap item: syarikat, <b>Jenis Produk</b> (Aktiviti / Penginapan), servis dan harga. Tekan <b>Add More</b> untuk item seterusnya.</p>
+          <p class="en">Each item: company, product type (activity / accommodation), service and price. Tap "Add More" for the next item.</p></div>
+      </div>
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg></div>
+        <div class="box"><h3><i>3</i>Tarikh setiap item <span>/ Dates per item</span> <b style="font-size:17px;font-weight:800;color:#fff;background:var(--orange);border-radius:999px;padding:3px 12px;vertical-align:4px;margin-left:6px">BAHARU · NEW</b></h3>
+          <p>Tarikh ikut jenis item. Tarikh yang sudah ditempah syarikat anda ditunjukkan semasa memilih.</p>
+          <p class="en">Dates follow the item type. Dates your company has already booked are shown while you pick.</p>
+          <div class="convert">
+            <div class="opt bk"><b>Aktiviti / Activity</b><span>Tarikh Aktiviti + Masa (pilihan)<em>Activity date + time (optional)</em></span></div>
+            <div class="opt rc"><b>Penginapan / Stay</b><span>Daftar Masuk → Daftar Keluar<em>Check-in → check-out</em></span></div>
+          </div></div>
+      </div>
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="box"><h3><i>4</i>Semak &amp; Simpan <span>/ Check &amp; save</span></h3>
+          <p>Jumlah dikira automatik daripada harga setiap item. <b>Tarikh Tempahan Dibuat</b> diisi hari ini.</p>
+          <p class="en">The total adds up item prices for you. "Date Booking Made" defaults to today.</p>
+          <div class="total"><b>Jumlah Bayaran / Total Payment</b><strong>RM = Item 1 + Item 2 + …</strong></div></div>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-top:30px">Apa Yang Baharu <small>/ What's new</small></div>
+    <div class="tips">
+      <div class="tip"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#f28c1e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 10h18M8 14h2M14 14h2M8 17.5h2"/></svg></div>
+        <div><b>Kalendar ikut item</b><p>Pakej muncul pada tarikh setiap item.<span>Packages show on each item's date.</span></p></div></div>
+      <div class="tip"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#f28c1e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div><b>Syarikat rakan nampak</b><p>Item untuk syarikat lain muncul di kalendar mereka (lihat sahaja).<span>Items for other companies appear on their calendar (view only).</span></p></div></div>
+      <div class="tip"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#f28c1e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <div><b>Elak tempahan bertindih</b><p>Lihat tarikh yang sudah ditempah sebelum memilih.<span>See already-booked dates before you choose.</span></p></div></div>
+      <div class="tip"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#f28c1e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+        <div><b>Resit pakej lebih jelas</b><p>Jadual itinerari dan lokasi pada resit.<span>Itinerary table and location on the receipt.</span></p></div></div>
+    </div>
+  </div>
+
+  <div class="foot">Menu <span class="pill">Booking / Tempahan</span> → <span class="pill">Package / Pakej</span></div>
+</body></html>
