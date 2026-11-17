@@ -1,0 +1,136 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#13306b; --navy2:#0b1f4a; --teal:#138a7c; --orange:#f28c1e; --green:#04552f; --ink:#17233c; --muted:#5b6880; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1080px; height:1800px; overflow:hidden; font-family:Montserrat, Arial, sans-serif; background:#eef3f8; color:var(--ink); }
+
+  .head { position:relative; height:640px; overflow:hidden; color:#fff; text-align:center;
+          background: radial-gradient(circle at 85% 0%, #1d4a8f 0%, var(--navy) 42%, var(--navy2) 100%); }
+  .head::after { content:""; position:absolute; left:-10%; right:-10%; bottom:-120px; height:200px; background:#eef3f8; border-radius:50%; }
+  .blob { position:absolute; width:560px; height:560px; border-radius:50%; right:-240px; top:-240px;
+          background: radial-gradient(circle, rgba(19,138,124,.55), rgba(19,138,124,0) 70%); }
+  .logos { position:relative; display:inline-flex; align-items:center; gap:22px; background:#fff; border-radius:24px;
+           padding:12px 30px 12px 20px; margin-top:48px; box-shadow:0 14px 34px rgba(0,0,0,.35); }
+  .logos .r { height:118px; } .logos .s { height:82px; }
+  .logos .sep { width:3px; height:86px; background:#d7dfe8; border-radius:2px; }
+  .tag { position:relative; display:inline-block; margin-top:30px; background:var(--orange); color:#fff; font-weight:800;
+         font-size:25px; letter-spacing:3px; padding:9px 26px; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,.3); }
+  .head h1 { position:relative; margin-top:18px; font-weight:900; font-size:80px; line-height:1; }
+  .head h1 .en { display:block; margin-top:10px; font-size:46px; font-weight:800; color:#9fe3d8; }
+  .head .sub { position:relative; margin:22px auto 0; width:900px; font-size:25px; font-weight:600; line-height:1.4; color:#dbe6f5; }
+  .head .sub span { display:block; font-size:21px; font-weight:500; color:#aec1dc; margin-top:4px; }
+
+  .body { position:relative; padding:0 56px; margin-top:-34px; }
+  .card { background:#fff; border-radius:26px; box-shadow:0 10px 26px rgba(19,48,107,.12); overflow:hidden; }
+  .card + .card { margin-top:26px; }
+  .card .top { display:flex; align-items:center; gap:16px; padding:22px 28px 0; }
+  .badge { flex:none; width:58px; height:58px; border-radius:16px; display:flex; align-items:center; justify-content:center; }
+  .badge svg { width:32px; height:32px; }
+  .badge.yt { background:#fde7e6; } .badge.bk { background:#e3f4f1; }
+  .card h2 { font-size:34px; font-weight:900; color:var(--navy); line-height:1.1; }
+  .card h2 span { display:block; font-size:21px; font-weight:600; color:var(--muted); margin-top:3px; }
+  .content { display:flex; gap:26px; padding:20px 28px 26px; align-items:center; }
+  .points { flex:1; list-style:none; }
+  .points li { display:flex; gap:12px; align-items:flex-start; font-size:21px; font-weight:700; color:#22304f; line-height:1.3; }
+  .points li + li { margin-top:14px; }
+  .points li small { display:block; font-size:17px; font-weight:500; color:var(--muted); }
+  .tick { flex:none; width:28px; height:28px; border-radius:50%; background:var(--teal); display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .tick svg { width:16px; height:16px; }
+  .qr { flex:none; width:210px; text-align:center; }
+  .qr img { width:210px; height:210px; border-radius:14px; border:3px solid #e1e8f2; }
+  .qr b { display:block; margin-top:8px; font-size:18px; font-weight:800; color:var(--navy); }
+  .qr span { display:block; font-size:15px; font-weight:600; color:var(--muted); }
+
+  .thumb { position:relative; flex:none; width:460px; border-radius:16px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,.2); }
+  .thumb img { display:block; width:100%; }
+  .thumb .play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:96px; height:68px; border-radius:18px;
+                 background:#e62117; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(0,0,0,.4); }
+  .thumb .play::after { content:""; border-left:28px solid #fff; border-top:17px solid transparent; border-bottom:17px solid transparent; margin-left:6px; }
+  .video-row { display:flex; gap:22px; padding:20px 28px 0; align-items:center; }
+  .facts { flex:1; display:flex; flex-direction:column; gap:12px; }
+  .fact { background:#f3f6fb; border-radius:14px; padding:12px 16px; }
+  .fact b { display:block; font-size:24px; font-weight:900; color:var(--navy); }
+  .fact span { display:block; font-size:16px; font-weight:600; color:var(--muted); }
+
+  .pills { display:flex; flex-wrap:wrap; gap:10px; padding:18px 28px 24px; }
+  .pills span { background:#f3f6fb; border-radius:12px; padding:9px 14px; font-size:17px; font-weight:600; color:var(--muted); }
+  .pills b { color:var(--navy); font-weight:800; }
+  .video-row { justify-content:space-between; padding-bottom:26px; }
+  .video-row .thumb { width:560px; }
+  .topics { margin-top:26px; }
+  .sec { font-size:28px; font-weight:900; color:var(--navy); display:flex; align-items:center; gap:14px; }
+  .sec small { font-size:21px; font-weight:600; color:var(--muted); }
+  .sec::after { content:""; flex:1; height:3px; background:#d6dfea; border-radius:2px; }
+  .chips { margin-top:16px; display:flex; flex-wrap:wrap; gap:10px; }
+  .chips span { background:#fff; border:2px solid #d6e0ec; color:var(--navy); font-size:18px; font-weight:700; padding:8px 15px; border-radius:999px; }
+
+  .where { margin-top:28px; background:var(--navy); border-radius:24px; padding:22px 26px; color:#fff; }
+  .where .t { font-size:24px; font-weight:800; }
+  .where .t span { font-size:19px; font-weight:600; color:#b9c9e0; }
+  .btns { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .btn { display:flex; align-items:center; gap:14px; background:#f3f9f5; border:2px solid #b9d6c3; border-radius:14px; padding:12px 16px; color:#04552f; }
+  .btn svg { flex:none; width:40px; height:40px; }
+  .btn b { display:block; font-size:21px; font-weight:800; line-height:1.15; }
+  .btn small { display:block; font-size:16px; font-weight:600; color:#4f6b5a; }
+
+  .foot { position:absolute; left:0; right:0; bottom:0; height:90px; background:var(--navy2); color:#fff;
+          display:flex; align-items:center; justify-content:center; gap:14px; font-size:24px; font-weight:700; }
+  .foot b { color:#9fe3d8; }
+</style></head>
+<body>
+  <div class="head">
+    <div class="blob"></div>
+    <div class="logos"><img class="r" src="../../../src/assets/icon/rutec_icon.png"><div class="sep"></div><img class="s" src="../../../src/assets/icon/explore_sabah-without_bg.png"></div><br>
+    <div class="tag">BAHARU · NEW</div>
+    <h1>Panduan Pengguna<span class="en">&amp; Video Tutorial</span></h1>
+    <div class="sub">Belajar guna RuTEC langkah demi langkah, dalam BM &amp; English.
+      <span>Learn to use RuTEC step by step, in Malay and English.</span></div>
+  </div>
+
+  <div class="body">
+    <!-- Video -->
+    <div class="card">
+      <div class="top">
+        <div class="badge yt"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4" fill="#e62117"/><path d="M10 9l5 3-5 3z" fill="#fff"/></svg></div>
+        <h2>Video Tutorial<span>Tonton cara guna sistem / Watch how the system works</span></h2>
+      </div>
+      <div class="video-row">
+        <div class="thumb"><img src="../assets/youtube-thumbnail.jpg"></div>
+        <div class="qr"><img data-qr="https://youtu.be/6vxCw2Jhb0o" alt="QR"><b>Imbas untuk tonton</b><span>Scan to watch</span></div>
+      </div>
+    </div>
+
+    <!-- User guide -->
+    <div class="card">
+      <div class="top">
+        <div class="badge bk"><svg viewBox="0 0 24 24" fill="none" stroke="#138a7c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg></div>
+        <h2>Panduan Pengguna<span>User Guide · rutec.my/user-guide</span></h2>
+      </div>
+      <div class="content">
+        <ul class="points">
+          <li><div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div>Tidak perlu log masuk<small>No login needed</small></div></li>
+          <li><div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div>Langkah bergambar<small>Step-by-step with screenshots</small></div></li>
+          <li><div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <div>Cari topik &amp; tukar BM / EN<small>Search topics &amp; switch BM / EN</small></div></li>
+        </ul>
+        <div class="qr"><img data-qr="https://rutec.my/user-guide" alt="QR"><b>Imbas untuk baca</b><span>Scan to read</span></div>
+      </div>
+    </div>
+
+    <div class="where">
+      <div class="t">Cari di halaman Log Masuk RuTEC <span>/ Find them on the RuTEC login page</span></div>
+      <div class="btns">
+        <div class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="#04552f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2zM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg>
+          <div><b>Panduan Pengguna</b><small>User Guide</small></div></div>
+        <div class="btn"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4" fill="#c4302b"/><path d="M10 9l5 3-5 3z" fill="#fff"/></svg>
+          <div><b>Video Tutorial</b><small>Tonton / Watch</small></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">Layari <b>rutec.my</b> · Visit rutec.my</div>
+</body></html>
