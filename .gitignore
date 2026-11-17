@@ -70,3 +70,6 @@ testem.log
 Thumbs.db
 
 .vercel
+
+# Rendered posters (see docs/POSTERS.md)
+/tools/posters/out/
