@@ -137,7 +137,16 @@ ion-content {
     font-size: 16px;
   }
 
+  // global.scss forces `white-space: nowrap` on mobile titles, which pushes
+  // "Tambah Sebut Harga/ Add Quotation" off-screen — let it wrap instead,
+  // with the English half on its own line.
   .title-row h1 {
-    font-size: 26px;
+    font-size: 22px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+
+    em {
+      display: block;
+    }
   }
 }
