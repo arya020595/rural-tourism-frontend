@@ -1,0 +1,320 @@
+<!-- Side Menu -->
+<app-side-nav
+  [menuId]="'assoc-statistics-menu'"
+  [contentId]="'assoc-statistics-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<!-- Main content -->
+<ion-header style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button
+        menu="assoc-statistics-menu"
+        style="color: white"
+      ></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content [fullscreen]="true" id="assoc-statistics-content">
+  <ion-card class="main-Container ion-no-margin">
+    <ion-col class="center">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+    </ion-col>
+
+    <ion-card-content class="stats-content">
+      <div class="page-header-row">
+        <div>
+          <h1>Statistik Persatuan/Association Statistics</h1>
+          <div class="assoc-subtitle" *ngIf="associationName">{{ associationName }}</div>
+        </div>
+
+        <div class="date-filter">
+          <div class="date-field" (click)="openDateSheet('from')">
+            <span class="date-field-label">Dari / From</span>
+            <span class="date-field-value" [class.placeholder]="!dateFrom">{{ dateFrom ? displayDate(dateFrom) : 'dd/mm/yyyy' }}</span>
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+          </div>
+          <div class="date-field" (click)="openDateSheet('to')">
+            <span class="date-field-label">Hingga / To</span>
+            <span class="date-field-value" [class.placeholder]="!dateTo">{{ dateTo ? displayDate(dateTo) : 'dd/mm/yyyy' }}</span>
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+          </div>
+          <button type="button" class="filter-btn apply" (click)="applyDateFilter()">
+            Filter
+          </button>
+          <button
+            type="button"
+            class="filter-btn reset"
+            (click)="resetDateFilter()"
+            *ngIf="dateFrom || dateTo"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+      <hr />
+
+      <!-- Loading -->
+      <div class="state-msg" *ngIf="isLoading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading association statistics...</p>
+      </div>
+
+      <!-- Error -->
+      <div class="state-msg" *ngIf="loadError && !isLoading">
+        <p>{{ loadError }}</p>
+      </div>
+
+      <ng-container *ngIf="!isLoading && !loadError">
+        <p class="period-line">
+          Tempoh / Period: <b>{{ periodText }}</b>
+        </p>
+
+        <!-- 1. Bookings: total → pending / paid / cancelled (same as the superadmin page) -->
+        <section class="stats-section">
+          <h2 class="section-title">Tempahan / Bookings</h2>
+          <div class="booking-flow">
+            <div class="total-tile flow-root">
+              <div class="total-label">Total Bookings</div>
+              <div class="total-value">{{ totals.totalBookings | number }}</div>
+            </div>
+            <div class="flow-branches">
+              <div class="total-tile flow-child flow-child--pending">
+                <div class="total-label">Total Pending Bookings</div>
+                <div class="total-value">{{ totals.totalPending | number }}</div>
+              </div>
+              <div class="total-tile flow-child flow-child--paid">
+                <div class="total-label">Total Paid Bookings</div>
+                <div class="total-value">{{ totals.totalReceipts | number }}</div>
+              </div>
+              <div class="total-tile flow-child flow-child--cancelled">
+                <div class="total-label">Total Cancelled Bookings</div>
+                <div class="total-value">{{ totals.totalCancelled | number }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- 2. Members, visitors & money -->
+        <section class="stats-section">
+          <h2 class="section-title">Ahli, Pelawat &amp; Kewangan / Members, Visitors &amp; Finance</h2>
+          <div class="stat-row stat-row--3">
+            <div class="total-tile">
+              <div class="total-label">Member Companies</div>
+              <div class="total-value">{{ members.length | number }}</div>
+              <div class="total-sub">Active members</div>
+            </div>
+            <div class="total-tile">
+              <div class="total-label">Count of Activities Attended by Visitors</div>
+              <div class="total-value">{{ totals.totalTourists | number }}</div>
+              <div class="total-sub">Paid bookings only</div>
+            </div>
+            <div class="total-tile total-tile--revenue">
+              <div class="total-label">Total Revenue</div>
+              <div class="total-value">RM {{ totals.totalRevenue | number: '1.2-2' }}</div>
+              <div class="total-sub">Paid bookings only</div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- 3. Workforce: total → full-time / part-time -->
+        <section class="stats-section">
+          <h2 class="section-title">Pekerja / Workers</h2>
+          <div class="booking-flow booking-flow--2">
+            <div class="total-tile flow-root">
+              <div class="total-label">Total Workers</div>
+              <div class="total-value">{{ totals.totalFulltimeStaff + totals.totalParttimeStaff | number }}</div>
+            </div>
+            <div class="flow-branches">
+              <div class="total-tile flow-child">
+                <div class="total-label">Full-Time Workers</div>
+                <div class="total-value">{{ totals.totalFulltimeStaff | number }}</div>
+              </div>
+              <div class="total-tile flow-child">
+                <div class="total-label">Part-Time Workers</div>
+                <div class="total-value">{{ totals.totalParttimeStaff | number }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- 5. Member companies -->
+        <section class="members-section">
+          <div class="members-head">
+            <h2 class="section-title">Senarai Ahli / Member Companies</h2>
+            <div class="search-box">
+              <ion-icon name="search-outline"></ion-icon>
+              <input
+                type="text"
+                autocomplete="off"
+                placeholder="Cari syarikat, pemilik... / Search company, owner..."
+                [(ngModel)]="search"
+              />
+            </div>
+          </div>
+
+          <div class="members-table-scroll">
+            <table class="members-table">
+              <thead>
+                <tr>
+                  <th>Info</th>
+                  <th>No.</th>
+                  <th class="left">Syarikat<br />Company</th>
+                  <th class="left">Pemilik<br />Owner</th>
+                  <th>Lokasi<br />Location</th>
+                  <th>Pekerja<br />Workers</th>
+                  <th class="activities-col">Count of Activities<br />Attended by Visitors</th>
+                  <th>Tarikh Sertai<br />Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of filteredMembers; let i = index; trackBy: trackMember">
+                  <td>
+                    <button
+                      type="button"
+                      class="info-btn"
+                      title="Profil syarikat / Company profile"
+                      (click)="openProfile(m)"
+                    >
+                      <ion-icon name="information-circle-outline"></ion-icon>
+                    </button>
+                  </td>
+                  <td>{{ i + 1 }}</td>
+                  <td class="left"><b>{{ m.companyName }}</b></td>
+                  <td class="left">{{ m.ownerName || '-' }}</td>
+                  <td>{{ m.location || '-' }}</td>
+                  <td>{{ m.fulltimeStaff + m.parttimeStaff | number }}</td>
+                  <td>{{ m.totalTourists | number }}</td>
+                  <td>{{ formatDate(m.joinedAt) }}</td>
+                </tr>
+                <tr *ngIf="filteredMembers.length === 0">
+                  <td colspan="8" class="empty">
+                    {{ members.length === 0 ? 'Tiada ahli berdaftar / No registered members yet.' : 'Tiada padanan / No matches.' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="members-note">
+            Count of activities attended by visitors (paid bookings only) follows the date range above.
+          </p>
+        </section>
+      </ng-container>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Date pop-up (same calendar as the booking / quotation pages) -->
+  <app-booking-date-sheet
+    [title]="dateSheet.field === 'from' ? 'Dari / From' : 'Hingga / To'"
+    [isOpen]="dateSheet.open"
+    [value]="dateSheet.field === 'from' ? dateFrom : dateTo"
+    [min]="dateSheet.field === 'to' ? dateFrom : ''"
+    [max]="todayIsoDate"
+    [showBookedDates]="false"
+    (dateSelected)="onDateSelected($event)"
+    (dismissed)="dateSheet.open = false"
+  ></app-booking-date-sheet>
+
+  <!-- Company profile (read-only) -->
+  <ion-modal [isOpen]="profileOpen" (didDismiss)="profileOpen = false" class="profile-modal">
+    <ng-template>
+      <ion-content class="profile-content">
+        <div class="profile">
+          <div class="profile-head">
+            <img *ngIf="logoUrl" [src]="logoUrl" alt="" class="profile-logo" />
+            <div class="profile-head-text">
+              <div class="profile-title">{{ profile?.company_name || profileRow?.companyName }}</div>
+              <div class="profile-sub">
+                {{ profile?.association?.name || associationName }}
+                <ng-container *ngIf="profile"> · Sertai/Joined {{ formatDate(profile.joined_at) }}</ng-container>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-spinner" *ngIf="profileLoading">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+          </div>
+
+          <ng-container *ngIf="!profileLoading && profile as p">
+            <div class="sec">Pemilik / Owner</div>
+            <div class="kv"><span>Nama / Name</span><b>{{ p.owner?.name || '-' }}<ng-container *ngIf="p.owner?.username && p.owner?.username !== p.owner?.name"> ({{ p.owner?.username }})</ng-container></b></div>
+            <div class="kv"><span>Emel / Email</span><b>{{ p.owner?.email || '-' }}</b></div>
+
+            <div class="sec">Syarikat / Company</div>
+            <div class="kv"><span>Emel / Email</span><b>{{ p.email || '-' }}</b></div>
+            <div class="kv"><span>Telefon / Phone</span><b>{{ p.contact_no || '-' }}</b></div>
+            <div class="kv">
+              <span>Alamat / Address</span>
+              <b>{{ addressText(p) }}</b>
+            </div>
+            <div class="kv">
+              <span>Pekerja / Workers</span>
+              <b>{{ p.total_fulltime_staff ?? 0 }} sepenuh masa/full-time · {{ p.total_partime_staff ?? 0 }} sambilan/part-time</b>
+            </div>
+
+            <ng-container *ngIf="profileRow">
+              <div class="sec">Prestasi / Performance</div>
+              <div class="kv"><span>Count of Activities Attended by Visitors</span><b>{{ profileRow.totalTourists | number }}</b></div>
+            </ng-container>
+
+            <div class="sec">Dokumen / Documents</div>
+            <div class="docs">
+              <div class="doc" *ngFor="let d of documentLabels" [class.none]="!p.documents[d.key]">
+                <div class="doc-ico">{{ documentKind(p.documents[d.key]) }}</div>
+                <div class="doc-t">
+                  <b>{{ d.label }}</b>
+                  <small>{{ p.documents[d.key] ? 'Dimuat naik / Uploaded' : 'Tiada / Not uploaded' }}</small>
+                </div>
+                <button *ngIf="p.documents[d.key]" type="button" class="open" (click)="openDocument(p.documents[d.key], d.label)">
+                  Buka/Open
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="profile-actions">
+            <button type="button" class="btn grey" (click)="closeProfile()">Tutup/Close</button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Document preview (opens over the profile pop-up) -->
+  <ion-modal [isOpen]="docOpen" (didDismiss)="onDocumentDismissed()" class="doc-modal">
+    <ng-template>
+      <div class="doc-dialog">
+        <div class="doc-header">
+          <h2 class="doc-title">{{ docTitle }}</h2>
+          <button type="button" class="doc-close" aria-label="Tutup/Close" (click)="closeDocument()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+        <div class="doc-body">
+          <iframe *ngIf="docIsPdf" [src]="docFrameUrl" class="doc-frame" title="Document preview"></iframe>
+          <img *ngIf="!docIsPdf && docImageUrl" [src]="docImageUrl" class="doc-image" alt="Document preview" />
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</ion-content>

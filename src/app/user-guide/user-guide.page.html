@@ -1,0 +1,189 @@
+<ion-header class="guide-header">
+  <div class="guide-topbar">
+    <button
+      type="button"
+      class="back-btn"
+      (click)="backToLogin()"
+      [attr.aria-label]="lang === 'bm' ? 'Kembali ke Log Masuk' : 'Back to Login'"
+    >
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      <span class="back-label">{{ lang === 'bm' ? 'Log Masuk' : 'Login' }}</span>
+    </button>
+
+    <div class="brand">
+      <img src="assets/icon/rutec_icon.png" alt="RuTEC" />
+      <div>
+        <b>RuTEC</b>
+        <small>{{ lang === 'bm' ? 'Panduan Pengguna' : 'User Guide' }}</small>
+      </div>
+    </div>
+
+    <label class="search">
+      <ion-icon name="search-outline"></ion-icon>
+      <input
+        type="search"
+        autocomplete="off"
+        [value]="search"
+        (input)="onSearch($any($event.target).value)"
+        [placeholder]="lang === 'bm' ? 'Cari dalam panduan… (cth. resit, deposit)' : 'Search this guide… (e.g. receipt, deposit)'"
+      />
+      <button *ngIf="search" type="button" class="search-clear" (click)="clearSearch()" aria-label="Clear">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </label>
+
+    <div class="lang-toggle" role="group" aria-label="Bahasa / Language">
+      <button type="button" [class.on]="lang === 'bm'" (click)="setLang('bm')">BM</button>
+      <button type="button" [class.on]="lang === 'en'" (click)="setLang('en')">EN</button>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="guide-content">
+  <div class="guide-layout">
+    <!-- Contents: sidebar on wide screens, a drop-down panel on phones -->
+    <nav class="toc" [class.open]="tocOpen">
+      <button type="button" class="toc-toggle" (click)="tocOpen = !tocOpen">
+        <ion-icon name="list-outline"></ion-icon>
+        <span>{{ lang === 'bm' ? 'Kandungan' : 'Contents' }}</span>
+        <ion-icon class="chev" [name]="tocOpen ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+      </button>
+      <div class="toc-body">
+        <div class="toc-group" *ngFor="let group of groups">
+          <div class="toc-group-label">{{ group.label }}</div>
+          <button
+            type="button"
+            class="toc-link"
+            *ngFor="let s of group.sections; trackBy: trackSection"
+            [class.active]="activeId === s.id"
+            (click)="goTo(s.id)"
+          >
+            {{ t(s.title) }}
+          </button>
+        </div>
+        <p class="toc-empty" *ngIf="groups.length === 0">
+          {{ lang === 'bm' ? 'Tiada padanan.' : 'No matches.' }}
+        </p>
+      </div>
+    </nav>
+
+    <main class="guide-main">
+      <!-- Welcome -->
+      <div class="hero" *ngIf="!search">
+        <h1>{{ lang === 'bm' ? 'Selamat datang ke RuTEC' : 'Welcome to RuTEC' }}</h1>
+        <p *ngIf="lang === 'bm'">
+          Panduan ringkas untuk pengendali pelancongan: cara mendaftar, membuat sebut harga dan tempahan,
+          mengeluarkan resit dan mengurus syarikat anda. Pilih tajuk di <b>Kandungan</b>, atau cari kata kunci di atas.
+        </p>
+        <p *ngIf="lang === 'en'">
+          A short guide for tourism operators: how to register, make quotations and bookings, issue receipts
+          and manage your company. Pick a topic from <b>Contents</b>, or search for a keyword above.
+        </p>
+        <div class="hero-actions">
+          <button type="button" class="hero-btn video" (click)="openVideo()">
+            <ion-icon name="logo-youtube"></ion-icon>
+            <span>Video Tutorial</span>
+          </button>
+          <span class="badge">
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{ lang === 'bm' ? 'Dikemas kini' : 'Last updated' }}: {{ updated | date: 'd MMM y' }}
+          </span>
+        </div>
+      </div>
+
+      <p class="search-result" *ngIf="search">
+        {{ visibleSections.length }} {{ lang === 'bm' ? 'tajuk sepadan dengan' : 'topics match' }} “{{ search }}”
+      </p>
+
+      <div #sectionsHost>
+        <section
+          class="guide-section"
+          *ngFor="let s of visibleSections; trackBy: trackSection"
+          [id]="'guide-' + s.id"
+        >
+          <div class="section-group">{{ t(s.group) }}</div>
+          <h2>
+            <ion-icon [name]="s.icon"></ion-icon>
+            <span>{{ t(s.title) }}</span>
+          </h2>
+
+          <ng-container *ngFor="let b of s.blocks">
+            <p *ngIf="b.kind === 'p'" [innerHTML]="rich(b.text)"></p>
+
+            <ol *ngIf="b.kind === 'steps'" class="steps">
+              <li *ngFor="let item of b.items" [innerHTML]="rich(item)"></li>
+            </ol>
+
+            <ul *ngIf="b.kind === 'list'" class="bullets">
+              <li *ngFor="let item of b.items" [innerHTML]="rich(item)"></li>
+            </ul>
+
+            <div *ngIf="b.kind === 'tip' || b.kind === 'note' || b.kind === 'warn'" class="callout" [ngClass]="b.kind">
+              <ion-icon
+                [name]="b.kind === 'tip' ? 'bulb-outline' : b.kind === 'warn' ? 'warning-outline' : 'information-circle-outline'"
+              ></ion-icon>
+              <div>
+                <b class="callout-title">
+                  {{
+                    b.kind === 'tip'
+                      ? (lang === 'bm' ? 'Petua' : 'Tip')
+                      : b.kind === 'warn'
+                        ? (lang === 'bm' ? 'Awas' : 'Careful')
+                        : (lang === 'bm' ? 'Nota' : 'Note')
+                  }}
+                </b>
+                <span [innerHTML]="rich(b.text)"></span>
+              </div>
+            </div>
+
+            <figure *ngIf="b.kind === 'img'" class="shot">
+              <button type="button" class="shot-btn" (click)="zoom(b.src, b.caption)" [attr.aria-label]="t(b.caption)">
+                <img [src]="b.src" [alt]="t(b.caption)" loading="lazy" />
+              </button>
+              <figcaption>{{ t(b.caption) }}</figcaption>
+            </figure>
+
+            <div *ngIf="b.kind === 'table'" class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th *ngFor="let h of b.head">{{ t(h) }}</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of b.rows">
+                    <td *ngFor="let cell of row" [innerHTML]="rich(cell)"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </section>
+      </div>
+
+      <div class="no-results" *ngIf="visibleSections.length === 0">
+        <ion-icon name="search-outline"></ion-icon>
+        <p>{{ lang === 'bm' ? 'Tiada tajuk sepadan. Cuba kata kunci lain.' : 'No topics match. Try another keyword.' }}</p>
+      </div>
+
+      <footer class="guide-footer">
+        <button type="button" class="link-btn" (click)="toTop()">
+          <ion-icon name="arrow-up-outline"></ion-icon>
+          {{ lang === 'bm' ? 'Ke atas' : 'Back to top' }}
+        </button>
+        <button type="button" class="link-btn" (click)="backToLogin()">
+          <ion-icon name="log-in-outline"></ion-icon>
+          {{ lang === 'bm' ? 'Kembali ke Log Masuk' : 'Back to Login' }}
+        </button>
+      </footer>
+    </main>
+  </div>
+
+</ion-content>
+
+<!-- Enlarged screenshot. Outside ion-content so it covers the top bar too. -->
+<div class="zoom" *ngIf="zoomSrc" (click)="closeZoom()" role="dialog" aria-modal="true">
+  <button type="button" class="zoom-close" (click)="closeZoom()" aria-label="Close">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+  <img [src]="zoomSrc" [alt]="zoomCaption" (click)="$event.stopPropagation()" />
+  <p>{{ zoomCaption }}</p>
+</div>

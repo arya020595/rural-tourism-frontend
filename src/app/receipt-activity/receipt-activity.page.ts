@@ -14,6 +14,7 @@ import { FileUrlService } from '../services/file-url.service';
 import { FormService } from '../services/form.service';
 import { NetworkService } from '../services/network.service';
 import { OfflineQueueService } from '../services/offline-queue.service';
+import { activityDateKey, activityTime } from '../utils/activity-date.util';
 
 @Component({
   selector: 'app-receipt-activity',
@@ -106,14 +107,18 @@ export class ReceiptActivityPage implements OnInit, AfterViewInit {
     if (this.receiptId) {
       const stateBooking = history.state?.['booking'] ?? null;
       if (stateBooking) {
-        this.isLocalOnly = stateBooking._isLocalOnly === true || !this.networkService.isOnline;
+        // Not on the server yet (a local id, not a number) = no receipt PDF,
+        // so no QR: show the "once synced" notice instead. This also covers
+        // "connected but no internet", where the browser still says online.
+        const hasNumericId = /^\d+$/.test(String(this.receiptId));
+        this.isLocalOnly =
+          stateBooking._isLocalOnly === true || !this.networkService.isOnline || !hasNumericId;
         this.receipt = this.mapBookingToReceipt(stateBooking);
         this.loadCompanyProfile(this.receipt?.company_id);
         this.receiptReady = true;
         // The QR/PDF endpoint needs a numeric server booking id. If we only
         // have the local UUID so far, poll for the synced server id before
         // generating the receipt (covers offline and not-yet-synced online).
-        const hasNumericId = /^\d+$/.test(String(this.receiptId));
         if (this.isLocalOnly || !hasNumericId) {
           const idempotencyKey = history.state?.['idempotency_key'] ?? null;
           this.watchForSync(idempotencyKey);
@@ -227,6 +232,15 @@ export class ReceiptActivityPage implements OnInit, AfterViewInit {
           record?.company?.company_name ||
           '',
       ),
+      // API records have activity_date. The booking detail page passes its
+      // own view of the booking instead (bookedDate "YYYY-MM-DD" + time
+      // "HH:mm"), so rebuild the same "as typed" value from those.
+      activity_date:
+        record?.activity_date ??
+        record?.activityDate ??
+        (/^\d{4}-\d{2}-\d{2}/.test(String(record?.bookedDate || ''))
+          ? `${String(record.bookedDate).slice(0, 10)}T${record?.time || '00:00'}:00`
+          : null),
       location: String(
         record?.company_location ||
           record?.companyLocation ||
@@ -427,6 +441,30 @@ export class ReceiptActivityPage implements OnInit, AfterViewInit {
     }, 3000);
   }
 
+  /**
+   * Activity date as entered (e.g. "03 NOVEMBER 2026"). Read straight from
+   * the stored value — converting to local time would move evening
+   * activities to the next day.
+   */
+  get activityDayText(): string {
+    const key = activityDateKey(this.receipt?.activity_date);
+    if (!key) return '-';
+    const [year, month, day] = key.split('-');
+    const months = [
+      'JANUARI', 'FEBRUARI', 'MAC', 'APRIL', 'MEI', 'JUN',
+      'JULAI', 'OGOS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DISEMBER',
+    ];
+    return `${day} ${months[Number(month) - 1]} ${year}`;
+  }
+
+  /** "9:30 PM", or "-" when no time was picked. */
+  get activityTimeText(): string {
+    const time = activityTime(this.receipt?.activity_date);
+    if (!time) return '-';
+    const [h, m] = time.split(':').map(Number);
+    return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  }
+
   formatMyDate(dateStr: string | null | undefined): string {
     if (!dateStr) return '-';
     const months = [
@@ -439,7 +477,21 @@ export class ReceiptActivityPage implements OnInit, AfterViewInit {
     return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
+  /** Opened right after Convert to Receipt (see goBack). */
+  get fromQuotation(): boolean {
+    return this.activatedRoute.snapshot.queryParamMap.get('from') === 'quotation';
+  }
+
   goBack(): void {
+    // Made from a quotation (Convert to Receipt): back to the booking
+    // calendar on the booking's day, so the new booking is right there.
+    if (this.fromQuotation) {
+      const date = this.activatedRoute.snapshot.queryParamMap.get('date');
+      this.navCtrl.navigateRoot('/booking-home', {
+        queryParams: { view: 'calendar', ...(date ? { date } : {}) },
+      });
+      return;
+    }
     this.navCtrl.back();
   }
 }

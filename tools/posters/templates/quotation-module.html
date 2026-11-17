@@ -1,0 +1,131 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#13306b; --navy2:#0b1f4a; --teal:#138a7c; --orange:#f28c1e; --green:#04552f; --ink:#17233c; --muted:#5b6880; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1080px; height:2090px; overflow:hidden; font-family:Montserrat, Arial, sans-serif; background:#eef3f8; color:var(--ink); }
+
+  /* ---------- header ---------- */
+  .head { position:relative; height:680px; overflow:hidden; color:#fff; text-align:center;
+          background: radial-gradient(circle at 85% 0%, #1d4a8f 0%, var(--navy) 42%, var(--navy2) 100%); }
+  .head::after { content:""; position:absolute; left:-10%; right:-10%; bottom:-120px; height:200px; background:#eef3f8; border-radius:50%; }
+  .blob { position:absolute; width:560px; height:560px; border-radius:50%; right:-240px; top:-240px;
+          background: radial-gradient(circle, rgba(19,138,124,.55), rgba(19,138,124,0) 70%); }
+  .logos { position:relative; display:inline-flex; align-items:center; gap:22px; background:#fff; border-radius:24px;
+           padding:12px 30px 12px 20px; margin-top:48px; box-shadow:0 14px 34px rgba(0,0,0,.35); }
+  .logos .r { height:118px; } .logos .s { height:82px; }
+  .logos .sep { width:3px; height:86px; background:#d7dfe8; border-radius:2px; }
+  .tag { position:relative; display:inline-block; margin-top:30px; background:var(--orange); color:#fff; font-weight:800;
+         font-size:25px; letter-spacing:3px; padding:9px 26px; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,.3); }
+  .head h1 { position:relative; margin-top:18px; font-weight:900; font-size:86px; line-height:1; }
+  .head h1 .en { display:block; margin-top:10px; font-size:44px; font-weight:700; color:#9fe3d8; }
+  .head .sub { position:relative; margin:22px auto 0; width:880px; font-size:25px; font-weight:600; line-height:1.4; color:#dbe6f5; }
+  .head .sub span { display:block; font-size:21px; font-weight:500; color:#aec1dc; margin-top:4px; }
+
+  .body { position:relative; padding:0 56px; margin-top:-30px; }
+  .sec { font-size:30px; font-weight:900; color:var(--navy); display:flex; align-items:center; gap:14px; }
+  .sec small { font-size:22px; font-weight:600; color:var(--muted); }
+  .sec::after { content:""; flex:1; height:3px; background:#d6dfea; border-radius:2px; }
+
+  /* ---------- steps ---------- */
+  .steps { position:relative; margin-top:20px; }
+  .step:not(:last-child)::before { content:""; position:absolute; left:43px; top:90px; bottom:-18px; width:4px; background:#9fb8d6; border-radius:2px; }
+  .step { position:relative; display:flex; gap:24px; align-items:flex-start; }
+  .step + .step { margin-top:18px; }
+  .num { flex:none; z-index:1; width:90px; height:90px; border-radius:50%; background:var(--teal); color:#fff;
+         display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 7px #eef3f8; }
+  .num svg { width:44px; height:44px; }
+  .step:nth-child(2) .num { background:#1b6f9a; } .step:nth-child(3) .num { background:#1f528e; } .step:nth-child(4) .num { background:var(--navy); }
+  .box { flex:1; background:#fff; border-radius:22px; padding:20px 26px; box-shadow:0 8px 22px rgba(19,48,107,.10); }
+  .box h3 { font-size:28px; font-weight:800; color:var(--navy); }
+  .box h3 i { font-style:normal; color:var(--teal); margin-right:8px; }
+  .box h3 span { font-size:22px; font-weight:600; color:var(--muted); }
+  .box p { margin-top:6px; font-size:21px; font-weight:600; line-height:1.4; color:#2a3754; }
+  .box p.en { font-weight:500; color:var(--muted); margin-top:3px; font-size:19px; }
+  .convert { display:flex; gap:14px; margin-top:12px; }
+  .opt { flex:1; border-radius:16px; padding:12px 16px; }
+  .opt b { display:block; font-size:21px; font-weight:800; }
+  .opt span { display:block; font-size:17px; font-weight:600; margin-top:2px; }
+  .opt.bk { background:#e6f4ef; color:var(--green); border:2px solid #b7dcc9; }
+  .opt.rc { background:#e7edf8; color:var(--navy); border:2px solid #c3d1ea; }
+
+  /* ---------- statuses ---------- */
+  .status { margin-top:22px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .st { background:#fff; border-radius:18px; padding:16px 20px; display:flex; flex-direction:column; align-items:flex-start; gap:10px; box-shadow:0 6px 16px rgba(19,48,107,.08); }
+  .chip { flex:none; font-size:19px; font-weight:800; padding:7px 14px; border-radius:999px; border:2px solid; white-space:nowrap; }
+  .chip.sent { background:#dbeafe; color:#1f4e8c; border-color:#b6cdf0; }
+  .chip.accepted { background:#a4d6af; color:#015c2f; border-color:#4f9a65; }
+  .chip.expired { background:#f7d4a0; color:#a65c00; border-color:#f28a00; }
+  .chip.cancelled { background:#f8d7da; color:#721c24; border-color:#f5c6cb; }
+  .st p { font-size:19px; font-weight:600; line-height:1.3; color:#2a3754; }
+  .st p span { display:block; font-weight:500; color:var(--muted); font-size:16px; }
+
+  /* ---------- tips ---------- */
+  .tips { margin-top:22px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .tip { background:#fff; border-radius:18px; padding:16px 18px; display:flex; gap:14px; align-items:flex-start; box-shadow:0 6px 16px rgba(19,48,107,.08); }
+  .tip .ic { flex:none; width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center; background:#fff2e3; }
+  .tip .ic svg { width:26px; height:26px; }
+  .tip b { display:block; font-size:19px; font-weight:800; color:var(--navy); }
+  .tip p { font-size:17px; font-weight:600; line-height:1.3; color:#2a3754; margin-top:2px; }
+  .tip p span { display:block; font-weight:500; color:var(--muted); font-size:15.5px; }
+
+  .foot { position:absolute; left:0; right:0; bottom:0; height:96px; background:var(--navy); color:#fff;
+          display:flex; align-items:center; justify-content:center; gap:18px; font-size:24px; font-weight:700; }
+  .foot .pill { background:#fff; color:var(--navy); border-radius:999px; padding:8px 20px; font-weight:800; }
+</style></head>
+<body>
+  <div class="head">
+    <div class="blob"></div>
+    <div class="logos"><img class="r" src="../../../src/assets/icon/rutec_icon.png"><div class="sep"></div><img class="s" src="../../../src/assets/icon/explore_sabah-without_bg.png"></div><br>
+    <div class="tag">BAHARU · NEW</div>
+    <h1>Modul Sebut Harga<span class="en">Quotation Module</span></h1>
+    <div class="sub">Hantar sebut harga kepada pelanggan, kemudian tukar terus kepada tempahan atau resit.
+      <span>Send price quotes to customers, then turn them straight into a booking or receipt.</span></div>
+  </div>
+
+  <div class="body">
+    <div class="sec">Cara Guna <small>/ How it works</small></div>
+    <div class="steps">
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg></div>
+        <div class="box"><h3><i>1</i>Cipta <span>/ Create</span></h3>
+          <p>Menu <b>Sebut Harga</b> → tambah. Isi pelanggan, perkara (aktiviti / penginapan, tarikh, harga) dan Terma &amp; Syarat.</p>
+          <p class="en">Quotation menu → add. Fill in the customer, items (activity / accommodation, dates, prices) and Terms &amp; Conditions.</p></div>
+      </div>
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></div>
+        <div class="box"><h3><i>2</i>Hantar PDF <span>/ Share the PDF</span></h3>
+          <p>Muat turun <b>PDF Sebut Harga</b> dan hantar kepada pelanggan (WhatsApp / e-mel).</p>
+          <p class="en">Download the quotation PDF and send it to the customer (WhatsApp / email).</p></div>
+      </div>
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+        <div class="box"><h3><i>3</i>Ubah jika perlu <span>/ Edit if needed</span></h3>
+          <p>Pelanggan minta ubah? <b>Edit Sebut Harga</b>, atau lanjutkan tarikh "Sah Sehingga" jika sudah tamat.</p>
+          <p class="en">Customer wants changes? Edit the quotation, or extend the "Valid Until" date if it has expired.</p></div>
+      </div>
+      <div class="step">
+        <div class="num"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="box"><h3><i>4</i>Pelanggan setuju → Tukar <span>/ Agreed → Convert</span></h3>
+          <p>Tekan <b>Tukar kepada / Change to</b>. Semua butiran diisi automatik.</p>
+          <p class="en">Tap "Change to". All the details are filled in for you.</p>
+          <div class="convert">
+            <div class="opt bk"><b>Tempahan / Booking</b><span>Deposit dibayar kemudian · Deposit paid later</span></div>
+            <div class="opt rc"><b>Resit / Receipt</b><span>Dibayar penuh sekarang · Paid in full now</span></div>
+          </div></div>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-top:30px">Status <small>/ Statuses</small></div>
+    <div class="status">
+      <div class="st"><div class="chip sent">Dihantar / Sent</div><p>Menunggu pelanggan<span>Waiting for the customer</span></p></div>
+      <div class="st"><div class="chip accepted">Diterima / Accepted</div><p>Ditukar kepada tempahan / resit<span>Converted to a booking / receipt</span></p></div>
+      <div class="st"><div class="chip expired">Tamat / Expired</div><p>Lepas tarikh "Sah Sehingga"<span>Past its valid-until date</span></p></div>
+      <div class="st"><div class="chip cancelled">Dibatalkan / Cancelled</div><p>Dibatalkan oleh syarikat<span>Cancelled by the company</span></p></div>
+    </div>
+
+  </div>
+
+  <div class="foot">Cari di menu <span class="pill">Sebut Harga / Quotation</span> dalam RuTEC</div>
+</body></html>

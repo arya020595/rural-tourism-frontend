@@ -215,12 +215,6 @@ input[type='file'] {
   min-width: 170px;
 }
 
-.error-message {
-  color: #b91c1c;
-  font-size: 13px;
-  margin: 10px 0 0;
-}
-
 /* Privacy policy checkbox row */
 .privacy-row {
   margin-top: 16px;
@@ -284,4 +278,20 @@ input[type='file'] {
   .action-row .back-button {
     min-width: 130px;
   }
+}
+
+.field-label-note {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #5f6b64;
+}
+
+/* Red message under a password field: too short / do not match. */
+.field-error {
+  margin: 6px 2px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #b3261e;
 }

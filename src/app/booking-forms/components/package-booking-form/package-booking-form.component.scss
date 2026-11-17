@@ -21,8 +21,33 @@
 	align-items: center;
 }
 
-.package-items .price-row input {
-	width: 120px;
+/* One card per package item so several items are easy to tell apart. */
+.package-item-card {
+	border: 1px solid #d5e3da;
+	border-radius: 12px;
+	background: #fbfdfb;
+	padding: 12px 14px 4px;
+	margin-bottom: 14px;
+}
+
+.package-item-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 32px;
+	margin-bottom: 6px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #e3ece6;
+}
+
+.package-item-title {
+	font-weight: 700;
+	color: #04552f;
+}
+
+.package-item-header .remove-item {
+	width: 32px;
+	height: 32px;
 }
 
 .remove-item {
@@ -37,8 +62,52 @@
 	justify-content: center;
 }
 
+/* Add More (left) and the package total (right) on one line. */
 .add-more-wrap {
 	margin-top: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.package-total-box {
+	margin-left: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	min-width: 180px;
+	padding: 8px 14px;
+	border: 1px solid #b9d6c3;
+	border-radius: 12px;
+	background: #eef6f0;
+}
+
+.package-total-label {
+	font-size: 12px;
+	font-weight: 700;
+	color: #04552f;
+}
+
+.package-total-value {
+	font-size: 20px;
+	font-weight: 800;
+	color: #04552f;
+	white-space: nowrap;
+}
+
+/* Phones: the total takes the full width under Add More, label left and
+   amount right. */
+@media (max-width: 576px) {
+	.package-total-box {
+		width: 100%;
+		margin-left: 0;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+	}
 }
 
 .add-more-btn {
@@ -110,4 +179,49 @@
 		background-color: #e8f5e9;
 		color: #0b6a3e;
 	}
+}
+
+/* Time picker for package activity items (same as the activity form). */
+.time-modal-inner {
+	padding: 16px 16px 0;
+}
+
+.time-modal-inner h3 {
+	margin: 0 0 8px;
+	font-size: 18px;
+	font-weight: 800;
+	color: #1e1e1e;
+}
+
+.time-modal-footer {
+	background: #ffffff;
+	box-shadow: none;
+}
+
+.time-modal-actions {
+	display: flex;
+	gap: 8px;
+	padding: 10px 16px 16px;
+	box-sizing: border-box;
+}
+
+.time-modal-btn {
+	flex: 1;
+	border: none;
+	border-radius: 8px;
+	min-height: 44px;
+	padding: 0 10px;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.time-modal-btn.cancel {
+	background: #e8e8e8;
+	color: #1f1f1f;
+}
+
+.time-modal-btn.apply {
+	background: #015c2f;
+	color: #ffffff;
 }

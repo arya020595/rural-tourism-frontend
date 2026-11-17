@@ -132,10 +132,13 @@ $um-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     }
   }
 
+  /* Same red message style as the registration / reset password pages. */
   .ufm-error {
     font-size: 0.78rem;
-    color: var(--ion-color-danger);
-    margin: 4px 0 0;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #b3261e;
+    margin: 6px 2px 0;
   }
 
   .ufm-api-error {

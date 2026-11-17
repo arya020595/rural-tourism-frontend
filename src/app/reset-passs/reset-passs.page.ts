@@ -15,6 +15,7 @@ export class ResetPasssPage implements OnInit {
   email = '';
   resetToken = '';
   newPassword = '';
+  readonly minPasswordLength = 8;
   confirmPassword = '';
   showNewPassword = false;
   showConfirmPassword = false;
@@ -110,6 +111,20 @@ export class ResetPasssPage implements OnInit {
   backToLogin() {
     this.emailSentAlertOpen = false;
     this.router.navigate(['/login'], { replaceUrl: true });
+  }
+
+  /** Typed something, but not enough yet. */
+  get passwordTooShort(): boolean {
+    const length = this.newPassword.length;
+    return length > 0 && length < this.minPasswordLength;
+  }
+
+  get passwordMismatch(): boolean {
+    return (
+      !!this.newPassword &&
+      !!this.confirmPassword &&
+      this.newPassword !== this.confirmPassword
+    );
   }
 
   toggleNewPassword() {

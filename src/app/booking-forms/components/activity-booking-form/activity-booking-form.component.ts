@@ -33,6 +33,9 @@ import {
 })
 export class ActivityBookingFormComponent implements OnInit, OnChanges {
   @Input() booking: BookingDetail | null = null;
+  // Add mode only: values to start from, e.g. a quotation being converted
+  // (Convert to Booking / Receipt). Edit and view load `booking` instead.
+  @Input() prefill: BookingDetail | null = null;
   @Input() mode: 'add' | 'edit' | 'view' = 'add';
   @Input() hideCancel = false;
   // Shifts the displayed field numbers. booking-add renders a "1. Select Type"
@@ -70,6 +73,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   activityOptions: string[] = [];
   activitySelectionError = '';
   emailError = '';
+  phoneError = '';
   validationErrors: string[] = [];
 
   constructor(
@@ -91,7 +95,7 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['booking'] || changes['mode']) {
+    if (changes['booking'] || changes['mode'] || changes['prefill']) {
       this.applyBooking();
     }
   }
@@ -126,14 +130,32 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
     this.validationErrors = [];
     this.activitySelectionError = '';
     this.emailError = '';
+    this.phoneError = '';
 
     if (!this.isViewMode) {
       if (!this.fullName.trim()) this.validationErrors.push('Full name is required.');
+      // Phone is how returning customers are recognised (dashboard Excel export).
+      const phoneDigits = String(this.phone || '').replace(/\D/g, '');
+      if (!phoneDigits) {
+        this.phoneError = 'Sila masukkan no. telefon / Telephone number is required.';
+        this.validationErrors.push('Telephone number is required.');
+      } else if (phoneDigits.length < 8) {
+        this.phoneError = 'No. telefon tidak sah / Please enter a valid telephone number.';
+        this.validationErrors.push('Please enter a valid telephone number.');
+      }
       if (this.email.trim() && !this.isValidEmail(this.email)) {
         this.emailError = 'Please enter a valid email address.';
         this.validationErrors.push('Please enter a valid email address.');
       }
-      if (!this.paxCount && !this.domesticPax && !this.internationalPax) this.validationErrors.push('Number of pax is required.');
+      // Pax must be at least 1 ("0" is not empty, so check the number).
+      const paxNumber = (value: unknown) => Number(String(value ?? '').trim() || 0);
+      if (this.isMixedNationality) {
+        if (paxNumber(this.domesticPax) < 1 || paxNumber(this.internationalPax) < 1) {
+          this.validationErrors.push('Domestic and international pax must each be at least 1.');
+        }
+      } else if (paxNumber(this.paxCount) < 1) {
+        this.validationErrors.push('Number of pax must be at least 1.');
+      }
       if (!this.bookingDate) this.validationErrors.push('Booking date is required.');
       if (!this.total || Number(this.total) <= 0) this.validationErrors.push('Total amount is required.');
       if (!this.hasValidActivitySelection()) {
@@ -222,31 +244,32 @@ export class ActivityBookingFormComponent implements OnInit, OnChanges {
   }
 
   private applyBooking(): void {
-    if (!this.booking || this.mode === 'add') {
+    const loaded = this.mode === 'add' ? this.prefill : this.booking;
+    if (!loaded) {
       return;
     }
 
-    this.selectedNationality = this.booking.nationality || 'domestic';
+    this.selectedNationality = loaded.nationality || 'domestic';
     this.bookingDate = this.normalizeDateForInput(
-      this.booking.bookedDate || '',
+      loaded.bookedDate || '',
     );
-    this.bookingTime = this.normalizeTimeForInput(this.booking.time || '');
-    this.fullName = this.booking.fullName || '';
-    this.phone = this.booking.phone || '';
-    this.email = this.booking.email || '';
-    this.domesticPax = this.booking.domesticPax?.toString() || '';
-    this.internationalPax = this.booking.internationalPax?.toString() || '';
+    this.bookingTime = this.normalizeTimeForInput(loaded.time || '');
+    this.fullName = loaded.fullName || '';
+    this.phone = loaded.phone || '';
+    this.email = loaded.email || '';
+    this.domesticPax = loaded.domesticPax?.toString() || '';
+    this.internationalPax = loaded.internationalPax?.toString() || '';
     // For a single-nationality booking the pax sits in either domestic or
     // international. Use whichever is non-zero (a plain `||` would treat a
     // domestic value of 0 as truthy via "0" and hide an international count).
-    const domesticPaxNum = Number(this.booking.domesticPax || 0);
-    const internationalPaxNum = Number(this.booking.internationalPax || 0);
+    const domesticPaxNum = Number(loaded.domesticPax || 0);
+    const internationalPaxNum = Number(loaded.internationalPax || 0);
     const singlePax = domesticPaxNum || internationalPaxNum;
     this.paxCount = singlePax ? String(singlePax) : '';
-    this.activity = this.booking.activityName || this.booking.serviceName || '';
-    this.total = formatMoney(this.booking.totalAmount);
-    this.totalDeposit = formatMoney(this.booking.totalDeposit);
-    this.operatorName = this.booking.operatorName || '';
+    this.activity = loaded.activityName || loaded.serviceName || '';
+    this.total = formatMoney(loaded.totalAmount);
+    this.totalDeposit = formatMoney(loaded.totalDeposit);
+    this.operatorName = loaded.operatorName || '';
   }
 
   private loadActivityOptions(): void {

@@ -1,0 +1,124 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#13306b; --navy2:#0b1f4a; --teal:#138a7c; --orange:#f28c1e; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1080px; height:1552px; overflow:hidden; font-family:Montserrat, Arial, sans-serif;
+         background: radial-gradient(circle at 85% 8%, #1d4a8f 0%, var(--navy) 38%, var(--navy2) 100%); color:#fff; position:relative; }
+  /* soft decorative shapes */
+  .blob1 { position:absolute; width:620px; height:620px; border-radius:50%; right:-260px; top:-220px;
+           background: radial-gradient(circle, rgba(19,138,124,.55), rgba(19,138,124,0) 70%); }
+  .blob2 { position:absolute; width:700px; height:700px; border-radius:50%; left:-330px; bottom:-300px;
+           background: radial-gradient(circle, rgba(242,140,30,.28), rgba(242,140,30,0) 70%); }
+  .wrap { position:absolute; inset:0; padding:56px 64px; display:flex; flex-direction:column; }
+
+  .logos { align-self:center; display:flex; align-items:center; gap:26px; background:#fff; border-radius:26px;
+           padding:14px 34px 14px 22px; box-shadow:0 14px 36px rgba(0,0,0,.35); }
+  .logos .r { height:132px; }
+  .logos .sep { width:3px; height:96px; background:#d7dfe8; border-radius:2px; }
+  .logos .s { height:92px; }
+
+  .tag { align-self:center; margin-top:30px; display:inline-flex; align-items:center; gap:14px;
+         background:var(--orange); color:#fff; font-weight:800; font-size:27px; letter-spacing:3px;
+         padding:11px 28px; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,.3); }
+  .tag svg { width:30px; height:30px; }
+
+  h1 { margin-top:22px; text-align:center; font-weight:900; font-size:78px; line-height:1.0; letter-spacing:.5px; }
+  h1 .en { display:block; margin-top:12px; font-size:46px; font-weight:700; color:#9fe3d8; letter-spacing:1px; }
+
+  .when { margin:30px auto 0; display:flex; gap:22px; }
+  .chip { background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.22); border-radius:22px;
+          padding:20px 30px; display:flex; align-items:center; gap:20px; min-width:400px; }
+  .chip svg { flex:none; width:56px; height:56px; }
+  .chip .big { font-size:38px; font-weight:800; line-height:1.1; }
+  .chip .small { font-size:22px; font-weight:600; color:#cfe0f4; margin-top:4px; }
+  .chip.time { background:var(--teal); border-color:var(--teal); min-width:360px; }
+  .chip.time .small { color:#dff6f2; }
+
+  .purpose { margin-top:30px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.18);
+             border-radius:26px; padding:26px 32px; }
+  .purpose .ttl { display:flex; align-items:center; gap:14px; font-size:30px; font-weight:900; }
+  .purpose .ttl small { font-size:22px; font-weight:600; color:#b9c9e0; }
+  .purpose .ttl svg { width:34px; height:34px; }
+  .purpose .why { margin-top:10px; font-size:24px; font-weight:700; line-height:1.35; color:#fff; }
+  .purpose .why span { display:block; font-size:20px; font-weight:500; color:#c3d3ea; margin-top:2px; }
+  .feats { margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .feat { display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.95); color:#13306b;
+          border-radius:16px; padding:12px 16px; }
+  .feat .dot { flex:none; width:44px; height:44px; border-radius:12px; background:#e3f4f1; display:flex; align-items:center; justify-content:center; }
+  .feat .dot svg { width:26px; height:26px; }
+  .feat b { display:block; font-size:20px; font-weight:800; line-height:1.2; }
+  .feat span { display:block; font-size:16.5px; font-weight:600; color:#5b6880; line-height:1.25; }
+
+  .card { margin-top:30px; background:#fff; color:#17233c; border-radius:28px; padding:34px 40px;
+          box-shadow:0 18px 44px rgba(0,0,0,.35); }
+  .row { display:flex; gap:22px; align-items:flex-start; }
+  .row + .row { margin-top:20px; padding-top:20px; border-top:2px solid #edf1f6; }
+  .ic { flex:none; width:58px; height:58px; border-radius:16px; display:flex; align-items:center; justify-content:center; }
+  .ic svg { width:32px; height:32px; }
+  .ic.a { background:#fff2e3; } .ic.b { background:#e3f4f1; } .ic.c { background:#e7edf8; }
+  .bm { font-size:27px; font-weight:700; line-height:1.3; color:var(--navy); }
+  .en2 { font-size:22px; font-weight:500; line-height:1.35; color:#5b6880; margin-top:4px; }
+
+  .foot { margin-top:auto; padding-top:30px; text-align:center; }
+  .foot .sorry { font-size:25px; font-weight:600; color:#e3ecf8; }
+  .foot .sorry span { display:block; font-size:21px; font-weight:500; color:#b9c9e0; margin-top:4px; }
+  .foot .thanks { margin-top:16px; font-size:30px; font-weight:800; color:var(--orange); letter-spacing:1px; }
+</style></head>
+<body>
+  <div class="blob1"></div><div class="blob2"></div>
+  <div class="wrap">
+    <div class="logos"><img class="r" src="../../../src/assets/icon/rutec_icon.png"><div class="sep"></div><img class="s" src="../../../src/assets/icon/explore_sabah-without_bg.png"></div>
+
+    <div class="tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>
+      NOTIS · NOTICE
+    </div>
+
+    <h1>Penyelenggaraan Sistem<span class="en">System Maintenance</span></h1>
+
+    <div class="when">
+      <div class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <div><div class="big">17 Nov 2026</div><div class="small">Selasa / Tuesday</div></div>
+      </div>
+      <div class="chip time">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div><div class="big">10:00 malam</div><div class="small">Bermula / Starting 10:00 PM</div></div>
+      </div>
+    </div>
+
+    <div class="purpose">
+      <div class="ttl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#f28c1e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>
+        Tujuan <small>/ Purpose</small>
+      </div>
+      <div class="why">Menaik taraf RuTEC dengan ciri baharu dan penambahbaikan sistem.
+        <span>To upgrade RuTEC with new features and system improvements.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="ic a"><svg viewBox="0 0 24 24" fill="none" stroke="#e07a10" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <div><div class="bm">Sistem RuTEC (laman web &amp; aplikasi) mungkin tidak dapat diakses buat sementara waktu.</div>
+             <div class="en2">RuTEC (website &amp; app) may be temporarily unavailable.</div></div>
+      </div>
+      <div class="row">
+        <div class="ic c"><svg viewBox="0 0 24 24" fill="none" stroke="#13306b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></div>
+        <div><div class="bm">Sila simpan kerja anda sebelum jam 10:00 malam.</div>
+             <div class="en2">Please save your work before 10:00 PM.</div></div>
+      </div>
+      <div class="row">
+        <div class="ic b"><svg viewBox="0 0 24 24" fill="none" stroke="#138a7c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></div>
+        <div><div class="bm">Selepas selesai, kemas kini aplikasi RuTEC di Google Play Store.</div>
+             <div class="en2">Once complete, update the RuTEC app from the Google Play Store.</div></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="sorry">Kami memohon maaf atas sebarang kesulitan.<span>We apologise for any inconvenience.</span></div>
+      <div class="thanks">TERIMA KASIH · THANK YOU</div>
+    </div>
+  </div>
+</body></html>

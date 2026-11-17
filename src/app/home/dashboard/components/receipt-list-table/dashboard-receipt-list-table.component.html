@@ -5,6 +5,7 @@
         <th></th>
         <th>Receipt ID</th>
         <th>Booked By</th>
+        <th>Phone No.</th>
         <th>Service Name</th>
         <th>Type</th>
         <th>Created At</th>
@@ -27,12 +28,15 @@
         </td>
         <td>{{ row.receiptId }}</td>
         <td>{{ row.bookedBy }}</td>
-        <td>{{ row.serviceName }}</td>
+        <td class="phone-cell">{{ row.phoneNumber }}</td>
+        <td>
+          <div class="service-text" [title]="row.serviceName">{{ row.serviceName }}</div>
+        </td>
         <td>{{ row.type }}</td>
         <td>{{ row.createdAt }}</td>
       </tr>
       <tr *ngIf="receipts.length === 0">
-        <td colspan="6">No data available</td>
+        <td colspan="7">No data available</td>
       </tr>
     </tbody>
   </table>

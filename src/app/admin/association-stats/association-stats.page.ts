@@ -5,13 +5,30 @@ import { AuthService, User } from '../../services/auth.service';
 import { MenuItem, MenuService } from '../../services/menu.service';
 import {
   AssociationStatRow,
+  AssociationStatsData,
   DashboardApiService,
 } from '../../home/dashboard/services/dashboard-api.service';
 
+const EMPTY_TOTALS: AssociationStatsData['totals'] = {
+  totalBookings: 0,
+  totalReceipts: 0,
+  totalTourists: 0,
+  totalCancelled: 0,
+  totalPending: 0,
+  totalDeposit: 0,
+  totalDepositPending: 0,
+  totalDepositCancelled: 0,
+  totalRevenue: 0,
+  totalFulltimeStaff: 0,
+  totalParttimeStaff: 0,
+  totalStaff: 0,
+};
+
 /**
- * Superadmin-only page: all-time totals per association — bookings, receipts
- * (paid bookings), tourists, revenue, and workforce (full-time / part-time
- * staff) — shown as a stat card per association.
+ * Superadmin-only page, top to bottom: bookings (total → pending / paid /
+ * cancelled), visitors & money (visitor activity count, booking deposits,
+ * revenue), workforce (full-time / part-time staff), a stat card per
+ * association, and the companies under each association.
  */
 @Component({
   selector: 'app-association-stats',
@@ -23,16 +40,7 @@ export class AssociationStatsPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   associations: AssociationStatRow[] = [];
-  totals = {
-    totalBookings: 0,
-    totalReceipts: 0,
-    totalTourists: 0,
-    totalCancelled: 0,
-    totalRevenue: 0,
-    totalFulltimeStaff: 0,
-    totalParttimeStaff: 0,
-    totalStaff: 0,
-  };
+  totals: AssociationStatsData['totals'] = { ...EMPTY_TOTALS };
   isLoading = false;
   loadError = false;
 
@@ -42,6 +50,11 @@ export class AssociationStatsPage implements OnInit {
   dateTo = '';
 
   readonly todayIsoDate = new Date().toISOString().slice(0, 10);
+
+  // The range the shown numbers were loaded for (the inputs above can be
+  // edited without applying yet).
+  private appliedFrom = '';
+  private appliedTo = '';
 
   constructor(
     private menuCtrl: MenuController,
@@ -73,6 +86,8 @@ export class AssociationStatsPage implements OnInit {
   private loadStats() {
     this.isLoading = true;
     this.loadError = false;
+    this.appliedFrom = this.dateFrom;
+    this.appliedTo = this.dateTo;
     this.dashboardApi.getAssociationStats(this.dateFrom, this.dateTo).subscribe({
       next: (res) => {
         // Rank the cards by total bookings (most active first) so the top
@@ -80,17 +95,7 @@ export class AssociationStatsPage implements OnInit {
         this.associations = [...(res?.data?.associations ?? [])].sort(
           (a, b) => b.totalBookings - a.totalBookings,
         );
-        this.totals =
-          res?.data?.totals ?? {
-            totalBookings: 0,
-            totalReceipts: 0,
-            totalTourists: 0,
-            totalCancelled: 0,
-            totalRevenue: 0,
-            totalFulltimeStaff: 0,
-            totalParttimeStaff: 0,
-            totalStaff: 0,
-          };
+        this.totals = { ...EMPTY_TOTALS, ...(res?.data?.totals ?? {}) };
         this.isLoading = false;
       },
       error: () => {
@@ -111,6 +116,20 @@ export class AssociationStatsPage implements OnInit {
         })
         .then((toast) => toast.present());
     }
+  }
+
+  /** "All time", "From 1 Oct 2026", "Until 31 Oct 2026" or "1 Oct 2026 – 31 Oct 2026". */
+  get periodText(): string {
+    const fmt = (iso: string) =>
+      new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    if (this.appliedFrom && this.appliedTo) return `${fmt(this.appliedFrom)} – ${fmt(this.appliedTo)}`;
+    if (this.appliedFrom) return `From ${fmt(this.appliedFrom)}`;
+    if (this.appliedTo) return `Until ${fmt(this.appliedTo)}`;
+    return 'All time';
   }
 
   trackAssociation(_index: number, row: AssociationStatRow): number {

@@ -5,6 +5,11 @@
 **Date**: May 8, 2026  
 **Author**: Development Team
 
+> **Update 2026-11-02:** an end-to-end offline test found 5 bugs. All 5 are fixed. See
+> [Fixes from the end-to-end offline test (2026-11-02)](#fixes-from-the-end-to-end-offline-test-2026-11-02).
+> Where this document's older code samples differ, the current code and that
+> section are correct.
+
 ---
 
 ## Table of Contents
@@ -23,6 +28,7 @@
 12. [Negative Scenario Handling](#negative-scenario-handling)
 13. [Testing & Validation](#testing--validation)
 14. [Deployment Guide](#deployment-guide)
+15. [Fixes from the end-to-end offline test (2026-11-02)](#fixes-from-the-end-to-end-offline-test-2026-11-02)
 
 ---
 
@@ -1318,6 +1324,8 @@ Each receipt page needs to:
 
 `isLocalOnly` is also set to `true` when `!networkService.isOnline` (not only when the `_isLocalOnly` flag is set), so opening an already-paid booking while offline shows the QR warning banner instead of "Error Generating PDF".
 
+Since 2026-11-02 it is also `true` whenever the receipt id is **not numeric** (a local UUID, not yet on the server). Without this, a receipt made while "connected but no internet" showed a QR for `/api/bookings/<uuid>/receipt-pdf`, which never works. The browser reported online in that case, so neither of the other checks caught it.
+
 ```typescript
 export class ReceiptActivityPage implements OnInit {
   isLocalOnly = false;         // true when booking not yet synced or device is offline
@@ -1435,8 +1443,19 @@ Two caches are maintained:
 
 | Cache name          | Populated by                           | Contents                              |
 | ------------------- | -------------------------------------- | ------------------------------------- |
-| `app-shell-v1`      | Auto-populated on first fetch          | JS chunks, HTML, SVGs, images         |
+| `app-shell-v2`      | SW install (precache) + on first fetch | `index.html`, all JS/CSS, then SVGs/images as used |
 | `prewarm-assets-v1` | `SyncService.prewarmAssets()` at login | Critical icons, background images     |
+
+**Current `sw.js` (v2, updated 2026-11-02):**
+
+- **Navigations:** network-first, so a new deploy loads straight away. The latest `index.html` is saved and served for every route offline.
+- **Install:** precaches the build's **"app" group from `ngsw.json`**: `index.html` plus every JS/CSS file, about 7 MB. The production build writes `ngsw.json` (`"serviceWorker": true` in `angular.json`); our `sw.js` only reads its file list.
+  - Before this, files were cached only once requested online. Two failures followed:
+    - The app showed **"HTTP ERROR 503"** offline if the user hadn't reloaded since their first login.
+    - **Pages never opened online** (e.g. Add Booking, Edit Booking) **didn't load offline.** Each page's code is a separate lazy-loaded file.
+  - Failed files don't block the rest (`Promise.allSettled`). With no manifest, it falls back to caching on use.
+- **Activate:** deletes JS/CSS from earlier deploys that are not in the current `ngsw.json`. New builds use new file names, so this keeps the cache from growing by a full build per deploy.
+- **Android:** the app doesn't register `sw.js` (`main.ts`). Its files are inside the APK.
 
 `caches.match(event.request)` searches **all** caches, so assets stored in `prewarm-assets-v1` are found and served by the normal fetch handler without any extra logic.
 
@@ -1513,8 +1532,9 @@ e-receipt page (offline)
 
 Angular navigation (offline)
   → sw.js: navigation fetch fails network
-  → falls back to index.html from app-shell-v1 cache
-  → Angular router renders the requested page ✓
+  → falls back to index.html from app-shell-v2 cache (precached at install)
+  → Angular router loads the page's JS chunk, also precached at install
+  → page renders ✓, even if it was never opened online
 ```
 
 ### 9.9 Key Files Changed
@@ -1544,7 +1564,9 @@ Angular navigation (offline)
 | 4                     | Partial sync (7/10 succeed)            | Per-item independent status                                                                      | Only failed items remain in queue; success doesn't block others              |
 | 5                     | Network drops mid-request              | Queue-first; data safe before any request                                                        | Retry with same `idempotency_key`; server deduplicates                       |
 | 6                     | Edit after server deletion             | Cache refresh marks item `conflict` on 404                                                       | Operator sees "booking was deleted" with option to recreate                  |
-| 9                     | Infinite retry loop                    | Max 3 retries; exponential backoff                                                               | After 3 failures → `permanently_failed`; manual operator action required     |
+| 9                     | Infinite retry loop                    | Max 3 retries for **server errors** (5xx except 502/503/504); exponential backoff               | After 3 failures → `permanently_failed`; manual operator action required     |
+| 9a                    | No connection / server unreachable     | Status 0 (no reply) and 502/503/504 **don't use up a retry**; item stays `pending`, run stops    | Sent on next reconnect or 30-second check. Before 2026-11-02, 3 of these marked offline bookings `permanently_failed` and they never synced |
+| 9b                    | "Connected" but no internet            | Browser says online (Wi-Fi/data without internet), so forms try to send straight away           | Add/Edit check the queue item after `triggerSync()`: success toast only if `synced`, else "saved locally". Receipts treat a non-numeric id as not synced (no QR) |
 | 10                    | Out-of-order sync                      | Operations grouped by `local_booking_id`; processed in sequence                                  | CREATE failure blocks subsequent EDITs for same booking                      |
 | 15                    | Silent failures                        | All statuses are visible in UI (badge, banner, list dot)                                         | Persistent (non-dismissable) banner for failed/conflict items                |
 | 16                    | OS kills app mid-sync                  | On app open: `resetStaleSyncingItems()` resets `syncing` → `pending`                             | Idempotency key makes re-sending safe                                        |
@@ -1630,6 +1652,37 @@ Angular navigation (offline)
 4. Navigate to the e-receipt page
 5. Verify: background images load (served from `prewarm-assets-v1`)
 6. Verify: header Explore Sabah logo loads (served from localStorage base64)
+
+**Test 9 — Offline right after the first login (no reload)**
+
+1. Clear site data, then log in as an operator. Open no other page and don't reload.
+2. Enable airplane mode, then reload the app.
+3. Verify: RuTEC opens, not "HTTP ERROR 503".
+4. Open Booking → Add Booking, and Update Booking on an existing booking.
+5. Verify: both forms load, even though they were never opened online. The edit form is filled in.
+
+**Test 10 — Connected but no internet**
+
+1. Connect to a Wi-Fi hotspot that has no internet (or block the API host).
+2. Add a booking.
+3. Verify: the toast says "saved locally", **not** "submitted successfully". The booking is listed with status *Booked/Deposit*.
+4. Make a walk-in e-receipt.
+5. Verify: no QR, and the "QR Code will be available once you are connected…" notice shows.
+6. Restore internet.
+7. Verify: everything syncs once, and the receipt's QR appears without a reload.
+
+### Automated end-to-end check (2026-11-02)
+
+A Puppeteer script ran these against a production build with a local backend. It used two modes: airplane mode (`navigator.onLine` false) and connected-but-no-internet (requests fail, browser says online). It covered:
+
+- the app reopening offline;
+- all 8 operator pages offline;
+- create / edit / walk-in e-receipt offline;
+- sync on reconnect, with each booking on the server exactly once;
+- no duplicates after a second reconnect;
+- the QR appearing after sync.
+
+**Result: 35/35 in both modes** after the fixes. Before the fixes, 25/32.
 
 ### Unit Tests
 
@@ -1770,6 +1823,25 @@ To revert the service worker to pass-through (removes asset caching):
 
 ---
 
+## Fixes from the end-to-end offline test (2026-11-02)
+
+| # | Symptom | Cause | Fix | File(s) |
+|---|---|---|---|---|
+| 1 | Offline booking **lost**. "Booking submitted successfully" appeared while offline; after 3 tries the item was `permanently_failed` and never synced | No-reply errors (status 0) counted as retries | Status 0 and 502/503/504 keep the item `pending` without using a retry, and stop the run | `services/sync.service.ts` (`handleSyncError`) |
+| 2 | "HTTP ERROR 503" when reopening offline after the first login | `index.html` was only cached on a later navigation | SW precaches `index.html` + all JS/CSS from `ngsw.json` at install | `src/sw.js` |
+| 3 | Pages never opened online (Add Booking, Edit Booking) blank / stuck offline | Lazy-loaded page code was only cached once requested | Same precache as #2 | `src/sw.js` |
+| 4 | Edit offline: empty form; saving failed with "Http failure … /api/products/company/…" | The already-mapped state booking was mapped again; product lookup needed the server | Load the raw booking from `booking_cache` (state booking as-is as a last resort); product lookup falls back to `getCachedProducts()` | `booking-edit/booking-edit.page.ts` |
+| 5 | E-receipt with no internet showed a QR to `/api/bookings/<uuid>/receipt-pdf` | Browser said online, so `isLocalOnly` stayed false | Non-numeric receipt id ⇒ `isLocalOnly` (pending notice, no QR); the real QR appears after sync | `receipt/`, `receipt-activity/`, `receipt-package/` pages |
+
+Also fixed: Add Booking and Edit Booking show "submitted/updated successfully" only when the queue item is actually `synced` after `triggerSync()`. Otherwise they show "saved locally" and update `booking_cache`, so the booking shows in the list.
+
+**Known, not changed:**
+
+- A red "Unable to connect to server" toast (HTTP interceptor) still appears offline next to the offline banners and toasts.
+- A queued booking's Booking ID shows as its UUID in the list until it syncs.
+
+---
+
 ## Appendix: Sync State Machine
 
 ```
@@ -1799,7 +1871,11 @@ To revert the service worker to pass-through (removes asset caching):
 
        409 Conflict ──► CONFLICT (terminal — needs operator action)
        404 Not Found ──► CONFLICT (terminal — needs operator action)
+       No reply (status 0) / 502 / 503 / 504 ──► PENDING (retry count unchanged; run stops)
+       401 ──► PENDING ("Waiting for login"; run stops)
 ```
+
+"5xx/timeout" above means a real server error (500 etc.). A timeout or no connection is "no reply" and never counts toward the 3 retries.
 
 Operator-initiated transitions from terminal states:
 

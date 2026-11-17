@@ -137,7 +137,20 @@
       </section>
 
       <section class="receipt-list-section">
-        <h2>Receipt List/<em>Senarai Resit</em></h2>
+        <div class="receipt-list-header">
+          <h2>Receipt List/<em>Senarai Resit</em></h2>
+          <button
+            *ngIf="canExportCustomers"
+            type="button"
+            class="download-excel-btn"
+            (click)="downloadReceiptList()"
+            [disabled]="isDownloadingReceipts"
+          >
+            <ion-spinner *ngIf="isDownloadingReceipts" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!isDownloadingReceipts" name="download-outline"></ion-icon>
+            <span>{{ isDownloadingReceipts ? 'Memuat turun... / Downloading...' : 'Muat Turun Excel / Download Excel' }}</span>
+          </button>
+        </div>
         <app-dashboard-receipt-list-table
           [receipts]="activeReceipts"
           [meta]="receiptMeta"

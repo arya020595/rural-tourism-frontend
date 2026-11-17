@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NavController, ToastController } from '@ionic/angular';
+import {
+  AlertController,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
 import { AssociationService } from '../services/association.service';
 import { AuthService } from '../services/auth.service';
 
@@ -17,6 +21,13 @@ type UploadField =
   | 'trading_operation_license'
   | 'homestay_certificate';
 
+const UPLOAD_FIELD_LABELS: Record<UploadField, string> = {
+  operator_logo_image: 'Operator Logo',
+  motac_license_file: 'MOTAC License',
+  trading_operation_license: 'Trading & Operation License',
+  homestay_certificate: 'Homestay Certificate',
+};
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
@@ -25,6 +36,7 @@ type UploadField =
 export class RegisterPage implements OnInit {
   private readonly maxFileSizeBytes = 5 * 1024 * 1024;
   private readonly maxTotalUploadSizeBytes = 20 * 1024 * 1024;
+  readonly minPasswordLength = 8;
 
   currentSection = 1;
   isSuccessAlertOpen = false;
@@ -83,6 +95,7 @@ export class RegisterPage implements OnInit {
     private associationService: AssociationService,
     private navCtrl: NavController,
     private toastController: ToastController,
+    private alertController: AlertController,
     private router: Router,
   ) {}
 
@@ -96,6 +109,12 @@ export class RegisterPage implements OnInit {
       !!this.formData.confirmed_password &&
       this.formData.password !== this.formData.confirmed_password
     );
+  }
+
+  /** Typed something, but not enough yet — the hint turns red. */
+  get passwordTooShort(): boolean {
+    const length = this.formData.password.length;
+    return length > 0 && length < this.minPasswordLength;
   }
 
   get hasConfirmedPassword(): boolean {
@@ -123,15 +142,25 @@ export class RegisterPage implements OnInit {
 
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
+    const label = UPLOAD_FIELD_LABELS[field];
+
     if (!allowedTypes.includes(file.type)) {
-      this.showError('This document only accepts PDF, JPG, or PNG files.');
       input.value = '';
+      this.showUploadAlert(
+        'Unsupported file type',
+        `"${file.name}" cannot be used for ${label}. Please choose a PDF, JPG, or PNG file.`,
+      );
       return;
     }
 
     if (file.size > this.maxFileSizeBytes) {
-      this.showError('Each file must be 5MB or smaller.');
       input.value = '';
+      this.showUploadAlert(
+        'File is too large',
+        `"${file.name}" for ${label} is ${this.formatMb(file.size)}. ` +
+          `Each file must be 5MB or smaller. Please choose a smaller file, ` +
+          `or take the photo at a lower resolution / compress the PDF.`,
+      );
       return;
     }
 
@@ -179,7 +208,7 @@ export class RegisterPage implements OnInit {
     return (
       normalizedUsername.length > 0 &&
       validEmail &&
-      this.formData.password.length >= 8 &&
+      this.formData.password.length >= this.minPasswordLength &&
       this.hasConfirmedPassword &&
       !this.passwordMismatch &&
       this.agreedToPrivacy &&
@@ -319,8 +348,11 @@ export class RegisterPage implements OnInit {
     );
 
     if (totalUploadSize > this.maxTotalUploadSizeBytes) {
-      this.showError(
-        'Total upload size is too large. Please keep it under 20MB.',
+      this.showUploadAlert(
+        'Uploads are too large',
+        `Your documents add up to ${this.formatMb(totalUploadSize)}. ` +
+          `All uploads together must be 20MB or smaller. Please replace one ` +
+          `or more files with a smaller version.`,
       );
       return;
     }
@@ -377,8 +409,23 @@ export class RegisterPage implements OnInit {
       },
       error: (error) => {
         if (error?.status === 413) {
-          this.showError(
-            'Upload too large. Please keep each file under 5MB and total uploads under 20MB.',
+          this.showUploadAlert(
+            'Upload too large',
+            'The server rejected the documents because they are too large. ' +
+              'Please keep each file under 5MB and all uploads under 20MB, then try again.',
+          );
+          return;
+        }
+
+        // Status 0 = the request never completed (connection dropped or
+        // timed out mid-upload). Only blame the upload if files were attached.
+        const hasFiles = Object.values(this.selectedFiles).some(Boolean);
+        if (hasFiles && (error?.status === 0 || error?.error?.message?.startsWith('Upload was interrupted'))) {
+          this.showUploadAlert(
+            'Upload was interrupted',
+            'Your documents could not be fully uploaded. Please check your ' +
+              'internet connection and try again. On a slow connection, ' +
+              'smaller files upload more reliably.',
           );
           return;
         }
@@ -390,6 +437,20 @@ export class RegisterPage implements OnInit {
         );
       },
     });
+  }
+
+  private formatMb(bytes: number): string {
+    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  }
+
+  /** Upload problems need to be read, so use a pop-up instead of a toast. */
+  private async showUploadAlert(header: string, message: string) {
+    const alert = await this.alertController.create({
+      header,
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
   private async showError(message: string) {

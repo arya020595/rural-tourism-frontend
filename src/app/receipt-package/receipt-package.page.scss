@@ -40,12 +40,12 @@ ion-content {
   grid-row: 1 !important;
 }
 
-.receipt-capture-clone .receipt-row--package {
+.receipt-capture-clone .receipt-row--pax {
   grid-column: 1 !important;
   grid-row: 2 !important;
 }
 
-.receipt-capture-clone .receipt-row--pax {
+.receipt-capture-clone .receipt-row--location {
   grid-column: 2 !important;
   grid-row: 2 !important;
 }
@@ -458,12 +458,12 @@ qrcode {
     grid-row: 1;
   }
 
-  .receipt-row--package {
+  .receipt-row--pax {
     grid-column: 1;
     grid-row: 2;
   }
 
-  .receipt-row--pax {
+  .receipt-row--location {
     grid-column: 2;
     grid-row: 2;
   }
@@ -472,4 +472,76 @@ qrcode {
     grid-column: 1;
     grid-row: 3;
   }
+}
+
+/* Package itinerary table (same as the receipt PDFs). */
+.pkg-section {
+  margin-top: 22px;
+}
+
+.pkg-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.pkg-table th {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4f4f4f;
+  text-align: left;
+  letter-spacing: 0.3px;
+  padding: 8px 10px;
+  background: #f1f6f2;
+  border-bottom: 1px solid #cfdcd3;
+}
+
+.pkg-table th em {
+  font-weight: 400;
+}
+
+.pkg-table td {
+  font-size: 15px;
+  color: #141414;
+  padding: 10px;
+  border-bottom: 1px solid #e3e3e3;
+  vertical-align: top;
+}
+
+.pkg-table .pkg-no {
+  width: 32px;
+  text-align: center;
+}
+
+.pkg-table .pkg-when {
+  width: 38%;
+}
+
+.pkg-name {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pkg-sub {
+  font-size: 12px;
+  color: #777;
+}
+
+@media (max-width: 576px) {
+  .pkg-table th,
+  .pkg-table td {
+    padding: 8px 6px;
+  }
+
+  .pkg-table td {
+    font-size: 13px;
+  }
+
+  .pkg-table .pkg-when {
+    width: 42%;
+  }
+}
+
+.pkg-table .nowrap {
+  white-space: nowrap;
 }

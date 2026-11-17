@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NavController, ToastController } from '@ionic/angular';
+import { AlertController, NavController, ToastController } from '@ionic/angular';
 import { AuthService, UserRoleName } from '../services/auth.service';
 import { RememberedLoginService } from '../services/remembered-login.service';
 import { SyncService } from '../services/sync.service';
+import { VIDEO_TUTORIAL_URL } from '../user-guide/user-guide.config';
 
 interface PendingActivityBooking {
   activityId: string;
@@ -37,6 +38,7 @@ export class LoginPage implements OnInit {
     private toastController: ToastController,
     private route: ActivatedRoute,
     private rememberedLogin: RememberedLoginService,
+    private alertController: AlertController,
   ) {}
 
   ngOnInit() {
@@ -71,6 +73,28 @@ export class LoginPage implements OnInit {
 
   register() {
     this.navCtrl.navigateForward(['/register']);
+  }
+
+  openUserGuide() {
+    // Release focus first: the login page is hidden (aria-hidden) on
+    // navigation, and a focused button inside it triggers a browser warning.
+    (document.activeElement as HTMLElement | null)?.blur();
+    this.navCtrl.navigateForward(['/user-guide']);
+  }
+
+  /** YouTube tutorial; "coming soon" until the link is set in user-guide.config.ts. */
+  async openVideoTutorial() {
+    if (VIDEO_TUTORIAL_URL) {
+      window.open(VIDEO_TUTORIAL_URL, '_blank');
+      return;
+    }
+    const toast = await this.toastController.create({
+      message: 'Video tutorial akan datang. / The video tutorial is coming soon.',
+      duration: 2000,
+      position: 'bottom',
+      color: 'medium',
+    });
+    await toast.present();
   }
 
   togglePassword() {
@@ -133,9 +157,32 @@ export class LoginPage implements OnInit {
           );
           return;
         }
+        // Registration not approved (yet): explain it in a pop-up.
+        const code = err?.error?.code;
+        if (code === 'REGISTRATION_PENDING' || code === 'REGISTRATION_REJECTED') {
+          await this.showRegistrationStatus(code, err.error?.reason);
+          return;
+        }
         await this.errorToast(err.error?.message || 'Login failed');
       },
     );
+  }
+
+  private async showRegistrationStatus(
+    code: 'REGISTRATION_PENDING' | 'REGISTRATION_REJECTED',
+    reason?: string | null,
+  ): Promise<void> {
+    const pending = code === 'REGISTRATION_PENDING';
+    const alert = await this.alertController.create({
+      header: pending
+        ? 'Menunggu kelulusan / Awaiting approval'
+        : 'Akaun tidak aktif / Account inactive',
+      message: pending
+        ? 'Pendaftaran anda sedang menunggu kelulusan persatuan. Anda akan menerima emel apabila ia diluluskan. / Your registration is awaiting approval from your association. You will get an email once it is approved.'
+        : `${reason ? `Sebab / Reason: ${reason}. ` : ''}Sila hubungi persatuan anda. / Please contact your association.`,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
 
   private async handleSuccessfulLogin(): Promise<void> {

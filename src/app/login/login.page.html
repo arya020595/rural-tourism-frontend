@@ -131,6 +131,18 @@
                 Daftar Akaun / Register Account
               </ion-button>
 
+              <!-- Help for new users: the in-app guide and the video -->
+              <div class="help-row">
+                <button type="button" class="help-btn" (click)="openUserGuide()">
+                  <ion-icon name="book-outline"></ion-icon>
+                  <span>Panduan Pengguna<br /><small>User Guide</small></span>
+                </button>
+                <button type="button" class="help-btn video" (click)="openVideoTutorial()">
+                  <ion-icon name="logo-youtube"></ion-icon>
+                  <span>Video Tutorial<br /><small>Tonton / Watch</small></span>
+                </button>
+              </div>
+
               <div class="powered-by-card" aria-label="Powered by Datablu">
                 <span class="powered-by-text">Powered by:</span>
                 <img

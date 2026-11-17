@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MenuController, NavController, ToastController } from '@ionic/angular';
 import { AuthService } from '../services/auth.service';
 import { BookingService } from '../services/booking.service';
@@ -8,6 +9,9 @@ import { OfflineQueueService } from '../services/offline-queue.service';
 import { ProductService } from '../services/product.service';
 import { SyncService } from '../services/sync.service';
 import { firstValueFrom } from 'rxjs';
+import { BookingDetail } from '../booking-home/booking-home.models';
+import { QuotationService } from '../services/quotation.service';
+import { loadQuotationPrefill } from '../utils/quotation-prefill.util';
 
 @Component({
   selector: 'app-booking-add',
@@ -19,6 +23,11 @@ export class BookingAddPage implements OnInit {
   menuItems: MenuItem[] = [];
 
   selectedType = 'activity';
+  // Convert to Booking from a quotation (?quotation=<id>): the form starts pre-filled
+  // and the booking is linked to the quotation on submit.
+  prefill: BookingDetail | null = null;
+  fromQuotation: { id: number; no: string } | null = null;
+  isLoadingQuotation = false;
   isSubmitting = false;
   isSuccessAlertOpen = false;
   successAlertButtons = [
@@ -32,6 +41,8 @@ export class BookingAddPage implements OnInit {
   ];
 
   constructor(
+    private route: ActivatedRoute,
+    private quotationService: QuotationService,
     private menuCtrl: MenuController,
     private navCtrl: NavController,
     private menuService: MenuService,
@@ -51,6 +62,41 @@ export class BookingAddPage implements OnInit {
   ionViewWillEnter(): void {
     this.menuCtrl.enable(true, 'booking-add-menu');
     this.loadUser();
+    this.loadQuotationFromQuery();
+  }
+
+  private async loadQuotationFromQuery(): Promise<void> {
+    const quotationId = Number(this.route.snapshot.queryParamMap.get('quotation'));
+    if (!Number.isInteger(quotationId) || quotationId <= 0) {
+      this.prefill = null;
+      this.fromQuotation = null;
+      return;
+    }
+    if (this.fromQuotation?.id === quotationId) return;
+
+    if (!this.networkService.isOnline) {
+      await this.showToast(
+        'Perlu internet untuk memuatkan sebut harga / Internet needed to load the quotation.',
+        'warning',
+      );
+      this.navCtrl.navigateBack(`/quotation/${quotationId}`, { replaceUrl: true });
+      return;
+    }
+    this.isLoadingQuotation = true;
+    try {
+      const loaded = await loadQuotationPrefill(this.quotationService, quotationId, 'booking');
+      this.selectedType = loaded.bookingType;
+      this.prefill = loaded.prefill;
+      this.fromQuotation = { id: loaded.quotationId, no: loaded.quotationNo };
+    } catch (error: any) {
+      await this.showToast(
+        error?.error?.message || 'Gagal memuatkan sebut harga / Failed to load the quotation.',
+        'danger',
+      );
+      this.navCtrl.navigateBack(`/quotation/${quotationId}`, { replaceUrl: true });
+    } finally {
+      this.isLoadingQuotation = false;
+    }
   }
 
   async handleFormSubmit(formType: string, payload: any): Promise<void> {
@@ -70,24 +116,33 @@ export class BookingAddPage implements OnInit {
         payload,
         operatorCompanyId,
       );
+      // Links the quotation (marked accepted in the same server transaction).
+      if (this.fromQuotation) {
+        createPayload['quotation_id'] = this.fromQuotation.id;
+      }
 
       // Write to queue first — data is safe before any network call
       const idempotencyKey = await this.offlineQueue.enqueueCreate(createPayload);
 
-      // Also write into booking_cache so it shows in booking-home while offline
-      if (!this.networkService.isOnline) {
+      if (this.networkService.isOnline) {
+        await this.syncService.triggerSync();
+      }
+
+      // "Online" can still mean no internet (weak signal, Wi-Fi without
+      // internet), so check whether the booking actually reached the server.
+      const queued = (await this.offlineQueue.getAllQueueItems()).find(
+        (item) => item.idempotency_key === idempotencyKey,
+      );
+      if (queued?.status === 'synced') {
+        await this.showToast('Booking submitted successfully', 'success');
+      } else {
+        // Show it in booking-home until it syncs (replaced by the server copy then).
         await this.offlineQueue.cacheBookings([{
           ...createPayload,
           id: idempotencyKey,
           status: 'pending',
           created_at: new Date().toISOString(),
         }]);
-      }
-
-      if (this.networkService.isOnline) {
-        await this.syncService.triggerSync();
-        await this.showToast('Booking submitted successfully', 'success');
-      } else {
         await this.showToast(
           'No internet. Booking saved locally — will sync when online.',
           'warning',
@@ -242,6 +297,15 @@ export class BookingAddPage implements OnInit {
         referee_id: Number(item.companyId),
         description: item.serviceName || item.description || '',
         per_price: Number(item.price || 0),
+        // When the customer comes to this company (calendar). activity_date
+        // is sent "as typed" (YYYY-MM-DDTHH:mm:00, no timezone), like the
+        // activity booking's own date.
+        product_type: item.productType || null,
+        activity_date: item.activityDate
+          ? `${item.activityDate}T${item.activityTime || '00:00'}:00`
+          : null,
+        check_in_date: item.checkInDate || null,
+        check_out_date: item.checkOutDate || null,
       })),
     };
   }
@@ -412,6 +476,12 @@ export class BookingAddPage implements OnInit {
   }
 
   goBack(): void {
+    // Opened from a quotation (Convert to Booking): back to that quotation.
+    const quotationId = Number(this.route.snapshot.queryParamMap.get('quotation'));
+    if (Number.isInteger(quotationId) && quotationId > 0) {
+      this.navCtrl.navigateBack(`/quotation/${quotationId}`, { replaceUrl: true });
+      return;
+    }
     if (window.history.length > 1) {
       this.navCtrl.back();
       return;

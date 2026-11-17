@@ -117,6 +117,7 @@
       <label class="ufm-label">
         Kata Laluan / <em>Password</em>
         <span class="ufm-required" *ngIf="!isEditMode">*</span>
+        <span class="ufm-optional">(min. {{ minPasswordLength }} aksara/characters)</span>
         <span class="ufm-optional" *ngIf="isEditMode">
           (kosong = tidak berubah / leave blank to keep current)
         </span>
@@ -130,7 +131,7 @@
           name="password"
           autocomplete="new-password"
           [required]="!isEditMode"
-          minlength="6"
+          [minlength]="minPasswordLength"
           #passwordInput="ngModel"
         />
         <button
@@ -142,8 +143,15 @@
           <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
         </button>
       </div>
-      <p class="ufm-error" *ngIf="passwordInput.invalid && passwordInput.touched">
-        Password must be at least 6 characters.
+      <p
+        class="ufm-error"
+        *ngIf="passwordInput.errors?.['required'] && passwordInput.touched"
+      >
+        Sila isi kata laluan / Password is required.
+      </p>
+      <p class="ufm-error" *ngIf="passwordTooShort">
+        Kata laluan mesti sekurang-kurangnya {{ minPasswordLength }} aksara /
+        Password must be at least {{ minPasswordLength }} characters.
       </p>
     </div>
 
@@ -174,7 +182,10 @@
         </button>
       </div>
       <p class="ufm-error" *ngIf="confirmInput.invalid && confirmInput.touched">
-        Confirm password is required.
+        Sila sahkan kata laluan / Confirm password is required.
+      </p>
+      <p class="ufm-error" *ngIf="passwordMismatch">
+        Kata laluan tidak sepadan / Password and confirm password do not match.
       </p>
     </div>
 

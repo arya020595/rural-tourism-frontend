@@ -17,7 +17,7 @@ const RETRY_DELAYS_MS = [0, 5_000, 30_000];
 @Injectable({ providedIn: 'root' })
 export class SyncService {
   private isSyncing = false;
-  /** Set when the server ends the session mid-sync; stops the current run. */
+  /** Set when the session ends or the connection drops mid-sync; stops the current run. */
   private sessionEnded = false;
   private subscriptions: Subscription[] = [];
 
@@ -185,6 +185,20 @@ export class SyncService {
         error_message: 'Booking was modified by another user',
         conflict_data: conflictData,
       });
+      return;
+    }
+
+    // No reply at all (status 0: no signal, or "connected" with no internet)
+    // or the server briefly unavailable (502/503/504): not the booking's
+    // fault. Keep it pending without using up a retry, and stop this run —
+    // the next item would fail the same way. It is sent on the next
+    // reconnect / 30-second check. Counting these as retries marked offline
+    // bookings 'permanently_failed' after three tries, so they never synced.
+    if (!status || status === 502 || status === 503 || status === 504) {
+      await this.offlineQueue.updateItemStatus(item.id!, 'pending', {
+        error_message: 'Waiting for connection',
+      });
+      this.sessionEnded = true;
       return;
     }
 

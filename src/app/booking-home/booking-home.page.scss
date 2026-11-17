@@ -503,3 +503,8 @@ ion-content {
     height: 20px;
   }
 }
+
+/* Referral chips are view only (no booking detail page to open). */
+.booking-chip.referral {
+  cursor: default;
+}

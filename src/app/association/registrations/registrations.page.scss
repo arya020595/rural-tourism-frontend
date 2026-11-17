@@ -1,0 +1,432 @@
+// Same page chrome as the quotation pages (dark header, white surface, title).
+@import '../../quotation/quotation-page';
+
+.status-chip {
+  &.pending {
+    background: #ffe0b2;
+    color: #a65c00;
+    border-color: #f5c27a;
+  }
+  &.approved {
+    background: #a4d6af;
+    color: #015c2f;
+    border-color: #4f9a65;
+  }
+  &.rejected {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+  }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 0 12px;
+  margin-bottom: 14px;
+
+  ion-icon {
+    color: #5b6b62;
+    font-size: 20px;
+  }
+
+  input {
+    flex: 1;
+    border: 0;
+    outline: none;
+    font-size: 15px;
+    background: transparent;
+    min-width: 0;
+  }
+}
+
+// Full-width green tab bar: icon above the label, the open tab lighter with
+// an underline.
+.tabs {
+  display: flex;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #04552f;
+
+  .tab {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 68px;
+    padding: 10px 8px;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 24px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.on {
+      background: #7fc788;
+
+      .tab-label {
+        border-bottom: 2px solid #ffffff;
+      }
+    }
+  }
+
+  .tab-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 2px;
+    text-align: center;
+  }
+
+  .count {
+    font-weight: 700;
+  }
+
+  .badge {
+    min-width: 22px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #d32020;
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+  }
+}
+
+.table-spinner,
+.review-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+}
+
+.load-error {
+  padding: 14px;
+  border-radius: 10px;
+  background: #fdecea;
+  color: #7f1d1d;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+thead th {
+  background: #015c2f;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 10px;
+  text-align: center;
+
+  &:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+}
+
+tbody td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #d6d6d6;
+  font-size: 15px;
+  text-align: center;
+  vertical-align: middle;
+
+  &.left {
+    text-align: left;
+  }
+
+  b {
+    display: block;
+  }
+
+  small {
+    display: block;
+    color: #777777;
+    font-size: 12.5px;
+  }
+
+  &.reason {
+    text-align: left;
+    color: #8a1c24;
+    font-size: 13.5px;
+    max-width: 240px;
+  }
+
+  &.empty {
+    color: #777777;
+    padding: 30px 10px;
+  }
+}
+
+.pencil {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: #0b5d33;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 14px;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #dddddd;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &.active {
+    background: #015c2f;
+    color: #ffffff;
+    border-color: #015c2f;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+  }
+}
+
+.note {
+  margin-top: 14px;
+  font-size: 12px;
+  color: #666666;
+}
+
+/* ── Review pop-up ── */
+// Sized to its content (no ion-content inside, so height: auto works); long
+// content scrolls inside .review-content.
+.review-modal {
+  --width: min(680px, 96vw);
+  --height: auto;
+  --border-radius: 14px;
+
+  .ion-page {
+    position: relative;
+    contain: content;
+  }
+}
+
+.review-content {
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.review {
+  padding: 20px 22px;
+}
+
+.review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid #e3ece6;
+  padding-bottom: 12px;
+}
+
+.review-title {
+  font-size: 21px;
+  font-weight: 800;
+  color: #04552f;
+}
+
+.review-sub {
+  font-size: 12.5px;
+  color: #777777;
+  margin-top: 3px;
+}
+
+.decided {
+  margin-top: 12px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+
+  &.rejected {
+    background: #fdecea;
+    border: 1px solid #f5b5b0;
+    color: #7f1d1d;
+  }
+
+  &.approved {
+    background: #eaf6ee;
+    border: 1px solid #b9d6c3;
+    color: #0b5d33;
+  }
+}
+
+.sec {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #04552f;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 14px 0 6px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 13.5px;
+
+  span {
+    color: #666666;
+  }
+}
+
+.docs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.doc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d5e3da;
+  border-radius: 8px;
+  padding: 7px 9px;
+
+  &.none {
+    opacity: 0.5;
+  }
+}
+
+.doc-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #eef6f0;
+  color: #04552f;
+  font-weight: 800;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.doc-t {
+  b {
+    display: block;
+    font-size: 12px;
+  }
+
+  small {
+    color: #777777;
+    font-size: 11px;
+  }
+}
+
+.open {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #1f5d9b;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+
+  .btn {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 8px;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &.grey {
+      background: #e6e6e6;
+      color: #333333;
+    }
+    &.red {
+      background: #d32020;
+      color: #ffffff;
+    }
+    &.green {
+      background: #0b5d33;
+      color: #ffffff;
+    }
+    &:disabled {
+      background: #cfd8d2;
+      color: #6b7a70;
+      cursor: default;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .kv {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .docs {
+    grid-template-columns: 1fr;
+  }
+
+  .review-actions .btn {
+    flex: 1 1 100%;
+  }
+}

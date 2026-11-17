@@ -56,6 +56,20 @@ export interface BookingDetail extends BookingRow {
   customerType?: 'tourist' | 'company';
   package_companies?: any[];
 
+  // Days the booking shows on in the calendar when they differ from
+  // bookedDate: a package whose items have their own dates shows on each of
+  // them (YYYY-MM-DD). Unset = use the normal booked date / stay.
+  calendarDays?: string[];
+
+  // A package item another company referred to us: shown on our calendar
+  // (on that item's dates) but it isn't one of our own bookings. View only —
+  // we see who is coming (name, phone, pax) and when, not the rest of the
+  // referring company's booking.
+  isReferral?: boolean;
+  referralPax?: number;
+  referralWhen?: string; // e.g. "07:30 PM" or "31/10/2026 – 01/11/2026"
+  referralWhenLabel?: 'Time' | 'Stay';
+
   // Offline sync fields
   version?: number;
 

@@ -58,7 +58,9 @@
         </td>
         <td class="booking-id">{{ booking.displayId || booking.id }}</td>
         <td>{{ formatDate(booking.bookedDate) }}</td>
-        <td class="service-name">{{ booking.serviceName }}</td>
+        <td class="service-name">
+          <div class="service-text" [title]="booking.serviceName">{{ booking.serviceName }}</div>
+        </td>
         <td>{{ booking.type }}</td>
         <td>
           <span

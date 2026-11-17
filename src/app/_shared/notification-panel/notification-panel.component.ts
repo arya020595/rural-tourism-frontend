@@ -85,8 +85,11 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Whether tapping opens the booking (needs a booking id and read access). */
+  /** Whether tapping opens something (a booking, or the registration approvals). */
   canOpenBooking(notification: Notification): boolean {
+    if (notification.type === 'registration_pending') {
+      return this.authService.hasPermission('registration:approve');
+    }
     return (
       !!this.notificationService.getBookingId(notification) &&
       this.authService.hasPermission('booking:read')
@@ -96,6 +99,14 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
   /** Mark as read, then open the booking the notification is about. */
   openNotification(notification: Notification): void {
     this.markAsRead(notification);
+    // A new operator registration → the approvals page (related_id is a
+    // company, not a booking).
+    if (notification.type === 'registration_pending') {
+      if (this.canOpenBooking(notification)) {
+        this.router.navigate(['/association/registrations']);
+      }
+      return;
+    }
     const bookingId = this.notificationService.getBookingId(notification);
     if (bookingId && this.canOpenBooking(notification)) {
       // The panel closes itself on navigation (see ngOnInit).

@@ -1,0 +1,196 @@
+<app-side-nav
+  [menuId]="menuId"
+  [contentId]="'quotation-list-content'"
+  [user]="user"
+  [menuItems]="menuItems"
+  [showHeaderLogo]="true"
+  [logoutLabel]="'Log Keluar/Log-Out'"
+  (menuItemTap)="onMenuItemTap($event)"
+  (logoutTap)="logOut()"
+></app-side-nav>
+
+<ion-header class="quotation-header" style="height: 5vh; box-shadow: none">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button [menu]="menuId" class="menu-toggle"></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <app-refresh-button></app-refresh-button>
+      <app-notification-bell [panel]="notifPanel"></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<app-notification-panel #notifPanel></app-notification-panel>
+
+<ion-content [fullscreen]="true" id="quotation-list-content">
+  <div class="surface-card">
+    <div class="page-container">
+      <div class="logo-row">
+        <app-header-logo></app-header-logo>
+      </div>
+
+      <div class="title-row">
+        <h1>Sebut Harga/ <em>Quotation</em></h1>
+      </div>
+
+      <div class="offline-note" *ngIf="isOffline">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+        <span>Sebut harga perlukan internet / Quotations need an internet connection.</span>
+      </div>
+
+      <ng-container *ngIf="!isOffline">
+        <div class="toolbar">
+          <div class="search-box">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              [value]="search"
+              (input)="onSearchInput($any($event.target).value)"
+              placeholder="Cari no. sebut harga, nama atau telefon / Search quotation no., name or phone"
+              autocomplete="off"
+            />
+          </div>
+          <button *ngIf="canCreate" type="button" class="add-btn" (click)="add()">
+            <ion-icon name="add-outline"></ion-icon>
+            <span>Tambah Sebut Harga/Add Quotation</span>
+          </button>
+        </div>
+
+        <!-- Created date range -->
+        <div class="date-range">
+          <span class="date-range-label">Tarikh Dicipta / Created Date</span>
+          <div class="date-field" (click)="openDateSheet('from')">
+            <span class="date-field-label">Dari / From</span>
+            <span class="date-field-value" [class.placeholder]="!createdFrom">{{ createdFrom ? displayDate(createdFrom) : 'dd/mm/yyyy' }}</span>
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+          </div>
+          <div class="date-field" (click)="openDateSheet('to')">
+            <span class="date-field-label">Hingga / To</span>
+            <span class="date-field-value" [class.placeholder]="!createdTo">{{ createdTo ? displayDate(createdTo) : 'dd/mm/yyyy' }}</span>
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+          </div>
+          <button type="button" class="clear-dates" *ngIf="createdFrom || createdTo" (click)="clearDates()">
+            <ion-icon name="close-circle-outline"></ion-icon>
+            <span>Kosongkan/Clear</span>
+          </button>
+        </div>
+
+        <div class="table-spinner" *ngIf="isLoading">
+          <ion-spinner name="crescent" color="primary"></ion-spinner>
+        </div>
+
+        <div class="load-error" *ngIf="!isLoading && loadError">{{ loadError }}</div>
+
+        <div class="table-wrapper" *ngIf="!isLoading && !loadError">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>No. Sebut Harga<br />Quotation No.</th>
+                <th>Pelanggan<br />Customer</th>
+                <th>Jumlah (RM)<br />Total</th>
+                <th>Tarikh Dicipta<br />Created Date</th>
+                <th>Sah Sehingga<br />Valid Until</th>
+                <th>
+                  <button type="button" class="status-filter-btn" title="Tapis status / Filter status" (click)="cycleStatusFilter()">
+                    {{ statusFilterLabel }}
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let quotation of quotations; trackBy: trackById">
+                <td>
+                  <div class="action-cell">
+                    <button type="button" class="icon-btn info" aria-label="View" title="Lihat/View" (click)="view(quotation)">
+                      <ion-icon name="information-circle"></ion-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn edit"
+                      aria-label="Edit"
+                      title="Edit"
+                      [disabled]="!quotation.can_edit"
+                      (click)="edit(quotation)"
+                    >
+                      <ion-icon name="create"></ion-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-btn pdf"
+                      aria-label="PDF"
+                      title="PDF / Kongsi/Share"
+                      [disabled]="quotation.status === 'cancelled'"
+                      (click)="pdf(quotation)"
+                    >
+                      <ion-icon name="document-text"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+                <td class="quotation-no">{{ quotation.quotation_no }}</td>
+                <td>
+                  <div class="customer-name">{{ quotation.customer_name }}</div>
+                  <div class="sub">{{ quotation.phone_number }}</div>
+                </td>
+                <td>{{ formatMoney(quotation.total_amount) }}</td>
+                <td>{{ formatCreatedDate(quotation.created_at) }}</td>
+                <td [class.due-soon]="quotation.status === 'sent'">
+                  {{ formatDate(quotation.valid_until) }}
+                  <div class="sub" *ngIf="daysLeftText(quotation) as left">{{ left }}</div>
+                </td>
+                <td>
+                  <span class="status-chip" [ngClass]="quotation.status">{{ statusLabels[quotation.status] }}</span>
+                </td>
+              </tr>
+              <tr *ngIf="quotations.length === 0">
+                <td colspan="7" class="empty">
+                  Tiada sebut harga / No quotations
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer" *ngIf="!isLoading && !loadError">
+          <div class="entries-control">
+            <span>Show</span>
+            <select [value]="perPage" (change)="setPerPage(+$any($event.target).value)">
+              <option *ngFor="let option of perPageOptions" [value]="option">{{ option }}</option>
+            </select>
+            <span>entries</span>
+          </div>
+          <div class="entries-summary">
+            Showing {{ startEntry }} to {{ endEntry }} out of {{ total }} entries
+          </div>
+          <div class="pagination">
+            <button type="button" class="page-btn" (click)="goToPage(page - 1)" [disabled]="page === 1">
+              &laquo; Previous
+            </button>
+            <button
+              type="button"
+              class="page-btn"
+              *ngFor="let number of pageNumbers"
+              [class.active]="number === page"
+              (click)="goToPage(number)"
+            >
+              {{ number }}
+            </button>
+            <button type="button" class="page-btn" (click)="goToPage(page + 1)" [disabled]="page === totalPages">
+              Next &raquo;
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <app-booking-date-sheet
+    [title]="dateSheet.field === 'from' ? 'Dari / From' : 'Hingga / To'"
+    [isOpen]="dateSheet.open"
+    [value]="dateSheet.field === 'from' ? createdFrom : createdTo"
+    [min]="dateSheet.field === 'to' ? createdFrom : ''"
+    [showBookedDates]="false"
+    (dateSelected)="onDateSelected($event)"
+    (dismissed)="dateSheet.open = false"
+  ></app-booking-date-sheet>
+</ion-content>

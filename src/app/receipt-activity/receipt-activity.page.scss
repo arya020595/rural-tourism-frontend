@@ -423,6 +423,16 @@ qrcode {
     grid-column: 2;
     grid-row: 3;
   }
+
+  .receipt-row--date {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .receipt-row--time {
+    grid-column: 2;
+    grid-row: 4;
+  }
 }
 
 /* Ensure the offscreen capture clone uses mobile typography regardless of viewport width */

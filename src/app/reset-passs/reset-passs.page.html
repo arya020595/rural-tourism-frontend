@@ -101,6 +101,9 @@
           >
             <ion-label mode="ios" position="stacked" class="field-label">
               Kata Laluan Baru/New Password<span class="required-mark">*</span>
+              <small class="field-label-note"
+                >(min. {{ minPasswordLength }} aksara/characters)</small
+              >
             </ion-label>
             <div class="password-input-wrap">
               <ion-input
@@ -109,7 +112,7 @@
                 required
                 minlength="8"
                 [type]="showNewPassword ? 'text' : 'password'"
-                placeholder="Sila isikan semula kata laluan baru/Re-enter your password"
+                placeholder="Sila isi kata laluan baru/Enter your new password"
                 class="form-input"
                 #newPasswordInput="ngModel"
               ></ion-input>
@@ -120,18 +123,17 @@
               ></ion-icon>
             </div>
 
-            <ion-text
-              *ngIf="resetForm.submitted && newPasswordInput.invalid"
-              class="error-message"
+            <p
+              class="field-error"
+              *ngIf="resetForm.submitted && newPasswordInput.errors?.['required']"
             >
-              <span *ngIf="newPasswordInput.errors?.['required']">
-                *Sila isi kata laluan baharu / Password is required
-              </span>
-              <span *ngIf="newPasswordInput.errors?.['minlength']">
-                *Kata laluan mesti sekurang-kurangnya 8 aksara / Password must
-                be at least 8 characters
-              </span>
-            </ion-text>
+              Sila isi kata laluan baharu / Password is required.
+            </p>
+            <p class="field-error" *ngIf="passwordTooShort">
+              Kata laluan mesti sekurang-kurangnya {{ minPasswordLength }}
+              aksara / Password must be at least {{ minPasswordLength }}
+              characters.
+            </p>
 
             <ion-label mode="ios" position="stacked" class="field-label">
               Sahkan kata laluan/Confirm Password
@@ -153,21 +155,18 @@
               ></ion-icon>
             </div>
 
-            <div class="divider"></div>
-
-            <ion-text
+            <p
+              class="field-error"
               *ngIf="resetForm.submitted && confirmPasswordInput.invalid"
-              class="error-message"
             >
-              *Sila sahkan kata laluan / Please confirm your password
-            </ion-text>
+              Sila sahkan kata laluan / Please confirm your password.
+            </p>
+            <p class="field-error" *ngIf="passwordMismatch">
+              Kata laluan tidak sepadan / Password and confirm password do not
+              match.
+            </p>
 
-            <ion-text
-              *ngIf="confirmPassword && newPassword && newPassword !== confirmPassword"
-              class="error-message"
-            >
-              *Password Mismatch
-            </ion-text>
+            <div class="divider"></div>
 
             <div class="button-row">
               <ion-button

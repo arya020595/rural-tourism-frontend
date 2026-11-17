@@ -48,8 +48,11 @@ export function toDisplayDate(iso: string | null | undefined): string {
 })
 export class BookingDateSheetComponent {
   @Input() isOpen = false;
-  /** 'date' picks a day (YYYY-MM-DD); 'month' picks a month (YYYY-MM). */
-  @Input() pickMode: 'date' | 'month' = 'date';
+  /**
+   * 'date' picks a day (YYYY-MM-DD); 'month' picks a month (YYYY-MM);
+   * 'year' picks a year only (YYYY) from the year grid.
+   */
+  @Input() pickMode: 'date' | 'month' | 'year' = 'date';
   /** Currently selected value: YYYY-MM-DD in date mode, YYYY-MM in month mode. */
   @Input() value = '';
   /** Earliest selectable date, YYYY-MM-DD (e.g. check-out ≥ check-in + 1). */
@@ -59,10 +62,16 @@ export class BookingDateSheetComponent {
   @Input() title = 'Tarikh/Date';
   /** Mark dates that have bookings (booking forms). Off = plain calendar. */
   @Input() showBookedDates = true;
+  /**
+   * More days to mark as booked on top of the saved bookings (YYYY-MM-DD) —
+   * e.g. dates already picked in other items of the package being filled in.
+   */
+  @Input() extraBookedDates: string[] = [];
   /** Month mode only: open on the year list instead of the month grid. */
   @Input() startInYearView = false;
   @Output() dateSelected = new EventEmitter<string>();
   @Output() monthSelected = new EventEmitter<string>();
+  @Output() yearSelected = new EventEmitter<number>();
   @Output() dismissed = new EventEmitter<void>();
 
   readonly monthShort = MONTH_SHORT;
@@ -90,7 +99,24 @@ export class BookingDateSheetComponent {
     const now = new Date();
     this.todayIso = toIso(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const match = String(this.value || '').match(/^(\d{4})-(\d{2})/);
+    if (this.pickMode === 'year') {
+      this.viewYear = Number(String(this.value || '').slice(0, 4)) || now.getFullYear();
+      this.openYearMode();
+      return;
+    }
+
+    // Open on the selected date's month. With nothing selected, open on
+    // today's month — unless every day of it is outside [min, max] (e.g. an
+    // end date whose earliest allowed day is next month), then on the month
+    // of the nearest allowed date, so the user isn't faced with an all-grey
+    // calendar.
+    let start = String(this.value || '');
+    if (!/^\d{4}-\d{2}/.test(start)) {
+      const todayMonth = this.todayIso.slice(0, 7);
+      if (this.min && this.min.slice(0, 7) > todayMonth) start = this.min;
+      else if (this.max && this.max.slice(0, 7) < todayMonth) start = this.max;
+    }
+    const match = start.match(/^(\d{4})-(\d{2})/);
     this.viewYear = match ? Number(match[1]) : now.getFullYear();
     this.viewMonth = match ? Number(match[2]) - 1 : now.getMonth();
 
@@ -150,6 +176,10 @@ export class BookingDateSheetComponent {
   }
 
   pickYear(year: number): void {
+    if (this.pickMode === 'year') {
+      this.yearSelected.emit(year);
+      return;
+    }
     this.viewYear = year;
     this.mode = 'month';
   }
@@ -170,7 +200,10 @@ export class BookingDateSheetComponent {
   }
 
   isBooked(iso: string): boolean {
-    return this.showBookedDates && this.bookedDates.has(iso);
+    return (
+      this.showBookedDates &&
+      (this.bookedDates.has(iso) || this.extraBookedDates.includes(iso))
+    );
   }
 
   isDisabled(iso: string): boolean {
