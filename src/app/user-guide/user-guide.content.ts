@@ -314,10 +314,10 @@ export const GUIDE_SECTIONS: GuideSection[] = [
         items: [
           { bm: `**Resit Bayaran**: lihat resit. Pelanggan boleh mengimbas kod QR untuk mendapatkan resit.`, en: `**Payment Receipt**: view the receipt. The customer can scan the QR code to get the receipt.` },
           { bm: `**Muat Turun PDF**: simpan resit sebagai PDF.`, en: `**Download PDF**: save the receipt as a PDF.` },
-          { bm: `**Panggil Semula**: tersilap tanda sebagai dibayar? Ini mengembalikan tempahan ke status deposit, resit dibuang dan tempahan boleh diedit semula.`, en: `**Recall Booking**: marked as paid by mistake? This puts the booking back to deposit status, removes the receipt and lets you edit it again.` },
+          { bm: `**Semak Semula**: tersilap tanda sebagai dibayar? Ini mengembalikan tempahan ke status deposit, resit dibuang dan tempahan boleh diedit semula.`, en: `**Recall Booking**: marked as paid by mistake? This puts the booking back to deposit status, removes the receipt and lets you edit it again.` },
         ],
       },
-      { kind: 'img', src: IMG + 'booking-detail-paid.webp', caption: { bm: 'Tempahan dibayar: Panggil Semula, Resit Bayaran dan Muat Turun PDF', en: 'A paid booking: Recall, Payment Receipt and Download PDF' } },
+      { kind: 'img', src: IMG + 'booking-detail-paid.webp', caption: { bm: 'Tempahan dibayar: Semak semula, Resit Bayaran dan Muat Turun PDF', en: 'A paid booking: Recall, Payment Receipt and Download PDF' } },
       { kind: 'img', src: IMG + 'receipt.webp', caption: { bm: 'Resit pembayaran', en: 'The payment receipt' } },
       {
         kind: 'warn',
@@ -527,7 +527,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
           [{ bm: '"Menunggu kelulusan" semasa log masuk', en: '"Awaiting approval" when logging in' }, { bm: 'Persatuan anda belum meluluskan pendaftaran. Tunggu emel atau hubungi persatuan.', en: "Your association hasn't approved your registration yet. Wait for the email or contact your association." }],
           [{ bm: '"Akaun tidak aktif"', en: '"Account inactive"' }, { bm: 'Hubungi persatuan anda. Sebabnya dipaparkan semasa log masuk.', en: 'Contact your association. The reason is shown when you log in.' }],
           [{ bm: 'Aktiviti tiada dalam senarai tempahan', en: "An activity isn't in the booking list" }, { bm: 'Tambahkannya di **Data Induk**, atau semak suis **Aktif**nya dihidupkan.', en: 'Add it in **Master Data**, or check its **Active** switch is on.' }],
-          [{ bm: 'Tersilap tanda tempahan sebagai dibayar', en: 'Marked a booking as paid by mistake' }, { bm: 'Buka tempahan dan tekan **Panggil Semula**.', en: 'Open the booking and tap **Recall Booking**.' }],
+          [{ bm: 'Tersilap tanda tempahan sebagai dibayar', en: 'Marked a booking as paid by mistake' }, { bm: 'Buka tempahan dan tekan **Semak semula**.', en: 'Open the booking and tap **Recall Booking**.' }],
           [{ bm: 'Tiada internet', en: 'No internet' }, { bm: 'Tempahan yang dibuat semasa luar talian disimpan dan dihantar apabila internet kembali. Halaman yang memerlukan internet akan memberitahu anda.', en: "Bookings made offline are saved and sent when the internet is back. Pages that need the internet will tell you." }],
           [{ bm: 'Skrin nampak lama selepas kemas kini sistem', en: 'Screens look old after a system update' }, { bm: 'Log keluar dan log masuk semula, atau muat semula halaman.', en: 'Log out and back in, or reload the page.' }],
         ],
